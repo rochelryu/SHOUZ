@@ -103,14 +103,12 @@ class _MenuDrawlerState extends State<MenuDrawler>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: 110,
-                  height: 110,
+                  width: 105,
+                  height: 105,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100.00),
                       image: DecorationImage(
-                        image: NetworkImage((newClient != null)
-                            ? "${ConsumeAPI.AssetProfilServer}${newClient.images}"
-                            : ''),
+                        image: newClient != null ? NetworkImage("${ConsumeAPI.AssetProfilServer}${newClient.images}"): AssetImage("images/logos.png"),
                         fit: BoxFit.cover,
                       )),
                 ),
@@ -149,7 +147,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
+                  onTap: () async {
                     appState.setNumberNotif(0);
                     Navigator.of(context).push((MaterialPageRoute(
                         builder: (context) => Notifications())));
@@ -213,9 +211,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
       final appState = Provider.of<AppState>(context);
       try {
         appState.setJoinConnected(id);
-        setState(() {
           numberConnected++;
-        });
       } catch (e) {
         print(e);
       }

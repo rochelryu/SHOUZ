@@ -34,6 +34,17 @@ class _DetailsDealsState extends State<DetailsDeals> {
     });
   }
 
+  Future archivateProduct(String productId) async {
+    /*final data = await ConsumeAPI().deleteContrat(widget.newClient.recovery, contratid);
+    if(data['etat']) {
+      Navigator.pushNamed(context, HomeScreen.routeName);
+    } else {
+      //print(data);
+    }*/
+    print('$id et produit $productId');
+
+  }
+
   Widget build(BuildContext context) {
     bool isIos = Platform.isIOS;
     final register =
@@ -236,7 +247,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
           color: backgroundColor,
         ),
         child: Container(
-          padding: EdgeInsets.all(15.0),
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           height: 70,
           decoration: BoxDecoration(
               color: backgroundColorSec,
@@ -247,10 +258,10 @@ class _DetailsDealsState extends State<DetailsDeals> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(widget.dealsDetailsSkeleton.price.toString() + " ETH",
+                  Text(widget.dealsDetailsSkeleton.price.toString() + " XOF",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
@@ -264,11 +275,16 @@ class _DetailsDealsState extends State<DetailsDeals> {
                 children: [
                   IconButton(
 
-                      icon: Icon(Icons.delete_outline, color: colorText),
+                      icon: Icon(Icons.archive_rounded, color: colorText),
                       onPressed: (){
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                DialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit', 'Oui', () => archivateProduct(widget.dealsDetailsSkeleton.id), context),
+                            barrierDismissible: false);
                         print("delete product with id : ${widget.dealsDetailsSkeleton.id}");
                       },
-                      tooltip: 'Supprimer cet article ?',
+                      tooltip: 'Archiver cet article ?',
                       ),
                   IconButton(
 
@@ -286,10 +302,12 @@ class _DetailsDealsState extends State<DetailsDeals> {
                           borderRadius: BorderRadius.circular(20.0)),
                       child: Text("Discuter", style: Style.titre(18)),
                       onPressed: () {
+                        print('${widget.dealsDetailsSkeleton.id}, ${widget.dealsDetailsSkeleton.authorName}, ${widget.dealsDetailsSkeleton.onLine}, ${widget.dealsDetailsSkeleton.profil}, ${widget.dealsDetailsSkeleton.autor}');
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (builder) => ChatDetails(
+                                    room: '',
                                     productId: widget.dealsDetailsSkeleton.id,
                                     name: widget.dealsDetailsSkeleton.authorName,
                                     onLine: widget.dealsDetailsSkeleton.onLine,

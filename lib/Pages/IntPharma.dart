@@ -35,9 +35,7 @@ class _IntPharmaState extends State<IntPharma> {
                  child: new TextFormField(
                         decoration: new InputDecoration(
                           hintStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
-                          suffix: IconButton(
-                            icon: Icon(Icons.search, color: Colors.white),
-                          ),
+                          suffix: Icon(Icons.search, color: Colors.white),
                           prefixIcon: Icon(Icons.location_city, color: Colors.white,),
                           labelText: "Enter la ville",
                           

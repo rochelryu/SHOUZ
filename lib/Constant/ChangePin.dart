@@ -283,9 +283,9 @@ class _ChangePinState extends State<ChangePin> {
                           } else {
                             if (password != pin) {
                               prefix0.setPin(password);
-                              final info = await new ConsumeAPI()
+                              await new ConsumeAPI()
                                   .changePin(pin: password);
-                              User newClient = await DBProvider.db.getClient();
+                              await DBProvider.db.getClient();
                               Navigator.pop(context);
                             } else {
                               HapticFeedback.vibrate();

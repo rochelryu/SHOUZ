@@ -98,7 +98,7 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   Future getImage() async {
-    var image = await picker.getImage(source: ImageSource.gallery);
+    var image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       if (post.length < 1) {
@@ -734,7 +734,7 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   void _submit() async {
-    final form = formKey.currentState;
+    formKey.currentState;
     setState(() => _isLoading = true);
     //print('$nameProduct , $describe , $dropdownValue, $base64Image, $base64Video, ${dateChoice.toString()} , ${numero.toString()}, $position, $price');
     if (nameProduct.length > 7 &&

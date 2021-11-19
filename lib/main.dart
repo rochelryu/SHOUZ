@@ -1,8 +1,8 @@
-import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
@@ -80,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
   AppState appState;
   IO.Socket socket;
   int level = 15;
-  AudioPlayer audioPlayer = AudioPlayer();
   @override
   void initState() {
     super.initState();
@@ -149,19 +148,19 @@ class _MyHomePageState extends State<MyHomePage> {
       print('change avec success');
     });
     socket.on("MsToClient", (data) async {
+      appState.updateLoadingToSend(false);
       //sample event
-      print('ici hein ${appState.getIdOldConversation} == ${data['_id']}');
       if (appState.getIdOldConversation == data['_id'] ||
           appState.getIdOldConversation == '') {
         appState.setConversation(data);
       } else {
+        appState.setNumberNotif(appState.getNumberNotif + 1);
         print(
             "${data['author']} vient de vous ecrire pour un deals allez Voir");
       }
     });
     socket.on("receivedConversation", (data) {
       //sample event
-      print("receivedConversation ${data['etat']}");
       if (data['etat'] == 'found') {
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
@@ -169,12 +168,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     socket.on("receivedNotification", (data) {
       //sample event
-      print("receivedNotification ${data}");
-      audioPlayer.play(
-          "https://drive.google.com/file/d/1IlTjVTnsUTjGNA2jaAjm1SrXxp4VLn7K/view");
       appState.setNumberNotif(data);
     });
+
+    socket.on("insufficient balance", (data) {
+      Fluttertoast.showToast(
+          msg: data,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: colorError,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+
+    });
+
     socket.on("roomCreated", (data) async {
+      appState.updateLoadingToSend(false);
       //sample event
       User newClient = await DBProvider.db.getClient();
       if (newClient.ident == data['userIdScondary']) {
@@ -183,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appState.setIdOldConversation(data['_id']);
       } else {
         if (appState.getIdOldConversation == '') {
-          // for user which have created the roomsConversation
+          // for user which have not created the roomsConversation
           appState.setConversation(data);
           appState.setIdOldConversation(data['_id']);
           appState.setNumberNotif(appState.getNumberNotif + 1);
@@ -196,14 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
     socket.on("typingResponse", (data) async {
-      //sample event
-      User newClient = await DBProvider.db.getClient();
-      print('${data} ok');
-      if (newClient.ident != data['destinate'] &&
-          appState.getIdOldConversation == data['id']) {
-        // for user which have created the roomsConversation
+      if (appState.getIdOldConversation == data['id']) {
         appState.updateTyping(data['typing'] as bool);
-        // print('${data['destinate']} est entrain de write');
       }
     });
     socket.on("socket_info_connected", (data) {

@@ -11,7 +11,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 import './CreateDeals.dart';
-import 'ChoiceHobie.dart';
+import 'ChoiceOtherHobie.dart';
 
 class Deals extends StatefulWidget {
   @override
@@ -100,70 +100,74 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
               Container(
                   height: 40,
                   padding: EdgeInsets.symmetric(horizontal: 10.0),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      Container(
-                        height: 40.0,
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        decoration: BoxDecoration(
-                            color: backgroundColorSec,
-                            borderRadius: BorderRadius.circular(30.0),
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 10.0,
-                                color: backgroundColor,
-                                offset: Offset(0.0, 10.0),
-                              )
-                            ]),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(left: 17.0),
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width / 1.5,
-                              color: Colors.transparent,
-                              child: new TextField(
-                                controller: searchCtrl,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w300),
-                                cursorColor: colorText,
-                                keyboardType: TextInputType.text,
-                                decoration: InputDecoration(
-                                    hintText: "Entrer ce que vous chercher",
-                                    hintStyle: TextStyle(color: colorPrimary),
-                                    labelStyle: TextStyle(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex:11,
+                        child: Container(
+                          height: 40.0,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: backgroundColorSec,
+                              borderRadius: BorderRadius.circular(30.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 10.0,
+                                  color: backgroundColor,
+                                  offset: Offset(0.0, 10.0),
+                                )
+                              ]),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(left: 17.0),
+                                height: MediaQuery.of(context).size.height,
+                                width: MediaQuery.of(context).size.width / 1.5,
+                                color: Colors.transparent,
+                                child: new TextField(
+                                  controller: searchCtrl,
+                                  style: TextStyle(
                                       color: Colors.white,
-                                    )),
-                                onChanged: (String text) {
-                                  setState(() {
-                                    searchData = text;
+                                      fontWeight: FontWeight.w300),
+                                  cursorColor: colorText,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                      hintText: "Entrer ce que vous chercher",
+                                      hintStyle: TextStyle(color: colorPrimary),
+                                      labelStyle: TextStyle(
+                                        color: Colors.white,
+                                      )),
+                                  onChanged: (String text) {
+                                    setState(() {
+                                      searchData = text;
 
-                                    if(searchData.length == 0) {
-                                      setState(() {
-                                        dealsFull = new ConsumeAPI().getDeals();
-                                      });
+                                      if(searchData.length == 0) {
+                                        setState(() {
+                                          dealsFull = new ConsumeAPI().getDeals();
+                                        });
 
-                                    }
-                                  });
-                                },
-                                onSubmitted: (String text) {
-                                  searchDataInContext(text);
-                                },
+                                      }
+                                    });
+                                  },
+                                  onSubmitted: (String text) {
+                                    searchDataInContext(text);
+                                  },
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.search, color: Colors.white),
-                              onPressed: () {
-                                searchDataInContext(searchData);
-                              },
-                            )
-                          ],
+                              IconButton(
+                                icon: Icon(Icons.search, color: Colors.white),
+                                onPressed: () {
+                                  searchDataInContext(searchData);
+                                },
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                      ButtonRyu,
+                      Expanded(
+                        flex: 1,
+                          child: ButtonRyu),
                     ],
                   )),
               SizedBox(height: 5.0),
@@ -191,7 +195,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 ),
               ),
               new Container(
-                height: MediaQuery.of(context).size.height / 1.47,
+                height: MediaQuery.of(context).size.height - 200,
                 child: new TabBarView(
                   physics: NeverScrollableScrollPhysics(),
                   controller: _controller,
@@ -767,7 +771,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => ChoiceHobie())));
+                                                  builder: (context) => ChoiceOtherHobie())));
                                             },
                                             child: Text('Ajouter Préférence'),
                                             style: ElevatedButton.styleFrom(
@@ -1399,7 +1403,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => ChoiceHobie())));
+                                                  builder: (context) => ChoiceOtherHobie())));
                                             },
                                             child: Text('Ajouter Préférence'),
                                             style: ElevatedButton.styleFrom(
@@ -2025,7 +2029,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => ChoiceHobie())));
+                                                  builder: (context) => ChoiceOtherHobie())));
                                             },
                                             child: Text('Ajouter Préférence'),
                                             style: ElevatedButton.styleFrom(

@@ -82,7 +82,7 @@ class _LoginState extends State<Login> {
                               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "01 23 45 67",
+                                hintText: "XXXXXXXXXX",
                                 hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
                               ),
                               onChanged: (text){

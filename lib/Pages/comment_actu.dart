@@ -148,11 +148,11 @@ class _CommentActuState extends State<CommentActu> {
                       children: [
                         Expanded(
                           child: ListView.builder(
-                              itemCount: comment.length + 1,
+                              itemCount: comment.length + 2,
                               itemBuilder: (context, index) {
                                 if(index == 0) {
                                   return SizedBox(height: 10);
-                                } else {
+                                } else if(index > 0 && index < comment.length + 1) {
                                   return ListTile(
                                     leading: Container(
                                       width: 50,
@@ -171,6 +171,8 @@ class _CommentActuState extends State<CommentActu> {
                                     subtitle: Text(comment[index - 1]['content']),
 
                                   );
+                                } else {
+                                  return SizedBox(height: 80);
                                 }
                               }
                           ),

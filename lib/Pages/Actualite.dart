@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geocoder/geocoder.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:location/location.dart';
 import 'package:shouz/Constant/CardTopNewActu.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -28,48 +28,74 @@ class _ActualiteState extends State<Actualite> {
   Future<Map<String, dynamic>> topActualite;
   Future<Map<String, dynamic>> contentActulite;
 
+
   getPositionCurrent() async {
     try {
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
-          return;
-        }
-      }
-
       _permissionGranted = await location.hasPermission();
       if (_permissionGranted == PermissionStatus.denied) {
         _permissionGranted = await location.requestPermission();
         if (_permissionGranted != PermissionStatus.granted) {
           return;
+        } else {
+          _serviceEnabled = await location.serviceEnabled();
+          if (!_serviceEnabled) {
+            _serviceEnabled = await location.requestService();
+            if (!_serviceEnabled) {
+              return;
+            }
+          }
+          var test = await location.getLocation();
+          setState(() {
+            locationData = test;
+          });
         }
+      } else {
+        _serviceEnabled = await location.serviceEnabled();
+        if (!_serviceEnabled) {
+          _serviceEnabled = await location.requestService();
+          if (!_serviceEnabled) {
+            return;
+          }
+        }
+        var test = await location.getLocation();
+        setState(() {
+          locationData = test;
+        });
       }
-      var test = await location.getLocation();
-      setState(() {
-        locationData = test;
-      });
+
     } catch (e) {
       print("nous avons une erreur $e");
     }
   }
 
   cityFromCoord() async {
-    final coordinates =
-        new Coordinates(locationData.latitude, locationData.longitude);
+
     final addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    final first = addresses.first;
+        await geocoding.placemarkFromCoordinates(locationData.latitude, locationData.longitude);
+    geocoding.Placemark first = addresses.first;
 
     String finalPosition;
     if (first.locality != null) {
       finalPosition =
-          first.locality + ' ' + first.featureName + ', ' + first.countryCode;
+          first.locality + ' ' + first.name + ', ' + first.isoCountryCode;
     } else {
-      finalPosition = first.featureName + first.countryName;
+      finalPosition = first.name + first.country;
     }
     finalPosition = finalPosition.trim();
-    print('longueur ici ${locationData.longitude} ${locationData.latitude} ${locationData.speedAccuracy}');
+    //print('geocoding name ${first.name} locality ${first.locality} country ${first.country} street ${first.street} isoCountryCode ${first.isoCountryCode} administrativeArea ${first.administrativeArea} postalCode ${first.postalCode} subAdministrativeArea${first.subAdministrativeArea} subLocality ${first.subLocality} subThoroughfare ${first.subThoroughfare} thoroughfare ${first.thoroughfare}');
+    /*
+    geocoding name District Autonome d'Abidjan
+    locality Abidjan
+    country Côte d'Ivoire
+    street Unnamed Road
+    isoCountryCode CI
+    administrativeArea District Autonome d'Abidjan
+    postalCode
+    subAdministrativeArea Abidjan
+    subLocality Cocody
+    subThoroughfare
+    thoroughfare
+     */
     final meteo = await new ConsumeAPI()
         .getMeteo(locationData.latitude, locationData.longitude);
     final user = await new ConsumeAPI().updatePosition(
@@ -82,7 +108,7 @@ class _ActualiteState extends State<Actualite> {
         firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
         secondTextMeteo = (first.locality != null)
             ? "à ${first.locality} actuellement"
-            : "à ${first.addressLine} actuellement";
+            : "à ${first.street} actuellement";
       });
     }
     if (user['etat'] == 'found') {
@@ -100,7 +126,7 @@ class _ActualiteState extends State<Actualite> {
     topActualite = new ConsumeAPI().getActualite();
     contentActulite = topActualite;
 
-    new Timer(const Duration(seconds: 2), cityFromCoord);
+    new Timer(const Duration(seconds: 5), cityFromCoord);
   }
 
   Widget listItemCustom(BuildContext context, String categorieName,

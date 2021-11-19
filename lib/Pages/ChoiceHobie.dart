@@ -30,16 +30,8 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    loadPreference();
     populaireInitial = new ConsumeAPI().getAllCategrie("", "only");
     populaire = new ConsumeAPI().getAllCategrie("", "only");
-  }
-
-  loadPreference() async {
-    final preference = await new ConsumeAPI().getAllPreference();
-    setState(() {
-      choice = preference;
-    });
   }
 
   @override
@@ -71,7 +63,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);
-                        prefix0.setLevel(5);
+                        prefix0.setLevel(6);
                         setState(() {
                           changeLoading = false;
                         });

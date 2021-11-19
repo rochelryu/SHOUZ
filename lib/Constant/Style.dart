@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shouz/Utils/Database.dart';
 
@@ -638,9 +637,9 @@ class Style {
     );
   }
 
-  static dynamic contextNotif() {
+  static dynamic contextNotif([double size = 15.0]) {
     return TextStyle(
-      fontSize: 15.0,
+      fontSize: size,
       fontFamily: "Montserrat-Light",
       color: colorPrimary,
     );
@@ -663,9 +662,9 @@ class Style {
     );
   }
 
-  static dynamic titleInSegment() {
+  static dynamic titleInSegment([double size = 14.0]) {
     return TextStyle(
-      fontSize: 14.0,
+      fontSize: size,
       fontFamily: "Montserrat-Light",
       color: colorPrimary,
       letterSpacing: 1.0,
@@ -774,17 +773,6 @@ resetAllData() async {
   await DBProvider.db.delClient();
   await DBProvider.db.delAllHobies();
   setLevel(0);
-}
-
-coordFromCity(String origine) async {
-  List<Address> addresses =
-      await Geocoder.local.findAddressesFromQuery(origine);
-  print(addresses);
-  if (addresses.length > 0) {
-    Address address = addresses.first;
-    Coordinates coords = address.coordinates;
-    return coords;
-  }
 }
 
 String dateFormatForTimesAgo(dynamic registerDate) {
@@ -899,6 +887,67 @@ Widget DialogCustomError(String title, String message, BuildContext context) {
             Navigator.of(context).pop();
           })
     ],
+  );
+}
+
+Widget DialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context) {
+  bool isIos = Platform.isIOS;
+  return isIos
+      ? new CupertinoAlertDialog(
+    title: Text(title),
+    content: Text(message),
+    actions: <Widget>[
+      CupertinoDialogAction(
+          child: Text("Annuler", style: Style.chatOutMe(15),),
+          onPressed: () {
+            Navigator.of(context).pop();
+          }),
+      CupertinoDialogAction(
+          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError(),),
+          onPressed: () async {
+            await callback();
+            Navigator.of(context).pop();
+          }),
+    ],
+  )
+      : new AlertDialog(
+    title: Text(title),
+    content: Text(message),
+    elevation: 20.0,
+    shape:
+    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    actions: <Widget>[
+      FlatButton(
+          child: Text("Annuler", style: Style.chatOutMe(15),),
+          onPressed: () {
+            Navigator.of(context).pop();
+          }),
+      FlatButton(
+          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError()),
+          onPressed: () {
+            callback();
+            Navigator.of(context).pop();
+          }),
+    ],
+  );
+}
+
+Widget LivraisonWidget(String assetFile, String title) {
+  return Container(
+    width: 120,
+    height: 70,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          child: Image.asset(assetFile, fit: BoxFit.contain),
+        ),
+        SizedBox(height: 5),
+        Text(title, style: Style.chatIsMe(12))
+      ],
+    ),
   );
 }
 

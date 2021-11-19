@@ -9,21 +9,24 @@ import 'package:shouz/Utils/network_util.dart';
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
   static final BASE_URL =
-      "http://192.168.1.131:8000"; // 192.168.1.100 127.0.0.1 172.20.10.4 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "http://192.168.1.180:8000"; // 192.168.1.100 127.0.0.1 172.20.10.4 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
   static final SIGINSECONDSTEP_URL = BASE_URL + "/client/secondStep";
+  static final UPDATEHOBIE_URL = BASE_URL + "/client/updateHobbies";
   static final UPDATEPOSITION_URL = BASE_URL + "/client/updateCurentPosition";
   static final SETTINGS_URL = BASE_URL + "/client/settings";
   static final ADD_COMMENT_ON_ACTUALITY_URL = BASE_URL + "/client/addComment";
   static final GET_PROFIL_URL = BASE_URL + "/client/getProfil";
   static final UPDATE_PROFIL_PICTURE_URL = BASE_URL + "/client/changeProfil";
   static final UPDATE_PROFIL_PIN_URL = BASE_URL + "/client/updatePin";
+  static final VIDE_NOTIFICATION_URL = BASE_URL + "/client/videNotif";
+  static final ALL_NOTIFICATION_URL = BASE_URL + "/client/getAllNotif";
   static final ALL_CATEGIRES_URL = BASE_URL + "/categorie/all";
   static final SET_EVENT_URL = BASE_URL + "/event/inside";
   static final SET_SUBSCRIBE_EVENT_URL = BASE_URL + "/client/subscribeEvent";
   static final SET_BUY_EVENT_URL = BASE_URL + "/event/buyTicket";
-  static final SET_DEALS_URL = BASE_URL + "/products/inside";
+
   static final ALL_CATEGIRES_WITHOUT_FILTER_URL =
       BASE_URL + "/categorie/display";
   static final VERIFY_CATEGIRES = BASE_URL + "/categorie/verify";
@@ -32,6 +35,8 @@ class ConsumeAPI {
   static final GET_ACTUALITE_URL = BASE_URL + "/actualite/getActualite";
   static final GET_COMMENT_ACTUALITE_URL = BASE_URL + "/client/getCommentAllInfo";
   static final GET_VERIFY_ITEM_IN_FAVOR_URL = BASE_URL + "/client/verifyIfExistItemInFavor";
+  static final SET_DEALS_URL = BASE_URL + "/products/inside";
+  static final GET_DETAILS_URL = BASE_URL + "/products/getDetailsOfProduct";
   static final GET_PRODUCT_URL = BASE_URL + "/products/getProduct";
   static final GET_TRAVEL_URL = BASE_URL + "/travel/getTravel";
   static final GET_EVENT_URL = BASE_URL + "/event/getEvent";
@@ -44,7 +49,7 @@ class ConsumeAPI {
   static final AssetCovoiturageServer = BASE_URL + "/covoiturage/";
   static final AssetPublicServer = BASE_URL + "/public/";
   static final AssetConversationServer = BASE_URL + "/public/conversation/";
-  static final _API_KEY = "somerandomkey";
+  //static final _API_KEY = "somerandomkey";
 
   // For signin
   signin(String numero, String prefix) {
@@ -61,7 +66,22 @@ class ConsumeAPI {
       "images": images,
       "base64": base64,
       "name": newClient.name,
-      "choice": choice.join(' '),
+      "choice": choice.join(','),
+      "recovery": newClient.recovery
+    }).then((dynamic res) {
+      if (res["etat"] == "found") {
+        return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
+      } else {
+        return {'etat': res["etat"]};
+      }
+    });
+  }
+
+  updateHobie(List<dynamic> choice) async {
+    User newClient = await DBProvider.db.getClient();
+    return _netUtil.post(UPDATEHOBIE_URL, body: {
+      "id": newClient.ident,
+      "choice": choice.join(','),
       "recovery": newClient.recovery
     }).then((dynamic res) {
       if (res["etat"] == "found") {
@@ -103,14 +123,7 @@ class ConsumeAPI {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
         '$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
-
-    print("Par ici l'info est passé");
-    print(res['info']);
-    print("Par lá l'info est done");
-
-    print("Par ${res['info']['recovery']} ${res['info']['name']}");
     final user = User.fromJson(res['info']);
-    print("Par " + user.recovery);
     await DBProvider.db.delClient();
     await DBProvider.db.delAllHobies();
     await DBProvider.db.newClient(user);
@@ -197,11 +210,24 @@ class ConsumeAPI {
         .post(SET_SUBSCRIBE_EVENT_URL, body: jsonData)
         .then((dynamic res) async {
       if (res['etat'] == 'found') {
-        final newUser = await DBProvider.db
+        await DBProvider.db
             .updateClientWallet(res['result']['wallet'], newClient.ident);
       }
       return res['etat'];
     });
+  }
+
+  Future<String> videNotif() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$VIDE_NOTIFICATION_URL/${newClient.ident}');
+    return res['etat'];
+  }
+
+  Future<Map<dynamic, dynamic>> getAllNotif() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$ALL_NOTIFICATION_URL/${newClient.ident}');
+    return res;
   }
 
   // For Meteo
@@ -216,7 +242,7 @@ class ConsumeAPI {
   // For Actualite
   Future<Map<String, dynamic>> getActualite() async {
     User newClient = await DBProvider.db.getClient();
-    final _sysLng = ui.window.locale.languageCode;
+    //final _sysLng = ui.window.locale.languageCode;
     final res = await _netUtil.get('$GET_ACTUALITE_URL/${newClient.ident}');
     //print(res);
     return res;
@@ -244,6 +270,11 @@ class ConsumeAPI {
   Future<List<dynamic>> getDeals() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}');
+    return res;
+  }
+
+  Future<Map<dynamic,dynamic>> getDetailsDeals(String productid) async {
+    final res = await _netUtil.get('$GET_DETAILS_URL/$productid');
     return res;
   }
 

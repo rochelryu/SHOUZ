@@ -34,7 +34,7 @@ class _CardScrollWidgetState extends State<CardScrollWidget> {
           var primaryCardLeft = safeWidth - widthOfPrimaryCard;
           var horizontalInset = primaryCardLeft / 2;
 
-          List<Widget> cardList = new List();
+          List<Widget> cardList = [];
 
           for (var i = 0; i < dealsList.length; i++) {
             var delta = i - widget._currentPage;

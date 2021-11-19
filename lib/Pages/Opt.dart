@@ -476,12 +476,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         _thirdDigit = _currentDigit;
       } else if (_fourthDigit == null) {
         _fourthDigit = _currentDigit;
-
-        var otp = _firstDigit.toString() +
-            _secondDigit.toString() +
-            _thirdDigit.toString() +
-            _fourthDigit.toString();
-        // Verify your otp by here. API call
       }
     });
   }

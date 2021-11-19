@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import './CovoiturageChoicePlace.dart';
 
-import 'package:speech_recognition/speech_recognition.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 
 import 'package:location/location.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
-import 'package:geocoder/geocoder.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 
 import 'package:loading/loading.dart';
 
@@ -66,9 +67,10 @@ class _CovoiturageState extends State<Covoiturage> {
   Future<Map<String, dynamic>> covoiturage;
 
 
-  SpeechRecognition _speech;
-  bool _speechRecognitionAvailable = false;
+  SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
   bool _isListening = false;
+  String _lastWords = '';
 
   bool trueLoad = true;
 
@@ -82,9 +84,11 @@ class _CovoiturageState extends State<Covoiturage> {
     super.initState();
 
     location = new Location();
-    getPositionCurrent();
-    activateSpeechRecognizer();
     internetCheck();
+    getPositionCurrent();
+    //activateSpeechRecognizer();
+
+    _initSpeech();
   }
 
   void internetCheck() async{
@@ -102,41 +106,7 @@ class _CovoiturageState extends State<Covoiturage> {
     }
   }
 
-  void activateSpeechRecognizer() {
-    _speech = new SpeechRecognition();
-    _speech.setAvailabilityHandler(
-            (bool result) => setState(() => _speechRecognitionAvailable = result)
-    );
-    _speech.setRecognitionStartedHandler(() => setState(() => _isListening = true));
-    _speech.setRecognitionResultHandler((String text) {
-      if(!ori){
-        setState((){
-          destination = text;
-        });
-        eCtrl2.text = destination;
-      }
-      else{
-        setState(() {
-          origine = text;
-        });
-        eCtrl.text = origine;
-      }
-    });
 
-    //_speech.setCurrentLocaleHandler(onCurrentLocale);
-    _speech.setRecognitionCompleteHandler(() {
-      setState(() => _isListening = false);
-      if(!ori){
-        coordFromCity();
-      }
-      else{
-        coordFromCityTwo();
-      }
-    });
-    _speech
-        .activate()
-        .then((res) => setState(() => _speechRecognitionAvailable = res));
-  }
 
 
   getPositionCurrent() async{
@@ -155,13 +125,12 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load2 = true;
     });
-    List<Address> addresses = await Geocoder.local.findAddressesFromQuery(origine);
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress(origine);
     if(addresses.length > 0){
-      Address address = addresses.first;
-      Coordinates coords = address.coordinates;
+      geocoding.Location address = addresses.first;
       if(global.length > 1){
         setState(() {
-          global[1] = new LatLng(coords.latitude, coords.longitude);
+          global[1] = new LatLng(address.latitude, address.longitude);
           load2 = false;
           eCtrl.text = origine;
         });
@@ -170,7 +139,7 @@ class _CovoiturageState extends State<Covoiturage> {
       }
       else{
         setState(() {
-          global.add(new LatLng(coords.latitude, coords.longitude));
+          global.add(new LatLng(address.latitude, address.longitude));
           load2 = false;
           eCtrl.text = origine;
         });
@@ -183,13 +152,12 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load1 = true;
     });
-    List<Address> addresses = await Geocoder.local.findAddressesFromQuery(destination);
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress(destination);
     if(addresses.length > 0){
-      Address address = addresses.first;
-      Coordinates coords = address.coordinates;
+      geocoding.Location address = addresses.first;
       if(global.length > 0){
         setState(() {
-          global[0] = new LatLng(coords.latitude, coords.longitude);
+          global[0] = new LatLng(address.latitude, address.longitude);
           eCtrl2.text = destination;
           load1 = false;
           ori = true;
@@ -197,7 +165,7 @@ class _CovoiturageState extends State<Covoiturage> {
       }
       else{
         setState(() {
-          global.add(new LatLng(coords.latitude, coords.longitude));
+          global.add(new LatLng(address.latitude, address.longitude));
           eCtrl2.text = destination;
           load1 = false;
           ori = true;
@@ -253,14 +221,13 @@ class _CovoiturageState extends State<Covoiturage> {
 }
 
 
-  mapping(BuildContext context, latitude, longitude){
+  mapping(BuildContext context, double latitude, double longitude){
     return new Stack(
       fit: StackFit.expand,
       children: <Widget>[
         new FlutterMap(
             options: new MapOptions(
-                center: new LatLng(latitude, longitude),
-                interactive: true,
+                center: LatLng(latitude, longitude),
                 minZoom: 4.0,
               zoom: 7.0,
             ),
@@ -276,7 +243,7 @@ class _CovoiturageState extends State<Covoiturage> {
                 new Marker(
                     width: 45.0,
                     height: 45.0,
-                    point: new LatLng(latitude, longitude),
+                    point: LatLng(latitude, longitude),
                     builder: (context) => new Container(
                       child: Icon(Icons.location_on, color: colorText, size: 45.0),
                     ))
@@ -531,13 +498,20 @@ class _CovoiturageState extends State<Covoiturage> {
                         ),
                       ),
                       InkWell(
-                        child: (!_isListening && _speechRecognitionAvailable) ? Icon(Icons.mic, color: Colors.black87, size: 25.0) : Icon(Icons.stop, color: Colors.black87, size: 25.0),
+                        child: (!_isListening && _speechEnabled && meac1) ? Icon(Icons.mic, color: Colors.black87, size: 25.0) : Icon(Icons.stop, color: Colors.black87, size: 25.0),
                         onTap: (){
-                          if(!_isListening && _speechRecognitionAvailable) {
-                            _speech.listen(locale: 'fr_FR').then((result)=>print("avec mention même $result"));
+                          if(!_isListening && _speechEnabled) {
+                            setState(() {
+                              meac1 = false;
+                            });
+                            _startListening();
                           }
                           else if(_isListening){
-                            _speech.stop().then((resul)=>print("dernier ${resul}"));
+                            setState(() {
+                              meac1 = true;
+                            });
+                            _stopListening();
+
                           }
                         },
                       )
@@ -585,13 +559,19 @@ class _CovoiturageState extends State<Covoiturage> {
                             ),
                           ),
                           InkWell(
-                            child: (!_isListening && _speechRecognitionAvailable) ? Icon(Icons.mic, color: Colors.black87, size: 25.0) : Icon(Icons.stop, color: Colors.black87, size: 25.0),
+                            child: (!_isListening && _speechEnabled && meac2) ? Icon(Icons.mic, color: Colors.black87, size: 25.0) : Icon(Icons.stop, color: Colors.black87, size: 25.0),
                             onTap: (){
-                              if(!_isListening && _speechRecognitionAvailable) {
-                                _speech.listen(locale: 'fr_FR').then((result)=>print("avec mention même $result"));
+                              if(!_isListening && _speechEnabled) {
+                                setState(() {
+                                  meac2 = false;
+                                });
+                                _startListening();
                               }
                               else if(_isListening){
-                                _speech.stop().then((resul)=>print("dernier ${resul}"));
+                                setState(() {
+                                  meac2 = true;
+                                });
+                                _stopListening();
                               }
                             },
                           )
@@ -630,6 +610,86 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() => selectedLang = lang);
   }
 
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  /// Each time to start a speech recognition session
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {
+      _isListening = true;
+    });
+  }
+
+  /// Manually stop the active speech recognition session
+  /// Note that there are also timeouts that each platform enforces
+  /// and the SpeechToText plugin supports setting timeouts on the
+  /// listen method.
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
+  }
+
+  /// This is the callback that the SpeechToText plugin calls when
+  /// the platform returns recognized words.
+  void _onSpeechResult(SpeechRecognitionResult result) {
+
+    if(!ori){
+      setState((){
+        destination = result.recognizedWords;
+      });
+      eCtrl2.text = destination;
+    }
+    else{
+      setState(() {
+        origine = result.recognizedWords;
+      });
+      eCtrl.text = origine;
+    }
+  }
+
+
+
+  /*void activateSpeechRecognizer() {
+    _speech = new SpeechRecognition();
+    _speech.setAvailabilityHandler(
+            (bool result) => setState(() => _speechRecognitionAvailable = result)
+    );
+    _speech.setRecognitionStartedHandler(() => setState(() => _isListening = true));
+    _speech.setRecognitionResultHandler((String text) {
+      if(!ori){
+        setState((){
+          destination = text;
+        });
+        eCtrl2.text = destination;
+      }
+      else{
+        setState(() {
+          origine = text;
+        });
+        eCtrl.text = origine;
+      }
+    });
+
+    //_speech.setCurrentLocaleHandler(onCurrentLocale);
+    _speech.setRecognitionCompleteHandler(() {
+      setState(() => _isListening = false);
+      if(!ori){
+        coordFromCity();
+      }
+      else{
+        coordFromCityTwo();
+      }
+    });
+    _speech
+        .activate()
+        .then((res) => setState(() => _speechRecognitionAvailable = res));
+  }
+
   void start() => _speech
       .listen(locale: selectedLang.code)
       .then((result) => print('_MyAppState.start => result $result'));
@@ -656,7 +716,7 @@ class _CovoiturageState extends State<Covoiturage> {
 
   void onRecognitionComplete() => setState(() => _isListening = false);
 
-  void errorHandler() => activateSpeechRecognizer();
+  void errorHandler() => activateSpeechRecognizer();*/
 }
 
 

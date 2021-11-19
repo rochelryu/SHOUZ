@@ -1,19 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:loading/loading.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:timeline_tile/timeline_tile.dart';
 
 class ChatDetails extends StatefulWidget {
   var name;
@@ -21,21 +25,30 @@ class ChatDetails extends StatefulWidget {
   var authorId;
   var productId;
   var profil;
+  var room;
   @override
-  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId});
+  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId, this.room});
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
-class _ChatDetailsState extends State<ChatDetails> {
+class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStateMixin {
   User newClient;
   TextEditingController eCtrl = new TextEditingController();
   ScrollController _scrollController = new ScrollController();
+  TabController _tabController;
+  var scaffoldKey = GlobalKey<ScaffoldState>();
   File _image;
   int decompte = 0;
   final picker = ImagePicker();
+  Map<dynamic, dynamic> productDetails;
+
+  String price = "";
+  TextEditingController priceCtrl = new TextEditingController();
+  String quantity = "";
+  TextEditingController quantityCtrl = new TextEditingController();
 
   Future getImage() async {
-    var image = await picker.getImage(source: ImageSource.gallery);
+    var image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
@@ -45,12 +58,14 @@ class _ChatDetailsState extends State<ChatDetails> {
   }
 
   var message = "";
+  String room = '';
 
   AppState appState;
 
   @override
   void initState() {
     super.initState();
+    _tabController = new TabController(length: 2, vsync: this);
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
 
@@ -71,10 +86,18 @@ class _ChatDetailsState extends State<ChatDetails> {
 
   @override
   dispose() {
-    super.dispose();
-    appState.updateTyping(false);
+
+    /*appState.updateTyping(false);
     appState.setConversation({});
-    appState = null;
+    appState = null;*/
+    super.dispose();
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
   }
 
   getMessage() {}
@@ -82,10 +105,15 @@ class _ChatDetailsState extends State<ChatDetails> {
   loadProfil() async {
     final client = await DBProvider.db.getClient();
 
+    final room = widget.room == '' ? "${widget.authorId}_${client.ident}_${widget.productId}": widget.room;
+    print('room $room');
+    appState.getConversation(room);
+    final productInfo = await new ConsumeAPI().getDetailsDeals(room.toString().split('_')[2]);
     setState(() {
+      this.room = room.toString();
+      productDetails = productInfo;
       newClient = client;
     });
-    appState.getConversation("${widget.authorId}_${newClient.ident}_${widget.productId}");
   }
 
   inWrite(bool etat, String id) async {
@@ -105,11 +133,10 @@ class _ChatDetailsState extends State<ChatDetails> {
                 int.parse(value['date'].substring(8, 10))))
             .inDays;
         bool isMe = (newClient.ident == value['ident']) ? true : false;
-//        print(date);
         if (date == 1) {
           if (!again) {
             tabs.add(Text("Hier",
-                style: prefix0.Style.sousTitre(10),
+                style: Style.sousTitre(10),
                 textAlign: TextAlign.center));
             again = true;
           }
@@ -122,7 +149,7 @@ class _ChatDetailsState extends State<ChatDetails> {
         } else if (date < 1) {
           if (!againToday) {
             tabs.add(Text("Aujourd'hui",
-                style: prefix0.Style.sousTitre(10),
+                style: Style.sousTitre(10),
                 textAlign: TextAlign.center));
             againToday = true;
           }
@@ -145,7 +172,252 @@ class _ChatDetailsState extends State<ChatDetails> {
         }
       }).toList();
     }
+    if(conversation['etatCommunication'] == 'Seller and Buyer validate price final') {
+      tabs.add(
+        Container(
+          height: 120,
+          width: MediaQuery.of(context).size.width,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TimelineTile(
+                axis: TimelineAxis.horizontal,
+                alignment: TimelineAlign.manual,
+                isFirst: true,
+                lineXY: 0.8,
+                afterLineStyle: LineStyle(
+                    color: colorSuccess
+                ),
+                indicatorStyle: IndicatorStyle(
+                  color: conversation['levelDelivery'] == 0 ? colorSecondary : colorSuccess,
+                ),
+                startChild: LivraisonWidget('images/chez_client.png', 'Niveau Vendeur'),
+              ),
+              TimelineTile(
+                axis: TimelineAxis.horizontal,
+                alignment: TimelineAlign.manual,
+                lineXY: 0.8,
+                beforeLineStyle: LineStyle(
+                  color: conversation['levelDelivery'] >= 1 ? colorSuccess:  colorSecondary,
+                ),
+                afterLineStyle: LineStyle(
+                    color: conversation['levelDelivery'] >= 2 ? colorSuccess:  colorSecondary,
+                ),
+                indicatorStyle: IndicatorStyle(
+                  color: conversation['levelDelivery'] >= 1 ? colorSuccess:  colorSecondary,
+                ),
+                startChild: LivraisonWidget(conversation['levelDelivery'] >= 1 ? 'images/reception_shouz.png': 'images/reception_shouz_off.png', 'Niveau Shouz'),
+              ),
+              TimelineTile(
+                axis: TimelineAxis.horizontal,
+                alignment: TimelineAlign.manual,
+                lineXY: 0.8,
+                isLast: true,
+                beforeLineStyle: LineStyle(
+                  color: conversation['levelDelivery'] >= 3 ? colorSuccess:  colorSecondary,
+                ),
+
+                indicatorStyle: IndicatorStyle(
+                  color: conversation['levelDelivery'] >= 3 ? colorSuccess:  colorSecondary,
+                ),
+                startChild: LivraisonWidget(conversation['levelDelivery'] >= 3 ? 'images/client_a_colis.png': 'images/client_a_colis_off.png', 'Niveau Client'),
+              ),
+            ],
+          )
+        ),
+      );
+    }
     return tabs;
+  }
+  Widget propositionAuteur(String etatCommunication, bool iAmAuteur, int priceFinal, int qte) {
+    if(etatCommunication == 'Conversation between users'){
+      if(iAmAuteur) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Prix Total Proposé', style: Style.chatIsMe(13)),
+                    new Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: 60,
+                          width: double.infinity,
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Card(
+                                  color: Colors.transparent,
+                                  elevation: 2.0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50.0)),
+                                  child: Container(
+                                    height: 50,
+                                    width: MediaQuery.of(context).size.width * 0.25,
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                        color: backgroundColorSec,
+                                        border: Border.all(
+                                            width: 1.0,
+                                            color: colorText),
+                                        borderRadius: BorderRadius.circular(50.0)),
+                                    child: new TextField(
+                                      controller: priceCtrl,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w300),
+                                      cursorColor: colorText,
+                                      onChanged: (text) {
+                                        setState(() {
+
+                                          price = text.toString();
+                                        });
+                                      },
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: "Prix vente",
+                                          hintStyle: TextStyle(
+                                            color: Colors.white,
+                                          )),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                        )),
+                  ],
+                ),
+            ),
+            Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Qte Totale Proposée', style: Style.chatIsMe(13)),
+                    new Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Card(
+                              color: Colors.transparent,
+                              elevation: 2.0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50.0)),
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: backgroundColorSec,
+                                    border: Border.all(
+                                        width: 1.0,
+                                        color: colorText),
+                                    borderRadius: BorderRadius.circular(50.0)),
+                                child: new TextField(
+                                  controller: quantityCtrl,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300),
+                                  cursorColor: colorText,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      quantity = text.toString();
+                                    });
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Quantité",
+                                      hintStyle: TextStyle(
+                                        color: Colors.white,
+                                      )),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ),
+                    ),
+                  ],
+                )
+            )
+          ],
+        );
+      } else {
+        return Center(
+          child: Text('Pas encore de proposition faites pour le vendeur', style: Style.chatIsMe(15)),
+        );
+      }
+    } else if (etatCommunication == 'Seller Purpose price final at buyer') {
+      return Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Prix Proposé', style: Style.chatIsMe(15)),
+                Text(priceFinal.toString() + ' Fcfa', style: Style.titleNews()),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Qte Restante', style: Style.chatIsMe(15)),
+                Text(qte.toString(), style: Style.titleNews()),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (etatCommunication ==  'Seller and Buyer validate price final') {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Prix Proposé', style: Style.chatIsMe(15)),
+                        Text(priceFinal.toString() + ' Fcfa', style: Style.titleNews()),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Qte Restante', style: Style.chatIsMe(15)),
+                        Text(qte.toString(), style: Style.titleNews()),
+                      ],
+                    ),
+                  ),
+                  Text('Vendeur et Acheteur se sont entendus sur cette proposition 🤝', textAlign: TextAlign.center, style: Style.titleNews(),)
+                ],
+              )
+          ),
+        ],
+      );
+    } else {
+      return SizedBox(width: 20);
+    }
   }
 
   @override
@@ -153,16 +425,29 @@ class _ChatDetailsState extends State<ChatDetails> {
     appState = Provider.of<AppState>(context);
     final conversation = appState.getConversationGetter;
     Timer(
-        Duration(milliseconds: 100),
+        Duration(milliseconds: 500),
         () => _scrollController
             .jumpTo(_scrollController.position.maxScrollExtent));
 
     return new Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      key: scaffoldKey,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: prefix0.backgroundColor,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.book_outlined),
+            onPressed: () {
+              scaffoldKey.currentState?.openEndDrawer();
+            },
+          ),
+        ],
+        backgroundColor: backgroundColor,
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            IconButton(onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(Icons.arrow_back)),
             Container(
               height: 40,
               width: 40,
@@ -184,28 +469,28 @@ class _ChatDetailsState extends State<ChatDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(widget.name.toString().split('_')[0],
-                    maxLines: 1, style: prefix0.Style.titleInSegment()),
+                  maxLines: 2, style: Style.titleInSegment(12.0), overflow: TextOverflow.ellipsis),
                 Text(widget.onLine ? "En ligne" : "Déconnecté",
-                    style: prefix0.Style.sousTitre(10)),
-                (new Random().nextInt(3) == 0)
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(width: 8),
-                          appState.getTyping
-                              ? Loading(
-                                  indicator: BallPulseIndicator(), size: 10.0)
-                              : SizedBox(width: 8),
-                        ],
-                      )
-                    : SizedBox(width: 1.0),
+                    style: Style.sousTitre(10)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(width: 8),
+                    appState.getTyping
+                        ? Loading(
+                        indicator: BallPulseIndicator(), size: 10.0)
+                        : SizedBox(width: 8),
+                  ],
+                )
               ],
             )
           ],
         ),
         centerTitle: false,
       ),
-      body: GestureDetector(
+      body: newClient == null ? Center(
+        child: Loading(indicator: BallPulseIndicator(), size: 66.0),
+      ) : GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Stack(
           children: <Widget>[
@@ -221,7 +506,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: EdgeInsets.only(
-                                top: 5.0, left: 5.0, right: 5.0, bottom: 70.0),
+                                top: 5.0, left: 5.0, right: 5.0, bottom: conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? 10 :70.0),
                             child: Column(
                               children: reformateView(conversation),
                             ),
@@ -231,7 +516,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                 ],
               ),
             ),
-            Positioned(
+            conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? SizedBox(width: 10):Positioned(
               bottom: 0,
               left: 0,
               width: MediaQuery.of(context).size.width,
@@ -274,7 +559,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                           children: <Widget>[
                             IconButton(
                               icon: Icon(MyFlutterAppSecond.attach,
-                                  color: prefix0.colorText),
+                                  color: colorText),
                               onPressed: getImage,
                             ),
                             Expanded(
@@ -282,86 +567,97 @@ class _ChatDetailsState extends State<ChatDetails> {
                                 controller: eCtrl,
                                 textCapitalization:
                                     TextCapitalization.sentences,
-                                style: prefix0.Style.chatOutMe(14),
+                                style: Style.chatOutMe(14),
                                 keyboardType: TextInputType.text,
                                 maxLines: 1,
                                 decoration: InputDecoration(
                                     hintText: "Entrer le message",
                                     border: InputBorder.none,
-                                    hintStyle: prefix0.Style.sousTitre(14)),
+                                    hintStyle: Style.sousTitre(14)),
                                 onChanged: (text) async {
                                   setState(() {
                                     message = text;
                                     if (message.length == 1) {
-                                      print(message);
-                                      inWrite(true, widget.authorId);
+                                      inWrite(true, room);
                                       // appState.setTyping(true, widget.authorId);
                                     } else if (message.length == 0) {
-                                      print(false);
-                                      inWrite(false, widget.authorId);
+                                      inWrite(false, room);
                                       // appState.setTyping(false, widget.authorId);
                                     }
                                   });
                                 },
                               ),
                             ),
-                            IconButton(
+                            appState.getLoadingToSend ?  Loading(indicator: BallSpinFadeLoaderIndicator(), size: 6.0) : IconButton(
                               icon: Icon(MyFlutterAppSecond.email,
-                                  color: prefix0.colorText),
+                                  color: colorText),
                               onPressed: () {
-                                setState(() {
-                                  eCtrl.text = "";
-                                  File imm = _image;
-                                  _image = null;
-                                  print(appState.getConversationGetter['_id']);
-                                  if (appState.getConversationGetter['_id'] == null) {
-                                    if (imm == null && message == "") {
-                                    } else if (imm != null) {
-                                      final base64Image =
-                                          base64Encode(imm.readAsBytesSync());
-                                      String imageCover =
-                                          imm.path.split('/').last;
-                                      appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
-                                          base64: base64Image,
-                                          imageName: imageCover,
-                                          content: message);
+                                if (_image == null && message == "") {
+                                  Fluttertoast.showToast(
+                                      msg: 'Ecrivé au moins quelque chose avant d\'envoyer',
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: colorError,
+                                      textColor: Colors.black,
+                                      fontSize: 16.0
+                                  );
+                                } else {
+                                  appState.updateLoadingToSend(true);
+                                  setState(() {
+                                    eCtrl.text = "";
+                                    File imm = _image;
+                                    _image = null;
+                                    if (appState.getConversationGetter['_id'] == null) {
+                                      if (imm != null) {
+                                        final base64Image =
+                                        base64Encode(imm.readAsBytesSync());
+                                        String imageCover =
+                                            imm.path.split('/').last;
+                                        appState.createChatMessage(
+                                            destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
+                                            base64: base64Image,
+                                            imageName: imageCover,
+                                            content: message);
+                                        inWrite(false, room);
+                                      } else {
+                                        appState.createChatMessage(
+                                            destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
+                                            content: message);
+                                        inWrite(false, room);
+                                      }
+                                      // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
+                                      Timer(
+                                          Duration(milliseconds: 10),
+                                              () => _scrollController.jumpTo(
+                                              _scrollController
+                                                  .position.maxScrollExtent));
                                     } else {
-                                      appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
-                                          content: message);
+                                      if (imm != null) {
+                                        final base64Image =
+                                        base64Encode(imm.readAsBytesSync());
+                                        String imageCover =
+                                            imm.path.split('/').last;
+                                        appState.sendChatMessage(
+                                            destinate: room,
+                                            base64: base64Image,
+                                            imageName: imageCover,
+                                            content: message,
+                                            id: appState.getIdOldConversation);
+                                        inWrite(false, room);
+                                      } else {
+                                        appState.sendChatMessage(
+                                            destinate: room,
+                                            content: message,
+                                            id: appState.getIdOldConversation);
+                                        inWrite(false, room);
+                                      }
+                                      // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
                                     }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
-                                    Timer(
-                                        Duration(milliseconds: 10),
-                                        () => _scrollController.jumpTo(
-                                            _scrollController
-                                                .position.maxScrollExtent));
-                                  } else {
-                                    print(appState.getConversationGetter);
-                                    if (imm == null && message == "") {
-                                    } else if (imm != null) {
-                                      final base64Image =
-                                          base64Encode(imm.readAsBytesSync());
-                                      String imageCover =
-                                          imm.path.split('/').last;
-                                      appState.sendChatMessage(
-                                          destinate: widget.authorId,
-                                          base64: base64Image,
-                                          imageName: imageCover,
-                                          content: message,
-                                          id: appState.getIdOldConversation);
-                                      print(imageCover);
-                                    } else {
-                                      appState.sendChatMessage(
-                                          destinate: widget.authorId,
-                                          content: message,
-                                          id: appState.getIdOldConversation);
-                                    }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
-                                  }
-                                  message = '';
-                                });
+                                    message = '';
+                                  });
+                                }
+
                               },
                             ),
                           ],
@@ -373,6 +669,225 @@ class _ChatDetailsState extends State<ChatDetails> {
           ],
         ),
       ),
+
+      endDrawer: GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+        child: Drawer(
+          child: Container(
+            color: backgroundColor,
+            child: productDetails == null ? Center(
+              child: Loading(indicator: BallPulseIndicator(), size: 30.0),
+            ) : Column(
+              children: [
+                Material(
+                  elevation: 10,
+                  child: Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${productDetails['result']['images'][0]}"),
+                            fit: BoxFit.cover
+                        )
+                    ),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 30,
+                  child: new TabBar(
+                    controller: _tabController,
+                    unselectedLabelColor: Color(0xdd3c5b6d),
+                    labelColor: colorText,
+                    indicatorColor: colorText,
+                    tabs: [
+                      new Tab(
+                        text: (newClient != null && room.split('_')[0] == newClient.ident) ? 'Moi ':'Vendeur',
+                      ),
+                      new Tab(
+                        //icon: const Icon(Icons.shopping_cart),
+                        text: (newClient != null && room.split('_')[1] == newClient.ident) ? 'Moi': 'Acheteur',
+                      ),
+
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: new TabBarView(
+                      controller: _tabController,
+                      children: <Widget>[
+                        SingleChildScrollView(
+                          child: Padding(
+                            padding:EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Prix Initial', style: Style.chatIsMe(15)),
+                                      Text(productDetails['result']['price'].toString() + ' Fcfa', style: Style.titleNews()),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Qte Restante', style: Style.chatIsMe(15)),
+                                      Text(productDetails['result']['quantity'].toString(), style: Style.titleNews()),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Divider(height: 1, indent: 12, endIndent: 12, color: Colors.grey[200],),
+                                SizedBox(height: 10),
+                                Text('Proposition du vendeur', style: Style.titleNews()),
+                                SizedBox(height: 10),
+                                Divider(height: 1, indent: 12, endIndent: 12, color: Colors.grey[200],),
+                                SizedBox(height: 10),
+                                Container(
+                                  width: double.infinity,
+                                  height: 170,
+                                  child: propositionAuteur(conversation['etatCommunication'], (newClient != null && room.split('_')[0] == newClient.ident), conversation['priceFinal'], conversation['quantityProduct']),
+                                ),
+                                (conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient.ident) ? new RaisedButton(
+                              onPressed: () {
+                                if(double.parse(price) <= productDetails['result']['price'] && int.parse(quantity) <= productDetails['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
+                                  appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation );
+                                  Navigator.pop(context);
+                                  Fluttertoast.showToast(
+                                      msg: 'Proposition envoyée',
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: colorText,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "Erreur sur la quantité ou le prix",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                }
+                              },
+                              child: new Text(
+                                "Envoyer la proposition",
+                                style: Style.sousTitreEvent(15),
+                              ),
+                              color: colorText,
+                              disabledElevation: 0.0,
+                              disabledColor: Colors.grey[300],
+                              elevation: 4.0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+                            ): SizedBox(width: 10),
+                              ],
+                            ),
+                          ),
+                        ),
+                        conversation['etatCommunication'] == 'Seller and Buyer validate price final' ?
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            new SvgPicture.asset(
+                              "images/deals_validate.svg",
+                              semanticsLabel: 'deals_validate',
+                              height:
+                              MediaQuery.of(context).size.height *
+                                  0.39,
+                            ),
+                            Text(
+                                (newClient != null && room.split('_')[0] == newClient.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
+                                textAlign: TextAlign.center,
+                                style: Style.sousTitreEvent(15)),
+                          ],
+                        )
+                            : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: conversation['etatCommunication'] == 'Conversation between users' ? [
+                            Text((newClient != null && room.split('_')[0] == newClient.ident) ? "Vous n'avez pas encore fait de proposition" : "Le vendeur n'a pas encore fait de proposition concernant votre deals",
+                                textAlign: TextAlign.center,
+                                style: Style.sousTitreEvent(15))
+                          ]
+                              :
+                          [
+                          (newClient != null && room.split('_')[0] == newClient.ident) ? SizedBox(width: 10,) : RaisedButton(
+                              onPressed: () {
+                                if(conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
+                                  if(newClient != null && newClient.wallet >= conversation['priceFinal']) {
+                                    appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                                    Navigator.pop(context);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: 'Solde Insuffisant pensez à vous recharger',
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: colorError,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0
+                                    );
+                                  }
+
+
+                                }
+                              },
+                              child: new Text(
+                                "Je suis d'accord",
+                                style: Style.sousTitreEvent(15),
+                              ),
+                              color: colorText,
+                                  elevation: 4.0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+                              ),
+                            SizedBox(height: 35,),
+                            (newClient != null && room.split('_')[0] == newClient.ident) ? Text("En attente de reponse de l'acheteur", textAlign: TextAlign.center,style: Style.sousTitreEvent(15)) :RaisedButton(
+                              onPressed: () {
+                                if(conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
+                                  appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                                  Navigator.pop(context);
+                                  Fluttertoast.showToast(
+                                                    msg: 'Reponse envoyée',
+                                                    toastLength: Toast.LENGTH_LONG,
+                                                    gravity: ToastGravity.CENTER,
+                                                    timeInSecForIosWeb: 1,
+                                                    backgroundColor: colorText,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0
+                                                    );
+                                }
+                              },
+                              child: new Text(
+                                "Non, Je ne suis pas d'accord",
+                                style: Style.sousTitreEvent(15),
+                              ),
+                              color: colorError,
+                              elevation: 0.0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+                            ),
+                          ],
+                        )
+
+                      ]
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+        ),
+      )
+
     );
   }
 }
@@ -403,7 +918,7 @@ class _BubbleState extends State<Bubble> {
     setState(() {});
   }
 
-  Widget SendEtat(etat, isMe) {
+  Widget sendEtat(etat, isMe) {
     if (isMe) {
       if (etat) {
         return Icon(Icons.check_circle_outline,
@@ -415,6 +930,8 @@ class _BubbleState extends State<Bubble> {
       return SizedBox(width: 1.0);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -441,7 +958,7 @@ class _BubbleState extends State<Bubble> {
               Container(
                 padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                    color: widget.isMe ? prefix0.colorText : Colors.white,
+                    color: widget.isMe ? colorText : Colors.white,
                     borderRadius: widget.isMe
                         ? BorderRadius.only(
                             topLeft: Radius.circular(20),
@@ -479,8 +996,8 @@ class _BubbleState extends State<Bubble> {
                       child: Text(
                         widget.message,
                         style: widget.isMe
-                            ? prefix0.Style.chatIsMe(15)
-                            : prefix0.Style.chatOutMe(15.0),
+                            ? Style.chatIsMe(15)
+                            : Style.chatOutMe(15.0),
                         textAlign: TextAlign.start,
                       ),
                     ),
@@ -496,10 +1013,10 @@ class _BubbleState extends State<Bubble> {
                   children: <Widget>[
                     Text(
                       widget.registerDate,
-                      style: prefix0.Style.chatIsMe(12),
+                      style: Style.chatIsMe(12),
                     ),
                     SizedBox(width: 7),
-                    SendEtat(stat, widget.isMe),
+                    sendEtat(stat, widget.isMe),
                   ],
                 ),
               )
@@ -510,3 +1027,4 @@ class _BubbleState extends State<Bubble> {
     );
   }
 }
+

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
@@ -56,7 +56,6 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
             child: new FlutterMap(
                 options: new MapOptions(
                   center: new LatLng(widget.global[1].latitude, widget.global[1].longitude),
-                  interactive: true,
                   minZoom: 6.0,
                   zoom: 7.0,
                 ),

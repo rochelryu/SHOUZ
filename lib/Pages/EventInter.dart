@@ -8,7 +8,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 import './EventDetails.dart';
-import 'ChoiceHobie.dart';
+import 'ChoiceOtherHobie.dart';
 
 class EventInter extends StatefulWidget {
   @override
@@ -491,7 +491,7 @@ class _EventInterState extends State<EventInter> {
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.of(context).push((MaterialPageRoute(
-                                    builder: (context) => ChoiceHobie())));
+                                    builder: (context) => ChoiceOtherHobie())));
                               },
                               child: Text('Ajouter Préférence'),
                               style: ElevatedButton.styleFrom(

@@ -657,57 +657,60 @@ class _ProfilState extends State<Profil> {
                                               style:
                                                   Style.sousTitreEvent(15)))))
                             ]);
-                          }
-                          var infoUser = snapshot.data;
-                          if (infoUser['favoriteActualite'].length == 0) {
-                            return Center(
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                  new SvgPicture.asset(
-                                    "images/empty.svg",
-                                    semanticsLabel: 'Shouz Pay',
-                                    height: MediaQuery.of(context).size.height *
-                                        0.39,
-                                  ),
-                                  Text(
-                                      "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
-                                      textAlign: TextAlign.center,
-                                      style: Style.sousTitreEvent(15))
-                                ]));
-                          }
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount:
+                          } else {
+                            var infoUser = snapshot.data;
+                            if (infoUser['favoriteActualite'].length == 0) {
+                              return Center(
+                                  child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        new SvgPicture.asset(
+                                          "images/empty.svg",
+                                          semanticsLabel: 'Shouz Pay',
+                                          height: MediaQuery.of(context).size.height *
+                                              0.39,
+                                        ),
+                                        Text(
+                                            "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
+                                            textAlign: TextAlign.center,
+                                            style: Style.sousTitreEvent(15))
+                                      ]));
+                            } else {
+                              return Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount:
                                       infoUser['favoriteActualite'].length,
-                                  itemBuilder: (context, index) {
-                                    return CardTopNewActu(
+                                      itemBuilder: (context, index) {
+                                        return CardTopNewActu(
                                             infoUser['favoriteActualite'][index]
-                                                ['title'],
+                                            ['title'],
                                             infoUser['favoriteActualite'][index]
-                                                ['_id'],
+                                            ['_id'],
                                             infoUser['favoriteActualite'][index]
-                                                ['imageCover'],
+                                            ['imageCover'],
                                             infoUser['favoriteActualite'][index]
-                                                ['numberVue'],
+                                            ['numberVue'],
                                             infoUser['favoriteActualite'][index]
-                                                ['registerDate'],
+                                            ['registerDate'],
                                             infoUser['favoriteActualite'][index]
-                                                ['autherName'],
+                                            ['autherName'],
                                             infoUser['favoriteActualite'][index]
-                                                ['authorProfil'],
+                                            ['authorProfil'],
                                             infoUser['favoriteActualite'][index]
-                                                ['content'],
+                                            ['content'],
                                             infoUser['favoriteActualite'][index]
-                                                ['comment'])
-                                        .propotypingProfil(context);
-                                  },
-                                ),
-                              )
-                            ],
-                          );
+                                            ['comment'])
+                                            .propotypingProfil(context);
+                                      },
+                                    ),
+                                  )
+                                ],
+                              );
+                            }
+                          }
+
                       }
                     }),
                 FutureBuilder(
