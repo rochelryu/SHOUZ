@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/CodeScanner.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
+import 'package:shouz/Pages/Checkout.dart';
 import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/Pages/ExplainEvent.dart';
 import 'package:shouz/Pages/IntPharma.dart';
@@ -253,7 +255,9 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            print(item);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (builder) => VerifyUser(
+                    redirect: Checkout.rootName)));
           },
         );
         break;

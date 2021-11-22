@@ -455,7 +455,7 @@ class _EventDetailsState extends State<EventDetails> {
                       appState.setPriceTicketTotal(priceItem.toString());
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (builder) => VerifyUser(
-                              redirect: '/checkout', createPass: createPass)));
+                              redirect: '/checkout')));
                     } else
                       _displaySnackBar(context);
                   },
@@ -594,3 +594,59 @@ class _ViewerEventState extends State<ViewerEvent> {
         ));
   }
 }
+
+/*
+final event = await new ConsumeAPI().buyEvent(appState.getidEvent, appState.getPriceTicketTotal, appState.getNumberTicket);
+                  if (event['etat'] == 'found') {
+                    User user = event['user'];
+                    await DBProvider.db.delClient();
+                    await DBProvider.db.delAllHobies();
+                    await DBProvider.db.newClient(user);
+                    await _askedToLead(
+                      (int.parse(appState.getNumberTicket) > 1 ) ? "Vos tickets ont bien été acheté, voici votre code." : "Votre ticket a bien été acheté, voici votre code.",
+                      true, event['result']['nameImage']);
+                  }
+                  else {
+                    await _askedToLead(event['error'], false, '');
+                  }
+
+
+
+
+                  Future<Null> _askedToLead(String message, bool success, String imgUrl) async {
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SimpleDialog(
+        title: success ?
+        Container(
+          width: 250,
+          height: 250,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage("${ConsumeAPI.AssetBuyEventServer}${appState.getidEvent}/${imgUrl}"),
+              fit: BoxFit.contain,
+              ))
+        )
+        : Icon(MyFlutterAppSecond.cancel, size: 120, color: prefix0.colorError),
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              children : [
+                Text(message, textAlign: TextAlign.center, style: prefix0.Style.sousTitre(13)),
+                RaisedButton(
+                  child: Text('Ok'),
+                  color: success ? prefix0.colorText: prefix0.colorError,
+                  onPressed: (){
+                    Navigator.pop(context);
+                }),
+              ]
+            ),)
+        ],
+      );
+    }
+  );
+}
+
+ */

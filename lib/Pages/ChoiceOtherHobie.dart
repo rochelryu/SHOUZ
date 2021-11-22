@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -9,7 +7,6 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:shouz/Constant/Style.dart';
-import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
@@ -21,7 +18,7 @@ class ChoiceOtherHobie extends StatefulWidget {
 }
 
 class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
-  TextEditingController eCtrl = new TextEditingController();
+  TextEditingController eCtrl = TextEditingController();
   List<dynamic> choice = [];
   bool changeLoading = false;
   String value = "";

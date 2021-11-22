@@ -21,6 +21,8 @@ import 'Pages/ChoiceHobie.dart';
 import 'Provider/AppState.dart';
 
 class MenuDrawler extends StatefulWidget {
+  static String rootName = '/menuDrawler';
+
   @override
   _MenuDrawlerState createState() => _MenuDrawlerState();
 }

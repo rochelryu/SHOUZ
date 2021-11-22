@@ -123,6 +123,7 @@ class _ActualiteState extends State<Actualite> {
     super.initState();
     location = new Location();
     getPositionCurrent();
+    print('getActualite');
     topActualite = new ConsumeAPI().getActualite();
     contentActulite = topActualite;
 

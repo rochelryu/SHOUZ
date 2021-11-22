@@ -14,6 +14,7 @@ import 'package:shouz/Utils/Database.dart';
 import '../MenuDrawler.dart';
 
 class ChoiceHobie extends StatefulWidget {
+  static String rootName = '/choiceHobie';
   @override
   _ChoiceHobieState createState() => _ChoiceHobieState();
 }

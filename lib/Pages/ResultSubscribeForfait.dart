@@ -5,6 +5,7 @@ import 'package:loading/indicator/ball_scale_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -18,6 +19,7 @@ import 'package:loading/indicator/line_scale_pulse_out_indicator.dart';
 import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';*/
 
 class ResultSubscribeForfait extends StatefulWidget {
+  static String rootName = '/resultSubscribeForfait';
   @override
   _ResultSubscribeForfaitState createState() => _ResultSubscribeForfaitState();
 }
@@ -120,7 +122,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                 child: Icon(Icons.block, color: Colors.white),
                 color: colorError,
                 onPressed: () async {
-                  await Navigator.pushNamed(context, '/menuDrawler');
+                  await Navigator.pushNamed(context, MenuDrawler.rootName);
                 }),
           ]),
     );
@@ -172,7 +174,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                             color: Colors.white),
                         color: colorText,
                         onPressed: () async {
-                          await Navigator.pushNamed(context, '/menuDrawler');
+                          await Navigator.pushNamed(context, MenuDrawler.rootName);
                         }),
                   ],
                 ),

@@ -5,9 +5,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/route.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Checkout.dart';
-import 'package:shouz/Pages/Setting.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -19,7 +19,6 @@ import './Pages/LoadHide.dart';
 import './Pages/Login.dart';
 import './Pages/Opt.dart';
 import './ServicesWorker/WebSocketHelper.dart';
-import 'Pages/ResultSubscribeForfait.dart';
 import 'Provider/AppState.dart';
 
 void main() {
@@ -44,16 +43,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Shouz',
         initialRoute: '/',
-        routes: {
-          '/login': (context) => Login(),
-          '/otp': (context) => Otp(),
-          '/createProfil': (context) => CreateProfil(),
-          '/menuDrawler': (context) => MenuDrawler(),
-          '/choiceHobie': (context) => ChoiceHobie(),
-          '/checkout': (context) => Checkout(),
-          '/setting': (context) => new Setting(),
-          '/resultSubscribeForfait': (context) => new ResultSubscribeForfait(),
-        },
+        routes: routes,
         theme: ThemeData(
             primarySwatch: Colors.blue,
             primaryColor: backgroundColor,
@@ -102,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (payload != null) {
       debugPrint('notification payload: ' + payload);
     }
-    await Navigator.pushNamed(context, '/checkout');
+    await Navigator.pushNamed(context, Checkout.rootName);
   }
 
   Future onDidReceiveLocalNotification(
@@ -119,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('Ok'),
             onPressed: () async {
               Navigator.of(context, rootNavigator: true).pop();
-              await Navigator.pushNamed(context, '/checkout');
+              await Navigator.pushNamed(context, Checkout.rootName);
             },
           )
         ],

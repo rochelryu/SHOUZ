@@ -11,6 +11,8 @@ import 'package:shouz/Utils/Database.dart';
 import '../Constant/my_flutter_app_second_icons.dart' as prefix1;
 
 class CreateProfil extends StatefulWidget {
+  static String rootName = '/createProfil';
+
   @override
   _CreateProfil createState() => _CreateProfil();
 }

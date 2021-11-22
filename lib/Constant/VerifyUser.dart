@@ -6,16 +6,15 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
 class VerifyUser extends StatefulWidget {
-  bool createPass;
   var redirect;
-  VerifyUser({Key key, this.redirect, this.createPass}) : super(key: key);
+  VerifyUser({Key key, this.redirect}) : super(key: key);
 
   @override
   _VerifyUserState createState() => _VerifyUserState();
 }
 
 class _VerifyUserState extends State<VerifyUser> {
-  bool createPass;
+  bool createPass = false;
   bool isError = false;
   List<int> keyTouch = [1, 2, 3, 4, 5, 6, 7, 8, 9, 22, 0, 33];
   List<bool> keyContainer = [false, false, false, false];
@@ -29,6 +28,13 @@ class _VerifyUserState extends State<VerifyUser> {
       String pin = await prefix0.getPin();
       setState(() {
         this.pin = pin;
+        print('pin ${pin.length}');
+        createPass = (this.pin.length > 0) ? false : true;
+        if (pin.length == 0) {
+          message = "Créer un mot de passe pour securiser tout vos achats";
+        } else {
+          message = "Veuillez entrer votre mot de passe pour finaliser l'achat";
+        }
       });
     } catch (e) {
       print("Erreur $e");
@@ -40,14 +46,6 @@ class _VerifyUserState extends State<VerifyUser> {
     // TODO: implement initState
     super.initState();
     getNewPin();
-    setState(() {
-      createPass = widget.createPass;
-      if (createPass) {
-        message = "Créer un mot de passe pour securiser tout vos achats";
-      } else {
-        message = "Veuillez entrer votre mot de passe pour finaliser l'achat";
-      }
-    });
   }
 
   @override
@@ -283,10 +281,8 @@ class _VerifyUserState extends State<VerifyUser> {
                               if (password == passwordSave) {
                                 prefix0.setPin(passwordSave);
                                 //update server-side
-                                final info = await new ConsumeAPI()
-                                    .changePin(pin: passwordSave);
-                                User newClient =
-                                    await DBProvider.db.getClient();
+                                //await new ConsumeAPI().changePin(pin: passwordSave);
+                                //User newClient = await DBProvider.db.getClient();
                                 Navigator.pushNamed(context, widget.redirect);
                               } else {
                                 HapticFeedback.vibrate();

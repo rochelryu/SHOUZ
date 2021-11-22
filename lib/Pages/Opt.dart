@@ -13,6 +13,7 @@ import './CreateProfil.dart';
 import '../MenuDrawler.dart';
 
 class Otp extends StatefulWidget {
+  static String rootName = '/otp';
   final String email;
   final bool isGuestCheckOut;
 

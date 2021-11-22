@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/ResultSubscribeForfait.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/Utils/Database.dart';
 
@@ -411,28 +412,28 @@ class _ExplainEventState extends State<ExplainEvent> {
         appState.setForfaitEventEnum(forfaitName, displayItem[0]['background']);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => VerifyUser(
-                redirect: '/resultSubscribeForfait', createPass: createPass)));
+                redirect: ResultSubscribeForfait.rootName)));
         break;
       case 1:
         forfaitName = 'PREMIUM';
         appState.setForfaitEventEnum(forfaitName, displayItem[1]['background']);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => VerifyUser(
-                redirect: '/resultSubscribeForfait', createPass: createPass)));
+                redirect: ResultSubscribeForfait.rootName)));
         break;
       case 2:
         forfaitName = 'MASTER_CLASS';
         appState.setForfaitEventEnum(forfaitName, displayItem[2]['background']);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => VerifyUser(
-                redirect: '/resultSubscribeForfait', createPass: createPass)));
+                redirect: ResultSubscribeForfait.rootName)));
         break;
       case 3:
         forfaitName = 'GOLD';
         appState.setForfaitEventEnum(forfaitName, displayItem[3]['background']);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => VerifyUser(
-                redirect: '/resultSubscribeForfait', createPass: createPass)));
+                redirect: ResultSubscribeForfait.rootName)));
         break;
       case 4:
         forfaitName = 'DIAMOND';

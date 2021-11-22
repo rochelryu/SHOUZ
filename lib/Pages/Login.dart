@@ -7,6 +7,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
 class Login extends StatefulWidget {
+  static String rootName = '/login';
   @override
   _LoginState createState() => _LoginState();
 }

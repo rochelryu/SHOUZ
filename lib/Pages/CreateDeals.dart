@@ -91,7 +91,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
   @override
   Widget build(BuildContext context) {
-    var loginBtn = new RaisedButton(
+    var loginBtn = RaisedButton(
       onPressed: _submit,
       child: new Text(
         "Envoyer le produit",
@@ -103,7 +103,7 @@ class _CreateDealsState extends State<CreateDeals> {
       elevation: 4.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
     );
-    var loginForm = new Column(
+    var loginForm = Column(
       children: <Widget>[
         new Form(
           key: formKey,

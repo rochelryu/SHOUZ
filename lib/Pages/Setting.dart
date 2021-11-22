@@ -8,10 +8,12 @@ import 'package:shouz/Constant/ChangePin.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 class Setting extends StatefulWidget {
+  static String rootName = '/setting';
   @override
   _SettingState createState() => _SettingState();
 }
@@ -58,7 +60,7 @@ class _SettingState extends State<Setting> {
   }
 
   Future getImage(BuildContext context) async {
-    var image = await picker.getImage(source: ImageSource.gallery);
+    var image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       File imm = File(image.path);
       final base64Image = base64Encode(imm.readAsBytesSync());
@@ -102,7 +104,7 @@ class _SettingState extends State<Setting> {
             child: IconButton(
               icon: Icon(Icons.check),
               onPressed: () async {
-                await Navigator.pushNamed(context, '/menuDrawler');
+                await Navigator.pushNamed(context, MenuDrawler.rootName);
               },
             ),
           )
@@ -131,8 +133,7 @@ class _SettingState extends State<Setting> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(100),
                             image: DecorationImage(
-                                image:
-                                    ChoiceType(profil["type"], profil["data"]),
+                                image: choiceType(profil["type"], profil["data"]),
                                 fit: BoxFit.cover)),
                         child: Stack(
                           children: <Widget>[
@@ -247,7 +248,7 @@ class _SettingState extends State<Setting> {
                         child: Text(newClient['name'],
                             textAlign: TextAlign.center,
                             style: prefix0.Style.grandTitre(18))),
-                    AboutInfoCompte(newClient['level']),
+                    aboutInfoCompte(newClient['level']),
                   ],
                 ),
               ),
@@ -273,7 +274,7 @@ class _SettingState extends State<Setting> {
                 if (createPass) {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => VerifyUser(
-                          redirect: '/setting', createPass: createPass)));
+                          redirect: '/setting')));
                 } else {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => ChangePin()));
@@ -348,15 +349,15 @@ class _SettingState extends State<Setting> {
     );
   }
 
-  ChoiceType(type, data) {
+  choiceType(type, data) {
     if (type == 1) {
-      return new NetworkImage("${ConsumeAPI.AssetProfilServer}${data}");
+      return  NetworkImage("${ConsumeAPI.AssetProfilServer}$data");
     } else {
-      return new FileImage(data);
+      return  FileImage(data);
     }
   }
 
-  Widget AboutInfoCompte(level) {
+  Widget aboutInfoCompte(level) {
 //    final parE = event ? "évenementiel" : "";
 //    final parD = deals ? "de vente" : "";
 //    final parT = travel ? "de voyageur" : "";

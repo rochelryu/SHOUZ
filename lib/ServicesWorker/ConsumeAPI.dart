@@ -114,7 +114,7 @@ class ConsumeAPI {
   Future<bool> verifyCategorieExist(String categorie) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil
-        .get('$VERIFY_CATEGIRES/${newClient.ident}/${categorie}');
+        .get('$VERIFY_CATEGIRES/${newClient.ident}/$categorie');
     return (res['etat'] == 'already') ? true : false;
   }
 
@@ -144,15 +144,16 @@ class ConsumeAPI {
 
     return _netUtil.post(SETTINGS_URL, body: body).then((dynamic res) async {
       if (res['etat'] == 'found') {
-        final newUser = await DBProvider.db
+        await DBProvider.db
             .updateClient(res['result']['recovery'], newClient.ident);
       }
+      print(res);
       return res;
     });
   }
 
-  addComment(String user, String id_Actualite, String content ) async {
-    final body = {'user': user, 'id_Actualite': id_Actualite, 'content': content};
+  addComment(String user, String idActualite, String content ) async {
+    final body = {'user': user, 'id_Actualite': idActualite, 'content': content};
 
     return _netUtil.post(ADD_COMMENT_ON_ACTUALITY_URL, body: body).then((dynamic res) async {
       return res['etat'];
@@ -195,7 +196,7 @@ class ConsumeAPI {
       if (res['etat'] == 'found') {
         final user = User.fromJson(res['result']);
         await DBProvider.db.delClient();
-        await DBProvider.db.delAllHobies();
+        //await DBProvider.db.delAllHobies();
         await DBProvider.db.newClient(user);
       }
       return res['etat'];

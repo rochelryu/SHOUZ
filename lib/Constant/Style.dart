@@ -10,7 +10,7 @@ import 'package:shouz/Utils/Database.dart';
 Color colorOne = tint;
 Color colorTwo = backgroundColorSec;
 Color colorThree = colorText;
-enum TypePayement { orange, mtn, moov, visa, master, shouzPay, payPal }
+enum TypePayement { trovaExchange, bitcoin, ethereum }
 
 /*final indicatorList = [
   BallPulseIndicator(),
@@ -662,6 +662,15 @@ class Style {
     );
   }
 
+  static dynamic addressCrypto() {
+    return TextStyle(
+      fontSize: 16.0,
+      fontFamily: "Montserrat-Black",
+      color: colorText,
+      letterSpacing: 1.0,
+    );
+  }
+
   static dynamic titleInSegment([double size = 14.0]) {
     return TextStyle(
       fontSize: size,
@@ -979,3 +988,14 @@ double getProportionateScreenWidth(double inputWidth) {
   // 375 is the layout width that designer use
   return (inputWidth / 375.0) * screenWidth;
 }
+
+// Style boutton in flutter
+final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: colorText,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(2)),
+  ),
+);
