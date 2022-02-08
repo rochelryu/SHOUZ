@@ -19,7 +19,7 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
-  AppState appState;
+  late AppState appState;
   final picker = ImagePicker();
   bool createPass = true;
   String pin = '';
@@ -274,7 +274,7 @@ class _SettingState extends State<Setting> {
                 if (createPass) {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => VerifyUser(
-                          redirect: '/setting')));
+                          redirect: Setting.rootName, key: UniqueKey(),)));
                 } else {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => ChangePin()));

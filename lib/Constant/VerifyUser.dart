@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
-import 'package:shouz/Models/User.dart';
-import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:shouz/Utils/Database.dart';
+import 'package:shouz/Constant/Style.dart';
+
 
 class VerifyUser extends StatefulWidget {
   var redirect;
-  VerifyUser({Key key, this.redirect}) : super(key: key);
+  VerifyUser({required Key key, this.redirect}) : super(key: key);
 
   @override
   _VerifyUserState createState() => _VerifyUserState();
@@ -25,7 +23,7 @@ class _VerifyUserState extends State<VerifyUser> {
 
   Future getNewPin() async {
     try {
-      String pin = await prefix0.getPin();
+      String pin = await getPin();
       setState(() {
         this.pin = pin;
         print('pin ${pin.length}');
@@ -51,9 +49,9 @@ class _VerifyUserState extends State<VerifyUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: prefix0.backgroundColor,
+        backgroundColor: backgroundColor,
         elevation: 0,
         title: Text('Vérification'),
       ),
@@ -77,8 +75,8 @@ class _VerifyUserState extends State<VerifyUser> {
                   child: Text(
                     message,
                     style: (!isError)
-                        ? prefix0.Style.titleInSegment()
-                        : prefix0.Style.titleInSegmentInTypeError(),
+                        ? Style.titleInSegment()
+                        : Style.titleInSegmentInTypeError(),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -249,7 +247,7 @@ class _VerifyUserState extends State<VerifyUser> {
                                 Border.all(color: Colors.white, width: 1.0)),
                         child: Center(
                             child: Text(keyTouch[index].toString(),
-                                style: prefix0.Style.titre(25))),
+                                style: Style.titre(25))),
                       ),
                     ),
                   );
@@ -279,7 +277,7 @@ class _VerifyUserState extends State<VerifyUser> {
                           } else {
                             if (passwordSave != '') {
                               if (password == passwordSave) {
-                                prefix0.setPin(passwordSave);
+                                setPin(passwordSave);
                                 //update server-side
                                 //await new ConsumeAPI().changePin(pin: passwordSave);
                                 //User newClient = await DBProvider.db.getClient();

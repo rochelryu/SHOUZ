@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:loading/loading.dart';
-import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
@@ -32,20 +29,21 @@ class ChatDetails extends StatefulWidget {
 }
 
 class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStateMixin {
-  User newClient;
-  TextEditingController eCtrl = new TextEditingController();
-  ScrollController _scrollController = new ScrollController();
-  TabController _tabController;
+  User? newClient;
+  TextEditingController eCtrl = TextEditingController();
+  ScrollController _scrollController = ScrollController();
+  late TabController _tabController;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  File _image;
+  File? _image;
   int decompte = 0;
   final picker = ImagePicker();
-  Map<dynamic, dynamic> productDetails;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  Map<dynamic, dynamic>? productDetails;
 
   String price = "";
-  TextEditingController priceCtrl = new TextEditingController();
+  TextEditingController priceCtrl = TextEditingController();
   String quantity = "";
-  TextEditingController quantityCtrl = new TextEditingController();
+  TextEditingController quantityCtrl = TextEditingController();
 
   Future getImage() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
@@ -60,12 +58,12 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   var message = "";
   String room = '';
 
-  AppState appState;
+  late AppState appState;
 
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
 
@@ -106,9 +104,8 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     final client = await DBProvider.db.getClient();
 
     final room = widget.room == '' ? "${widget.authorId}_${client.ident}_${widget.productId}": widget.room;
-    print('room $room');
     appState.getConversation(room);
-    final productInfo = await new ConsumeAPI().getDetailsDeals(room.toString().split('_')[2]);
+    final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
     setState(() {
       this.room = room.toString();
       productDetails = productInfo;
@@ -116,8 +113,8 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     });
   }
 
-  inWrite(bool etat, String id) async {
-    appState.setTyping(etat, id);
+  inWrite(bool etat, String id, String identUser) async {
+    appState.setTyping(etat, id, identUser);
   }
 
   List<Widget> reformateView(conversation) {
@@ -132,7 +129,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 int.parse(value['date'].substring(5, 7)),
                 int.parse(value['date'].substring(8, 10))))
             .inDays;
-        bool isMe = (newClient.ident == value['ident']) ? true : false;
+        bool isMe = (newClient!.ident == value['ident']) ? true : false;
         if (date == 1) {
           if (!again) {
             tabs.add(Text("Hier",
@@ -172,7 +169,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         }
       }).toList();
     }
-    if(conversation['etatCommunication'] == 'Seller and Buyer validate price final') {
+    if(conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' && conversation['levelDelivery'] <= 3) {
       tabs.add(
         Container(
           height: 120,
@@ -186,27 +183,27 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 isFirst: true,
                 lineXY: 0.8,
                 afterLineStyle: LineStyle(
-                    color: colorSuccess
+                    color: conversation['levelDelivery'] > 0 ? colorSuccess : colorSecondary,
                 ),
                 indicatorStyle: IndicatorStyle(
-                  color: conversation['levelDelivery'] == 0 ? colorSecondary : colorSuccess,
+                  color: colorSuccess,
                 ),
-                startChild: LivraisonWidget('images/chez_client.png', 'Niveau Vendeur'),
+                startChild: livraisonWidget('images/chez_client.png', 'Niveau Vendeur'),
               ),
               TimelineTile(
                 axis: TimelineAxis.horizontal,
                 alignment: TimelineAlign.manual,
                 lineXY: 0.8,
                 beforeLineStyle: LineStyle(
-                  color: conversation['levelDelivery'] >= 1 ? colorSuccess:  colorSecondary,
+                  color: conversation['levelDelivery'] >= 2 ? colorSuccess:  colorSecondary,
                 ),
                 afterLineStyle: LineStyle(
-                    color: conversation['levelDelivery'] >= 2 ? colorSuccess:  colorSecondary,
+                    color: conversation['levelDelivery'] >= 3 ? colorSuccess:  colorSecondary,
                 ),
                 indicatorStyle: IndicatorStyle(
-                  color: conversation['levelDelivery'] >= 1 ? colorSuccess:  colorSecondary,
+                  color: conversation['levelDelivery'] >= 2 ? colorSuccess:  colorSecondary,
                 ),
-                startChild: LivraisonWidget(conversation['levelDelivery'] >= 1 ? 'images/reception_shouz.png': 'images/reception_shouz_off.png', 'Niveau Shouz'),
+                startChild: livraisonWidget(conversation['levelDelivery'] >= 2 ? 'images/reception_shouz.png': 'images/reception_shouz_off.png', 'Niveau Shouz'),
               ),
               TimelineTile(
                 axis: TimelineAxis.horizontal,
@@ -220,16 +217,74 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 indicatorStyle: IndicatorStyle(
                   color: conversation['levelDelivery'] >= 3 ? colorSuccess:  colorSecondary,
                 ),
-                startChild: LivraisonWidget(conversation['levelDelivery'] >= 3 ? 'images/client_a_colis.png': 'images/client_a_colis_off.png', 'Niveau Client'),
+                startChild: livraisonWidget(conversation['levelDelivery'] >= 3 ? 'images/client_a_colis.png': 'images/client_a_colis_off.png', 'Niveau Client'),
               ),
             ],
           )
         ),
       );
     }
+    if(conversation['levelDelivery'] == 3 && newClient != null && room.split('_')[1] == newClient!.ident) {
+      tabs.add(
+        Container(
+          height: 120,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(" 💁🏽‍♂ ️Le produit vous convient il ?", style: Style.chatIsMe(15),),
+              SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final info = await consumeAPI.responseProductForLastStep(room, 0);
+                      if(info['etat'] == 'found') {
+                        await askedToLead(
+                            "Nous sommes heureux de savoir que le produit vous a convenu. Au plaisir de vous revoir !!!",
+                            true, context);
+                        Navigator.pushNamed(context, MenuDrawler.rootName);
+                      } else {
+                        await askedToLead(
+                            "Un problème est survenue veuillez attendre quelque instant avant de relancer ou contacter le support technique", false, context);
+                      }
+                    },
+                    child: new Text(
+                      "Oui",
+                      style: Style.sousTitreEvent(15),
+                    ),
+                    style: raisedButtonStyle,
+
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final info = await consumeAPI.responseProductForLastStep(room, 1);
+                      if(info['etat'] == 'found') {
+                        await askedToLead(
+                            "Nous somme désolé que vous n'ayez pas apprecié le produit votre argent vous sera restitué une fois que notre livreur viendra chercher le produit",
+                            true, context);
+                        Navigator.pushNamed(context, MenuDrawler.rootName);
+                      } else {
+                        await askedToLead("Un problème est survenue veuillez attendre quelque instant avant de relancer ou contacter le support technique", false, context);
+                      }
+                    },
+                    child: new Text(
+                      "Non, je veux mon argent",
+                      style: Style.sousTitreEvent(15),
+                    ),
+                    style: raisedButtonStyleError,
+                  )
+                ],
+              )
+            ],
+          ),
+        )
+      );
+    }
     return tabs;
   }
-  Widget propositionAuteur(String etatCommunication, bool iAmAuteur, int priceFinal, int qte) {
+  Widget propositionAuteur(String? etatCommunication, bool iAmAuteur, int? priceFinal, int? qte) {
     if(etatCommunication == 'Conversation between users'){
       if(iAmAuteur) {
         return Row(
@@ -294,7 +349,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Qte Totale Proposée', style: Style.chatIsMe(13)),
+                    Text('Qte Proposée', style: Style.chatIsMe(13)),
                     new Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
@@ -363,7 +418,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Prix Proposé', style: Style.chatIsMe(15)),
-                Text(priceFinal.toString() + ' Fcfa', style: Style.titleNews()),
+                Text(priceFinal!.toString() + ' Fcfa', style: Style.titleNews()),
               ],
             ),
           ),
@@ -374,7 +429,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Qte Restante', style: Style.chatIsMe(15)),
-                Text(qte.toString(), style: Style.titleNews()),
+                Text(qte!.toString(), style: Style.titleNews()),
               ],
             ),
           ),
@@ -394,22 +449,22 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Prix Proposé', style: Style.chatIsMe(15)),
-                        Text(priceFinal.toString() + ' Fcfa', style: Style.titleNews()),
+                        Text(priceFinal!.toString() + ' Fcfa', style: Style.titleNews()),
                       ],
                     ),
                   ),
                   Container(
                     width: double.infinity,
-                    height: 50,
+                    height: 53,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Qte Restante', style: Style.chatIsMe(15)),
-                        Text(qte.toString(), style: Style.titleNews()),
+                        Text(qte!.toString(), style: Style.titleNews()),
                       ],
                     ),
                   ),
-                  Text('Vendeur et Acheteur se sont entendus sur cette proposition 🤝', textAlign: TextAlign.center, style: Style.titleNews(),)
+                  Text('Vendeur et Acheteur se sont entendus sur cette proposition 🤝', textAlign: TextAlign.center, style: Style.titleNews(16.0),)
                 ],
               )
           ),
@@ -456,7 +511,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 border: Border.all(
                     width: 2.0,
                     color:
-                        widget.onLine ? Colors.green[300] : Colors.yellow[300]),
+                        widget.onLine ? Colors.green[300]! : Colors.yellow[300]!),
                 borderRadius: BorderRadius.circular(50.0),
                 image: DecorationImage(
                     image: NetworkImage(
@@ -477,8 +532,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                   children: <Widget>[
                     SizedBox(width: 8),
                     appState.getTyping
-                        ? Loading(
-                        indicator: BallPulseIndicator(), size: 10.0)
+                        ? LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)
                         : SizedBox(width: 8),
                   ],
                 )
@@ -489,7 +543,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         centerTitle: false,
       ),
       body: newClient == null ? Center(
-        child: Loading(indicator: BallPulseIndicator(), size: 66.0),
+        child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
       ) : GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Stack(
@@ -506,7 +560,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: EdgeInsets.only(
-                                top: 5.0, left: 5.0, right: 5.0, bottom: conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? 10 :70.0),
+                                top: 5.0, left: 5.0, right: 5.0, bottom: conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? 10 :70.0),
                             child: Column(
                               children: reformateView(conversation),
                             ),
@@ -516,7 +570,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 ],
               ),
             ),
-            conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? SizedBox(width: 10):Positioned(
+            conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? SizedBox(width: 10):Positioned(
               bottom: 0,
               left: 0,
               width: MediaQuery.of(context).size.width,
@@ -548,7 +602,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                     borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(30),
                                         topRight: Radius.circular(30.0)),
-                                    child: Image.file(_image)),
+                                    child: Image.file(_image!)),
                               ),
                       ),
                       Container(
@@ -578,17 +632,17 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   setState(() {
                                     message = text;
                                     if (message.length == 1) {
-                                      inWrite(true, room);
+                                      inWrite(true, room, newClient!.ident);
                                       // appState.setTyping(true, widget.authorId);
                                     } else if (message.length == 0) {
-                                      inWrite(false, room);
+                                      inWrite(false, room, newClient!.ident);
                                       // appState.setTyping(false, widget.authorId);
                                     }
                                   });
                                 },
                               ),
                             ),
-                            appState.getLoadingToSend ?  Loading(indicator: BallSpinFadeLoaderIndicator(), size: 6.0) : IconButton(
+                            appState.getLoadingToSend ?  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2) : IconButton(
                               icon: Icon(MyFlutterAppSecond.email,
                                   color: colorText),
                               onPressed: () {
@@ -606,7 +660,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   appState.updateLoadingToSend(true);
                                   setState(() {
                                     eCtrl.text = "";
-                                    File imm = _image;
+                                    File? imm = _image;
                                     _image = null;
                                     if (appState.getConversationGetter['_id'] == null) {
                                       if (imm != null) {
@@ -615,16 +669,16 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                         String imageCover =
                                             imm.path.split('/').last;
                                         appState.createChatMessage(
-                                            destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
+                                            destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
                                             base64: base64Image,
                                             imageName: imageCover,
                                             content: message);
-                                        inWrite(false, room);
+                                        inWrite(false, room, newClient!.ident);
                                       } else {
                                         appState.createChatMessage(
-                                            destinate: "${widget.authorId}_${newClient.ident}_${widget.productId}",
+                                            destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
                                             content: message);
-                                        inWrite(false, room);
+                                        inWrite(false, room, newClient!.ident);
                                       }
                                       // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
                                       Timer(
@@ -644,13 +698,13 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                             imageName: imageCover,
                                             content: message,
                                             id: appState.getIdOldConversation);
-                                        inWrite(false, room);
+                                        inWrite(false, room, newClient!.ident);
                                       } else {
                                         appState.sendChatMessage(
                                             destinate: room,
                                             content: message,
                                             id: appState.getIdOldConversation);
-                                        inWrite(false, room);
+                                        inWrite(false, room, newClient!.ident);
                                       }
                                       // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
                                     }
@@ -676,7 +730,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           child: Container(
             color: backgroundColor,
             child: productDetails == null ? Center(
-              child: Loading(indicator: BallPulseIndicator(), size: 30.0),
+              child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
             ) : Column(
               children: [
                 Material(
@@ -686,7 +740,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     height: 140,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${productDetails['result']['images'][0]}"),
+                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
                             fit: BoxFit.cover
                         )
                     ),
@@ -702,11 +756,11 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     indicatorColor: colorText,
                     tabs: [
                       new Tab(
-                        text: (newClient != null && room.split('_')[0] == newClient.ident) ? 'Moi ':'Vendeur',
+                        text: (newClient != null && room.split('_')[0] == newClient!.ident) ? 'Moi ':'Vendeur',
                       ),
                       new Tab(
                         //icon: const Icon(Icons.shopping_cart),
-                        text: (newClient != null && room.split('_')[1] == newClient.ident) ? 'Moi': 'Acheteur',
+                        text: (newClient != null && room.split('_')[1] == newClient!.ident) ? 'Moi': 'Acheteur',
                       ),
 
                     ],
@@ -728,7 +782,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text('Prix Initial', style: Style.chatIsMe(15)),
-                                      Text(productDetails['result']['price'].toString() + ' Fcfa', style: Style.titleNews()),
+                                      Text(productDetails!['result']['price'].toString() + ' Fcfa', style: Style.titleNews()),
                                     ],
                                   ),
                                 ),
@@ -739,7 +793,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text('Qte Restante', style: Style.chatIsMe(15)),
-                                      Text(productDetails['result']['quantity'].toString(), style: Style.titleNews()),
+                                      Text(productDetails!['result']['quantity'].toString(), style: Style.titleNews()),
                                     ],
                                   ),
                                 ),
@@ -753,11 +807,11 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 Container(
                                   width: double.infinity,
                                   height: 170,
-                                  child: propositionAuteur(conversation['etatCommunication'], (newClient != null && room.split('_')[0] == newClient.ident), conversation['priceFinal'], conversation['quantityProduct']),
+                                  child: propositionAuteur(conversation['etatCommunication'], (newClient != null && room.split('_')[0] == newClient!.ident), conversation['priceFinal'], conversation['quantityProduct']),
                                 ),
-                                (conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient.ident) ? new RaisedButton(
+                                (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient!.ident) ? new RaisedButton(
                               onPressed: () {
-                                if(double.parse(price) <= productDetails['result']['price'] && int.parse(quantity) <= productDetails['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
+;                                if(int.parse(quantity) <= productDetails!['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
                                   appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation );
                                   Navigator.pop(context);
                                   Fluttertoast.showToast(
@@ -795,8 +849,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                             ),
                           ),
                         ),
-                        conversation['etatCommunication'] == 'Seller and Buyer validate price final' ?
-                        Column(
+                        if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final') Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             new SvgPicture.asset(
@@ -807,75 +860,13 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   0.39,
                             ),
                             Text(
-                                (newClient != null && room.split('_')[0] == newClient.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
+                                (newClient != null && room.split('_')[0] == newClient!.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
                                 textAlign: TextAlign.center,
                                 style: Style.sousTitreEvent(15)),
                           ],
-                        )
-                            : Column(
+                        ) else Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: conversation['etatCommunication'] == 'Conversation between users' ? [
-                            Text((newClient != null && room.split('_')[0] == newClient.ident) ? "Vous n'avez pas encore fait de proposition" : "Le vendeur n'a pas encore fait de proposition concernant votre deals",
-                                textAlign: TextAlign.center,
-                                style: Style.sousTitreEvent(15))
-                          ]
-                              :
-                          [
-                          (newClient != null && room.split('_')[0] == newClient.ident) ? SizedBox(width: 10,) : RaisedButton(
-                              onPressed: () {
-                                if(conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
-                                  if(newClient != null && newClient.wallet >= conversation['priceFinal']) {
-                                    appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
-                                    Navigator.pop(context);
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg: 'Solde Insuffisant pensez à vous recharger',
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: colorError,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0
-                                    );
-                                  }
-
-
-                                }
-                              },
-                              child: new Text(
-                                "Je suis d'accord",
-                                style: Style.sousTitreEvent(15),
-                              ),
-                              color: colorText,
-                                  elevation: 4.0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-                              ),
-                            SizedBox(height: 35,),
-                            (newClient != null && room.split('_')[0] == newClient.ident) ? Text("En attente de reponse de l'acheteur", textAlign: TextAlign.center,style: Style.sousTitreEvent(15)) :RaisedButton(
-                              onPressed: () {
-                                if(conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
-                                  appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
-                                  Navigator.pop(context);
-                                  Fluttertoast.showToast(
-                                                    msg: 'Reponse envoyée',
-                                                    toastLength: Toast.LENGTH_LONG,
-                                                    gravity: ToastGravity.CENTER,
-                                                    timeInSecForIosWeb: 1,
-                                                    backgroundColor: colorText,
-                                                    textColor: Colors.white,
-                                                    fontSize: 16.0
-                                                    );
-                                }
-                              },
-                              child: new Text(
-                                "Non, Je ne suis pas d'accord",
-                                style: Style.sousTitreEvent(15),
-                              ),
-                              color: colorError,
-                              elevation: 0.0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-                            ),
-                          ],
+                          children: reformatText(conversation),
                         )
 
                       ]
@@ -890,6 +881,77 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
     );
   }
+
+
+  List<Widget> reformatText(conversation) {
+    if(conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users') {
+      return [
+        Text((newClient != null && room.split('_')[0] == newClient!.ident) ? "Vous n'avez pas encore fait de proposition" : "Le vendeur n'a pas encore fait de proposition concernant votre deals",
+            textAlign: TextAlign.center,
+            style: Style.sousTitreEvent(15))
+      ];
+    } else if(conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
+      if(newClient != null && room.split('_')[0] == newClient!.ident) {
+        return [Text("En attente de reponse de l'acheteur", textAlign: TextAlign.center,style: Style.sousTitreEvent(15))];
+      } else {
+        return [
+          ElevatedButton(
+            onPressed: () {
+                final priceFinal = conversation['priceFinal'] != null ? conversation['priceFinal'] : 0;
+                if(newClient != null && newClient!.wallet >= priceFinal) {
+                  appState.agreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                  Navigator.pop(context);
+                } else {
+                  Fluttertoast.showToast(
+                      msg: 'Solde Insuffisant pensez à vous recharger',
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: colorError,
+                      textColor: Colors.white,
+                      fontSize: 16.0
+                  );
+                }
+
+
+            },
+            child: new Text(
+              "Je suis d'accord",
+              style: Style.sousTitreEvent(15),
+            ),
+            style: raisedButtonStyle,
+
+          ),
+          SizedBox(height: 35),
+          ElevatedButton(
+            onPressed: () {
+                appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                Navigator.pop(context);
+                Fluttertoast.showToast(
+                    msg: 'Reponse envoyée',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: colorText,
+                    textColor: Colors.white,
+                    fontSize: 16.0
+                );
+            },
+            child: new Text(
+              "Non, Je ne suis pas d'accord",
+              style: Style.sousTitreEvent(15),
+            ),
+           style: raisedButtonStyleError,
+          )];
+      }
+
+    }
+    else {
+      return [Text("Le vendeur n'a pas encore fait de proposition concernant votre deals",
+          textAlign: TextAlign.center,
+          style: Style.sousTitreEvent(15))];
+    }
+  }
 }
 
 class Bubble extends StatefulWidget {
@@ -900,11 +962,11 @@ class Bubble extends StatefulWidget {
   final String idDocument;
 
   Bubble(
-      {this.message,
-      this.isMe,
-      this.registerDate,
-      this.image,
-      this.idDocument});
+      {required this.message,
+      required this.isMe,
+      required this.registerDate,
+      required this.image,
+      required this.idDocument});
   @override
   _BubbleState createState() => _BubbleState();
 }
@@ -1026,5 +1088,6 @@ class _BubbleState extends State<Bubble> {
       ),
     );
   }
+
 }
 

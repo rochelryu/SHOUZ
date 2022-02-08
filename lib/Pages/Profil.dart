@@ -8,32 +8,33 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:skeleton_text/skeleton_text.dart';
-
 import '../Constant/my_flutter_app_second_icons.dart' as prefix1;
+import 'CovoiturageChoicePlace.dart';
 import 'EventDetails.dart';
 
 class Profil extends StatefulWidget {
+  static String rootName = '/profil';
   @override
   _ProfilState createState() => _ProfilState();
 }
 
 class _ProfilState extends State<Profil> {
-  User newClient;
-  String id;
-  Future<Map<dynamic, dynamic>> info;
+  User? newClient;
+  late Future<Map<dynamic, dynamic>> info;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
     super.initState();
     LoadInfo();
-    info = new ConsumeAPI().getProfil();
+    info = consumeAPI.getProfil();
   }
 
   LoadInfo() async {
     User user = await DBProvider.db.getClient();
     setState(() {
       newClient = user;
-      id = newClient.ident;
+
     });
   }
 
@@ -62,7 +63,7 @@ class _ProfilState extends State<Profil> {
                           decoration: new BoxDecoration(
                             image: new DecorationImage(
                               image: NetworkImage((newClient != null)
-                                  ? "${ConsumeAPI.AssetProfilServer}${newClient.images}"
+                                  ? "${ConsumeAPI.AssetProfilServer}${newClient!.images}"
                                   : ''),
                               fit: BoxFit.cover,
                             ),
@@ -94,14 +95,14 @@ class _ProfilState extends State<Profil> {
                                                 image: DecorationImage(
                                                   image: NetworkImage((newClient !=
                                                           null)
-                                                      ? "${ConsumeAPI.AssetProfilServer}${newClient.images}"
+                                                      ? "${ConsumeAPI.AssetProfilServer}${newClient!.images}"
                                                       : ''),
                                                   fit: BoxFit.cover,
                                                 )),
                                           ),
                                           SizedBox(height: 10.0),
                                           Text(
-                                            newClient.name,
+                                            (newClient != null ) ? newClient!.name : '',
                                             maxLines: 1,
                                             style: Style.titre(20.0),
                                           )
@@ -115,7 +116,7 @@ class _ProfilState extends State<Profil> {
                                 top: 65,
                                 right: 10,
                                 child: Text(
-                                  '${newClient.wallet} F cfa',
+                                  (newClient != null ) ? '${newClient!.wallet} ${newClient!.currencies}': '',
                                   style: Style.titleInSegment(),
                                 ),
                               )
@@ -125,7 +126,7 @@ class _ProfilState extends State<Profil> {
                   )),
                   bottom: TabBar(
                     labelColor: colorText,
-                    unselectedLabelColor: Colors.blueAccent.withOpacity(0.25),
+                    unselectedLabelColor: Colors.white.withOpacity(0.85),
                     labelPadding: EdgeInsets.all(5.0),
                     indicatorColor: colorText,
                     tabs: <Widget>[
@@ -701,7 +702,10 @@ class _ProfilState extends State<Profil> {
                                             infoUser['favoriteActualite'][index]
                                             ['content'],
                                             infoUser['favoriteActualite'][index]
-                                            ['comment'])
+                                            ['comment'],
+                                            infoUser['favoriteActualite'][index]
+                                            ['imageCover'],
+                                        )
                                             .propotypingProfil(context);
                                       },
                                     ),
@@ -1318,7 +1322,7 @@ class _ProfilState extends State<Profil> {
                                                                   .titleDealsProduct()),
                                                           SizedBox(height: 5.0),
                                                           Text(
-                                                              '${item['price'].toString()} Fcfa',
+                                                              '${item['price'].toString()} ${newClient!.currencies}',
                                                               style: Style
                                                                   .priceDealsProduct()),
                                                         ],
@@ -1375,7 +1379,7 @@ class _ProfilState extends State<Profil> {
                                                 0.25,
                                           ),
                                           Text(
-                                              "Vous n'etes pas interesse par un deals externes",
+                                              "Vous n'êtes pas intérèssé par un deals externes",
                                               textAlign: TextAlign.center,
                                               style: Style.sousTitreEvent(15))
                                         ])),
@@ -1961,8 +1965,7 @@ class _ProfilState extends State<Profil> {
                                                   children: <Widget>[
                                                     Card(
                                                       elevation: 10.0,
-                                                      /*shape: CircleBorder(),
-                                      clipBehavior: Clip.antiAlias,*/
+
                                                       child: Container(
                                                         height: 100,
                                                         width: 200,
@@ -1986,17 +1989,10 @@ class _ProfilState extends State<Profil> {
                                                         children: <Widget>[
                                                           Text(item['title'],
                                                               maxLines: 3,
+                                                              textAlign: TextAlign.center,
                                                               style: Style
                                                                   .titleDealsProduct()),
-                                                          SizedBox(height: 5.0),
-                                                          Text(
-                                                              (item['price']
-                                                                          [0] ==
-                                                                      'GRATUIT')
-                                                                  ? 'GRATUIT'
-                                                                  : '${item['price'][0]} Fcfa',
-                                                              style: Style
-                                                                  .priceDealsProduct()),
+
                                                         ],
                                                       ),
                                                     )
@@ -2053,14 +2049,21 @@ class _ProfilState extends State<Profil> {
                                                             [index]['position'],
                                                         infoUser['favoriteEvents']
                                                                 [index]
-                                                            ['enventDate'],
+                                                            ['registerDate'],
                                                         infoUser['favoriteEvents']
                                                             [index]['title'],
                                                         infoUser['favoriteEvents']
                                                                 [index]
                                                             ['positionRecently'],
                                                         infoUser['favoriteEvents'][index]['state'],
-                                                        infoUser['favoriteEvents'][index]['videoPub'])));
+                                                      infoUser['favoriteEvents'][index]['videoPub'],
+                                                      infoUser['favoriteEvents'][index]['allTicket'],
+                                                      infoUser['favoriteEvents'][index]['authorId'],
+                                                      infoUser['favoriteEvents'][index]['cumulGain'],
+                                                      infoUser['favoriteEvents'][index]['authorId'] == newClient!.ident,
+                                                      infoUser['favoriteEvents'][index]['state'],
+                                                      infoUser['favoriteEvents'][index]['favorie'],
+                                                    )));
                                               },
                                               child: Container(
                                                 width: double.infinity,
@@ -2160,52 +2163,9 @@ class _ProfilState extends State<Profil> {
                                                                       style: Style
                                                                           .titleInSegment(),
                                                                     ),
-                                                                    SizedBox(
-                                                                        width:
-                                                                            20.0),
-                                                                    Icon(
-                                                                        Icons
-                                                                            .account_balance_wallet,
-                                                                        color: Colors
-                                                                            .white,
-                                                                        size:
-                                                                            22.0),
-                                                                    SizedBox(
-                                                                        width:
-                                                                            5.0),
-                                                                    Text(
-                                                                      infoUser['favoriteEvents']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'price'][0],
-                                                                      style: Style
-                                                                          .titleInSegment(),
-                                                                    ),
                                                                   ],
                                                                 ),
-                                                                Row(
-                                                                  children: <
-                                                                      Widget>[
-                                                                    Icon(
-                                                                        Icons
-                                                                            .person_pin_circle,
-                                                                        color: Colors
-                                                                            .white,
-                                                                        size:
-                                                                            22.0),
-                                                                    Text(
-                                                                        (positionRecently['longitude'] ==
-                                                                                0)
-                                                                            ? 'N/A'
-                                                                            : '2.2 Km',
-                                                                        style: Style
-                                                                            .titleInSegment()),
-                                                                    SizedBox(
-                                                                        width:
-                                                                            10.0)
-                                                                  ],
-                                                                ),
+
                                                               ],
                                                             ),
                                                             SizedBox(
@@ -2226,15 +2186,15 @@ class _ProfilState extends State<Profil> {
                                               MainAxisAlignment.center,
                                           children: <Widget>[
                                           new SvgPicture.asset(
-                                            "images/empty.svg",
-                                            semanticsLabel: 'Shouz Pay',
+                                            "images/emptyevent.svg",
+                                            semanticsLabel: 'emptyevent',
                                             height: MediaQuery.of(context)
                                                     .size
                                                     .height *
                                                 0.25,
                                           ),
                                           Text(
-                                              "Vous n'etes pas interesse par un Evenement externes",
+                                              "Vous n'êtes pas intérèssé par un Evenement externes",
                                               textAlign: TextAlign.center,
                                               style: Style.sousTitreEvent(15))
                                         ])),
@@ -2242,27 +2202,791 @@ class _ProfilState extends State<Profil> {
                           );
                       }
                     }),
-                ListView(
-                  children: <Widget>[
-                    // SizedBox(height: 20.0),
-                    // new CardTopNewActu("Didier Drogba pour la présidence", "Nous savons maintenant pourquoi jusqu'à présent notre joueur étais tapis dans l'ombre.", "images/me.jpg", 18, "25 Août 2019", "Rochel","Rochel").propotypingProfil(context),
-                    // SizedBox(height: 20.0),
-                    // new CardTopNewActu("Didier Drogba pour la présidence", "Nous savons maintenant pourquoi jusqu'à présent notre joueur étais tapis dans l'ombre.", "images/me.jpg", 18, "25 Août 2019", "Rochel","Rochel").propotypingProfil(context),
-                    // SizedBox(height: 20.0),
-                    // new CardTopNewActu("Didier Drogba pour la présidence", "Nous savons maintenant pourquoi jusqu'à présent notre joueur étais tapis dans l'ombre.", "images/me.jpg", 18, "25 Août 2019", "Rochel","Rochel").propotypingProfil(context),
-                    // SizedBox(height: 20.0),
-                    // new CardTopNewActu("Didier Drogba pour la présidence", "Nous savons maintenant pourquoi jusqu'à présent notre joueur étais tapis dans l'ombre.", "images/me.jpg", 18, "25 Août 2019", "Rochel","Rochel").propotypingProfil(context),
-                    // SizedBox(height: 20.0),
-                  ],
-                )
+                FutureBuilder(
+                    future: info,
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.none:
+                          return Column(
+                            children: <Widget>[
+                              Expanded(
+                                  child: Center(
+                                    child: Text("Erreur de connexion",
+                                        style: Style.titreEvent(18)),
+                                  )),
+                            ],
+                          );
+                        case ConnectionState.waiting:
+                          return Column(children: <Widget>[
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: 2,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 15.0,
+                                        right: 15.0,
+                                        top: 10.0,
+                                        bottom: 5.0),
+                                    child: Stack(
+                                      children: <Widget>[
+                                        Container(
+                                          height: 200,
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width /
+                                              2,
+                                          decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                  colors: [
+                                                    backgroundColor,
+                                                    tint
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight),
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                  Radius.circular(10.0),
+                                                  bottomLeft:
+                                                  Radius.circular(10.0))),
+                                          margin: EdgeInsets.only(top: 45.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 15.0, top: 8.0),
+                                                child: SkeletonAnimation(
+                                                  child: Container(
+                                                    height: 15,
+                                                    width:
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                        0.6,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                        BorderRadius
+                                                            .circular(10.0),
+                                                        color:
+                                                        Colors.grey[300]),
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start,
+                                                    children: <Widget>[
+                                                      SkeletonAnimation(
+                                                        child: Container(
+                                                          height: 5,
+                                                          width: 15,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                  10.0),
+                                                              color: Colors
+                                                                  .grey[300]),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5.0),
+                                                      SkeletonAnimation(
+                                                        child: Container(
+                                                          height: 5,
+                                                          width: 15,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                  10.0),
+                                                              color: Colors
+                                                                  .grey[300]),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(left: 15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        height: 5,
+                                                        width: 45,
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                10.0),
+                                                            color: Colors
+                                                                .grey[300]),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 15.0),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(left: 15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.0),
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.0),
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SkeletonAnimation(
+                                                child: Container(
+                                                  height: 40,
+                                                  width: 180,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.grey,
+                                                      borderRadius:
+                                                      BorderRadius.only(
+                                                          bottomLeft: Radius
+                                                              .circular(
+                                                              10.0))),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width /
+                                              2.3,
+                                          child: Material(
+                                            elevation: 30.0,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10.0),
+                                                topRight: Radius.circular(10.0),
+                                                bottomRight:
+                                                Radius.circular(10.0)),
+                                            child: SkeletonAnimation(
+                                              child: Container(
+                                                height: 200,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius
+                                                        .only(
+                                                        topLeft:
+                                                        Radius.circular(
+                                                            10.0),
+                                                        topRight:
+                                                        Radius.circular(
+                                                            10.0),
+                                                        bottomRight:
+                                                        Radius.circular(
+                                                            10.0)),
+                                                    color: Colors.grey[200]),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          ]);
+
+                        case ConnectionState.active:
+                          return Column(children: <Widget>[
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: 2,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 15.0,
+                                        right: 15.0,
+                                        top: 10.0,
+                                        bottom: 5.0),
+                                    child: Stack(
+                                      children: <Widget>[
+                                        Container(
+                                          height: 200,
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width /
+                                              2,
+                                          decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                  colors: [
+                                                    backgroundColor,
+                                                    tint
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight),
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                  Radius.circular(10.0),
+                                                  bottomLeft:
+                                                  Radius.circular(10.0))),
+                                          margin: EdgeInsets.only(top: 45.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 15.0, top: 8.0),
+                                                child: SkeletonAnimation(
+                                                  child: Container(
+                                                    height: 15,
+                                                    width:
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                        0.6,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                        BorderRadius
+                                                            .circular(10.0),
+                                                        color:
+                                                        Colors.grey[300]),
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start,
+                                                    children: <Widget>[
+                                                      SkeletonAnimation(
+                                                        child: Container(
+                                                          height: 5,
+                                                          width: 15,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                  10.0),
+                                                              color: Colors
+                                                                  .grey[300]),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5.0),
+                                                      SkeletonAnimation(
+                                                        child: Container(
+                                                          height: 5,
+                                                          width: 15,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                  10.0),
+                                                              color: Colors
+                                                                  .grey[300]),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(left: 15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        height: 5,
+                                                        width: 45,
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                10.0),
+                                                            color: Colors
+                                                                .grey[300]),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 15.0),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(left: 15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.0),
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.0),
+                                                    SkeletonAnimation(
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color:
+                                                          Colors.grey[200],
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius
+                                                                  .circular(
+                                                                  30)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SkeletonAnimation(
+                                                child: Container(
+                                                  height: 40,
+                                                  width: 180,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.grey,
+                                                      borderRadius:
+                                                      BorderRadius.only(
+                                                          bottomLeft: Radius
+                                                              .circular(
+                                                              10.0))),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width /
+                                              2.3,
+                                          child: Material(
+                                            elevation: 30.0,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10.0),
+                                                topRight: Radius.circular(10.0),
+                                                bottomRight:
+                                                Radius.circular(10.0)),
+                                            child: SkeletonAnimation(
+                                              child: Container(
+                                                height: 200,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius
+                                                        .only(
+                                                        topLeft:
+                                                        Radius.circular(
+                                                            10.0),
+                                                        topRight:
+                                                        Radius.circular(
+                                                            10.0),
+                                                        bottomRight:
+                                                        Radius.circular(
+                                                            10.0)),
+                                                    color: Colors.grey[200]),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          ]);
+
+                        case ConnectionState.done:
+                          if (snapshot.hasError) {
+                            return Column(children: <Widget>[
+                              Expanded(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(30),
+                                      child: Center(
+                                          child: Text("${snapshot.error}",
+                                              style:
+                                              Style.sousTitreEvent(15)))))
+                            ]);
+                          }
+                          var infoUser = snapshot.data;
+                          if (infoUser['buyTravel'].length == 0 &&
+                              infoUser['myTravels'].length == 0) {
+                            return Center(
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      new SvgPicture.asset(
+                                        "images/notdepart.svg",
+                                        semanticsLabel: 'Not Voyage',
+                                        height: MediaQuery.of(context).size.height *
+                                            0.39,
+                                      ),
+                                      Text(
+                                          "Vous avez fait aucun voyage jusqu'a present",
+                                          textAlign: TextAlign.center,
+                                          style: Style.sousTitreEvent(15))
+                                    ]));
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              (infoUser['myTravels'].length != 0)
+                                  ? Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 10.0),
+                                child: Text(
+                                    "Mes Voyages crées (${infoUser['myTravels'].length})",
+                                    style: Style.titleDealsProduct()),
+                              )
+                                  : SizedBox(height: 20),
+                              (infoUser['myTravels'].length != 0)
+                                  ? Container(
+                                height: 100,
+                                child: ListView.builder(
+                                  physics: BouncingScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount:
+                                  infoUser['myTravels'].length + 1,
+                                  itemBuilder: (context, index) {
+                                    if (index == 0) {
+                                      return SizedBox(width: 35);
+                                    } else {
+                                      final item = infoUser['myTravels'][index - 1];
+                                      return new Padding(
+                                        padding:
+                                        EdgeInsets.only(right: 30.0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.of(context).push((
+                                                MaterialPageRoute(
+                                                    builder: (builder)=> CovoiturageChoicePlace(
+                                                        item['id'],
+                                                      item['beginCity'],
+                                                      item['endCity'],
+                                                      item['lieuRencontre'],
+                                                      item['price'],
+                                                      item['travelDate'],
+                                                      item['authorId'],
+                                                      item['placePosition'],
+                                                      item['userPayCheck'],
+                                                      item['infoAuthor'],
+                                                      item['commentPayCheck'],
+                                                      newClient != null && item['authorId'] == newClient!.ident,
+                                                      item['state'],
+                                                    )
+                                                )
+                                            ));
+                                          },
+                                          child: Card(
+                                            color: Colors.transparent,
+                                            elevation: 2.0,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20.0)),
+                                            child: Container(
+                                              width: 300,
+                                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20.0),
+                                                gradient: LinearGradient(
+                                                    colors: gradient[4],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(item['beginCity'].toString().toUpperCase(), style: Style.simpleTextOnNews()),
+                                                          Icon(Icons.arrow_circle_down, color: Colors.white,),
+                                                          Text(item['endCity'].toString().toUpperCase(), style: Style.simpleTextOnNews()),
+                                                        ],
+                                                      )
+
+                                                  ),
+                                                  Expanded(child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Icon(Icons.account_balance_wallet, color: Colors.white, size: 16,),
+                                                          SizedBox(width: 3),
+                                                          Text(item['price'].toString().toUpperCase(), style: Style.simpleTextOnNews()),
+                                                          SizedBox(width: 1),
+                                                          Text(newClient != null ? newClient!.currencies : '', style: Style.simpleTextOnNews()),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Icon(Icons.people_alt, color: Colors.white, size: 16,),
+                                                          SizedBox(width: 3),
+                                                          Text(item['userPayCheck'].length.toString(), style: Style.simpleTextOnNews()),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ))
+                                                ],
+                                              ),
+
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              )
+                                  : SizedBox(width: 10),
+                              SizedBox(height: 30),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                    child: Text(
+                                    "Mes Voyages effectués  (${infoUser['buyTravel'].length})",
+                                    style: Style.titleDealsProduct()),
+                                  ),
+                              (infoUser['buyTravel'].length != 0)
+                                  ? Expanded(
+                                child: GridView.builder(
+                                    gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2),
+                                    itemCount:
+                                    infoUser['buyTravel'].length,
+                                    itemBuilder: (context, index) {
+                                      final item = infoUser['buyTravel'][index];
+                                      return new InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).push((
+                                              MaterialPageRoute(
+                                                  builder: (builder)=> CovoiturageChoicePlace(
+                                                    item['id'],
+                                                    item['beginCity'],
+                                                    item['endCity'],
+                                                    item['lieuRencontre'],
+                                                    item['price'],
+                                                    item['travelDate'],
+                                                    item['authorId'],
+                                                    item['placePosition'],
+                                                    item['userPayCheck'],
+                                                    item['infoAuthor'],
+                                                    item['commentPayCheck'],
+                                                    newClient != null && item['authorId'] == newClient!.ident,
+                                                    item['state'],
+                                                  )
+                                              )
+                                          ));
+                                        },
+                                        child: Card(
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
+                                                height: 100,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                                                  image: DecorationImage(
+                                                    image: AssetImage("images/secondvoyage.png"),
+                                                    fit: BoxFit.contain
+                                                  )
+                                                ),
+                                              ),
+                                              Container(
+                                                height: 20,
+                                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(item['beginCity'].toString().toUpperCase()),
+                                                        SizedBox(width: 3),
+                                                        Expanded(child: Divider()),
+                                                        SizedBox(width: 3),
+                                                        Text(item['endCity'].toString().toUpperCase())
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                height: 20,
+                                                padding: EdgeInsets.symmetric(horizontal: 13),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.time_to_leave),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      DateTime.parse(item['travelDate']).day.toString() +
+                                                          '/' +
+                                                          DateTime.parse(item['travelDate'])
+                                                              .month
+                                                              .toString() +
+                                                          '/' +
+                                                          DateTime.parse(item['travelDate'])
+                                                              .year
+                                                              .toString() + ' à ' +
+                                                          DateTime.parse(item['travelDate']).hour.toString() +
+                                                          'h ' +
+                                                          DateTime.parse(item['travelDate'])
+                                                              .minute
+                                                              .toString(),
+                                                    ),
+                                                  ],
+                                                )
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              )
+                                  : Center(
+                                  child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        new SvgPicture.asset(
+                                          "images/notdepart.svg",
+                                          semanticsLabel: 'Shouz Pay',
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height *
+                                              0.25,
+                                        ),
+                                        Text(
+                                            "Vous n'avez pas encore acheté un ticket de voyage",
+                                            textAlign: TextAlign.center,
+                                            style: Style.sousTitreEvent(15))
+                                      ])),
+                            ],
+                          );
+                      }
+                    }),
               ],
             ),
           ),
         ));
   }
 
-  List<Widget> displayContent(
-      dynamic contentMyAction, dynamic contentMyFavorite) {
+  List<Widget> displayContent(dynamic contentMyAction, dynamic contentMyFavorite) {
     List<Widget> listWidget = [];
     return listWidget;
   }

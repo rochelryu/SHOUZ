@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gradient_text/gradient_text.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import '../Constant/PageIndicatorSecond.dart';
 
@@ -12,7 +12,7 @@ class Public extends StatefulWidget {
 }
 
 class _PublicState extends State<Public> {
-  PageController _controller;
+  late PageController _controller;
   int _counter = 0;
   bool lastPage = false;
 
@@ -68,8 +68,8 @@ class _PublicState extends State<Public> {
                         var y = 1.0;
 
                         if (_controller.position.haveDimensions) {
-                          delta = _controller.page - index;
-                          y = 1 - delta.abs().clamp(0.0, 1.0);
+                          delta = _controller.page! - index;
+                          y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
                         }
 
                         return Column(
@@ -104,8 +104,7 @@ class _PublicState extends State<Public> {
                                     opacity: 0.10,
                                     child: GradientText(
                                       page.title,
-                                      gradient: LinearGradient(
-                                          colors: page.titleGradient),
+                                      colors: page.titleGradient,
                                       style: Style.titleOnBoardShadow(),
                                     ),
                                   ),
@@ -114,8 +113,7 @@ class _PublicState extends State<Public> {
                                         top: 30.0, left: 22.0),
                                     child: GradientText(
                                       page.title,
-                                      gradient: LinearGradient(
-                                          colors: page.titleGradient),
+                                      colors: page.titleGradient,
                                       style: Style.titleOnBoard(),
                                     ),
                                   )

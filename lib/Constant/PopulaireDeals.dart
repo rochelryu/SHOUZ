@@ -22,7 +22,7 @@ class PopulaireDeals extends StatefulWidget {
   var authorName;
   String id;
   List<String> PersonneLike = [];
-  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, this.id, this.profil, this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName });
+  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName });
   @override
   _PopulaireDealsState createState() => _PopulaireDealsState();
 }
@@ -70,7 +70,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("${widget.price.toString()} Fcfa", style: Style.priceDealsProduct()),
+                      Text("${widget.price.toString()}", style: Style.priceDealsProduct()),
                       Row(
                         children: <Widget>[
                           Text(widget.numberFavorite.toString(), style: Style.numberOfLike()),

@@ -4,9 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
-import 'package:loading/loading.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
@@ -23,22 +22,22 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
   TextEditingController eCtrl = new TextEditingController();
   List<String> choice = [];
   bool changeLoading = false;
-  Future<List<dynamic>> populaireInitial; // For display categorie of beginin
-  Future<List<dynamic>> populaire; // For display All categorie
+  late Future<List<dynamic>> populaireInitial; // For display categorie of beginin
+  late Future<List<dynamic>> populaire; // For display All categorie
   String value = "";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    populaireInitial = new ConsumeAPI().getAllCategrie("", "only");
-    populaire = new ConsumeAPI().getAllCategrie("", "only");
+    populaireInitial = new ConsumeAPI().getAllCategrie("", "only") as Future<List<dynamic>>;
+    populaire = new ConsumeAPI().getAllCategrie("", "only") as Future<List<dynamic>>;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       body: new GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
@@ -64,12 +63,11 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);
-                        prefix0.setLevel(6);
+                        setLevel(6);
                         setState(() {
                           changeLoading = false;
                         });
-                        Navigator.of(context).push((MaterialPageRoute(
-                            builder: (context) => MenuDrawler())));
+                        Navigator.pushNamed(context, MenuDrawler.rootName);
                       } else {
                         setState(() {
                           changeLoading = false;
@@ -110,7 +108,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                   child: Text(
                     "SHOUZ est plus intéressant avec vos préférences. Qu'est-ce que vous aimez en terme d'actualité, deals et évènement ?",
                     /*textAlign: TextAlign.justify,*/ style:
-                        prefix0.Style.enterChoiceHobie(21.0),
+                        Style.enterChoiceHobie(21.0),
                   ),
                 ),
                 Padding(
@@ -167,22 +165,22 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                           ),
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
-                            return pattern.length > 0
-                                ? await new ConsumeAPI().getAllCategrie(pattern)
-                                : null;
+                            return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'');
                           },
                           itemBuilder: (context, suggestion) {
+                            final categorie = suggestion as Categorie;
                             return ListTile(
-                              title: Text(suggestion.name,
-                                  style: prefix0.Style.priceDealsProduct()),
-                              trailing: (suggestion.popularity == 1)
-                                  ? Icon(Icons.star, color: prefix0.colorText)
+                              title: Text(categorie.name,
+                                  style: Style.priceDealsProduct()),
+                              trailing: (categorie.popularity == 1)
+                                  ? Icon(Icons.star, color: colorText)
                                   : Icon(Icons.star_border,
-                                      color: prefix0.colorText),
+                                      color: colorText),
                             );
                           },
                           onSuggestionSelected: (suggestion) async {
-                            eCtrl.text = suggestion.name;
+                            final categorie = suggestion as Categorie;
+                            eCtrl.text = categorie.name;
                           },
                         ),
                       ),
@@ -192,7 +190,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
                     child: Text('Préférences Populaires',
                         textAlign: TextAlign.start,
-                        style: prefix0.Style.enterChoiceHobieInSecondaryOption(
+                        style: Style.enterChoiceHobieInSecondaryOption(
                             16.0))),
                 FutureBuilder(
                   future: populaire,
@@ -202,35 +200,31 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         return Center(
                             child: Text(
                           "Erreur de connection, veuillez verifier votre connection et reesayer",
-                          style: prefix0.Style.sousTitreEvent(15),
+                          style: Style.sousTitreEvent(15),
                         ));
                       case ConnectionState.waiting:
                         return Center(
-                          child: Loading(
-                              indicator: BallSpinFadeLoaderIndicator(),
-                              size: 50.0),
+                          child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
                         );
                       case ConnectionState.active:
                         return Center(
-                          child: Loading(
-                              indicator: BallSpinFadeLoaderIndicator(),
-                              size: 50.0),
+                          child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
                         );
                       case ConnectionState.done:
                         if (snapshot.hasError) {
                           return Center(
                               child: Text(
                             "${snapshot.error}",
-                            style: prefix0.Style.sousTitreEvent(15),
+                            style: Style.sousTitreEvent(15),
                           ));
                         }
                         var populaire = snapshot.data;
                         return new Wrap(
                           spacing: 6.0,
                           children: <Widget>[
-                            new StaggeredGridView.countBuilder(
+                            MasonryGridView.count(
                               physics: new BouncingScrollPhysics(),
-                              crossAxisCount: 4,
+                              crossAxisCount: 2,
                               shrinkWrap: true,
                               mainAxisSpacing: 0,
                               crossAxisSpacing: 0,
@@ -265,8 +259,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                   backgroundColor: Colors.white,
                                 );
                               },
-                              staggeredTileBuilder: (int index) =>
-                                  new StaggeredTile.fit(2),
+
                             ),
                           ],
                         );
@@ -279,20 +272,20 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
                     child: Text('Préférences choisies',
                         textAlign: TextAlign.start,
-                        style: prefix0.Style.enterChoiceHobieInSecondaryOption(
+                        style: Style.enterChoiceHobieInSecondaryOption(
                             16.0))),
                 choice.length == 0
                     ? Center(
                         child: Text(
                         "Veuillez choisir au moins 5 préferences",
-                        style: prefix0.Style.sousTitreEvent(15),
+                        style: Style.sousTitreEvent(15),
                       ))
                     : Wrap(
                         spacing: 6.0,
                         children: <Widget>[
-                          new StaggeredGridView.countBuilder(
+                          MasonryGridView.count(
                             physics: new BouncingScrollPhysics(),
-                            crossAxisCount: 4,
+                            crossAxisCount: 2,
                             shrinkWrap: true,
                             mainAxisSpacing: 0,
                             crossAxisSpacing: 0,
@@ -316,9 +309,11 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                               level = 1;
                                             }
                                           }
-                                          return (level == 0)
-                                              ? val.add(item)
-                                              : null;
+                                          if ((level == 0)) {
+                                            return val.add(item);
+                                          } else {
+                                            return null;
+                                          }
                                         });
                                       }
                                     }
@@ -326,7 +321,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                   });
                                 },
                                 avatar: CircleAvatar(
-                                    backgroundColor: prefix0.colorText,
+                                    backgroundColor: colorText,
                                     child: Text(
                                         choice[index]
                                             .substring(0, 1)
@@ -336,8 +331,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                 backgroundColor: Colors.white,
                               );
                             },
-                            staggeredTileBuilder: (int index) =>
-                                new StaggeredTile.fit(2),
+
                           ),
                         ],
                       )
@@ -381,13 +375,13 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
 
   Widget IconAction(int length, bool action) {
     if (action) {
-      return Loading(indicator: BallSpinFadeLoaderIndicator(), size: 6.0);
+      return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {
       if (length <= 4) {
-        return Icon(Icons.close, color: prefix0.colorPrimary, size: 32.0);
+        return Icon(Icons.close, color: colorPrimary, size: 32.0);
       } else {
         return Icon(Icons.navigate_next,
-            color: prefix0.colorPrimary, size: 32.0);
+            color: colorPrimary, size: 32.0);
       }
     }
   }

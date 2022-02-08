@@ -10,8 +10,8 @@ class EventItem extends StatefulWidget {
   final lieu;
   final numero;
   final autor;
-  List<int> PriceList = [];
-  EventItem({this.imageUrl, this.title, this.favorite,this.price, this.lieu, this.numero, this.PriceList, this.autor });
+  List<int>? priceList = [];
+  EventItem({this.imageUrl, this.title, this.favorite,this.price, this.lieu, this.numero, this.priceList, this.autor });
   @override
   _EventItemState createState() => _EventItemState();
 }

@@ -25,8 +25,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   List<int> choiceItemSearchPositionOlder = [0, 0, 0];
   String searchData = "";
   final GlobalKey _menuKey = new GlobalKey();
-  TabController _controller;
-  Future<List<dynamic>> dealsFull;
+  late TabController _controller;
+  late Future<List<dynamic>> dealsFull;
   ScrollController _scrollController = new ScrollController();
 
   List<PopupMenuItem<String>> pref = [];
@@ -123,7 +123,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                               Container(
                                 padding: EdgeInsets.only(left: 17.0),
                                 height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width / 1.5,
+                                width: MediaQuery.of(context).size.width / 1.55,
                                 color: Colors.transparent,
                                 child: new TextField(
                                   controller: searchCtrl,
@@ -195,7 +195,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 ),
               ),
               new Container(
-                height: MediaQuery.of(context).size.height - 200,
+                height: MediaQuery.of(context).size.height - 240,
                 child: new TabBarView(
                   physics: NeverScrollableScrollPhysics(),
                   controller: _controller,
@@ -801,7 +801,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 ['body'][index]['name'],
                                             favorite: false,
                                             price: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['price'],
+                                                ['body'][index]['price'].toString() + ' XOF',
                                             numero: populaireActu[0][choiceItemSearch]
                                                 ['body'][index]['numero'],
                                             autor: populaireActu[0][choiceItemSearch]
@@ -1420,8 +1420,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                               return Column(
                                 children: <Widget>[
                                   Expanded(
-                                    child: new StaggeredGridView.countBuilder(
-                                      crossAxisCount: 4,
+                                    child: MasonryGridView.count(
+                                      crossAxisCount: 2,
                                       mainAxisSpacing: 10,
                                       crossAxisSpacing: 10,
                                       padding: EdgeInsets.all(10.0),
@@ -1436,7 +1436,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               ['body'][index]['name'],
                                           favorite: false,
                                           price: populaireActu[1][choiceItemSearch]
-                                              ['body'][index]['price'],
+                                              ['body'][index]['price'].toString()+ ' XOF',
                                           numero: populaireActu[1][choiceItemSearch]
                                               ['body'][index]['numero'],
                                           autor: populaireActu[1][choiceItemSearch]
@@ -1450,8 +1450,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
                                           registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
                                           quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
-                                      staggeredTileBuilder: (int index) =>
-                                          new StaggeredTile.fit(2),
+
                                     ),
                                   ),
                                 ],
@@ -2053,7 +2052,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             imageUrl: populaireActu[2][choiceItemSearch]['body'][index]['images'],
                                             title: populaireActu[2][choiceItemSearch]['body'][index]['name'],
                                             favorite: false,
-                                            price: populaireActu[2][choiceItemSearch]['body'][index]['price'],
+                                            price: populaireActu[2][choiceItemSearch]['body'][index]['price'].toString()+ ' XOF',
                                             numero: populaireActu[2][choiceItemSearch]['body'][index]['numero'],
                                             autor: populaireActu[2][choiceItemSearch]['body'][index]['author'],
                                             authorName: populaireActu[2][choiceItemSearch]['body'][index]['authorName'],

@@ -1,48 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/ServicesWorker/WebSocketHelper.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class AppState with ChangeNotifier {
-  IO.Socket _socket;
-  String priceTicketTotal;
-  String idEvent;
-  String idVoyage;
-  String assestTorfait;
+  IO.Socket? _socket;
+  String priceTicketTotal = '';
+  String priceUnityTicket= '';
+  String idEvent = '';
+  String idVoyage = '';
+  int maxPlace = 0;
+  double percentageRecharge = 0.0;
+  int indexBottomBar = 0;
   String idOldConversation = '';
-  String priceVoyageTotal;
+  String priceVoyageTotal = '';
   String forfaitEventEnum = "NOT FORFAIT";
-  int numberTicket;
+  int numberTicket = 0;
   int choiceSearch = 0;
   int choiceItemSearch = 0;
   int numberNotif = 0;
-  List<int> placeOccupe;
+  List<int> placeOccupe = [];
+  List<dynamic> choiceForTravel = [];
+  String travelId = '';
   bool typing = false;
   bool loadingToSend = false;
   dynamic conversation = {};
   AppState() {}
-  void initializeSocket() async {
-    _socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", <String, dynamic>{
-      'transports': ['websocket'],
-    });
-    _socket.on('connect', (data) {
-      print("connected... since appState");
-    });
-    _socket.on("socket_info_connected", (data) {
-      //sample event
-      print("socket_info_connected $data");
-    });
-    _socket.connect();
-  }
 
-  setTyping(bool typing, String id) {
+  setTyping(bool typing, String id, String identUser) {
     final jsonData = {
       "id": this.getIdOldConversation,
       "typing": typing,
-      "room": id
+      "room": id,
+      "identUser": identUser,
     };
-    _socket.emit("typing", [jsonData]);
+    _socket!.emit("typing", [jsonData]);
     notifyListeners();
   }
 
@@ -57,6 +49,10 @@ class AppState with ChangeNotifier {
 
   setPriceTicketTotal(String priceTicket) {
     priceTicketTotal = priceTicket;
+    notifyListeners();
+  }
+  setPriceUnityTicket(String priceUnityTicket) {
+    this.priceUnityTicket = priceUnityTicket;
     notifyListeners();
   }
 
@@ -76,9 +72,14 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  setForfaitEventEnum(String forfaitEventString, String assestTorfait) {
+  setForfaitEventEnum(String forfaitEventString, int maxPlace) {
     forfaitEventEnum = forfaitEventString;
-    this.assestTorfait = assestTorfait;
+    this.maxPlace = maxPlace;
+    notifyListeners();
+  }
+
+  setPercentageRecharge(double percentageRecharge) {
+    this.percentageRecharge = percentageRecharge;
     notifyListeners();
   }
 
@@ -98,18 +99,14 @@ class AppState with ChangeNotifier {
   }
 
   setTypingUser(String id) {
-    _socket.emit("typing", [id]);
+    _socket!.emit("typing", [id]);
     notifyListeners();
   }
 
   setJoinConnected(String id) {
-    if (_socket != null) {
-      _socket.emit("joinConnected", [id]);
-    } else {
-      initializeSocket();
-      _socket.emit("joinConnected", [id]);
-    }
-
+    //if(_socket )
+    _socket!.emit("joinConnected", [id]);
+    _socket!.emit("loadNotif", [id]);
   }
 
   setNumberTicket(int nbrTicket) {
@@ -132,10 +129,25 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
+  setChoiceForTravel(List<dynamic> plce) {
+    choiceForTravel = plce;
+    notifyListeners();
+  }
+  setTravelId(String travel) {
+    travelId = travel;
+    notifyListeners();
+  }
+
+
   String _displayText = "";
 
   void setSocket(IO.Socket socket) {
     _socket = _socket ?? socket;
+    notifyListeners();
+  }
+
+  void deleteSocket() {
+    _socket = null;
     notifyListeners();
   }
 
@@ -144,8 +156,8 @@ class AppState with ChangeNotifier {
 //     notifyListeners();
 //   }
   void sendChatMessage(
-      {String destinate,
-      String id,
+      {required String destinate,
+      required String id,
       String imageName = '',
       String base64 = '',
       String content = ''}) async {
@@ -158,17 +170,12 @@ class AppState with ChangeNotifier {
       "image": imageName,
       "id": id
     };
-    if (_socket != null) {
-      _socket.emit("message", [jsonData]);
+
+      _socket!.emit("message", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("message", [jsonData]);
-      notifyListeners();
-    }
   }
 
-  void changeProfilPicture({String imageName, String base64}) async {
+  void changeProfilPicture({required String imageName, required String base64}) async {
     User newClient = await DBProvider.db.getClient();
     final jsonData = {
       "image": imageName,
@@ -176,18 +183,13 @@ class AppState with ChangeNotifier {
       "base64": base64,
       "recovery": newClient.recovery
     };
-    if (_socket != null) {
-      _socket.emit("changeProfil", [jsonData]);
+
+      _socket!.emit("changeProfil", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("changeProfil", [jsonData]);
-      notifyListeners();
-    }
   }
 
   void createChatMessage(
-      {String destinate,
+      {required String destinate,
       String imageName = '',
       String base64 = '',
       String content = ''}) async {
@@ -199,71 +201,51 @@ class AppState with ChangeNotifier {
       "base64": base64,
       "image": imageName
     };
-    if (_socket != null) {
-      _socket.emit("createRoom", [jsonData]);
+
+      _socket!.emit("createRoom", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("createRoom", [jsonData]);
-      notifyListeners();
-    }
   }
 
   void sendPropositionForDealsByAuteur(
-      {String price,
-        String id,
-        String qte,
-        String room}) async {
+      {required String price,
+        required String id,
+        required String qte,
+        required String room}) async {
     final jsonData = {
       "price": price,
       "room": room,
       "qte": qte,
       "id": id,
     };
-    if (_socket != null) {
-      _socket.emit("sendPropositionForDealsByAuteur", [jsonData]);
+
+      _socket!.emit("sendPropositionForDealsByAuteur", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("sendPropositionForDealsByAuteur", [jsonData]);
-      notifyListeners();
-    }
   }
 
   void notAgreeForPropositionForDeals(
       {
-        String id,
-        String room}) async {
+        required String id,
+        required String room}) async {
     final jsonData = {
       "room": room,
       "id": id,
     };
-    if (_socket != null) {
-      _socket.emit("notAgreeForPropositionForDeals", [jsonData]);
+
+      _socket!.emit("notAgreeForPropositionForDeals", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("notAgreeForPropositionForDeals", [jsonData]);
-      notifyListeners();
-    }
   }
 
   void agreeForPropositionForDeals(
       {
-        String id,
-        String room}) async {
+        required String id,
+        required String room}) async {
     final jsonData = {
       "room": room,
       "id": id,
     };
-    if (_socket != null) {
-      _socket.emit("agreeForPropositionForDeals", [jsonData]);
+
+      _socket!.emit("agreeForPropositionForDeals", [jsonData]);
       notifyListeners();
-    } else {
-      initializeSocket();
-      _socket.emit("agreeForPropositionForDeals", [jsonData]);
-      notifyListeners();
-    }
   }
 
   clearConversation() {
@@ -281,23 +263,34 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
+  setIndexBottomBar(int index) {
+    indexBottomBar = index;
+    notifyListeners();
+  }
+
   getConversation(String foreign) {
-    _socket.emit('getConversation', [foreign]);
+    _socket!.emit('getConversation', [foreign]);
     notifyListeners();
   }
 
   String get getDisplayText => _displayText;
   String get getForfaitEventEnum => forfaitEventEnum;
-  String get getAssestTorfait => assestTorfait;
+  int get getMaxPlace => maxPlace;
   String get getidEvent => idEvent;
   bool get getTyping => typing;
   bool get getLoadingToSend => loadingToSend;
   String get getIdOldConversation => idOldConversation;
+  double get getPercentageRecharge => percentageRecharge;
   String get getNumberTicket => numberTicket.toString();
   int get getNumberNotif => numberNotif;
   int get getChoiceSearch => choiceSearch;
+  int get getIndexBottomBar => indexBottomBar;
   int get getChoiceItemSearch => choiceItemSearch;
   String get getPriceTicketTotal => priceTicketTotal;
+  String get getPriceUnityTicket => priceUnityTicket;
+  String get getTravelId => travelId;
+  List<dynamic> get getChoiceForTravel => choiceForTravel;
+  List<int> get getPlaceOccupe => placeOccupe;
   dynamic get getConversationGetter => conversation;
-  IO.Socket get getSocketIO => _socket;
+  IO.Socket? get getSocketIO => _socket;
 }

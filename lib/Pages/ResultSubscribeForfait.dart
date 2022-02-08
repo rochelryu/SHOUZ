@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gradient_text/gradient_text.dart';
-import 'package:loading/indicator/ball_scale_indicator.dart';
-import 'package:loading/loading.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-/*import 'package:loading/indicator/ball_pulse_indicator.dart';
-import 'package:loading/indicator/ball_grid_pulse_indicator.dart';
-import 'package:loading/indicator/line_scale_indicator.dart';
-import 'package:loading/indicator/ball_scale_multiple_indicator.dart';
-import 'package:loading/indicator/line_scale_party_indicator.dart';
-import 'package:loading/indicator/ball_beat_indicator.dart';
-import 'package:loading/indicator/line_scale_pulse_out_indicator.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';*/
+import 'package:shouz/Utils/Database.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class ResultSubscribeForfait extends StatefulWidget {
   static String rootName = '/resultSubscribeForfait';
@@ -25,34 +18,25 @@ class ResultSubscribeForfait extends StatefulWidget {
 }
 
 class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
-  AppState appState;
-  int inWait = 0;
+  late AppState appState;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
   int size = 0;
   int sizeReverse = 199;
-  bool buildDone = false;
-  User newClient;
-  String pin = '';
-  Future<dynamic> subscribeCallback;
+  Future<dynamic>? subscribeCallback;
 
   void initState() {
     super.initState();
     LoadInfo();
-    getNewPin();
   }
-
-  LoadInfo() async {
-//    User user = await DBProvider.db.getClient();
-//    setState(() {
-//      newClient = user;
-//    });
-  }
-  Future getNewPin() async {
+  Future LoadInfo() async {
     try {
-      String pin = await getPin();
+      User user = await DBProvider.db.getClient();
+      appState = Provider.of<AppState>(context, listen: false);
+      final data = consumeAPI.subscribeEvent(forfait: appState.getForfaitEventEnum, ident: user.ident, recovery:user.recovery );
       setState(() {
-        this.pin = pin;
-        size = 199;
-        sizeReverse = 150;
+        subscribeCallback = data;
+        size = 299;
+        sizeReverse = 250;
       });
     } catch (e) {
       print("Erreur $e");
@@ -61,9 +45,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
 
   @override
   Widget build(BuildContext context) {
-    appState = Provider.of<AppState>(context);
-    subscribeCallback = new ConsumeAPI()
-        .subscribeEvent(pin: this.pin, forfait: appState.getForfaitEventEnum);
+
 
     //print(' $subscribeIt ${appState.getForfaitEventEnum}');
 
@@ -77,12 +59,12 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                 return IsErrorSubscribe();
               case ConnectionState.waiting:
                 return Center(
-                  child: Loading(indicator: BallScaleIndicator(), size: 200.0),
+                  child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
                 );
 
               case ConnectionState.active:
                 return Center(
-                  child: Loading(indicator: BallScaleIndicator(), size: 200.0),
+                  child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
                 );
 
               case ConnectionState.done:
@@ -145,17 +127,16 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                 border: Border.all(color: colorText, width: 1.0),
                 image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: AssetImage(appState.getAssestTorfait))),
+                    image: AssetImage('images/letsgoevent.gif'))),
           ),
           SizedBox(height: 15),
           AnimatedContainer(
             duration: transitionLong,
             height: 1 + sizeReverse - 100.0,
             width: 1 + size + 50.0,
-            child: GradientAppropriate(
+            child: gradientAppropriate(
                 forfaitEventEnum: appState.getForfaitEventEnum),
           ),
-          SizedBox(height: 25),
           AnimatedContainer(
               duration: transitionSuperLong,
               height: 1 + sizeReverse - 10.0,
@@ -165,16 +146,15 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Text(
-                      "lorem ipsum de malade et de ouf beta a dis aque je suis ainsi mais bon je te regarde seulement car c'est ça",
+                      "Vous avez souscrit avec succès à ce forfait. Le nombre de place maximum pour votre prochain évènement est ${appState.getMaxPlace.toString()}" ,
                       style: Style.menuStyleItem(13),
                       textAlign: TextAlign.center,
                     ),
-                    RaisedButton(
-                        child: Icon(Icons.check_circle_outline,
-                            color: Colors.white),
-                        color: colorText,
+                    ElevatedButton(
+                        style: raisedButtonStyle,
+                        child: Text('Créer votre évenement maintenant', textAlign: TextAlign.center,),
                         onPressed: () async {
-                          await Navigator.pushNamed(context, MenuDrawler.rootName);
+                          await Navigator.pushNamed(context, CreateEvent.rootName);
                         }),
                   ],
                 ),
@@ -184,43 +164,41 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
     );
   }
 
-  Widget GradientAppropriate({String forfaitEventEnum}) {
+  Widget gradientAppropriate({required String forfaitEventEnum}) {
     switch (forfaitEventEnum) {
-      case "BASIQUE":
-        return Text('FORFAIT BASIQUE',
+      case "BASIC":
+        return Text('FORFAIT BASIC',
             textAlign: TextAlign.center, style: Style.titreEvent(20));
       case "PREMIUM":
         return GradientText(
           'FORFAIT PREMIUM',
           textAlign: TextAlign.center,
-          gradient:
-              LinearGradient(colors: [Color(0xFF9708CC), Color(0xFF43CBFF)]),
+          colors: [Color(0xFF9708CC), Color(0xFF43CBFF)],
           style: Style.titreEvent(20),
         );
       case "MASTER_CLASS":
         return GradientText(
           'FORFAIT MASTER CLASS',
           textAlign: TextAlign.center,
-          gradient:
-              LinearGradient(colors: [Color(0xFFE57373), Color(0xFFFF1744)]),
+          colors: [Color(0xFFE57373), Color(0xFFFF1744)],
           style: Style.titreEvent(20),
         );
       case "GOLD":
         return GradientText(
           'FORFAIT GOLD',
           textAlign: TextAlign.center,
-          gradient:
-              LinearGradient(colors: [Color(0xFFFFEA00), Color(0xFFFF0000)]),
+          colors: [Color(0xFFFFEA00), Color(0xFFFF0000)],
           style: Style.titreEvent(20),
         );
       case "DIAMOND":
         return GradientText(
           'FORFAIT DIAMOND',
           textAlign: TextAlign.center,
-          gradient:
-              LinearGradient(colors: [Color(0xFFE0E0E0), Color(0xFF424242)]),
+          colors: [Color(0xFFE0E0E0), Color(0xFF424242)],
           style: Style.titreEvent(20),
         );
+     default :
+        return SizedBox(width: 12);
     }
   }
 }

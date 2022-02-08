@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
-import 'package:loading/loading.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -13,7 +12,7 @@ class CommentActu extends StatefulWidget {
   String id;
   var comment;
   var imageCover;
-  CommentActu({Key key, this.id, this.title, this.comment, this.imageCover}) : super(key: key);
+  CommentActu({required Key key, required this.id, required this.title, this.comment, this.imageCover}) : super(key: key);
 
   @override
   _CommentActuState createState() => _CommentActuState();
@@ -21,12 +20,12 @@ class CommentActu extends StatefulWidget {
 
 class _CommentActuState extends State<CommentActu> {
   TextEditingController eCtrl = new TextEditingController();
-  User newClient;
-  String id;
+  User? newClient;
+  String id = '';
   int type = 0;
   bool action = false;
   bool loadisDone = false;
-  List<dynamic> comment;
+  late List<dynamic> comment;
 
   @override
   void initState() {
@@ -38,7 +37,7 @@ class _CommentActuState extends State<CommentActu> {
     User user = await DBProvider.db.getClient();
     setState(() {
       newClient = user;
-      id = newClient.ident;
+      id = newClient!.ident;
     });
     final result = await new ConsumeAPI().getCommentActualite(widget.id);
     setState(() {
@@ -90,7 +89,7 @@ class _CommentActuState extends State<CommentActu> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            Text(widget.title, style: Style.titre(22.0)),
+                            Text(widget.title, style: Style.titre(22.0), overflow: TextOverflow.ellipsis, maxLines: 6,),
 
                           ],
                         ),
@@ -154,6 +153,7 @@ class _CommentActuState extends State<CommentActu> {
                                   return SizedBox(height: 10);
                                 } else if(index > 0 && index < comment.length + 1) {
                                   return ListTile(
+                                    contentPadding: EdgeInsets.only(bottom: 10),
                                     leading: Container(
                                       width: 50,
                                       height: 50,
@@ -232,7 +232,7 @@ class _CommentActuState extends State<CommentActu> {
                             borderRadius: BorderRadius.all(Radius.circular(50)),
                             image: DecorationImage(
                               image: NetworkImage((newClient != null)
-                                  ? "${ConsumeAPI.AssetProfilServer}${newClient.images}"
+                                  ? "${ConsumeAPI.AssetProfilServer}${newClient!.images}"
                                   : ''),
                               fit: BoxFit.cover,
                             )
@@ -260,11 +260,11 @@ class _CommentActuState extends State<CommentActu> {
                             setState(() {
                               action = true;
                             });
-                            final etat = await new ConsumeAPI().addComment(newClient.ident, widget.id, eCtrl.text);
+                            final etat = await new ConsumeAPI().addComment(newClient!.ident, widget.id, eCtrl.text);
                             print(etat);
                             setState(() {
                               if(etat == 'found') {
-                                comment.insert(0, {'name': newClient.name, 'content': eCtrl.text, 'profil': newClient.images, 'id': newClient.ident});
+                                comment.insert(0, {'name': newClient!.name, 'content': eCtrl.text, 'profil': newClient!.images, 'id': newClient!.ident});
                                 eCtrl.clear();
                                 type = 0;
                                 action = false;
@@ -294,7 +294,7 @@ class _CommentActuState extends State<CommentActu> {
   }
   Widget IconAction(int type, bool action) {
     if (action) {
-      return Loading(indicator: BallSpinFadeLoaderIndicator(), size: 6.0, color: colorText);
+      return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {
         return type == 0 ? Icon(Icons.send_outlined, color: colorText): Icon(Icons.warning_amber_outlined, color: colorWarning);
 

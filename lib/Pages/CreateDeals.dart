@@ -5,13 +5,16 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
 class CreateDeals extends StatefulWidget {
+  static String rootName = '/createDeals';
   @override
   _CreateDealsState createState() => _CreateDealsState();
 }
@@ -21,7 +24,7 @@ class _CreateDealsState extends State<CreateDeals> {
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   List<File> post = [];
   List<String> base64Image = [];
-  List<dynamic> allCategorie = [];
+  List<dynamic> allCategories = [];
   String nameProduct = "";
   TextEditingController nameProductCtrl = new TextEditingController();
   String describe = "";
@@ -32,7 +35,7 @@ class _CreateDealsState extends State<CreateDeals> {
   TextEditingController priceCtrl = new TextEditingController();
   String quantity = "";
   TextEditingController quantityCtrl = new TextEditingController();
-  String dropdownValue;
+  String? dropdownValue;
   bool _isName = true;
   bool _isDescribe = false;
   bool _isPrice = false;
@@ -41,9 +44,10 @@ class _CreateDealsState extends State<CreateDeals> {
   bool _isNumber = false;
   String numero = "";
   TextEditingController numeroCtrl = new TextEditingController();
-  bool _isLoading = false;
+  bool requestLoading = false;
   bool _isCategorie = false;
   bool monVal = false;
+  User? user;
 
   selectDate(BuildContext context) async {
     User newClient = await DBProvider.db.getClient();
@@ -61,9 +65,12 @@ class _CreateDealsState extends State<CreateDeals> {
   }
 
   loadCategorie() async {
+    User newClient = await DBProvider.db.getClient();
     final data = await new ConsumeAPI().getAllCategrieWithoutFilter("deal");
     setState(() {
-      allCategorie = data;
+      allCategories = data;
+      user = newClient;
+
     });
   }
 
@@ -73,11 +80,11 @@ class _CreateDealsState extends State<CreateDeals> {
   }
 
   Future getImage() async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true, allowCompression: true, type: FileType.image);
 
     if (result != null) {
-      List<File> files = result.paths.map((path) => File(path)).toList();
+      List<File> files = result.paths.map((path) => File(path!)).toList();
       final end = (files.length > 4) ? 4 : files.length;
       final images = files.sublist(0, end);
       setState(() {
@@ -95,9 +102,9 @@ class _CreateDealsState extends State<CreateDeals> {
       onPressed: _submit,
       child: new Text(
         "Envoyer le produit",
-        style: prefix0.Style.sousTitreEvent(15),
+        style: Style.sousTitreEvent(15),
       ),
-      color: prefix0.colorText,
+      color: colorText,
       disabledElevation: 0.0,
       disabledColor: Colors.grey[300],
       elevation: 4.0,
@@ -126,18 +133,18 @@ class _CreateDealsState extends State<CreateDeals> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
                         ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isName
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: new TextField(
                       controller: nameProductCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       onChanged: (text) {
                         setState(() {
@@ -147,7 +154,7 @@ class _CreateDealsState extends State<CreateDeals> {
                           _isPrice = false;
                           _isPosition = false;
                           _isNumber = false;
-                          _isLoading = false;
+                          requestLoading = false;
                           _isCategorie = false;
                           monVal = false;
                           nameProduct = text;
@@ -156,7 +163,7 @@ class _CreateDealsState extends State<CreateDeals> {
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_one,
-                              color: _isName ? prefix0.colorText : Colors.grey),
+                              color: _isName ? colorText : Colors.grey),
                           hintText: "Nom du produit",
                           hintStyle: TextStyle(
                             color: Colors.white,
@@ -183,19 +190,19 @@ class _CreateDealsState extends State<CreateDeals> {
                               width: MediaQuery.of(context).size.width * 0.5,
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               decoration: BoxDecoration(
-                                  color: prefix0.backgroundColorSec,
+                                  color: backgroundColorSec,
                                   border: Border.all(
                                       width: 1.0,
                                       color: _isPrice
-                                          ? prefix0.colorText
-                                          : prefix0.backgroundColor),
+                                          ? colorText
+                                          : backgroundColor),
                                   borderRadius: BorderRadius.circular(50.0)),
                               child: new TextField(
                                 controller: priceCtrl,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w300),
-                                cursorColor: prefix0.colorText,
+                                cursorColor: colorText,
                                 onChanged: (text) {
                                   setState(() {
                                     _isPrice = true;
@@ -204,7 +211,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                     _isDescribe = false;
                                     _isPosition = false;
                                     _isNumber = false;
-                                    _isLoading = false;
+                                    requestLoading = false;
                                     _isCategorie = false;
                                     monVal = false;
                                     price = text.toString();
@@ -215,7 +222,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                     border: InputBorder.none,
                                     prefixIcon: Icon(Icons.looks_two,
                                         color: _isPrice
-                                            ? prefix0.colorText
+                                            ? colorText
                                             : Colors.grey),
                                     hintText: "Prix",
                                     hintStyle: TextStyle(
@@ -234,19 +241,19 @@ class _CreateDealsState extends State<CreateDeals> {
                               width: MediaQuery.of(context).size.width * 0.35,
                               padding: EdgeInsets.symmetric(horizontal: 0),
                               decoration: BoxDecoration(
-                                  color: prefix0.backgroundColorSec,
+                                  color: backgroundColorSec,
                                   border: Border.all(
                                       width: 1.0,
                                       color: _isQuantity
-                                          ? prefix0.colorText
-                                          : prefix0.backgroundColor),
+                                          ? colorText
+                                          : backgroundColor),
                                   borderRadius: BorderRadius.circular(50.0)),
                               child: new TextField(
                                 controller: quantityCtrl,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w300),
-                                cursorColor: prefix0.colorText,
+                                cursorColor: colorText,
                                 onChanged: (text) {
                                   setState(() {
                                     _isQuantity = true;
@@ -255,7 +262,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                     _isDescribe = false;
                                     _isPosition = false;
                                     _isNumber = false;
-                                    _isLoading = false;
+                                    requestLoading = false;
                                     _isCategorie = false;
                                     monVal = false;
                                     quantity = text.toString();
@@ -266,7 +273,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                     border: InputBorder.none,
                                     prefixIcon: Icon(Icons.looks_3,
                                         color: _isQuantity
-                                            ? prefix0.colorText
+                                            ? colorText
                                             : Colors.grey),
                                     hintText: "Quantité",
                                     hintStyle: TextStyle(
@@ -294,12 +301,12 @@ class _CreateDealsState extends State<CreateDeals> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
                         ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isDescribe
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
                     child: new TextField(
                       controller: describeCtrl,
@@ -311,7 +318,7 @@ class _CreateDealsState extends State<CreateDeals> {
                           _isPosition = false;
                           _isQuantity = false;
                           _isNumber = false;
-                          _isLoading = false;
+                          requestLoading = false;
                           _isCategorie = false;
                           monVal = false;
                           describe = text;
@@ -321,13 +328,13 @@ class _CreateDealsState extends State<CreateDeals> {
                           color: Colors.white, fontWeight: FontWeight.w300),
                       maxLength: 260,
                       maxLines: 7,
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_4,
                               color: _isDescribe
-                                  ? prefix0.colorText
+                                  ? colorText
                                   : Colors.grey),
                           labelText: "Description du produit",
                           labelStyle: TextStyle(
@@ -349,50 +356,42 @@ class _CreateDealsState extends State<CreateDeals> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                        /*gradient: LinearGradient(
-                            colors: [Colors.grey[200], Colors.black12],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight
-                        ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isCategorie
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: DropdownButton<String>(
+                    child: allCategories.length == 0 ? LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2) :  DropdownButtonFormField<String>(
                       hint: Text('Veuillez choisir une categorie',
-                          style: prefix0.Style.sousTitre(14)),
+                          style: Style.sousTitre(14)),
                       value: dropdownValue,
                       icon: Icon(Icons.arrow_downward),
                       isExpanded: true,
                       iconSize: 24,
                       elevation: 16,
                       style: TextStyle(color: Colors.white),
-                      underline: Container(
-                        height: 0,
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      onChanged: (String newValue) {
+
+                      onChanged: (newValue) {
                         setState(() {
                           _isCategorie = true;
-                          dropdownValue = newValue;
+                          dropdownValue = newValue!;
                           _isName = false;
                           _isDescribe = false;
                           _isQuantity = false;
                           _isPrice = false;
                           _isPosition = false;
                           _isNumber = false;
-                          _isLoading = false;
+                          requestLoading = false;
                           monVal = false;
                         });
                       },
-                      items: allCategorie.map((value) {
+                      items: allCategories.map((value) {
                         return DropdownMenuItem<String>(
                           value: value['_id'],
                           child: Text(value['name'],
-                              style: prefix0.Style.sousTitre(15)),
+                              style: Style.sousTitre(15)),
                         );
                       }).toList(),
                     ),
@@ -430,8 +429,8 @@ class _CreateDealsState extends State<CreateDeals> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Selectionner une image",
-                                      style: prefix0.Style.titleInSegment(),
+                                      "Selectionner les images",
+                                      style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
                                   ],
@@ -479,13 +478,13 @@ class _CreateDealsState extends State<CreateDeals> {
               new Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 110,
+                  height: 120,
                   width: double.infinity,
                   child: Column(
                     children: <Widget>[
                       Text(
                           "Cliquez sur l'icon pour signifier que c'est le même numero que ce celui de votre inscription sinon écrivez le",
-                          style: prefix0.Style.sousTitre(13)),
+                          style: Style.sousTitre(13)),
                       SizedBox(height: 10),
                       Container(
                         height: 50,
@@ -510,12 +509,12 @@ class _CreateDealsState extends State<CreateDeals> {
                                 width: MediaQuery.of(context).size.width / 1.6,
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                    color: prefix0.backgroundColorSec,
+                                    color: backgroundColorSec,
                                     border: Border.all(
                                         width: 1.0,
                                         color: _isNumber
-                                            ? prefix0.colorText
-                                            : prefix0.backgroundColor),
+                                            ? colorText
+                                            : backgroundColor),
                                     borderRadius: BorderRadius.circular(50.0)),
                                 child: new TextField(
                                   controller: numeroCtrl,
@@ -527,7 +526,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                       _isQuantity = false;
                                       _isPrice = false;
                                       _isPosition = false;
-                                      _isLoading = false;
+                                      requestLoading = false;
                                       _isCategorie = false;
                                       monVal = false;
                                       numero = text.toString();
@@ -536,13 +535,13 @@ class _CreateDealsState extends State<CreateDeals> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300),
-                                  cursorColor: prefix0.colorText,
+                                  cursorColor: colorText,
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
                                       prefixIcon: Icon(Icons.looks_5,
                                           color: _isNumber
-                                              ? prefix0.colorText
+                                              ? colorText
                                               : Colors.grey),
                                       hintText: "Numero de telephone",
                                       hintStyle: TextStyle(
@@ -570,12 +569,12 @@ class _CreateDealsState extends State<CreateDeals> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isPosition
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: new TextField(
                       controller: positionCtrl,
@@ -586,7 +585,7 @@ class _CreateDealsState extends State<CreateDeals> {
                           _isNumber = false;
                           _isDescribe = false;
                           _isPrice = false;
-                          _isLoading = false;
+                          requestLoading = false;
                           _isQuantity = false;
                           _isCategorie = false;
                           monVal = false;
@@ -595,13 +594,13 @@ class _CreateDealsState extends State<CreateDeals> {
                       },
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_6,
                               color: _isPosition
-                                  ? prefix0.colorText
+                                  ? colorText
                                   : Colors.grey),
                           hintText: "Entrer un lieu pour la remise",
                           hintStyle: TextStyle(
@@ -622,14 +621,27 @@ class _CreateDealsState extends State<CreateDeals> {
                       Checkbox(
                         value: monVal,
                         checkColor: Colors.white,
-                        onChanged: (bool value) {
-                          setState(() {
-                            monVal = value;
-                          });
+                        onChanged: (value) {
+                          if(user!.wallet > 1000) {
+                            setState(() {
+                              monVal = value!;
+                            });
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: colorError,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
+                          }
+
                         },
                       ),
                       Text('Booster ce deal en VIP (1000 Frs)',
-                          style: prefix0.Style.warning(11)),
+                          style: Style.warning(11)),
                     ],
                   ),
                 ),
@@ -637,12 +649,12 @@ class _CreateDealsState extends State<CreateDeals> {
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
+        requestLoading ? new CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -663,16 +675,16 @@ class _CreateDealsState extends State<CreateDeals> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text("Créer Votre Annonce !",
-                          style: prefix0.Style.secondTitre(22)),
+                          style: Style.secondTitre(22)),
                       SizedBox(height: 10.0),
                       Text(
                         "Vendez tout ce que vous voulez,",
-                        style: prefix0.Style.sousTitre(14),
+                        style: Style.sousTitre(14),
                         textAlign: TextAlign.center,
                       ),
                       Text(
                         "c’est sans frais.",
-                        style: prefix0.Style.sousTitre(14),
+                        style: Style.sousTitre(14),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -692,7 +704,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
   void _submit() async {
     final form = formKey.currentState;
-    setState(() => _isLoading = true);
+    setState(() => requestLoading = true);
     //print('$nameProduct , $describe , $dropdownValue, $base64Image, $base64Video, ${dateChoice.toString()} , ${numero.toString()}, $position, $price');
     if (nameProduct.length > 4 &&
         describe.length > 20 &&
@@ -709,7 +721,7 @@ class _CreateDealsState extends State<CreateDeals> {
       final product = await new ConsumeAPI().setProductDeals(
           nameProduct,
           describe,
-          dropdownValue,
+          dropdownValue!,
           imageTitle,
           imagesBuffers,
           position,
@@ -717,7 +729,7 @@ class _CreateDealsState extends State<CreateDeals> {
           numero,
           price,
           quantity);
-      setState(() => _isLoading = false);
+      setState(() => requestLoading = false);
       print(product);
       if (product == 'found') {
         dropdownValue = null;
@@ -734,59 +746,28 @@ class _CreateDealsState extends State<CreateDeals> {
         position = "";
         price = "";
         numero = "";
-        await _askedToLead(
+        await askedToLead(
             "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
-            true);
+            true, context);
       } else if (product == 'FreeInPayPrice') {
-        await _askedToLead(
-            "Un produit Gratuit ne peut être assimilé à un prix", false);
+        await askedToLead(
+            "Un produit Gratuit ne peut être assimilé à un prix", false, context);
       } else if (product == 'IncorrectPrice') {
-        await _askedToLead("Erreur lors de la saisie des prix", false);
+        await askedToLead("Erreur lors de la saisie des prix", false, context);
       } else {
-        await _askedToLead(
+        await askedToLead(
             "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
-            false);
+            false, context);
       }
     } else {
-      setState(() => _isLoading = false);
+      setState(() => requestLoading = false);
       _showSnackBar("Remplissez correctement les champs avant d'envoyer");
     }
   }
 
-  Future<Null> _askedToLead(String message, bool success) async {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: success
-                ? Icon(MyFlutterAppSecond.checked,
-                    size: 120, color: prefix0.colorSuccess)
-                : Icon(MyFlutterAppSecond.cancel,
-                    size: 120, color: prefix0.colorError),
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Column(children: [
-                  Text(message,
-                      textAlign: TextAlign.center,
-                      style: prefix0.Style.sousTitre(13)),
-                  RaisedButton(
-                      child: Text('Ok'),
-                      color:
-                          success ? prefix0.colorSuccess : prefix0.colorError,
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
-                ]),
-              )
-            ],
-          );
-        });
-  }
-
   void _showSnackBar(String text) {
-    scaffoldKey.currentState.showSnackBar(new SnackBar(
-      backgroundColor: prefix0.colorError,
+    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+      backgroundColor: colorError,
       content: new Text(
         text,
         textAlign: TextAlign.center,
@@ -794,7 +775,7 @@ class _CreateDealsState extends State<CreateDeals> {
       action: SnackBarAction(
           label: 'Ok',
           onPressed: () {
-            return true;
+
           }),
     ));
   }

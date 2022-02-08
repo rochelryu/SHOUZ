@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gradient_text/gradient_text.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/Login.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
@@ -12,7 +12,7 @@ class OnBoarding extends StatefulWidget {
 }
 
 class _OnBoardingState extends State<OnBoarding> {
-  PageController _controller;
+  late PageController _controller;
   int _counter = 0;
   bool lastPage = false;
 
@@ -68,8 +68,8 @@ class _OnBoardingState extends State<OnBoarding> {
                         var y = 1.0;
 
                         if (_controller.position.haveDimensions) {
-                          delta = _controller.page - index;
-                          y = 1 - delta.abs().clamp(0.0, 1.0);
+                          delta = _controller.page! - index;
+                          y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
                         }
 
                         return Column(
@@ -87,8 +87,7 @@ class _OnBoardingState extends State<OnBoarding> {
                                     opacity: 0.10,
                                     child: GradientText(
                                       page.title,
-                                      gradient: LinearGradient(
-                                          colors: page.titleGradient),
+                                      colors: page.titleGradient,
                                       style: Style.titleOnBoardShadow(),
                                     ),
                                   ),
@@ -97,8 +96,7 @@ class _OnBoardingState extends State<OnBoarding> {
                                         top: 27.0, left: 15.0),
                                     child: GradientText(
                                       page.title,
-                                      gradient: LinearGradient(
-                                          colors: page.titleGradient),
+                                      colors: page.titleGradient,
                                       style: Style.titleOnBoard(),
                                     ),
                                   )

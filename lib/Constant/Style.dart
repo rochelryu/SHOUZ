@@ -1,16 +1,20 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shouz/Pages/ticket_detail.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+
+import '../Models/User.dart';
+import 'my_flutter_app_second_icons.dart';
 
 Color colorOne = tint;
 Color colorTwo = backgroundColorSec;
 Color colorThree = colorText;
-enum TypePayement { trovaExchange, bitcoin, ethereum }
+enum TypePayement { trovaExchange, bitcoin, ethereum, orange, mtn, moov, wave, visa }
 
 /*final indicatorList = [
   BallPulseIndicator(),
@@ -23,12 +27,8 @@ enum TypePayement { trovaExchange, bitcoin, ethereum }
   LineScalePartyIndicator(),
   LineScalePulseOutIndicator(),
 ];*/
-final appTheme = ThemeData(
-  primarySwatch: backgroundColor,
-);
 bool primaryTheme = true;
-final Color backgroundColor =
-    (!primaryTheme) ? Colors.white : Color(0xFF2d3447);
+final Color backgroundColor = (!primaryTheme) ? Colors.white : Color(0xFF2d3447);
 final Color backgroundColorSec = Color(0xFF4A4A58);
 final Color tint = Color(0xFF4A4A65);
 final Color colorText = Color(0xFF0288D1);
@@ -63,7 +63,7 @@ class DealsSkeletonData {
   var onLine;
   //List<String> PersonneLike = [];
   DealsSkeletonData(
-      {this.imageUrl,
+      {required this.imageUrl,
       this.title,
       this.favorite,
       this.price,
@@ -243,7 +243,7 @@ var pageList = [
   PageModel(
       imageUrl: "images/actu.png",
       title: "ACTUALITES",
-      body: "Suiver l'actualité d'ici et d'ailleur",
+      body: "Suivez l'actualité d'ici et d'ailleurs",
       titleGradient: gradient[0]),
   PageModel(
       imageUrl: "images/deals.png",
@@ -287,7 +287,7 @@ class PageModel {
   var title;
   var body;
   List<Color> titleGradient = [];
-  PageModel({this.imageUrl, this.title, this.body, this.titleGradient});
+  PageModel({this.imageUrl, this.title, this.body, required this.titleGradient});
 }
 
 class DealsModel {
@@ -298,14 +298,12 @@ class DealsModel {
   var numero;
   var autor;
   var registerDate;
-  List<String> PersonneLike = [];
   DealsModel(
       {this.imageUrl,
       this.title,
       this.favorite,
       this.price,
       this.numero,
-      this.PersonneLike,
       this.autor,
       this.registerDate});
 }
@@ -332,15 +330,15 @@ class VoyageModel {
       this.chauffeur,
       this.price,
       this.detination,
-      this.placeTotal,
-      this.placeDisponible,
+      required this.placeTotal,
+      required this.placeDisponible,
       this.dateVoyage,
       this.chauffeurName,
       this.id,
       this.levelName,
       this.nextLevel,
       this.numberTravel,
-      this.hobiesCovoiturage});
+      required this.hobiesCovoiturage});
 }
 
 class ImageArround extends CustomClipper<Rect> {
@@ -469,6 +467,14 @@ class Style {
         fontFamily: "LexendExa");
   }
 
+  static dynamic grandTitreBlue(double size) {
+    return TextStyle(
+        color: colorText,
+        fontSize: size,
+        fontWeight: FontWeight.w600,
+        fontFamily: "LexendExa");
+  }
+
   static dynamic grandTitreBlack(double size) {
     return TextStyle(
         color: Colors.black,
@@ -569,9 +575,9 @@ class Style {
     );
   }
 
-  static dynamic titleNews() {
+  static dynamic titleNews([double size = 18.0]) {
     return TextStyle(
-        fontSize: 18.0,
+        fontSize: size,
         fontFamily: "Montserrat-Black",
         letterSpacing: 2.0,
         color: Colors.white
@@ -589,11 +595,32 @@ class Style {
     );
   }
 
+  static dynamic simpleTextBlack() {
+    return TextStyle(
+      fontSize: 17.0,
+      fontFamily: "Montserrat-Light",
+      color: Colors.grey,
+      letterSpacing: 1.1,
+      //fontWeight: FontWeight.w600,
+    );
+  }
+
   static dynamic simpleTextOnNews() {
     return TextStyle(
       fontSize: 17.0,
       fontFamily: "Montserrat-Light",
       color: colorPrimary,
+      letterSpacing: 1.1,
+      //fontWeight: FontWeight.w600,
+    );
+  }
+
+  static dynamic copyRight() {
+    return TextStyle(
+      fontSize: 13.0,
+      fontFamily: "Montserrat-Light",
+      color: colorPrimary,
+      decoration: TextDecoration.underline,
       letterSpacing: 1.1,
       //fontWeight: FontWeight.w600,
     );
@@ -671,6 +698,42 @@ class Style {
     );
   }
 
+  static dynamic mobileMoneyMtn() {
+    return TextStyle(
+      fontSize: 16.0,
+      fontFamily: "Montserrat-Black",
+      color: Colors.yellow,
+      letterSpacing: 1.0,
+    );
+  }
+
+  static dynamic mobileMoneyWave() {
+    return TextStyle(
+      fontSize: 16.0,
+      fontFamily: "Montserrat-Black",
+      color: Colors.blue,
+      letterSpacing: 1.0,
+    );
+  }
+
+  static dynamic mobileMoneyMoov() {
+    return TextStyle(
+      fontSize: 16.0,
+      fontFamily: "Montserrat-Black",
+      color: Colors.blueAccent,
+      letterSpacing: 1.0,
+    );
+  }
+
+  static dynamic mobileMoneyOrange() {
+    return TextStyle(
+      fontSize: 16.0,
+      fontFamily: "Montserrat-Black",
+      color: Colors.deepOrangeAccent,
+      letterSpacing: 1.0,
+    );
+  }
+
   static dynamic titleInSegment([double size = 14.0]) {
     return TextStyle(
       fontSize: size,
@@ -735,7 +798,7 @@ class Style {
 Future<int> getLevel() async {
   try {
     final file = await _localLevel;
-    String level = await file.readAsString() ?? '0';
+    String level = await file.readAsString();
     return int.parse(level);
   } catch (e) {
     return 0;
@@ -745,7 +808,7 @@ Future<int> getLevel() async {
 Future<String> getPin() async {
   try {
     final file = await _localPin;
-    String pin = await file.readAsString() ?? '';
+    String pin = await file.readAsString();
     return pin;
   } catch (e) {
     return '';
@@ -869,7 +932,7 @@ OutlineInputBorder outlineInputBorder() {
     borderSide: BorderSide(color: colorText),
   );
 }
-Widget DialogCustomError(String title, String message, BuildContext context) {
+Widget dialogCustomError(String title, String message, BuildContext context) {
   bool isIos = Platform.isIOS;
   return isIos
       ? new CupertinoAlertDialog(
@@ -899,7 +962,7 @@ Widget DialogCustomError(String title, String message, BuildContext context) {
   );
 }
 
-Widget DialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context) {
+Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context) {
   bool isIos = Platform.isIOS;
   return isIos
       ? new CupertinoAlertDialog(
@@ -941,7 +1004,7 @@ Widget DialogCustomForValidateAction(String title, String message, String titleV
   );
 }
 
-Widget LivraisonWidget(String assetFile, String title) {
+Widget livraisonWidget(String assetFile, String title) {
   return Container(
     width: 120,
     height: 70,
@@ -960,12 +1023,66 @@ Widget LivraisonWidget(String assetFile, String title) {
   );
 }
 
+Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitle, var eventDate, User user) {
+  return Container(
+    padding: EdgeInsets.only(top: 5, bottom: 5, left: 12),
+    height: 200,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Vos tickets déjà achetés : ", style: Style.sousTitreEvent(15),),
+        SizedBox(height: 5),
+        Expanded(
+          child: ListView.builder(
+              itemCount: tickets.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  width: 170,
+                  margin: EdgeInsets.only(right: 15),
+                  child: Column(
+                    children: [
+                      Card(
+                        elevation: 7.0,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                              return new TicketDetail(eventTitle, tickets[index]['idEvent'], tickets[index]['_id'], tickets[index]['nameImage'], tickets[index]['placeTotal'],tickets[index]['priceTicket'],tickets[index]['typeTicket'], eventDate, user);
+                            }));
+                          },
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(7),
+
+                              ),
+                              child: Hero(
+                                tag: tickets[index]['_id'],
+                                child: Image.network(
+                                    "${ConsumeAPI.AssetBuyEventServer}${tickets[index]['idEvent']}/${tickets[index]['nameImage']}",
+                                    fit: BoxFit.cover),
+                              ),
+                            ),
+                        ),
+                      ),
+                      Text("${tickets[index]['placeTotal'].toString()} Ticket${tickets[index]['placeTotal'] > 1 ? 'S': ''} de ${tickets[index]['typeTicket'].toUpperCase() == 'GRATUIT' ? 'type': '' } ${tickets[index]['typeTicket']}", style: Style.simpleTextOnNews(), textAlign: TextAlign.center,)
+                    ],
+                  ),
+                );
+              }),
+        ),
+      ],
+    ),
+  );
+}
+
 class SizeConfig {
-  static MediaQueryData _mediaQueryData;
-  static double screenWidth;
-  static double screenHeight;
-  static double defaultSize;
-  static Orientation orientation;
+  static late MediaQueryData _mediaQueryData;
+  static double screenWidth = 0;
+  static double screenHeight = 0;
+  static double defaultSize = 0;
+  static late Orientation orientation;
 
   void init(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);
@@ -995,7 +1112,89 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   primary: colorText,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(2)),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
   ),
 );
+
+
+final ButtonStyle raisedButtonStyleError = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: colorError,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
+final ButtonStyle raisedButtonStyleMtnMoney = ElevatedButton.styleFrom(
+  onPrimary: Colors.black,
+  primary: Colors.yellowAccent,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
+final ButtonStyle raisedButtonStyleOrangeMoney = ElevatedButton.styleFrom(
+  onPrimary: Colors.black,
+  primary: Colors.deepOrangeAccent,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+final ButtonStyle raisedButtonStyleWave = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: Colors.blue,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+final ButtonStyle raisedButtonStyleMoovMoney = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: Colors.blueAccent,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
+
+//AlertType Modal
+Future<Null> askedToLead(String message, bool success, BuildContext context) async {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: success
+              ? Icon(MyFlutterAppSecond.checked,
+              size: 120, color: colorSuccess)
+              : Icon(MyFlutterAppSecond.cancel,
+              size: 120, color: colorError),
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Column(children: [
+                Text(message,
+                    textAlign: TextAlign.center,
+                    style: Style.sousTitre(13)),
+                RaisedButton(
+                    child: Text('Ok'),
+                    color:
+                    success ? colorSuccess : colorError,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              ]),
+            )
+          ],
+        );
+      });
+}

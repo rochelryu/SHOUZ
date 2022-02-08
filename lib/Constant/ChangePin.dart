@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
-import 'package:shouz/Models/User.dart';
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
 class ChangePin extends StatefulWidget {
-  ChangePin({Key key}) : super(key: key);
+  ChangePin({Key? key}) : super(key: key);
 
   @override
   _ChangePinState createState() => _ChangePinState();
@@ -24,7 +23,7 @@ class _ChangePinState extends State<ChangePin> {
 
   Future getNewPin() async {
     try {
-      String pin = await prefix0.getPin();
+      String pin = await getPin();
       setState(() {
         this.pin = pin;
       });
@@ -46,9 +45,9 @@ class _ChangePinState extends State<ChangePin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: prefix0.backgroundColor,
+        backgroundColor: backgroundColor,
         elevation: 0,
         title: Text('Vérification'),
       ),
@@ -72,8 +71,8 @@ class _ChangePinState extends State<ChangePin> {
                   child: Text(
                     message,
                     style: (!isError)
-                        ? prefix0.Style.titleInSegment()
-                        : prefix0.Style.titleInSegmentInTypeError(),
+                        ? Style.titleInSegment()
+                        : Style.titleInSegmentInTypeError(),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -244,7 +243,7 @@ class _ChangePinState extends State<ChangePin> {
                                 Border.all(color: Colors.white, width: 1.0)),
                         child: Center(
                             child: Text(keyTouch[index].toString(),
-                                style: prefix0.Style.titre(25))),
+                                style: Style.titre(25))),
                       ),
                     ),
                   );
@@ -282,7 +281,7 @@ class _ChangePinState extends State<ChangePin> {
                             }
                           } else {
                             if (password != pin) {
-                              prefix0.setPin(password);
+                              setPin(password);
                               await new ConsumeAPI()
                                   .changePin(pin: password);
                               await DBProvider.db.getClient();

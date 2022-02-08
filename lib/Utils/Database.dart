@@ -5,14 +5,14 @@ class DBProvider {
   DBProvider._();
   static final DBProvider db = DBProvider._();
 
-  static Database _database;
+  static  Database? _database;
 
   Future<Database> get database async {
-    if (_database != null) return _database;
+    if (_database != null) return _database!;
 
     // if _database is null we instantiate it
     _database = await initDB();
-    return _database;
+    return _database!;
   }
 
   initDB() async {
@@ -21,7 +21,7 @@ class DBProvider {
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
-          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet INTEGER,inscriptionIsDone INTEGER )''');
+          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT)''');
       await db.execute("CREATE TABLE HobiesActualite (name TEXT)");
       await db.execute("CREATE TABLE hobiesDeals (name TEXT)");
       await db.execute("CREATE TABLE hobiesEvents (name TEXT)");
@@ -60,7 +60,7 @@ class DBProvider {
   newClient(User newClient) async {
     final db = await database;
     var res = await db.rawInsert(
-        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone, isActivateForfait, currencies) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
           newClient.ident,
           newClient.name,
@@ -74,7 +74,9 @@ class DBProvider {
           newClient.lagitude,
           newClient.pin,
           newClient.wallet,
-          newClient.inscriptionIsDone
+          newClient.inscriptionIsDone,
+          newClient.isActivateForfait,
+          newClient.currencies,
         ]);
     return res;
   }
@@ -116,14 +118,20 @@ class DBProvider {
   updateClientWallet(int wallet, String id) async {
     final db = await database;
     var res = db.rawUpdate(
-        "UPDATE Client SET wallet = ? WHERE ident = ?", [wallet, id]);
+        "UPDATE Client SET wallet = ? WHERE ident = ?", [double.parse(wallet.toString()), id]);
+    return res;
+  }
+  updateClientIsActivateForfait(int isActivateForfait, String id) async {
+    final db = await database;
+    var res = db.rawUpdate(
+        "UPDATE Client SET isActivateForfait = ? WHERE ident = ?", [isActivateForfait, id]);
     return res;
   }
 
   getHobie(String type) async {
     final db = await database;
     var res = await db.query(type);
-    List<String> list = res.map((c) => c["name"]).toList();
+    List<Object?> list = res.map((c) => c["name"]).toList();
     return list;
   }
 }

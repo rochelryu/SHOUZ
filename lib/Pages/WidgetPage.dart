@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/CodeScanner.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
-import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
-import 'package:shouz/Pages/Checkout.dart';
 import 'package:shouz/Pages/CreateEvent.dart';
-import 'package:shouz/Pages/ExplainEvent.dart';
 import 'package:shouz/Pages/IntPharma.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import 'choice_method_payement.dart';
+import 'demande_conducteur.dart';
+
 class WidgetPage extends StatefulWidget {
-  static bool isUnlock = true;
 
   @override
   _WidgetPageState createState() => _WidgetPageState();
@@ -31,19 +30,14 @@ class _WidgetPageState extends State<WidgetPage> {
     if (info['etat'] == 'found') {
       setState(() {
         commande = [
-          (WidgetPage.isUnlock)
-              ? {
+          {
                   "icon": "Verification tickets",
                   "desc": "Decoder le code réçu par vos invités"
                 }
-              : {
-                  "icon": "Vérification tickets bloqué",
-                  "desc":
-                      "Débloquer votre compte évenementiel afin de bénéficier à ce service"
-                },
+             ,
           {
             "icon": "pharmacie de garde",
-            "desc": "Les pharmacies de garde votre localité"
+            "desc": "Disponible pour votre localité"
           },
           {
             "icon": "prix des médicaments",
@@ -51,26 +45,17 @@ class _WidgetPageState extends State<WidgetPage> {
           },
           {
             "icon": "Récharger son shouzpay",
-            "desc": "Recharger votre compte ShouzPay"
+            "desc": "Par Crypto Monnaie ou Mobile Money"
           },
-          (info['result']['isActivateForfait'])
-              ? {
-                  "icon": "Creer un evenement",
-                  "desc": "Créer votre evenement et manager le"
-                }
+          {
+            "icon": "Rétirer son argent",
+            "desc": "Par Crypto Monnaie ou Mobile Money"
+          },
+          (!info['result']['isActivateCovoiturage'])
+              ? (info['result']['assuranceVehicule'].length > 0) ? {"icon": "Analyse Document Conducteur","desc":"Nous analysons vos documents envoyés"} : {"icon": "Devenir Conducteur","desc":"Enregistrer vos informations"}
               : {
-                  "icon": "Compte evenement",
-                  "desc": "Débloquer votre compte évenementiel"
-                },
-          (WidgetPage.isUnlock)
-              ? {
-                  "icon": "Devenir Conducteur",
-                  "desc":
-                      "Enregistrer vos informations de conducteur et le tour est joué"
-                }
-              : {
-                  "icon": "Compte evenement",
-                  "desc": "Débloquer votre compte évenementiel"
+                  "icon": "Modifier information Conducteur",
+                  "desc": "Modifier Si elles ne sont plus d'actualité"
                 },
         ];
       });
@@ -121,7 +106,7 @@ class _WidgetPageState extends State<WidgetPage> {
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push((MaterialPageRoute(
-                builder: (BuildContext context) => IntPharma())));
+                builder: (BuildContext context) => IntPharma(key: UniqueKey(),))));
           },
         );
         break;
@@ -147,7 +132,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "Compte evenement":
+      case "Modifier information Conducteur":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
@@ -157,16 +142,14 @@ class _WidgetPageState extends State<WidgetPage> {
             decoration: BoxDecoration(
                 color: Colors.red[200],
                 borderRadius: BorderRadius.circular(50.0)),
-            child: Icon(Icons.lock_open, color: Colors.red[900], size: 22.0),
+            child: Icon(prefix1.MyFlutterAppSecond.car_seat_with_seatbelt, color: Colors.red[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
               style: prefix0.Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            Navigator.of(context).push((MaterialPageRoute(
-                // builder: (BuildContext context)=> CreateEvent()
-                builder: (BuildContext context) => ExplainEvent())));
+            print('modifier');
           },
         );
         break;
@@ -193,7 +176,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "Vérification tickets bloqué":
+      case "Analyse Document Conducteur":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
@@ -210,9 +193,7 @@ class _WidgetPageState extends State<WidgetPage> {
               style: prefix0.Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
-          onTap: () {
-            print(item);
-          },
+
         );
         break;
       case "Creer un evenement":
@@ -247,7 +228,7 @@ class _WidgetPageState extends State<WidgetPage> {
             decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(50.0)),
-            child: Icon(prefix1.MyFlutterAppSecond.credit_card,
+            child: Icon(prefix1.MyFlutterAppSecond.money,
                 color: Colors.grey[700], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
@@ -256,8 +237,31 @@ class _WidgetPageState extends State<WidgetPage> {
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (builder) => VerifyUser(
-                    redirect: Checkout.rootName)));
+                builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+          },
+        );
+        break;
+
+      case "Rétirer son argent":
+        block = ListTile(
+          contentPadding:
+          EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
+          leading: Container(
+            height: 55.0,
+            width: 55.0,
+            decoration: BoxDecoration(
+                color: Colors.lightBlue[100],
+                borderRadius: BorderRadius.circular(50.0)),
+            child: Icon(prefix1.MyFlutterAppSecond.credit_card,
+                color: Colors.blue[900], size: 22.0),
+          ),
+          title: Text(item['icon'].toString().toUpperCase(),
+              style: prefix0.Style.titre(15.0)),
+          subtitle: Text(item['desc'].toString().toUpperCase(),
+              style: prefix0.Style.sousTitre(11.0)),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: true,)));
           },
         );
         break;
@@ -279,12 +283,12 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            print(item);
+            Navigator.pushNamed(context, DemandeConducteur.rootName);
           },
         );
         break;
       default:
-        block = null;
+        block = SizedBox(height: 12);
         break;
     }
 

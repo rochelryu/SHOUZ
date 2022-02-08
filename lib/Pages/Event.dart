@@ -9,7 +9,7 @@ class Event extends StatefulWidget {
 
 class _EventState extends State<Event> with SingleTickerProviderStateMixin {
   // TabController to control and switch tabs
-  TabController _tabController;
+  late TabController _tabController;
 
   // Current Index of tab
   int _currentIndex = 0;

@@ -1,8 +1,8 @@
 class Categorie {
   String name;
-  String id;
-  int popularity;
-  List<dynamic> domaine;
+  late String id;
+  late int popularity;
+  late List<dynamic> domaine;
   
   Categorie(this.name);
   

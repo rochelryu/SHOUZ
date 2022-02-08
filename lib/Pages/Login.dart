@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
-import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Opt.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -16,11 +15,11 @@ class _LoginState extends State<Login> {
 
   _displaySnackBar(BuildContext context) {
     final snackBar = SnackBar(content: Text('Format de Numero incorrecte'));
-    _scaffoldKey.currentState.showSnackBar(snackBar);
+    _scaffoldKey.currentState?.showSnackBar(snackBar);
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  User user;
+  late User user;
   String numero = "";
   @override
   Widget build(BuildContext context) {
@@ -129,7 +128,7 @@ class _LoginState extends State<Login> {
                             prefix0.setLevel(2);
                               Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (builder) => Otp()
+                                builder: (builder) => Otp(key: UniqueKey(),)
                               )
                             );
                              

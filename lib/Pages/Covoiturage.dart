@@ -1,10 +1,20 @@
+import 'package:device_info/device_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:huawei_location/location/fused_location_provider_client.dart';
+import 'package:huawei_location/location/location_request.dart';
+import 'package:huawei_location/location/location_settings_request.dart';
+import 'package:huawei_location/location/location_settings_states.dart';
+import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:shouz/Utils/Database.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import './CovoiturageChoicePlace.dart';
+import 'package:huawei_location/location/location.dart' as loactionHuawei;
 
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -12,18 +22,6 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:location/location.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
-
-import 'package:loading/loading.dart';
-
-import 'package:loading/indicator/ball_scale_indicator.dart';
-/*import 'package:loading/indicator/ball_pulse_indicator.dart';
-import 'package:loading/indicator/ball_grid_pulse_indicator.dart';
-import 'package:loading/indicator/line_scale_indicator.dart';
-import 'package:loading/indicator/ball_scale_multiple_indicator.dart';
-import 'package:loading/indicator/line_scale_party_indicator.dart';
-import 'package:loading/indicator/ball_beat_indicator.dart';
-import 'package:loading/indicator/line_scale_pulse_out_indicator.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';*/
 import 'dart:async';
 
 import 'package:shouz/Constant/Style.dart';
@@ -53,18 +51,27 @@ class Language {
 class _CovoiturageState extends State<Covoiturage> {
   final TextEditingController eCtrl = new TextEditingController();
   final TextEditingController eCtrl2 = new TextEditingController();
+  User? newClient;
   bool ori = false;
+  bool finishedLoadPosition = false;
   bool load1 = false;
   bool meac1 = true;
   bool meac2 = true;
   bool load2 = false;
   List<LatLng> global = [];
-  String origine;
-  String destination;
-  Location location;
-  LocationData locationData;
-  Stream<LocationData> stream;
-  Future<Map<String, dynamic>> covoiturage;
+  String origine = '';
+  String destination = '';
+  late Location location;
+  LocationData? locationData;
+  late PermissionStatus _permissionGranted;
+  late Stream<LocationData> stream;
+  late bool _serviceEnabled;
+  late Future<Map<String, dynamic>> covoiturage;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  PermissionHandler permissionHandler = PermissionHandler();
+  FusedLocationProviderClient locationService = FusedLocationProviderClient();
+  LocationRequest locationRequest = LocationRequest();
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
 
   SpeechToText _speechToText = SpeechToText();
@@ -92,6 +99,12 @@ class _CovoiturageState extends State<Covoiturage> {
   }
 
   void internetCheck() async{
+    User user = await DBProvider.db.getClient();
+
+    setState(() {
+      newClient = user;
+
+    });
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -106,19 +119,135 @@ class _CovoiturageState extends State<Covoiturage> {
     }
   }
 
+  getPositionCurrent() async {
+    if(Platform.isAndroid){
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      if(androidInfo.brand.indexOf('HUAWEI') != - 1 || androidInfo.brand.indexOf('HONOR') != - 1) {
+        try {
+          bool status = await permissionHandler.requestLocationPermission();
+          print('status');
+          print(status);
+          LocationSettingsRequest locationSettingsRequest = LocationSettingsRequest(
+            requests: <LocationRequest>[locationRequest],
+            needBle: true,
+            alwaysShow: true,
+          );
+          LocationSettingsStates states =
+          await locationService.checkLocationSettings(locationSettingsRequest);
+          loactionHuawei.Location locations = await locationService.getLastLocation();
 
+          setState(() {
+            locationData = LocationData.fromMap(
+                {
+                  "latitude" : locations.latitude,
+                  "longitude" : locations.longitude,
+                  "accuracy" : 0.0,
+                  "altitude" : locations.altitude,
+                  "speed" : locations.speed,
+                  "speed_accuracy" : locations.speedAccuracyMetersPerSecond,
+                  "heading" : locations.bearing,
+                  "time" : 0.0,
+                  "isMock" : false,
+                  "verticalAccuracy" : locations.verticalAccuracyMeters,
+                  "headingAccuracy" : locations.bearingAccuracyDegrees,
+                  "elapsedRealtimeNanos" : 0.0,
+                  "elapsedRealtimeUncertaintyNanos" : 0.0,
+                  "satelliteNumber" : locations.elapsedRealtimeNanos,
+                  "provider" : locations.provider,
+                }
+            );
+            finishedLoadPosition = true;
+          });
+          print("locationData Huawei");
+          print(locationData!.toString());
+        } catch (e) {
+          print(e);
+        }
+      } else {
+        try {
+          _permissionGranted = await location.hasPermission();
+          if (_permissionGranted == PermissionStatus.denied) {
+            _permissionGranted = await location.requestPermission();
+            if (_permissionGranted != PermissionStatus.granted) {
+              return;
+            } else {
+              _serviceEnabled = await location.serviceEnabled();
+              if (!_serviceEnabled) {
+                _serviceEnabled = await location.requestService();
+                if (!_serviceEnabled) {
+                  return;
+                }
+              }
+              var test = await location.getLocation();
+              setState(() {
+                locationData = test;
+                finishedLoadPosition = true;
+              });
 
+            }
+          } else {
+            _serviceEnabled = await location.serviceEnabled();
+            if (!_serviceEnabled) {
+              _serviceEnabled = await location.requestService();
+              if (!_serviceEnabled) {
+                return;
+              }
+            }
+            var test = await location.getLocation();
+            setState(() {
+              locationData = test;
+              finishedLoadPosition = true;
+            });
 
-  getPositionCurrent() async{
-    try {
+          }
 
-      var test = await location.getLocation();
-      setState(() {
-        locationData = test;
-      });
-    } catch(e){
-      print("nous avons une erreur $e");
+        } catch (e) {
+          print("nous avons une erreur $e");
+        }
+      }
+    } else {
+      try {
+        _permissionGranted = await location.hasPermission();
+        if (_permissionGranted == PermissionStatus.denied) {
+          _permissionGranted = await location.requestPermission();
+          if (_permissionGranted != PermissionStatus.granted) {
+            return;
+          } else {
+            _serviceEnabled = await location.serviceEnabled();
+            if (!_serviceEnabled) {
+              _serviceEnabled = await location.requestService();
+              if (!_serviceEnabled) {
+                return;
+              }
+            }
+            var test = await location.getLocation();
+            setState(() {
+              locationData = test;
+              finishedLoadPosition = true;
+            });
+
+          }
+        } else {
+          _serviceEnabled = await location.serviceEnabled();
+          if (!_serviceEnabled) {
+            _serviceEnabled = await location.requestService();
+            if (!_serviceEnabled) {
+              return;
+            }
+          }
+          var test = await location.getLocation();
+          setState(() {
+            locationData = test;
+            finishedLoadPosition = true;
+          });
+        }
+
+      } catch (e) {
+        print("nous avons une erreur $e");
+      }
     }
+
+
   }
 
   coordFromCityTwo() async{
@@ -134,7 +263,7 @@ class _CovoiturageState extends State<Covoiturage> {
           load2 = false;
           eCtrl.text = origine;
         });
-        covoiturage = new ConsumeAPI().getCovoiturage(origine, destination);
+        covoiturage = consumeAPI.getCovoiturage(origine, destination);
 
       }
       else{
@@ -143,7 +272,7 @@ class _CovoiturageState extends State<Covoiturage> {
           load2 = false;
           eCtrl.text = origine;
         });
-        covoiturage = new ConsumeAPI().getCovoiturage(origine, destination);
+        covoiturage = consumeAPI.getCovoiturage(origine, destination);
       }
     }
   }
@@ -181,7 +310,7 @@ class _CovoiturageState extends State<Covoiturage> {
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          (locationData == null) ? Center(child: Loading(indicator: BallScaleIndicator(), size: 200.0),): mapping(context,locationData.latitude,locationData.longitude),
+          !finishedLoadPosition ? Center(child: LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2)): mapping(context,locationData!.latitude!,locationData!.longitude!),
         ],
       ),
     );
@@ -238,7 +367,18 @@ class _CovoiturageState extends State<Covoiturage> {
                   additionalOptions: {
                     'accessToken': 'pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg',
                     'id': 'mapbox.mapbox-streets-v8'
-                  }),
+                  },
+                attributionBuilder: (_) {
+                  return Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Text("© ICORE MAP", style: Style.copyRight(),),
+                      )
+                    ],
+                  );
+                },
+              ),
               new MarkerLayerOptions(markers: [
                 new Marker(
                     width: 45.0,
@@ -289,7 +429,6 @@ class _CovoiturageState extends State<Covoiturage> {
                                 borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
                             ),
                             child: Center(
-                              // child: /*(trueLoad) ? Loading(indicator: BallScaleIndicator(), size: 200.0): */,
                               child: FutureBuilder(
                                       future: covoiturage,
                                       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -305,9 +444,9 @@ class _CovoiturageState extends State<Covoiturage> {
                                             ],
                                           );
                                           case ConnectionState.waiting:
-                                          return  Loading(indicator: BallScaleIndicator(), size: 200.0);
+                                          return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
                                           case ConnectionState.active:
-                                            return  Loading(indicator: BallScaleIndicator(), size: 200.0);
+                                            return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
                                           case ConnectionState.done:
                                           if (snapshot.hasError){
                                             return Column(
@@ -328,11 +467,11 @@ class _CovoiturageState extends State<Covoiturage> {
                                                         mainAxisAlignment: MainAxisAlignment.center,
                                                         children: <Widget>[
                                                           new SvgPicture.asset(
-                                                              "images/empty.svg",
-                                                              semanticsLabel: 'Shouz Pay',
-                                                              height: MediaQuery.of(context).size.height * 0.39,
+                                                              "images/notdepart.svg",
+                                                              semanticsLabel: 'NotTravel',
+                                                              height: MediaQuery.of(context).size.height * 0.3,
                                                           ),
-                                                          Text("Aucun voyage pour le moment selon pour ces coordonées", textAlign: TextAlign.center, style: Style.sousTitreEvent(15))
+                                                          Text("Aucun voyage pour le moment selon ces coordonées", textAlign: TextAlign.center, style: Style.sousTitreEvent(15))
                                                         ]);
                                           }
                                           return Container(
@@ -346,16 +485,31 @@ class _CovoiturageState extends State<Covoiturage> {
                                 itemBuilder: (context,index){
                                   final ident = covoiturageFilter['result'][index];
                                   final register = DateTime.parse(ident['travelDate']); //.toString();
-                                  String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 2) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
-                                  afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == - 1) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
-                                  afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
+                                  String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 1) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
+                                  afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
+                                  afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
                                   return new Padding(
                                     padding: EdgeInsets.only(left: 20.0, top: 40.0,bottom: 10.0),
                                     child: InkWell(
                                       onTap: (){
+                                        print(ident);
                                         Navigator.of(context).push((
                                             MaterialPageRoute(
-                                              builder: (builder)=> CovoiturageChoicePlace( VoyageModel(chauffeur: ident['profil'], imageUrl: ident['vehiculeCover'], origin: ident['beginCity'], detination: ident['endCity'], dateVoyage: ident['travelDate'], price: ident['price'], chauffeurName: ident['name'], placeTotal: ident['placePosition'].length, placeDisponible: ident['placePosition'], id: ident['_id'], nextLevel: ident['nextLevel'], levelName: ident['level'], numberTravel: ident['numberTravel'], hobiesCovoiturage: ident['hobiesCovoiturage']), global)
+                                                builder: (builder)=> CovoiturageChoicePlace(
+                                                  ident['id'],
+                                                  ident['beginCity'],
+                                                  ident['endCity'],
+                                                  ident['lieuRencontre'],
+                                                  ident['price'],
+                                                  ident['travelDate'],
+                                                  ident['authorId'],
+                                                  ident['placePosition'],
+                                                  ident['userPayCheck'],
+                                                  ident['infoAuthor'],
+                                                  ident['commentPayCheck'],
+                                                  newClient != null && ident['authorId'] == newClient!.ident,
+                                                  ident['state'],
+                                                )
                                             )
                                         ));
                                       },
@@ -373,7 +527,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                                 decoration: BoxDecoration(
                                                     borderRadius: BorderRadius.circular(6.0),
                                                     image: DecorationImage(
-                                                        image: NetworkImage("${ConsumeAPI.AssetCovoiturageServer}${ident['vehiculeCover']}"),
+                                                        image: NetworkImage("${ConsumeAPI.AssetTravelServer}${ident['authorId']}/${ident['infoAuthor']['vehiculeCover']}"),
                                                         fit: BoxFit.cover
                                                     )
                                                 ),
@@ -385,20 +539,22 @@ class _CovoiturageState extends State<Covoiturage> {
                                                     Padding(
                                                       padding: EdgeInsets.all(5.0),
                                                       child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
                                                         children: <Widget>[
-                                                          Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0),
-                                                          Text(ident['endCity'], maxLines: 3, style: Style.titleDealsProduct()),
+                                                          Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0),
+                                                          SizedBox(width: 10),
+                                                          Text(ident['endCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
                                                         ],
                                                       ),
                                                     ),
                                                     Padding(
                                                       padding: EdgeInsets.all(5.0),
                                                       child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
                                                         children: <Widget>[
-                                                          Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0),
-                                                          Text(ident['beginCity'], maxLines: 3, style: Style.titleDealsProduct()),
+                                                          Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0),
+                                                          SizedBox(width: 10),
+                                                          Text(ident['beginCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
                                                         ],
                                                       ),
                                                     ),
@@ -411,7 +567,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                                           children: <Widget>[
                                                             Icon(Icons.account_balance_wallet, color: Colors.white, size: 22.0),
                                                             SizedBox(width: 10.0),
-                                                            Text(ident['price'].toString(), style: Style.titleInSegment()),
+                                                            Text(ident['price'].toString() + ' ' + ident['infoAuthor']['currencies'], style: Style.titleInSegment()),
                                                           ],),
                                                           SizedBox(height: 5.0),
                                                           Row(mainAxisAlignment: MainAxisAlignment.start,

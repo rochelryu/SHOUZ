@@ -21,7 +21,7 @@ class _PubliciteState extends State<Publicite> {
     PageController controller = PageController(initialPage: mesUsers.length - 1);
     controller.addListener((){
       setState(() {
-        currentPage = controller.page;
+        currentPage = controller.page!;
       });
     });
     return Scaffold(

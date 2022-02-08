@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:location/location.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
+import '../Models/User.dart';
+import '../Utils/Database.dart';
 import './EventDetails.dart';
 import 'ChoiceOtherHobie.dart';
+import 'ExplainEvent.dart';
 
 class EventInter extends StatefulWidget {
   @override
@@ -16,18 +20,26 @@ class EventInter extends StatefulWidget {
 }
 
 class _EventInterState extends State<EventInter> {
-  Location location;
-  LocationData locationData;
-  Stream<LocationData> stream;
-  Future<Map<String, dynamic>> eventFull;
+  Location location = new Location();
+  late LocationData locationData;
+  User? user;
+  late StreamSubscription<LocationData> stream;
+  late Future<Map<String, dynamic>> eventFull;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
   @override
   void initState() {
     super.initState();
-    location = new Location();
-    eventFull = new ConsumeAPI().getEvents();
+    getUser();
+    eventFull = consumeAPI.getEvents();
     listenOnMove();
   }
 
+  getUser() async {
+    User newClient = await DBProvider.db.getClient();
+    setState(() {
+      user = newClient;
+    });
+  }
   Streamer() async {
     try {
       var test = await location.getLocation();
@@ -41,8 +53,7 @@ class _EventInterState extends State<EventInter> {
   }
 
   listenOnMove() {
-    stream = location.onLocationChanged;
-    stream.listen((newPosition) {
+    stream = location.onLocationChanged.listen((newPosition) {
       setState(() {
         locationData = newPosition;
       });
@@ -52,7 +63,10 @@ class _EventInterState extends State<EventInter> {
   @override
   void dispose() {
     // TODO: implement dispose
+
+    stream.cancel();
     super.dispose();
+
   }
 
   @override
@@ -505,6 +519,7 @@ class _EventInterState extends State<EventInter> {
                             )
                       ]));
                 }
+
                 return Column(
                   children: <Widget>[
                     Expanded(
@@ -544,7 +559,20 @@ class _EventInterState extends State<EventInter> {
                                         event['listEventsWithFilter'][index]
                                             ['state'],
                                         event['listEventsWithFilter'][index]
-                                            ['videoPub'])));
+                                            ['videoPub'],
+                                      event['listEventsWithFilter'][index]
+                                      ['allTicket'],
+                                      event['listEventsWithFilter'][index]
+                                      ['authorId'],
+                                      event['listEventsWithFilter'][index]
+                                      ['cumulGain'],
+                                      event['listEventsWithFilter'][index]
+                                      ['authorId'] == user!.ident,
+                                      event['listEventsWithFilter'][index]
+                                      ['state'],
+                                      event['listEventsWithFilter'][index]
+                                      ['favorie'],
+                                    )));
                               },
                               child: Container(
                                 width: double.infinity,
@@ -565,13 +593,13 @@ class _EventInterState extends State<EventInter> {
                                       bottom: 0,
                                       left: 0,
                                       right: 0,
-                                      height: 200,
+                                      height: 235,
                                       child: Container(
                                         decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                                 colors: [
                                               const Color(0x00000000),
-                                              const Color(0x99111111),
+                                              const Color(0x99111100),
                                             ],
                                                 begin:
                                                     FractionalOffset(0.0, 0.0),
@@ -624,7 +652,7 @@ class _EventInterState extends State<EventInter> {
                                                     SizedBox(width: 5.0),
                                                     Text(
                                                       event['listEventsWithFilter']
-                                                          [index]['price'][0],
+                                                          [index]['price'][0]['price'],
                                                       style: Style
                                                           .titleInSegment(),
                                                     ),
@@ -664,6 +692,14 @@ class _EventInterState extends State<EventInter> {
                 );
             }
           }),
+      floatingActionButton: FloatingActionButton(
+        elevation: 20.0,
+        onPressed: () {
+          Navigator.pushNamed(context, user!.isActivateForfait == 0 ? ExplainEvent.rootName: CreateEvent.rootName);
+        },
+        backgroundColor: colorText,
+        child: Icon(Icons.add, color: Colors.white, size: 22.0),
+      ),
     );
   }
 }

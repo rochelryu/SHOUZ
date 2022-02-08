@@ -5,26 +5,31 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:video_player/video_player.dart';
 
+import '../MenuDrawler.dart';
+
 class CreateEvent extends StatefulWidget {
+  static String rootName = '/createEvent';
   @override
   _CreateEventState createState() => _CreateEventState();
 }
 
 class _CreateEventState extends State<CreateEvent> {
-  VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   final picker = ImagePicker();
-  DateTime dateChoice;
-  DateTime date = new DateTime.now();
-  TimeOfDay time = new TimeOfDay.now();
+  DateTime? dateChoice;
+  late DateTime date = new DateTime.now();
+  late TimeOfDay time = new TimeOfDay.now();
   final formKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final ConsumeAPI consumeAPI = new ConsumeAPI();
+  int maxPlace = 0;
   List<File> post = [];
-  File video;
+  File? video;
   String base64Image = "";
   String base64Video = "";
   List<VideoPlayerController> postVideo = [];
@@ -32,25 +37,28 @@ class _CreateEventState extends State<CreateEvent> {
   String nameProduct = "";
   TextEditingController nameProductCtrl = new TextEditingController();
   String describe = "";
+  String email = "";
   TextEditingController describeCtrl = new TextEditingController();
+  TextEditingController emailCtrl = new TextEditingController();
   String position = "";
   TextEditingController positionCtrl = new TextEditingController();
   String price = "";
   TextEditingController priceCtrl = new TextEditingController();
-  String dropdownValue;
+  String? dropdownValue;
   bool _isName = true;
+  bool _isEmail = false;
   bool _isDescribe = false;
   bool _isPrice = false;
   bool _isPosition = false;
   bool _isNumber = false;
-  int numero;
+  int? numero;
   TextEditingController numeroCtrl = new TextEditingController();
   bool _isLoading = false;
   bool _isCategorie = false;
   bool monVal = false;
 
   Future<Null> selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: date,
         firstDate: new DateTime(new DateTime.now().year),
@@ -64,7 +72,7 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   Future<Null> selectTime(BuildContext context) async {
-    final TimeOfDay picked =
+    final TimeOfDay? picked =
         await showTimePicker(context: context, initialTime: time);
 
     if (picked != null && picked != time) {
@@ -84,17 +92,19 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   loadCategorie() async {
-    final data = await new ConsumeAPI().getAllCategrieWithoutFilter("event");
+    final data = await consumeAPI.getAllCategrieWithoutFilter("event");
+    final maxPlaceData = await consumeAPI.getMaxPlaceForCreateEvent();
     setState(() {
       allCategorie = data;
+      maxPlace = maxPlaceData;
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(() {});
-    _controller.dispose();
+    _controller!.removeListener(() {});
+    _controller!.dispose();
   }
 
   Future getImage() async {
@@ -116,38 +126,38 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   Future getVideo() async {
-    var image = await picker.getVideo(source: ImageSource.gallery);
+    var image = await picker.pickVideo(source: ImageSource.gallery);
 
     if (image != null) {
       if (postVideo.length < 1) {
         setState(() {
           _controller = VideoPlayerController.file(File(image.path));
-          _controller
+          _controller!
             ..initialize().then((_) {
-              _controller.setLooping(true);
+              _controller!.setLooping(true);
               setState(() {});
             });
-          _controller
+          _controller!
             ..addListener(() {
               setState(() {});
             });
-          postVideo.add(_controller);
+          postVideo.add(_controller!);
         });
         video = File(image.path);
         base64Video = base64Encode(File(image.path).readAsBytesSync());
       } else {
         setState(() {
           _controller = VideoPlayerController.file(File(image.path));
-          _controller
+          _controller!
             ..initialize().then((_) {
-              _controller.setLooping(true);
+              _controller!.setLooping(true);
               setState(() {});
             });
-          _controller
+          _controller!
             ..addListener(() {
               setState(() {});
             });
-          postVideo[0] = _controller;
+          postVideo[0] = _controller!;
         });
         video = File(image.path);
         base64Video = base64Encode(File(image.path).readAsBytesSync());
@@ -155,19 +165,17 @@ class _CreateEventState extends State<CreateEvent> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    var loginBtn = new RaisedButton(
+    var loginBtn = ElevatedButton(
       onPressed: _submit,
       child: new Text(
         "Enregistrer cet évenement",
-        style: prefix0.Style.sousTitreEvent(15),
+        style: Style.sousTitreEvent(15),
       ),
-      color: prefix0.colorText,
-      disabledElevation: 0.0,
-      disabledColor: Colors.grey[300],
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+      style: raisedButtonStyle,
     );
     var loginForm = new Column(
       children: <Widget>[
@@ -192,23 +200,24 @@ class _CreateEventState extends State<CreateEvent> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
                         ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isName
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: new TextField(
                       controller: nameProductCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       onChanged: (text) {
                         setState(() {
                           _isName = true;
                           _isDescribe = false;
+                          _isEmail = false;
                           _isPrice = false;
                           _isPosition = false;
                           _isNumber = false;
@@ -221,7 +230,7 @@ class _CreateEventState extends State<CreateEvent> {
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_one,
-                              color: _isName ? prefix0.colorText : Colors.grey),
+                              color: _isName ? colorText : Colors.grey),
                           hintText: "Titre de l'évenement",
                           hintStyle: TextStyle(
                             color: Colors.white,
@@ -238,7 +247,7 @@ class _CreateEventState extends State<CreateEvent> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
                   child: Container(
-                    height: 150,
+                    height: 190,
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -247,18 +256,19 @@ class _CreateEventState extends State<CreateEvent> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
                         ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isDescribe
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
                     child: new TextField(
                       controller: describeCtrl,
                       onChanged: (text) {
                         setState(() {
                           _isName = false;
+                          _isEmail = false;
                           _isDescribe = true;
                           _isPrice = false;
                           _isPosition = false;
@@ -271,15 +281,15 @@ class _CreateEventState extends State<CreateEvent> {
                       },
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      maxLength: 260,
-                      maxLines: 7,
-                      cursorColor: prefix0.colorText,
+                      maxLength: 360,
+                      maxLines: 9,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_two,
                               color: _isDescribe
-                                  ? prefix0.colorText
+                                  ? colorText
                                   : Colors.grey),
                           labelText: "Description du produit",
                           labelStyle: TextStyle(
@@ -306,31 +316,29 @@ class _CreateEventState extends State<CreateEvent> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
                         ),*/
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isCategorie
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: DropdownButton<String>(
+                    child: DropdownButtonFormField<String>(
                       hint: Text('Veuillez choisir une categorie',
-                          style: prefix0.Style.sousTitre(14)),
+                          style: Style.sousTitre(14)),
                       value: dropdownValue,
                       icon: Icon(Icons.arrow_downward),
                       isExpanded: true,
                       iconSize: 24,
                       elevation: 16,
                       style: TextStyle(color: Colors.white),
-                      underline: Container(
-                        height: 0,
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      onChanged: (String newValue) {
+
+                      onChanged: (newValue) {
                         setState(() {
                           _isCategorie = true;
                           dropdownValue = newValue;
                           _isName = false;
+                          _isEmail = false;
                           _isDescribe = false;
                           _isPrice = false;
                           _isPosition = false;
@@ -343,7 +351,7 @@ class _CreateEventState extends State<CreateEvent> {
                         return DropdownMenuItem<String>(
                           value: value['_id'],
                           child: Text(value['name'],
-                              style: prefix0.Style.sousTitre(15)),
+                              style: Style.sousTitre(15)),
                         );
                       }).toList(),
                     ),
@@ -382,7 +390,7 @@ class _CreateEventState extends State<CreateEvent> {
                                     SizedBox(height: 5),
                                     Text(
                                       "Selectionner une image",
-                                      style: prefix0.Style.titleInSegment(),
+                                      style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
                                   ],
@@ -421,7 +429,7 @@ class _CreateEventState extends State<CreateEvent> {
                     }),
               ),
               Container(
-                height: 130,
+                height: 140,
                 width: double.infinity,
                 padding: EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
                 child: ListView.builder(
@@ -442,17 +450,17 @@ class _CreateEventState extends State<CreateEvent> {
                               color: Colors.white,
                               strokeWidth: 1,
                               child: Container(
-                                height: 100,
+                                height: 110,
                                 width: 120,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    Icon(MyFlutterAppSecond.attach,
+                                    Icon(Icons.movie_filter_outlined,
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Selectionner une video pour l'évenement",
-                                      style: prefix0.Style.titleInSegment(),
+                                      "Une video illustrative (Pas obligatoire)",
+                                      style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
                                   ],
@@ -495,10 +503,10 @@ class _CreateEventState extends State<CreateEvent> {
                     children: <Widget>[
                       Text(
                           (dateChoice != null)
-                              ? dateChoice.toLocal().toString().substring(
-                                  0, dateChoice.toLocal().toString().length - 7)
+                              ? dateChoice!.toLocal().toString().substring(
+                                  0, dateChoice!.toLocal().toString().length - 7)
                               : "Cliquez sur l'icone du calendrier pour choisir la date de cet evenement",
-                          style: prefix0.Style.sousTitre(13)),
+                          style: Style.sousTitre(13)),
                       SizedBox(height: 10),
                       Container(
                         height: 60,
@@ -523,12 +531,12 @@ class _CreateEventState extends State<CreateEvent> {
                                 width: MediaQuery.of(context).size.width / 1.6,
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                    color: prefix0.backgroundColorSec,
+                                    color: backgroundColorSec,
                                     border: Border.all(
                                         width: 1.0,
                                         color: _isNumber
-                                            ? prefix0.colorText
-                                            : prefix0.backgroundColor),
+                                            ? colorText
+                                            : backgroundColor),
                                     borderRadius: BorderRadius.circular(50.0)),
                                 child: new TextField(
                                   controller: numeroCtrl,
@@ -536,6 +544,7 @@ class _CreateEventState extends State<CreateEvent> {
                                     setState(() {
                                       _isNumber = true;
                                       _isName = false;
+                                      _isEmail = false;
                                       _isDescribe = false;
                                       _isPrice = false;
                                       _isPosition = false;
@@ -548,13 +557,13 @@ class _CreateEventState extends State<CreateEvent> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300),
-                                  cursorColor: prefix0.colorText,
+                                  cursorColor: colorText,
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      prefixIcon: Icon(Icons.looks_4,
+                                      prefixIcon: Icon(Icons.looks_3,
                                           color: _isNumber
-                                              ? prefix0.colorText
+                                              ? colorText
                                               : Colors.grey),
                                       hintText: "Nombre de ticket",
                                       hintStyle: TextStyle(
@@ -582,12 +591,12 @@ class _CreateEventState extends State<CreateEvent> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isPosition
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: new TextField(
                       controller: positionCtrl,
@@ -596,6 +605,7 @@ class _CreateEventState extends State<CreateEvent> {
                           _isPosition = true;
                           _isName = false;
                           _isNumber = false;
+                          _isEmail = false;
                           _isDescribe = false;
                           _isPrice = false;
                           _isLoading = false;
@@ -606,13 +616,13 @@ class _CreateEventState extends State<CreateEvent> {
                       },
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                           border: InputBorder.none,
-                          prefixIcon: Icon(Icons.looks_5,
+                          prefixIcon: Icon(Icons.looks_4,
                               color: _isPosition
-                                  ? prefix0.colorText
+                                  ? colorText
                                   : Colors.grey),
                           hintText:
                               "Lieu (ex: Palais de la Culture Treichville, Abidjan)",
@@ -627,8 +637,8 @@ class _CreateEventState extends State<CreateEvent> {
               new Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                    "Veuillez entrer les prix des différents tickets en les separants par des virgules",
-                    style: prefix0.Style.sousTitre(13)),
+                    "Veuillez entrer les prix des différents tickets et le nombre de place de chaque type de ticket en les separants par des virgules",
+                    style: Style.sousTitre(13)),
               ),
               new Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -642,22 +652,23 @@ class _CreateEventState extends State<CreateEvent> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                        color: prefix0.backgroundColorSec,
+                        color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
                             color: _isPrice
-                                ? prefix0.colorText
-                                : prefix0.backgroundColor),
+                                ? colorText
+                                : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: new TextField(
                       controller: priceCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: prefix0.colorText,
+                      cursorColor: colorText,
                       onChanged: (text) {
                         setState(() {
                           _isPrice = true;
                           _isName = false;
+                          _isEmail = false;
                           _isDescribe = false;
                           _isPosition = false;
                           _isNumber = false;
@@ -670,10 +681,68 @@ class _CreateEventState extends State<CreateEvent> {
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                           border: InputBorder.none,
+                          prefixIcon: Icon(Icons.looks_5,
+                              color:
+                                  _isPrice ? colorText : Colors.grey),
+                          hintText: "(Ex: 2000:45, 5000:30) ou Gratuit",
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                    "Veuillez entrer vôtre email, nous vous enverons fréquement des mails concernant l'évolution de votre évènement",
+                    style: Style.sousTitre(13)),
+              ),
+              new Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: Colors.transparent,
+                  elevation: _isEmail ? 4.0 : 0.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0)),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                        color: backgroundColorSec,
+                        border: Border.all(
+                            width: 1.0,
+                            color: _isEmail
+                                ? colorText
+                                : backgroundColor),
+                        borderRadius: BorderRadius.circular(50.0)),
+                    child: new TextField(
+                      controller: emailCtrl,
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w300),
+                      cursorColor: colorText,
+                      onChanged: (text) {
+                        setState(() {
+                          _isPrice = false;
+                          _isName = false;
+                          _isEmail = true;
+                          _isDescribe = false;
+                          _isPosition = false;
+                          _isNumber = false;
+                          _isLoading = false;
+                          _isCategorie = false;
+                          monVal = false;
+                          email = text;
+                        });
+                      },
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_6,
                               color:
-                                  _isPrice ? prefix0.colorText : Colors.grey),
-                          hintText: "(Ex: 2000, 5000) ou Gratuit",
+                              _isEmail ? colorText : Colors.grey),
+                          hintText: "example@gmail.com",
                           hintStyle: TextStyle(
                             color: Colors.white,
                           )),
@@ -689,7 +758,7 @@ class _CreateEventState extends State<CreateEvent> {
       crossAxisAlignment: CrossAxisAlignment.center,
     );
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -710,13 +779,13 @@ class _CreateEventState extends State<CreateEvent> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text("Créer Un Evenement !",
-                          style: prefix0.Style.secondTitre(22)),
+                          style: Style.secondTitre(22)),
                       SizedBox(height: 10.0),
                       Text("Vendez vos tickets,",
-                          style: prefix0.Style.sousTitre(14),
+                          style: Style.sousTitre(14),
                           textAlign: TextAlign.center),
                       Text("managé votre évenement",
-                          style: prefix0.Style.sousTitre(14),
+                          style: Style.sousTitre(14),
                           textAlign: TextAlign.center),
                     ],
                   ),
@@ -737,31 +806,35 @@ class _CreateEventState extends State<CreateEvent> {
     formKey.currentState;
     setState(() => _isLoading = true);
     //print('$nameProduct , $describe , $dropdownValue, $base64Image, $base64Video, ${dateChoice.toString()} , ${numero.toString()}, $position, $price');
-    if (nameProduct.length > 7 &&
+    if (nameProduct.length > 5 &&
         describe.length > 20 &&
         dropdownValue != null &&
         base64Image != '' &&
         dateChoice != null &&
         numero != null &&
+        numero! <= maxPlace  &&
         position.length > 5 &&
-        price.length > 4) {
+        price.length > 4 && email.indexOf('@') > 4) {
       String imageCover = post[0].path.split('/').last;
-      String videoPub = (video != null) ? video.path.split('/').last : "";
+      String videoPub = (video != null) ? video!.path.split('/').last : "";
       final event = await new ConsumeAPI().setEvent(
           nameProduct,
           describe,
-          dropdownValue,
+          dropdownValue!,
           imageCover,
           base64Image,
           position,
           dateChoice.toString(),
-          numero,
+          numero!,
           price,
+          email,
           videoPub,
-          base64Video);
+          base64Video
+
+      );
       setState(() => _isLoading = false);
       print(event);
-      if (event == 'found') {
+      if (event['etat'] == 'found') {
         setState(() {
           dateChoice = null;
           video = null;
@@ -769,6 +842,7 @@ class _CreateEventState extends State<CreateEvent> {
           post.clear();
           postVideo.clear();
 
+          emailCtrl.clear();
           nameProductCtrl.clear();
           describeCtrl.clear();
           positionCtrl.clear();
@@ -780,66 +854,28 @@ class _CreateEventState extends State<CreateEvent> {
           describe = "";
           position = "";
           price = "";
+          email = '';
           numero = null;
         });
-        await _askedToLead(
+        await askedToLead(
             "Votre évènement est en ligne, vous pouvez le manager où que vous soyez",
-            true);
-      } else if (event == 'FreeInPayPrice') {
-        await _askedToLead(
-            "Un evenemnt Gratuit ne peut être assimilé à un prix", false);
-      } else if (event == 'IncorrectPrice') {
-        await _askedToLead("Erreur lors de la saisie des prix", false);
-      } else {
-        await _askedToLead(
-            "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
-            false);
+            true, context);
+        Navigator.pushNamed(context, MenuDrawler.rootName);
+      }
+      else {
+        await askedToLead(
+            event['error'],
+            false, context);
       }
     } else {
       setState(() => _isLoading = false);
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer");
+      _showSnackBar("Remplissez correctement les champs avant d'envoyer (NB: Max Place ${maxPlace.toString()})");
     }
   }
 
-  Future<Null> _askedToLead(String message, bool success) async {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: success
-                ? Icon(MyFlutterAppSecond.checked,
-                    size: 120, color: prefix0.colorSuccess)
-                : Icon(MyFlutterAppSecond.cancel,
-                    size: 120, color: prefix0.colorError),
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Column(children: [
-                  Text(message,
-                      textAlign: TextAlign.center,
-                      style: prefix0.Style.sousTitre(13)),
-                  RaisedButton(
-                      child: Text('Ok'),
-                      color:
-                          success ? prefix0.colorSuccess : prefix0.colorError,
-                      onPressed: () {
-                        if (success) {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.pop(context);
-                        }
-                      }),
-                ]),
-              )
-            ],
-          );
-        });
-  }
-
   void _showSnackBar(String text) {
-    scaffoldKey.currentState.showSnackBar(new SnackBar(
-      backgroundColor: prefix0.colorError,
+    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+      backgroundColor: colorError,
       content: new Text(
         text,
         textAlign: TextAlign.center,
@@ -847,7 +883,6 @@ class _CreateEventState extends State<CreateEvent> {
       action: SnackBarAction(
           label: 'Ok',
           onPressed: () {
-            return true;
           }),
     ));
   }

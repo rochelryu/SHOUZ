@@ -19,9 +19,9 @@ class CreateProfil extends StatefulWidget {
 
 class _CreateProfil extends State<CreateProfil> {
   String value = '';
-  String base64Image;
+  String? base64Image;
   final picker = ImagePicker();
-  File tmpFile;
+  File? tmpFile;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future getImage(BuildContext context) async {
@@ -81,9 +81,9 @@ class _CreateProfil extends State<CreateProfil> {
               final profils = await DBProvider.db.newProfil(fileName, '');
               print(profils);
             } else {
-              final fileName = tmpFile.path.split('/').last;
+              final fileName = tmpFile?.path.split('/').last;
               final profils =
-                  await DBProvider.db.newProfil(fileName, base64Image);
+                  await DBProvider.db.newProfil(fileName!, base64Image!);
               print(profils);
             }
             prefix0.setLevel(4);
@@ -331,6 +331,6 @@ class _CreateProfil extends State<CreateProfil> {
             Text('Votre nom et prénoms doivent depasser 4 caractères'),
           ],
         ));
-    _scaffoldKey.currentState.showSnackBar(snackBar);
+    _scaffoldKey.currentState?.showSnackBar(snackBar);
   }
 }

@@ -3,7 +3,7 @@ import 'package:shouz/Constant/Style.dart';
 
 
 class LoadHide extends StatelessWidget {
-  const LoadHide({Key key}) : super(key: key);
+  const LoadHide({required Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

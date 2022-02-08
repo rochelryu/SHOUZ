@@ -4,13 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
-import 'package:loading/loading.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
 import '../MenuDrawler.dart';
+import '../Models/Categorie.dart';
 
 class ChoiceOtherHobie extends StatefulWidget {
   @override
@@ -175,22 +175,22 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           ),
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
-                            return pattern.length > 0
-                                ? await new ConsumeAPI().getAllCategrie(pattern)
-                                : null;
+                            return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'');
                           },
                           itemBuilder: (context, suggestion) {
+                            final categorie = suggestion as Categorie;
                             return ListTile(
-                              title: Text(suggestion.name,
+                              title: Text(categorie.name,
                                   style: Style.priceDealsProduct()),
-                              trailing: (suggestion.popularity == 1)
+                              trailing: (categorie.popularity == 1)
                                   ? Icon(Icons.star, color: colorText)
                                   : Icon(Icons.star_border,
                                   color: colorText),
                             );
                           },
                           onSuggestionSelected: (suggestion) async {
-                            eCtrl.text = suggestion.name;
+                            final categorie = suggestion as Categorie;
+                            eCtrl.text = categorie.name;
                           },
                         ),
                       ),
@@ -213,9 +213,9 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                     : Wrap(
                   spacing: 6.0,
                   children: <Widget>[
-                    new StaggeredGridView.countBuilder(
+                    MasonryGridView.count(
                       physics: new BouncingScrollPhysics(),
-                      crossAxisCount: 4,
+                      crossAxisCount: 2,
                       shrinkWrap: true,
                       mainAxisSpacing: 0,
                       crossAxisSpacing: 0,
@@ -244,8 +244,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           backgroundColor: Colors.white,
                         );
                       },
-                      staggeredTileBuilder: (int index) =>
-                      new StaggeredTile.fit(2),
+
                     ),
                   ],
                 )
@@ -289,7 +288,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
 
   Widget IconAction(int length, bool action) {
     if (action) {
-      return Loading(indicator: BallSpinFadeLoaderIndicator(), size: 6.0);
+      return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {
       if (length <= 4) {
         return Icon(Icons.close, color: colorPrimary, size: 32.0);

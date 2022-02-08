@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 
 class CodeScanner extends StatefulWidget {
-  CodeScanner({Key key}) : super(key: key);
+  CodeScanner({Key? key}) : super(key: key);
 
   @override
   _CodeScannerState createState() => _CodeScannerState();
@@ -20,23 +20,23 @@ class _CodeScannerState extends State<CodeScanner> {
   Widget build(BuildContext context) {
     return new Scaffold(
         backgroundColor: prefix0.backgroundColor,
-        appBar: new AppBar(
+        appBar: AppBar(
           backgroundColor: prefix0.backgroundColor,
           elevation: 0,
-          title: new Text('Scannage'),
+          title: Text('Scannage'),
         ),
-        body: new Center(
-          child: new Column(
+        body: Center(
+          child: Column(
             children: <Widget>[
               new Container(
-                child: new MaterialButton(
+                child: MaterialButton(
                     onPressed: () {
                       print('OK');
                     },
-                    child: new Text("Scan")),
+                    child: Text("Scan")),
                 padding: const EdgeInsets.all(8.0),
               ),
-              new Text(barcode),
+              Text(barcode),
             ],
           ),
         ));

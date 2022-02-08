@@ -14,13 +14,9 @@ import '../MenuDrawler.dart';
 
 class Otp extends StatefulWidget {
   static String rootName = '/otp';
-  final String email;
-  final bool isGuestCheckOut;
 
   const Otp({
-    Key key,
-    /*@required */ this.email,
-    this.isGuestCheckOut,
+    required Key key,
   }) : super(key: key);
 
   @override
@@ -30,19 +26,19 @@ class Otp extends StatefulWidget {
 class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   // Constants
   final int time = 60;
-  AnimationController _controller;
+  late AnimationController _controller;
 
   // Variables
-  Size _screenSize;
-  int _currentDigit;
-  int _firstDigit;
-  int _secondDigit;
-  int _thirdDigit;
-  int _fourthDigit;
+  late Size _screenSize;
+  int? _currentDigit;
+  int? _firstDigit;
+  int? _secondDigit;
+  int? _thirdDigit;
+  int? _fourthDigit;
 
-  Timer timer;
-  int totalTimeInSeconds;
-  bool _hideResendButton;
+  late Timer timer;
+  late int totalTimeInSeconds;
+  late bool _hideResendButton;
 
   String userName = "";
   bool didReadNotifications = false;
@@ -68,7 +64,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
           // }
         },
       ),
-      centerTitle: true,
     );
   }
 
@@ -256,10 +251,10 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                       ),
                       onPressed: () async {
                         List<int> beta = [
-                          _firstDigit,
-                          _secondDigit,
-                          _thirdDigit,
-                          _fourthDigit
+                          _firstDigit!,
+                          _secondDigit!,
+                          _thirdDigit!,
+                          _fourthDigit!
                         ];
                         if (beta.join("").indexOf('null') == -1) {
                           User newClient = await DBProvider.db.getClient();
@@ -279,8 +274,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                                           'Nous sommes heureux de vous revoir ${newClient.name}',
                                           context),
                                   barrierDismissible: false);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (builder) => MenuDrawler()));
+                              Navigator.pushNamed(context, MenuDrawler.rootName);
                             }
                           } else {
                             print(newClient.recovery);
@@ -398,7 +392,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   }
 
 // Returns "Otp custom text field"
-  Widget _otpTextField(int digit) {
+  Widget _otpTextField(int? digit) {
     return new Container(
       width: 35.0,
       height: 45.0,
@@ -421,7 +415,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   }
 
 // Returns "Otp keyboard input Button"
-  Widget _otpKeyboardInputButton({String label, VoidCallback onPressed}) {
+  Widget _otpKeyboardInputButton({required String label, required VoidCallback onPressed}) {
     return new Material(
       color: Colors.transparent,
       child: new InkWell(
@@ -448,7 +442,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   }
 
 // Returns "Otp keyboard action Button"
-  _otpKeyboardActionButton({Widget label, VoidCallback onPressed}) {
+  _otpKeyboardActionButton({required Widget label, required VoidCallback onPressed}) {
     return new InkWell(
       onTap: onPressed,
       borderRadius: new BorderRadius.circular(40.0),
@@ -507,7 +501,7 @@ class OtpTimer extends StatelessWidget {
   OtpTimer(this.controller, this.fontSize, this.timeColor);
 
   String get timerString {
-    Duration duration = controller.duration * controller.value;
+    Duration duration = controller.duration! * controller.value;
     if (duration.inHours > 0) {
       return '${duration.inHours}:${duration.inMinutes % 60}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
     }
@@ -515,7 +509,7 @@ class OtpTimer extends StatelessWidget {
   }
 
   Duration get duration {
-    Duration duration = controller.duration;
+    Duration duration = controller.duration!;
     return duration;
   }
 
@@ -523,10 +517,10 @@ class OtpTimer extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: controller,
-        builder: (BuildContext context, Widget child) {
-          return new Text(
+        builder: (BuildContext context, child) {
+          return Text(
             timerString,
-            style: new TextStyle(
+            style: TextStyle(
                 fontSize: fontSize,
                 color: timeColor,
                 fontWeight: FontWeight.w600),

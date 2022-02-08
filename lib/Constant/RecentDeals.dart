@@ -14,7 +14,7 @@ class RecentDeals extends StatefulWidget {
   var numero;
   var autor;
   var profil;
-  var onLine;
+  bool onLine;
   var describe;
   var numberFavorite;
   var lieu;
@@ -23,14 +23,22 @@ class RecentDeals extends StatefulWidget {
   var authorName;
   String id;
   List<String> PersonneLike = [];
-  RecentDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, this.id, this.profil, this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName });
+  RecentDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName });
   @override
   _RecentDeals createState() => _RecentDeals();
 }
 
 class _RecentDeals extends State<RecentDeals> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
+    final color = widget.onLine ? Colors.green[300] : Colors.yellow[300];
     return Padding(padding: EdgeInsets.all(0),
       child: Stack(
         children: <Widget>[
@@ -126,9 +134,7 @@ class _RecentDeals extends State<RecentDeals> {
                 width: 50,
                 decoration: BoxDecoration(
 
-                  border: Border.all(width: 2.0, color: widget.onLine
-                      ? Colors.green[300]
-                      : Colors.yellow[300]),
+                  border: Border.all(width: 2.0, color: color!),
                   borderRadius: BorderRadius.circular(50.0),
                   image: DecorationImage(
                       image: NetworkImage(

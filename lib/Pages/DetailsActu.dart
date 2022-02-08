@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gradient_text/gradient_text.dart';
 import 'package:shouz/Constant/PageIndicatorSecond.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import 'comment_actu.dart';
 
@@ -19,8 +19,8 @@ class DetailsActu extends StatefulWidget {
   var content;
 
   DetailsActu(
-      {this.title,
-      this.id,
+      {required this.title,
+      required this.id,
       this.autherName,
       this.authorProfil,
       this.comment,
@@ -37,7 +37,7 @@ class _DetailsActuState extends State<DetailsActu> {
   bool lastPage = false;
   bool favorite = false;
 
-  PageController _controller;
+  late PageController _controller;
 
   @override
   void initState() {
@@ -141,11 +141,11 @@ class _DetailsActuState extends State<DetailsActu> {
                       builder: (context, child) {
                         var page = widget.content[index - 1];
                         var delta;
-                        var y = 1.0;
+                        double y = 1.0;
 
                         if (_controller.position.haveDimensions) {
-                          delta = _controller.page - index;
-                          y = 1 - delta.abs().clamp(0.0, 1.0);
+                          delta = _controller.page! - double.parse(index.toString());
+                          y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
                         }
                         return new SingleChildScrollView(
                           padding: EdgeInsets.only(
@@ -176,7 +176,7 @@ class _DetailsActuState extends State<DetailsActu> {
                     ),
                     onPressed: () {
                       Navigator.of(context).push((MaterialPageRoute(
-                          builder: (context) => CommentActu(id: widget.id, title: widget.title,comment: widget.comment, imageCover: widget.imageCover))));
+                          builder: (context) => CommentActu(id: widget.id, title: widget.title,comment: widget.comment, imageCover: widget.imageCover, key: UniqueKey(),))));
                     },
                   )
                 : Container(),
@@ -286,8 +286,7 @@ class _DetailsActuState extends State<DetailsActu> {
                 child: GradientText(
                   page['inTitle'],
                   textAlign: TextAlign.center,
-                  gradient: LinearGradient(
-                      colors: [Color(0xFF9708CC), Color(0xFF43CBFF)]),
+                  colors: [Color(0xFF9708CC), Color(0xFF43CBFF)],
                   style: Style.titleNews(),
                 ),
               ),

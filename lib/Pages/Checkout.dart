@@ -1,9 +1,11 @@
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Provider/AppState.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import '../ServicesWorker/ConsumeAPI.dart';
 
 class Checkout extends StatefulWidget {
   static String rootName = '/checkout';
@@ -12,11 +14,13 @@ class Checkout extends StatefulWidget {
 }
 
 class _CheckoutState extends State<Checkout> {
-  AppState appState;
-
+  late AppState appState;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  String txHashBtc = '';
+  String txHashEth = '';
   bool verifyUser = false;
 
-  TypePayement _character = TypePayement.trovaExchange;
+  TypePayement _character = TypePayement.bitcoin;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +29,12 @@ class _CheckoutState extends State<Checkout> {
           backgroundColor: backgroundColor,
           appBar: AppBar(
             leading: IconButton(
-              icon: Icon(Icons.chevron_left),
+              icon: Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
               }),
-            title: Text("Rechargement ShouzPay"),
+            title: Text("Rechargement Crypto"),
             backgroundColor: backgroundColor,
             elevation: 0.0,
           ),
@@ -46,43 +50,7 @@ class _CheckoutState extends State<Checkout> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        Card(
-                          elevation: (_character == TypePayement.trovaExchange) ? 15.0:1.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0.0)
-                          ),
-                          color: backgroundColorSec,
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.only(right: 20, left: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Radio(
-                                  activeColor: Colors.white,
-                                  value: TypePayement.trovaExchange,
-                                  groupValue: _character,
-                                  onChanged: (TypePayement value) {
-                                    setState(() { _character = value; });
-                                  },
-                                ),
-                                Text("Trova Exchange", style: Style.titre(18)),
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage("https://trova.vip/Inter/admin/images/favicon.png"),
-                                      fit: BoxFit.cover
-                                    )
-                                  ),
-                                )
 
-                              ],
-                            ),
-                          ),
-                        ),
 
                         Card(
                           elevation: (_character == TypePayement.bitcoin) ? 15.0:1.0,
@@ -101,8 +69,8 @@ class _CheckoutState extends State<Checkout> {
                                   activeColor: Colors.orange,
                                   value: TypePayement.bitcoin,
                                   groupValue: _character,
-                                  onChanged: (TypePayement value) {
-                                    setState(() { _character = value; });
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
                                   },
                                 ),
                                 Text("Bitcoin", style: Style.titre(18)),
@@ -136,8 +104,8 @@ class _CheckoutState extends State<Checkout> {
                                   activeColor: Colors.blue,
                                   value: TypePayement.ethereum,
                                   groupValue: _character,
-                                  onChanged: (TypePayement value) {
-                                    setState(() { _character = value; });
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
                                   },
                                 ),
                                 Text("Ethereum", style: Style.titre(18)),
@@ -175,35 +143,7 @@ class _CheckoutState extends State<Checkout> {
 
   Widget Blockus(BuildContext context,TypePayement type){
     switch(type){
-      case TypePayement.trovaExchange:
-        return Container(
-          height: MediaQuery.of(context).size.height/2,
-          width: MediaQuery.of(context).size.width/1.2,
-          child: Column(
-            children: [
-              SvgPicture.asset(
-                  "images/trova_exchange_illustration.svg",
-                  semanticsLabel: 'Trova Exchange',
-                width: 380,
-              ),
-              SizedBox(height: 15),
-              Text('Grâce à Trova Exchange vous pouvez vous recharger par mobile money 🥳', style: Style.sousTitre(14), textAlign: TextAlign.center,),
-              SizedBox(height: 15),
-              ElevatedButton(
-            onPressed: () async {
-              //update d'abord recovery avant de lancer le launch pour plus de securité.
-              await launch('https://www.trova.vip/exchange/buyByShouz?credential=...&recovery=...');
-            },
-            child: new Text(
-              "Envoyer le produit",
-              //style: Style.sousTitreEvent(15),
-            ),
-            style: raisedButtonStyle,
-          )
-            ],
-          )
-        );
-        break;
+
       case TypePayement.bitcoin:
         return Container(
           height: MediaQuery.of(context).size.height/2.4,
@@ -219,7 +159,7 @@ class _CheckoutState extends State<Checkout> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text("1. Faite une transaction bitcoin du montant que vous voulez pour le rechargement à l'addresse suivante :", style: Style.sousTitre(11)),
-                      SelectableText('1Fp1JtyeVWGH95diPG5oe4TcuipbwE3boR', style: Style.addressCrypto(),
+                      SelectableText('1NPRbtWD5qK3p4natG2ubTEwupeRT8HUcy', style: Style.addressCrypto(),
                         toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
                         showCursor: true,
                         cursorWidth: 2,
@@ -254,7 +194,9 @@ class _CheckoutState extends State<Checkout> {
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
                           ),
                           onChanged: (text){
-                            print(text);
+                            setState(() {
+                              txHashBtc = text;
+                            });
                           },
                         ),
                       ),
@@ -263,8 +205,26 @@ class _CheckoutState extends State<Checkout> {
                     FloatingActionButton(
                       backgroundColor: Colors.orange,
                       child: Icon(Icons.check,color: Colors.white),
-                      onPressed: (){
-                        print("Conf");
+                      onPressed: () async {
+                        if(txHashBtc.trim().length == 64) {
+                          final rechargeCrypto = await consumeAPI.rechargeCrypto('bitcoin', txHashBtc.trim());
+                          if(rechargeCrypto['etat'] == 'found') {
+                            final titleAlert = "Super! vous avez envoyé \$${rechargeCrypto['result']['valueInDollars'].toString()}. Avec les frais de Shouz votre compte à été soldé de ${rechargeCrypto['result']['valueInCurrencieOfTransaction']}";
+                            await askedToLead(titleAlert, true, context);
+                          } else {
+                            await askedToLead(rechargeCrypto['error'], false, context);
+                          }
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: 'TxHash (TxId) incorrect, veuillez bien verifier',
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: colorError,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                        }
                       },
                     )
                   ],
@@ -273,7 +233,6 @@ class _CheckoutState extends State<Checkout> {
             ],
           ),
         );
-        break;
       case TypePayement.ethereum:
         return Container(
           height: MediaQuery.of(context).size.height/2.4,
@@ -283,14 +242,21 @@ class _CheckoutState extends State<Checkout> {
             children: <Widget>[
 
               Container(
-                  height: MediaQuery.of(context).size.height/6,
+                  height: MediaQuery.of(context).size.height/4,
                   width: double.infinity,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("1. Acceptez la notification reçue sur votre téléphone en entrant le chiffre 1 pour vous identifier", style: Style.sousTitre(11)),
-                      Text("2. *133# pour approuver la demande de paiement.", style: Style.sousTitre(12)),
-                      Text("3. Confirmer le paiement en saisissant votre code secret MTN Mobile Money.", style: Style.sousTitre(12)),
+                      Text("1. Faites une transaction ethereum du montant que vous voulez pour le rechargement à l'addresse suivante :", style: Style.sousTitre(11)),
+                      SelectableText('0x8a508B2F5615Ef7453ECa2D89F61bE50a7158231', style: Style.addressCrypto(),
+                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
+                        showCursor: true,
+                        cursorWidth: 2,
+                        cursorColor: Colors.red,
+                        cursorRadius: const Radius.circular(5),
+
+                      ),
+                      Text("2. Une fois que vous avez fait la transaction du montant voulu, veuillez recupérer le code de reference de cette transaction (TxHash ou TxId) puis la coller dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
                     ],
                   )
               ),
@@ -303,31 +269,51 @@ class _CheckoutState extends State<Checkout> {
                       child: Container(
                         height: 45,
                         width: double.infinity,
-                        padding: EdgeInsets.only(left: 30.0),
+                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
                         decoration: BoxDecoration(
                             color: Colors.white30,
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.phone,
+                          keyboardType: TextInputType.text,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: "+225 XX XX XX XX",
+                            hintText: "xxxxxxxxxxxxxxxxxxxxxxxxxx",
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
                           ),
                           onChanged: (text){
-                            print(text);
+                            setState(() {
+                              txHashEth = text;
+                            });
                           },
                         ),
                       ),
                     ),
                     SizedBox(width: 15.0),
                     FloatingActionButton(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.orange,
                       child: Icon(Icons.check,color: Colors.white),
-                      onPressed: (){
-                        print("Conf");
+                      onPressed: () async {
+                        if(txHashBtc.trim().length == 66) {
+                          final rechargeCrypto = await consumeAPI.rechargeCrypto('ethereum', txHashEth.trim());
+                          if(rechargeCrypto['etat'] == 'found') {
+                            final titleAlert = "Super! vous avez envoyé \$${rechargeCrypto['result']['valueInDollars'].toString()}. Avec les frais de Shouz votre compte à été soldé de ${rechargeCrypto['result']['valueInCurrencieOfTransaction']}";
+                            await askedToLead(titleAlert, true, context);
+                          } else {
+                            await askedToLead(rechargeCrypto['error'], false, context);
+                          }
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: 'TxHash (TxId) incorrect, veuillez bien verifier',
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: colorError,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                        }
                       },
                     )
                   ],
@@ -336,7 +322,6 @@ class _CheckoutState extends State<Checkout> {
             ],
           ),
         );
-        break;
       default:
         return Container(
           height: 50,

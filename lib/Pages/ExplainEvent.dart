@@ -1,81 +1,44 @@
-import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:gradient_text/gradient_text.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/ResultSubscribeForfait.dart';
 import 'package:shouz/Provider/AppState.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class ExplainEvent extends StatefulWidget {
+  static String rootName = '/explainEvent';
   @override
   _ExplainEventState createState() => _ExplainEventState();
 }
 
 class _ExplainEventState extends State<ExplainEvent> {
-  AppState appState;
-  bool createPass = true;
-  List<int> forfait = [0, 0, 0, 0, 0];
-  List<Map<String, String>> displayItem = [
-    {
-      "title": "BASIQUE",
-      'background': 'images/none.jpg',
-      'numberTotalEvent': 'Nbre Max Evenements/mois : 1',
-      'maxPlace': 'Nbre Max place : 1000',
-    },
-    {
-      "title": "PREMIUM",
-      'background': 'images/premiumCard.jpg',
-      'numberTotalEvent': 'Nbre Max Evenements/mois : 2',
-      'maxPlace': 'Nbre Max place : 200',
-    },
-    {
-      "title": "MASTER CLASS",
-      'background': 'images/masterClass.jpg',
-      'numberTotalEvent': 'Nbre Max Evenements/mois : 4',
-      'maxPlace': 'Nbre Max place : 500',
-    },
-    {
-      "title": "GOLD",
-      'background': 'images/gold.jpg',
-      'numberTotalEvent': 'Nbre Max Evenements/mois : 8',
-      'maxPlace': 'Nbre Max place : 1200',
-    },
-    {
-      "title": "DIAMOND",
-      'background': 'images/diamomd.jpg',
-      'numberTotalEvent': 'Nbre Max Evenements/mois : illimité',
-      'maxPlace': 'Nbre Max place : illimité',
-    },
-  ];
-  String pin = '';
-  User newClient;
+  late AppState appState;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  String forfaitName = '';
+  int maxPlace = 0;
+  late List<dynamic> displayItem;
+  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/none.jpg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpg', 'title': 'GOLD'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
+  bool isFinishLoad = false;
+  User? newClient;
 
   void initState() {
     super.initState();
     LoadInfo();
-    getNewPin();
-  }
-
-  Future getNewPin() async {
-    try {
-      String pin = await getPin();
-      setState(() {
-        this.pin = pin;
-        createPass = (this.pin.length > 0) ? false : true;
-      });
-    } catch (e) {
-      print("Erreur $e");
-    }
   }
 
   LoadInfo() async {
     User user = await DBProvider.db.getClient();
+    final data = await consumeAPI.getAllTypeEvents(user.ident);
     setState(() {
       newClient = user;
+      displayItem = data;
+      isFinishLoad = true;
     });
   }
 
@@ -138,7 +101,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                     enlargeCenterPage: true,
                     scrollDirection: Axis.horizontal,
                   ),
-                  items: displayItem.map((value) {
+                  items: displayItemCarousel.map((value) {
                     return Builder(
                       builder: (BuildContext context) {
                         return Card(
@@ -147,19 +110,19 @@ class _ExplainEventState extends State<ExplainEvent> {
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: AssetImage(value['background'])),
+                                    image: AssetImage(value['img'])),
                                 borderRadius: BorderRadius.circular(4)),
-                            child: Center(
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                  Text(
-                                    value['title'],
-                                    style: value['title'] != "BASIQUE"
-                                        ? Style.grandTitre(23)
-                                        : Style.grandTitreBlack(23),
-                                  )
-                                ])),
+                                child: Center(
+                                        child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                            Text(
+                                            value['title'],
+                                            style: value['title'] != "BASIC"
+                                            ? Style.grandTitre(23)
+                                                : Style.grandTitreBlack(23),
+                                            )
+                                        ])),
                           ),
                         );
                       },
@@ -193,253 +156,45 @@ class _ExplainEventState extends State<ExplainEvent> {
                   ],
                 ),
               ),
-              SizedBox(height: 35),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    onTap: () {
-                      if (newClient.wallet >= 2000) {
-                        setState(() {
-                          forfait = [1, 0, 0, 0, 0];
-                        });
-                      } else {
-                        _askedToInsufisanceWallet();
-                      }
-                    },
-                    title: Text('BASIQUE', style: Style.titreEvent(20)),
-                    subtitle: Column(
-                      children: <Widget>[
-                        Text(
-                            'Pour ceux qui font uniquement des Evenements Gratuits',
-                            style: Style.sousTitre(13)),
-                        Text('2.000 F cfa/mois',
-                            style: Style.priceDealsProduct())
-                      ],
-                    ),
-                    selected: true,
-                    isThreeLine: true,
-                    trailing: Icon(Icons.check_circle_outline,
-                        color:
-                            (forfait[0] == 0) ? Colors.grey[700] : colorText),
-                  ),
-                ),
+                child: isFinishLoad ?
+                    Container(
+                      width: double.infinity,
+
+                      child: Column(
+                        children: reformatForPackage(),
+                      ),
+                    )
+                    : LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)
+                ,
               ),
-              SizedBox(height: 15),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    onTap: () {
-                      if (newClient.wallet >= 10000) {
-                        setState(() {
-                          forfait = [0, 1, 0, 0, 0];
-                        });
-                      } else {
-                        _askedToInsufisanceWallet();
-                      }
-                    },
-                    title: GradientText(
-                      'PREMIUM',
-                      textAlign: TextAlign.left,
-                      gradient: LinearGradient(
-                          colors: [Color(0xFF9708CC), Color(0xFF43CBFF)]),
-                      style: Style.titreEvent(20),
-                    ),
-                    subtitle: Column(
-                      children: <Widget>[
-                        Text('Pour des Evenements de maximun 200 personnes',
-                            style: Style.sousTitre(13)),
-                        Text('10.000 F cfa/mois',
-                            style: Style.priceDealsProduct())
-                      ],
-                    ),
-                    selected: true,
-                    isThreeLine: true,
-                    trailing: Icon(Icons.check_circle_outline,
-                        color:
-                            (forfait[1] == 0) ? Colors.grey[700] : colorText),
-                  ),
-                ),
-              ),
-              SizedBox(height: 15),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    onTap: () {
-                      if (newClient.wallet >= 25000) {
-                        setState(() {
-                          forfait = [0, 0, 1, 0, 0];
-                        });
-                      } else {
-                        _askedToInsufisanceWallet();
-                      }
-                    },
-                    title: GradientText(
-                      'MASTER CLASS',
-                      textAlign: TextAlign.left,
-                      gradient: LinearGradient(
-                          colors: [Color(0xFFE57373), Color(0xFFFF1744)]),
-                      style: Style.titreEvent(20),
-                    ),
-                    subtitle: Column(
-                      children: <Widget>[
-                        Text('Pour des Evenements de maximun 500 personnes',
-                            style: Style.sousTitre(13)),
-                        Text('25.000 F cfa/mois',
-                            style: Style.priceDealsProduct())
-                      ],
-                    ),
-                    selected: true,
-                    isThreeLine: true,
-                    trailing: Icon(Icons.check_circle_outline,
-                        color:
-                            (forfait[2] == 0) ? Colors.grey[700] : colorText),
-                  ),
-                ),
-              ),
-              SizedBox(height: 15),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    onTap: () {
-                      if (newClient.wallet >= 80000) {
-                        setState(() {
-                          forfait = [0, 0, 0, 1, 0];
-                        });
-                      } else {
-                        _askedToInsufisanceWallet();
-                      }
-                    },
-                    title: GradientText(
-                      'GOLD',
-                      textAlign: TextAlign.left,
-                      gradient: LinearGradient(
-                          colors: [Color(0xFFFFEA00), Color(0xFFFF0000)]),
-                      style: Style.titreEvent(20),
-                    ),
-                    subtitle: Column(
-                      children: <Widget>[
-                        Text('Pour des Evenements de maximun 1200 personnes',
-                            style: Style.sousTitre(13)),
-                        Text('80.000 F cfa/mois',
-                            style: Style.priceDealsProduct())
-                      ],
-                    ),
-                    selected: true,
-                    isThreeLine: true,
-                    trailing: Icon(Icons.check_circle_outline,
-                        color:
-                            (forfait[3] == 0) ? Colors.grey[700] : colorText),
-                  ),
-                ),
-              ),
-              SizedBox(height: 15),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    onTap: () {
-                      if (newClient.wallet >= 200000) {
-                        setState(() {
-                          forfait = [0, 0, 0, 0, 1];
-                        });
-                      } else {
-                        _askedToInsufisanceWallet();
-                      }
-                    },
-                    title: GradientText(
-                      'DIAMOND',
-                      textAlign: TextAlign.left,
-                      gradient: LinearGradient(
-                          colors: [Color(0xFFE0E0E0), Color(0xFF424242)]),
-                      style: Style.titreEvent(20),
-                    ),
-                    subtitle: Column(
-                      children: <Widget>[
-                        Text(
-                            'Votre limite c\'est votre imagination, c\'est à vous de jouer',
-                            style: Style.sousTitre(13)),
-                        Text('200.000 F cfa/mois',
-                            style: Style.priceDealsProduct())
-                      ],
-                    ),
-                    selected: true,
-                    isThreeLine: true,
-                    trailing: Icon(Icons.check_circle_outline,
-                        color:
-                            (forfait[4] == 0) ? Colors.grey[700] : colorText),
-                  ),
-                ),
-              ),
+
               SizedBox(height: 25)
             ],
           ),
         ),
-        floatingActionButton: (forfait.indexOf(1) == -1)
+        floatingActionButton: forfaitName == ''
             ? SizedBox(width: 30)
             : FloatingActionButton(
                 onPressed: () async {
                   await _askedToLead();
                 },
                 backgroundColor: colorText,
-                child: Icon(Icons.check),
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Icon(Icons.check),
+                  Text(forfaitName.substring(0, 1), style: Style.chatIsMe(25),)
+                ],),
               ));
   }
 
   Future<Null> _askedToLead() async {
-    var forfaitName = '';
-    switch (forfait.indexOf(1)) {
-      case 0:
-        forfaitName = 'BASIQUE';
-        appState.setForfaitEventEnum(forfaitName, displayItem[0]['background']);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => VerifyUser(
-                redirect: ResultSubscribeForfait.rootName)));
-        break;
-      case 1:
-        forfaitName = 'PREMIUM';
-        appState.setForfaitEventEnum(forfaitName, displayItem[1]['background']);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => VerifyUser(
-                redirect: ResultSubscribeForfait.rootName)));
-        break;
-      case 2:
-        forfaitName = 'MASTER_CLASS';
-        appState.setForfaitEventEnum(forfaitName, displayItem[2]['background']);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => VerifyUser(
-                redirect: ResultSubscribeForfait.rootName)));
-        break;
-      case 3:
-        forfaitName = 'GOLD';
-        appState.setForfaitEventEnum(forfaitName, displayItem[3]['background']);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => VerifyUser(
-                redirect: ResultSubscribeForfait.rootName)));
-        break;
-      case 4:
-        forfaitName = 'DIAMOND';
-        appState.setForfaitEventEnum(forfaitName, displayItem[4]['background']);
-        break;
-    }
+    appState.setForfaitEventEnum(forfaitName, maxPlace);
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (builder) => VerifyUser(
+          redirect: ResultSubscribeForfait.rootName, key: UniqueKey(),)));
   }
 
   _askedToInsufisanceWallet() {
@@ -469,4 +224,75 @@ class _ExplainEventState extends State<ExplainEvent> {
           );
         });
   }
+
+  Widget titleOfPackage(String title) {
+    if(title == 'BASIC') {
+      return Text(title, style: Style.titreEvent(20));
+    } else if (title == 'PREMIUM') {
+      return GradientText(
+        'PREMIUM',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFF9708CC), Color(0xFF43CBFF)],
+        style: Style.titreEvent(20),
+      );
+    } else if (title == 'MASTER_CLASS') {
+      return GradientText(
+        'MASTER_CLASS',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFFE57373), Color(0xFFFF1744)],
+        style: Style.titreEvent(20),
+      );
+    } else if (title == 'GOLD') {
+      return GradientText(
+        'GOLD',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFFFFEA00), Color(0xFFFF0000)],
+        style: Style.titreEvent(20),
+      );
+    } else if (title == 'DIAMOND') {
+      return GradientText(
+        'DIAMOND',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFFE0E0E0), Color(0xFF424242)],
+        style: Style.titreEvent(20),
+      );
+    } else {
+      return Text(title, style: Style.titreEvent(20));
+    }
+  }
+
+  List<Widget> reformatForPackage() {
+    List<Widget> widgets = displayItem.map(
+            (element) =>
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(15)),
+                  child: ListTile(
+                    onTap: () {
+                      if (newClient!.wallet >= element['priceLocalCurrencies']) {
+                        setState(() {
+                          forfaitName = element['title'];
+                          maxPlace = element['maxPlace'];
+                        });
+                      } else {
+                        _askedToInsufisanceWallet();
+                      }
+                    },
+                    title: titleOfPackage(element['title']),
+                    subtitle: Column(
+                      children: <Widget>[
+                        Text(
+                            "${element['describe']}. \nMax place : ${element['maxPlace'].toString()}",
+                            style: Style.sousTitre(13)),
+                        Text("${element['priceLocalCurrencies'].toString()} ${newClient!.currencies}",
+                            style: Style.priceDealsProduct())
+                      ],
+                    ),
+                    selected: true,
+                    isThreeLine: true,
+                   ),
+                )).toList();
+    return widgets;
+  }
+
 }

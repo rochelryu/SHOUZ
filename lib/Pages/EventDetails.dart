@@ -6,13 +6,21 @@ import 'package:shouz/Constant/CircularClipper.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
+import 'package:shouz/Pages/add_decodeur.dart';
+import 'package:shouz/Pages/result_buy_event.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:shouz/Utils/Database.dart';
 import 'package:video_player/video_player.dart';
+
+import '../Constant/Style.dart';
+import '../Models/User.dart';
 
 class EventDetails extends StatefulWidget {
   var imageUrl;
   var prixTicket = [];
+  var placeTicket = [];
+  var allTicket = [];
   var numberFavorite;
   var state;
   var id;
@@ -26,6 +34,10 @@ class EventDetails extends StatefulWidget {
   var index;
   var title;
   var videoPub;
+  var authorId;
+  int cumulGain;
+  int stateEvent;
+  bool isMeAuthor;
   EventDetails(
       this.imageUrl,
       this.index,
@@ -40,12 +52,14 @@ class EventDetails extends StatefulWidget {
       this.title,
       this.positionRecently,
       this.state,
-      this.videoPub) {
-    favorite = true;
+      this.videoPub, this.allTicket, this.authorId, this.cumulGain, this.isMeAuthor, this.stateEvent, this.favorite) {
     this.prixTicket = prixTicket
-        .map((value) => (value == "GRATUIT")
-            ? {"price": "GRATUIT", "choice": 0}
-            : {"price": int.parse(value), "choice": 0})
+        .map((value) => value['price'].toString().trim() == "Gratuit"
+            ? {"price": "Gratuit", "choice": 0}
+            : {"price": int.parse(value['price']), "choice": 0})
+        .toList();
+    this.placeTicket = prixTicket
+        .map((value) => value['numberPlace'].toString())
         .toList();
   }
 
@@ -54,25 +68,26 @@ class EventDetails extends StatefulWidget {
 }
 
 class _EventDetailsState extends State<EventDetails> {
-  AppState appState;
+  late AppState appState;
   List checkPros = [];
+  List checkPlacePros = [];
   int place = 0;
   int priceItem = 0;
+  int state = 1;
   String choice = '';
-  bool favo;
+  late bool favo;
   bool gratuitPass = false;
-  bool createPass = true;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  late User user = new User('', '');
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  int placeTotal;
-  String pin = '';
+  late int placeTotal;
 
-  Future getNewPin() async {
+  Future getInfo() async {
     try {
-      String pin = await prefix0.getPin();
+      final me = await DBProvider.db.getClient();
       setState(() {
-        this.pin = pin;
-        createPass = (this.pin.length > 0) ? false : true;
+        user = me;
       });
     } catch (e) {
       print("Erreur $e");
@@ -82,11 +97,13 @@ class _EventDetailsState extends State<EventDetails> {
   @override
   void initState() {
     super.initState();
-
+    getInfo();
     checkPros = widget.prixTicket;
+    checkPlacePros = widget.placeTicket;
     favo = widget.favorite;
+    state = widget.state;
     placeTotal = widget.numberTicket;
-    getNewPin();
+
   }
 
   @override
@@ -166,7 +183,7 @@ class _EventDetailsState extends State<EventDetails> {
                   ),
                 ],
               ),
-              favo
+              widget.videoPub != 'null'
                   ? Positioned.fill(
                       bottom: 20,
                       child: Align(
@@ -284,7 +301,7 @@ class _EventDetailsState extends State<EventDetails> {
                 ),
                 SizedBox(height: 20.0),
                 Container(
-                  height: 120,
+                  height: double.parse((widget.describe.toString().length / 1.9).toString()),
                   child: SingleChildScrollView(
                     child: Text(
                       widget.describe,
@@ -296,6 +313,7 @@ class _EventDetailsState extends State<EventDetails> {
               ],
             ),
           ),
+          widget.allTicket.length > 0 ? componentForDisplayTicketByEvent(widget.allTicket, widget.title, widget.enventDate, user) : SizedBox(width: 10),
           Row(
             children: <Widget>[
               SizedBox(
@@ -322,7 +340,7 @@ class _EventDetailsState extends State<EventDetails> {
                     setState(() {
                       checkPros = newTable;
                       choice = newTable[i]["price"].toString();
-                      priceItem = (choice == "GRATUIT")
+                      priceItem = (choice == "Gratuit")
                           ? priceItem
                           : newTable[i]["price"] * place;
                     });
@@ -337,7 +355,7 @@ class _EventDetailsState extends State<EventDetails> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text(checkPros[i]['price'].toString(),
+                          Text('${checkPros[i]['price'].toString()} ${checkPros[i]['price'].toString() == 'Gratuit' ? '': user.currencies}',
                               style: TextStyle(
                                   color: (checkPros[i]['choice'] == 0)
                                       ? Colors.white
@@ -345,16 +363,32 @@ class _EventDetailsState extends State<EventDetails> {
                                   fontSize: 15.0,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: "Montserrat")),
-                          (checkPros[i]['price'].toString() == "GRATUIT")
+                          (checkPros[i]['price'].toString() == "Gratuit")
                               ? SizedBox(width: 10)
-                              : Text('F cfa',
-                                  style: TextStyle(
-                                      color: (checkPros[i]['choice'] == 0)
-                                          ? Colors.white
-                                          : prefix0.backgroundColor,
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: "Montserrat")),
+                              : Padding(
+                            padding: EdgeInsets.only(top: 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Ticket(s): ',
+                                    style: TextStyle(
+                                        color: (checkPros[i]['choice'] == 0)
+                                            ? Colors.white
+                                            : prefix0.backgroundColor,
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: "Montserrat")),
+                                Text(checkPlacePros[i],
+                                    style: TextStyle(
+                                        color: (checkPros[i]['choice'] == 0)
+                                            ? Colors.white
+                                            : prefix0.backgroundColor,
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: "Montserrat")),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -383,9 +417,23 @@ class _EventDetailsState extends State<EventDetails> {
                   ],
                 ),
               ),
-              Divider(),
-              Container(
+              widget.isMeAuthor ? Container(
                 height: 30,
+                padding: EdgeInsets.only(left: 5),
+                margin: EdgeInsets.only(left: 5),
+                decoration: BoxDecoration(
+
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    Text("Cumul Gain: ${widget.cumulGain.toString()}", style: prefix0.Style.sousTitre(15),)
+                  ],
+                )
+              ) :
+              Container(
+                height: 40,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -398,7 +446,7 @@ class _EventDetailsState extends State<EventDetails> {
                           placeTotal =
                               (place != 0) ? placeTotal + 1 : placeTotal;
                           place = normal;
-                          priceItem = (choice == "GRATUIT")
+                          priceItem = (choice == "Gratuit")
                               ? 0
                               : normal * int.parse(choice);
                         });
@@ -408,13 +456,22 @@ class _EventDetailsState extends State<EventDetails> {
                     IconButton(
                       icon: Icon(Icons.add_circle, color: prefix0.colorText),
                       onPressed: () {
-                        var normal =
-                            (placeTotal > place) ? place + 1 : placeTotal;
+                        var normal = 0;
+
+                        if(placeTotal > place) {
+                          normal = (placeTotal > place) ? place + 1 : placeTotal;
+                        } else {
+                          if(placeTotal > 0) {
+                            normal = place + 1;
+                          } else {
+                            normal = place;
+                          }
+                        }
                         setState(() {
                           place = normal;
                           placeTotal =
-                              (place > 0) ? placeTotal - 1 : placeTotal;
-                          priceItem = (choice == "GRATUIT")
+                              (placeTotal > 0) ? placeTotal - 1 : placeTotal;
+                          priceItem = (choice == "Gratuit")
                               ? 0
                               : normal * int.parse(choice);
                         });
@@ -435,7 +492,12 @@ class _EventDetailsState extends State<EventDetails> {
             decoration: BoxDecoration(
                 color: prefix0.backgroundColorSec,
                 borderRadius: BorderRadius.circular(30)),
-            child: Row(
+            child: widget.isMeAuthor ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                reformatStateAuthor(state),
+              ],
+            ) : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
@@ -448,16 +510,23 @@ class _EventDetailsState extends State<EventDetails> {
                       borderRadius: BorderRadius.circular(20.0)),
                   child: Text("Acheter", style: prefix0.Style.titre(18)),
                   onPressed: () {
-                    if (priceItem != 0 || choice == "GRATUIT") {
-                      print('$place $priceItem');
+                    print('${priceItem.toString()} ${place.toString()} ${user.wallet.toString()}, $choice');
+                    if ((priceItem != 0 || choice == "Gratuit") && priceItem <= user.wallet) {
+                      print('${priceItem.toString()} ${place.toString()} ${user.wallet.toString()}, $choice');
                       appState.setIdEvent(widget.id);
                       appState.setNumberTicket(place);
                       appState.setPriceTicketTotal(priceItem.toString());
+                      appState.setPriceUnityTicket(choice);
+
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (builder) => VerifyUser(
-                              redirect: '/checkout')));
-                    } else
-                      _displaySnackBar(context);
+                              redirect: ResultBuyEvent.rootName, key: UniqueKey(),)));
+                    } else if(priceItem > user.wallet) {
+                      _displaySnackBar(context, 'Votre  est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
+                    } else{
+                      _displaySnackBar(context, 'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',);
+                    }
+
                   },
                 ),
               ],
@@ -468,13 +537,53 @@ class _EventDetailsState extends State<EventDetails> {
     );
   }
 
-  _displaySnackBar(BuildContext context) {
+  Widget reformatStateAuthor(int state) {
+    if(state == 1) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Gain pas encore retirable', style: Style.titre(10),),
+          ElevatedButton(onPressed: (){
+            Navigator.of(context)
+                .push((MaterialPageRoute(builder: (context) {
+              return AddDecodeur(
+                  key: UniqueKey(),
+                  eventId: widget.id);
+            })));
+          }, style: raisedButtonStyle,
+            child: Text('Attribuer décodeur'),)
+        ],
+      );
+    } else if (state == 2) {
+      return FlatButton(
+        color: prefix0.colorText,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0)),
+        child: Text("Recuperer Gain", style: prefix0.Style.titre(18)),
+        onPressed: () async {
+          final data = await consumeAPI.recupCumul(widget.id);
+          if(data['etat'] == 'found') {
+            setState(() {
+              state = 3;
+            });
+            _displaySnackBar(context, "🥳 Gain récupéré avec succès");
+          } else {
+            _displaySnackBar(context, data['error']);
+          }
+        },
+      );
+    } else {
+      return Text('Gain plus retirable', style: Style.titleDealsProduct(),);
+    }
+  }
+
+  _displaySnackBar(BuildContext context, String text) {
     final snackBar = SnackBar(
         content: Text(
-      'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',
+      text,
       textAlign: TextAlign.center,
     ));
-    _scaffoldKey.currentState.showSnackBar(snackBar);
+    _scaffoldKey.currentState?.showSnackBar(snackBar);
   }
 }
 
@@ -487,18 +596,19 @@ class ViewerEvent extends StatefulWidget {
 }
 
 class _ViewerEventState extends State<ViewerEvent> {
-  VideoPlayerController _controller;
-  Future<void> _initialiseVideoFlutter;
+  late VideoPlayerController _controller;
+  late Future<void> _initialiseVideoFlutter;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     _controller = VideoPlayerController.network(
         "${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
-    _initialiseVideoFlutter = _controller.initialize();
+
     _controller.setLooping(true);
     _controller.setVolume(1.0);
+    setState(() {
+      _initialiseVideoFlutter = _controller.initialize();
+    });
   }
 
   @override
@@ -564,7 +674,7 @@ class _ViewerEventState extends State<ViewerEvent> {
                           children: <Widget>[
                             Expanded(
                                 child: Center(
-                              child: Text("Chargement en cours...",
+                              child: Text("50%...",
                                   style: prefix0.Style.titreEvent(18)),
                             )),
                           ],

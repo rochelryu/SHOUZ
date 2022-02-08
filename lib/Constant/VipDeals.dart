@@ -22,7 +22,7 @@ class VipDeals extends StatefulWidget {
   var quantity;
   var authorName;
   String id;
-  List<String> PersonneLike = [];
+  List<String> personneLike = [];
   VipDeals(
       {this.imageUrl,
       this.title,
@@ -30,7 +30,7 @@ class VipDeals extends StatefulWidget {
       this.price,
       this.numero,
       this.autor,
-      this.id,
+      required this.id,
       this.profil,
       this.onLine,
       this.describe,
@@ -107,7 +107,7 @@ class _VipDealsState extends State<VipDeals> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text("${widget.price.toString()} Fcfa",
+                      Text("${widget.price.toString()}",
                           style: Style.priceDealsProduct()),
                       SizedBox(width: 15.0),
                     ],
@@ -141,15 +141,7 @@ class _VipDealsState extends State<VipDeals> {
                             });
                             launch("tel:${widget.numero}");
                           }),
-                      SizedBox(width: 7.0),
-                      IconButton(
-                          icon: Icon(Style.chatting, color: Colors.yellow),
-                          onPressed: () {
-                            setState(() {
-                              widget.favorite = !widget.favorite;
-                            });
-                            launch("sms:${widget.numero}");
-                          }),
+
                       SizedBox(width: 7.0),
                       IconButton(
                           icon: Icon(Style.social_normal, color: tint),
@@ -227,8 +219,8 @@ class _VipDealsState extends State<VipDeals> {
                               border: Border.all(
                                   width: 2.0,
                                   color: widget.onLine
-                                      ? Colors.green[300]
-                                      : Colors.yellow[300]),
+                                      ? Colors.green[300]!
+                                      : Colors.yellow[300]!),
                               borderRadius: BorderRadius.circular(50.0),
                               image: DecorationImage(
                                   image: NetworkImage(

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -14,6 +13,7 @@ class CardTopNewActu {
   String id;
   String registerDate;
   String image;
+  String imageCover;
   var content;
   var comment;
   bool favorie = false;
@@ -27,7 +27,9 @@ class CardTopNewActu {
       this.authorName,
       this.authorProfil,
       this.content,
-      this.comment);
+      this.comment,
+      this.imageCover
+      );
 
   Widget propotyping(context) {
     String afficheDate = (DateTime.now()
@@ -364,7 +366,7 @@ class CardTopNewActu {
     }
     print(imageCover);
     if (parseContent.length >= 2) {
-      List<Widget> ListPicturePreview = [
+      List<Widget> listPicturePreview = [
         ClipRRect(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
@@ -390,9 +392,9 @@ class CardTopNewActu {
           ],
         )
       ];
-      return ListPicturePreview;
+      return listPicturePreview;
     } else if (parseContent.length == 1) {
-      List<Widget> ListPicturePreview = [
+      List<Widget> listPicturePreview = [
         ClipRRect(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
@@ -407,15 +409,15 @@ class CardTopNewActu {
               fit: BoxFit.cover, width: width, height: 250),
         )
       ];
-      return ListPicturePreview;
+      return listPicturePreview;
     } else {
-      List<Widget> ListPicturePreview = [
+      List<Widget> listPicturePreview = [
         ClipRRect(
           borderRadius: BorderRadius.circular(5.0),
           child: Image.network(imageCover, fit: BoxFit.cover, height: 250),
         )
       ];
-      return ListPicturePreview;
+      return listPicturePreview;
     }
   }
 
@@ -423,56 +425,39 @@ class CardTopNewActu {
     String afficheDate = dateFormatForTimesAgo(this.registerDate);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.0),
-      child: Card(
-        elevation: 5.0,
-        color: prefix0.backgroundColor,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 7.0),
-          height: 500,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(afficheDate, style: prefix0.Style.sousTitre(13.0)),
-                  IconButton(
-                    tooltip: "Retirer",
-                    icon: Icon(Icons.favorite,
-                        color: (this.favorie) ? Colors.redAccent : Colors.grey),
-                    onPressed: () {
-                      print(this.title);
-                    },
-                  )
-                ],
-              ),
-              Text(this.title, style: prefix0.Style.titleDealsProduct()),
-              new RichText(
-                text: new TextSpan(
-                    text:
-                        "To run it, in a terminal cd into the folder. Then execute ulimit -S -n 2048 (ref). Then execute flutter run with a running emulator.",
-                    style: prefix0.Style.sousTitre(10.0),
-                    children: [
-                      new TextSpan(
-                        text: '...   ',
-                        style: prefix0.Style.sousTitre(10.0),
-                      ),
-                      new TextSpan(
-                        text: 'Voir plus',
-                        style: prefix0.Style.priceDealsProduct(),
-                        recognizer: new TapGestureRecognizer()
-                          ..onTap = () => print('Tap Here onTap'),
-                      )
-                    ]),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: displayMinatureImageInNews(this.content,
-                    MediaQuery.of(context).size.width / 2.3, this.image),
-              )
-            ],
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push((MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  DetailsActu(title: this.title, id: this.id, autherName: this.authorName, comment: this.comment, numberVue: this.numberVue, authorProfil: this.authorProfil, content: this.content,imageCover: this.imageCover, ))));
+        },
+        child: Card(
+          elevation: 5.0,
+          color: prefix0.backgroundColor,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 7.0),
+            height: 400,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(afficheDate, style: prefix0.Style.sousTitre(13.0)),
+
+                  ],
+                ),
+                Text(this.title, style: prefix0.Style.titleDealsProduct()),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: displayMinatureImageInNews(this.content,
+                      MediaQuery.of(context).size.width / 2.3, this.image),
+                )
+              ],
+            ),
           ),
         ),
       ),

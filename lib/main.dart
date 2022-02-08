@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
             primaryColor: backgroundColor,
             primaryColorDark: Colors.blue),
-        home: MyHomePage(title: 'Shouz'),
+        home: MyHomePage(title: 'Shouz', key: UniqueKey(),),
         debugShowCheckedModeBanner: false,
       ),
     );
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({required Key key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -67,8 +67,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  AppState appState;
-  IO.Socket socket;
+  late AppState appState;
+  IO.Socket? socket;
   int level = 15;
   @override
   void initState() {
@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onSelectNotification: onSelectNotification);
   }
 
-  Future onSelectNotification(String payload) async {
+  Future onSelectNotification(String? payload) async {
     if (payload != null) {
       debugPrint('notification payload: ' + payload);
     }
@@ -96,13 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future onDidReceiveLocalNotification(
-      int id, String title, String body, String payload) async {
+      int id, String? title, String? body, String? payload) async {
     // display a dialog with the notification details, tap ok to go to another page
     showDialog(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
-        title: Text(title),
-        content: Text(body),
+        title: Text(title!),
+        content: Text(body!),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
@@ -121,23 +121,25 @@ class _MyHomePageState extends State<MyHomePage> {
   //   FlutterLocalNotificationsPlugin notification,
   // );
   void initializeSocket() async {
-    socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", <String, dynamic>{
-      'transports': ['websocket'],
-    });
-    socket.on('connect', (data) async {
+    socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
+
+    socket!.onConnect((data) async {
       print("connected...");
       appState = Provider.of<AppState>(context, listen: false);
-      appState.setSocket(socket);
+      /*if(appState.getSocketIO == null) {
+        appState.setSocket(socket!);
+      }*/
+      appState.setSocket(socket!);
       if (level == 5) {
-        final client = await DBProvider.db.getClient();
-        socket.emit('loadNotif', [client.ident]);
+        //final client = await DBProvider.db.getClient();
+        //socket!.emit('loadNotif', [client.ident]);
       }
     });
-    socket.on("reponseChangeProfil", (data) async {
+    socket!.on("reponseChangeProfil", (data) async {
       //sample event
       print('change avec success');
     });
-    socket.on("MsToClient", (data) async {
+    socket!.on("MsToClient", (data) async {
       appState.updateLoadingToSend(false);
       //sample event
       if (appState.getIdOldConversation == data['_id'] ||
@@ -149,19 +151,29 @@ class _MyHomePageState extends State<MyHomePage> {
             "${data['author']} vient de vous ecrire pour un deals allez Voir");
       }
     });
-    socket.on("receivedConversation", (data) {
+    socket!.on("receivedConversation", (data) {
       //sample event
       if (data['etat'] == 'found') {
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
+      } else {
+        appState.setConversation({});
+        appState.setIdOldConversation('');
       }
     });
-    socket.on("receivedNotification", (data) {
+    socket!.on("receivedNotification", (data) {
       //sample event
       appState.setNumberNotif(data);
     });
 
-    socket.on("insufficient balance", (data) {
+    socket!.on("agreePaiement", (data) async {
+      print('agreePaiement');
+      print(data);
+      await DBProvider.db.updateClient(data['recovery'], data['ident']);
+      await DBProvider.db.updateClientWallet(data['wallet'], data['ident']);
+    });
+
+    socket!.on("insufficient balance", (data) {
       Fluttertoast.showToast(
           msg: data,
           toastLength: Toast.LENGTH_LONG,
@@ -174,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     });
 
-    socket.on("roomCreated", (data) async {
+    socket!.on("roomCreated", (data) async {
       appState.updateLoadingToSend(false);
       //sample event
       User newClient = await DBProvider.db.getClient();
@@ -196,17 +208,20 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     });
-    socket.on("typingResponse", (data) async {
+    socket!.on("typingResponse", (data) async {
       if (appState.getIdOldConversation == data['id']) {
         appState.updateTyping(data['typing'] as bool);
       }
     });
-    socket.on("socket_info_connected", (data) {
+    socket!.on("socket_info_connected", (data) {
       //sample event
       print("socket_info_connected $data");
     });
-    socket.on('disconnect', (_) => print('disconnect'));
-    //socket.connect();
+    socket!.on('disconnect', (_) {
+      appState.deleteSocket();
+      print('disconnect');
+    });
+    //socket!.connect();
   }
 
   Future getNewLevel() async {
@@ -222,32 +237,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return (socket != null) ? LevelUser(level) : LoadHide();
+    return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
   }
 
-  Widget LevelUser(int level) {
+  Widget levelUser(int level) {
     switch (level) {
       case 0:
         return OnBoarding();
-        break;
       case 1:
         return Login();
-        break;
       case 2:
-        return Otp();
-        break;
+        return Otp(key: UniqueKey());
       case 3:
         return CreateProfil();
-        break;
       case 4:
         return ChoiceHobie();
-        break;
       case 5:
         return MenuDrawler();
-        break;
       default:
-        return LoadHide();
-        break;
+        return LoadHide(key: UniqueKey());
     }
   }
 }

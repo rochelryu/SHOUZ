@@ -11,7 +11,7 @@ import './ChatDetails.dart';
 
 class DetailsDeals extends StatefulWidget {
   final DealsSkeletonData dealsDetailsSkeleton;
-  DetailsDeals({@required this.dealsDetailsSkeleton});
+  DetailsDeals({required this.dealsDetailsSkeleton});
   @override
   _DetailsDealsState createState() => _DetailsDealsState();
 }
@@ -261,7 +261,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(widget.dealsDetailsSkeleton.price.toString() + " XOF",
+                  Text(widget.dealsDetailsSkeleton.price.toString(),
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
@@ -280,7 +280,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) =>
-                                DialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit', 'Oui', () => archivateProduct(widget.dealsDetailsSkeleton.id), context),
+                                dialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit', 'Oui', () => archivateProduct(widget.dealsDetailsSkeleton.id), context),
                             barrierDismissible: false);
                         print("delete product with id : ${widget.dealsDetailsSkeleton.id}");
                       },
@@ -364,7 +364,7 @@ class ViewerProduct extends StatefulWidget {
   final String index;
   final String imgUrl;
 
-  ViewerProduct({this.index, this.imgUrl});
+  ViewerProduct({required this.index, required this.imgUrl});
   @override
   _ViewerProductState createState() => _ViewerProductState();
 }

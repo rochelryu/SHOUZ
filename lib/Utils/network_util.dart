@@ -23,7 +23,7 @@ class NetworkUtil {
     });
   }
 
-  Future<dynamic> post(String url, {Map headers,Map body, encoding}) {
+  Future<dynamic> post(String url, {Map<String, String>? headers,required Map body, encoding}) {
     final uri = Uri.parse(url);
     return http
         .post(uri, body: body, headers: headers, encoding: encoding)

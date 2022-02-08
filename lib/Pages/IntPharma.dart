@@ -6,7 +6,7 @@ import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 
 
 class IntPharma extends StatefulWidget {
-  IntPharma({Key key}) : super(key: key);
+  IntPharma({required Key key}) : super(key: key);
 
   @override
   _IntPharmaState createState() => _IntPharmaState();
@@ -51,7 +51,7 @@ class _IntPharmaState extends State<IntPharma> {
                           //fillColor: Colors.green
                         ),
                         validator: (val) {
-                          if(val.length==0) {
+                          if(val!.length == 0) {
                             return "La ville ne peut pas être vide";
                           }else{
                             return null;
