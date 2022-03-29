@@ -21,26 +21,14 @@ class DBProvider {
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
-          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT)''');
-      await db.execute("CREATE TABLE HobiesActualite (name TEXT)");
-      await db.execute("CREATE TABLE hobiesDeals (name TEXT)");
-      await db.execute("CREATE TABLE hobiesEvents (name TEXT)");
+          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT,isActivateForBuyTravel INTEGER)''');
       await db.execute("CREATE TABLE profil (name TEXT, base BLOB NULL)");
+
     });
   }
 
   static String join(directoryPath, file) {
     return '$directoryPath/$file';
-  }
-
-  newHobies(String type, dynamic hobies) async {
-    final db = await database;
-    var res = hobies
-        .map((name) async =>
-            await db.rawInsert("INSERT Into $type (name) VALUES (?)", [name]))
-        .toList();
-    //await db.insert(type, newClient.toMap());
-    return res;
   }
 
   newProfil(String name, String data) async {
@@ -60,7 +48,7 @@ class DBProvider {
   newClient(User newClient) async {
     final db = await database;
     var res = await db.rawInsert(
-        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone, isActivateForfait, currencies) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone, isActivateForfait, currencies, isActivateForBuyTravel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
           newClient.ident,
           newClient.name,
@@ -77,6 +65,7 @@ class DBProvider {
           newClient.inscriptionIsDone,
           newClient.isActivateForfait,
           newClient.currencies,
+          newClient.isActivateForBuyTravel,
         ]);
     return res;
   }
@@ -99,12 +88,6 @@ class DBProvider {
     db.delete("Client");
   }
 
-  delAllHobies() async {
-    final db = await database;
-    db.delete("HobiesActualite");
-    db.delete("hobiesEvents");
-    db.delete("hobiesDeals");
-  }
 
   // update
 
@@ -127,68 +110,10 @@ class DBProvider {
         "UPDATE Client SET isActivateForfait = ? WHERE ident = ?", [isActivateForfait, id]);
     return res;
   }
-
-  getHobie(String type) async {
+  updateClientIsActivateForBuyTravel(int isActivateForBuyTravel, String id) async {
     final db = await database;
-    var res = await db.query(type);
-    List<Object?> list = res.map((c) => c["name"]).toList();
-    return list;
+    var res = db.rawUpdate(
+        "UPDATE Client SET isActivateForBuyTravel = ? WHERE ident = ?", [isActivateForBuyTravel, id]);
+    return res;
   }
 }
-
-// insert
-// newClient(Client newClient) async {
-//     final db = await database;
-//     var res = await db.insert("Client", newClient.toMap());
-//     return res;
-//   }
-
-// newClient(Client newClient) async {
-//     final db = await database;
-//     //get the biggest id in the table
-//     var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Client");
-//     int id = table.first["id"];
-//     //insert to the table using the new id
-//     var raw = await db.rawInsert(
-//         "INSERT Into Client (id,first_name,last_name,blocked)"
-//         " VALUES (?,?,?,?)",
-//         [id, newClient.firstName, newClient.lastName, newClient.blocked]);
-//     return raw;
-//   }
-
-// read
-// getClient(int id) async {
-//     final db = await database;
-//     var res =await  db.query("Client", where: "id = ?", whereArgs: [id]);
-//     return res.isNotEmpty ? Client.fromMap(res.first) : Null ;
-//   }
-
-// getBlockedClients() async {
-//     final db = await database;
-//     var res = await db.rawQuery("SELECT * FROM Client WHERE blocked=1");
-//     List<Client> list =
-//         res.isNotEmpty ? res.toList().map((c) => Client.fromMap(c)) : null;
-//     return list;
-//   }
-// blockOrUnblock(Client client) async {
-//     final db = await database;
-//     Client blocked = Client(
-//         id: client.id,
-//         firstName: client.firstName,
-//         lastName: client.lastName,
-//         blocked: !client.blocked);
-//     var res = await db.update("Client", blocked.toMap(),
-//         where: "id = ?", whereArgs: [client.id]);
-//     return res;
-//   }
-
-// Delete
-// deleteClient(int id) async {
-//     final db = await database;
-//     db.delete("Client", where: "id = ?", whereArgs: [id]);
-//   }
-
-// deleteAll() async {
-//     final db = await database;
-//     db.rawDelete("Delete * from Client");
-//   }

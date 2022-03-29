@@ -32,7 +32,6 @@ class _ResultBuyCovoiturageState extends State<ResultBuyCovoiturage> {
 
 
       final travel = await consumeAPI.buyTravel(appState.getTravelId,appState.getChoiceForTravel.toString());
-      print(travel);
       setState(() {
         subscribeCallback = travel;
         isFinishLoad = travel['etat'] == 'found' ? 1:2;

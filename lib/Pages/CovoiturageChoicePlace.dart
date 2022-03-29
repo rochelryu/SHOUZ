@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/result_buy_covoiturage.dart';
 import 'package:shouz/Pages/ticket_travel_details.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
 import 'Profil.dart';
@@ -31,8 +34,8 @@ class CovoiturageChoicePlace extends StatefulWidget {
   List<dynamic> commentPayCheck;
   List<dynamic> userPayCheck;
   Map<dynamic, dynamic> infoAuthor;
-
-  CovoiturageChoicePlace(this.id, this.beginCity, this.endCity, this.lieuRencontre, this.price, this.travelDate, this.authorId, this.placePosition, this.userPayCheck, this.infoAuthor, this.commentPayCheck, this.iAmAuthor, this.state);
+  int comeBack;
+  CovoiturageChoicePlace(this.id, this.comeBack, this.beginCity, this.endCity, this.lieuRencontre, this.price, this.travelDate, this.authorId, this.placePosition, this.userPayCheck, this.infoAuthor, this.commentPayCheck, this.iAmAuthor, this.state);
   @override
   _CovoiturageChoicePlaceState createState() => _CovoiturageChoicePlaceState();
 }
@@ -79,6 +82,14 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: backgroundColor,
+        centerTitle: false,
+        leading: IconButton(onPressed: (){
+          if(widget.comeBack == 0) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushNamed(context, MenuDrawler.rootName);
+          }
+        }, icon: Icon(Icons.arrow_back)),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -209,26 +220,35 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                 scrollDirection: Axis.horizontal,
                 itemCount: widget.userPayCheck.length,
                 itemBuilder: (context, index) {
-
-                  return Container(
-                    width: 300,
-                    child: ListTile(
-                      title: Text(widget.userPayCheck[index]['name'], overflow: TextOverflow.ellipsis, style: Style.titre(14)),
-                      subtitle: Text(widget.userPayCheck[index]['contact'], style: Style.sousTitre(14)),
-                      leading: Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    "images/boss.png"),
-                                fit: BoxFit.cover
-                            )
+                  if(widget.userPayCheck.length == 0) {
+                    return Container(
+                      width: 300,
+                      child: ListTile(
+                        title: Text('Aucun passager pour le moment', overflow: TextOverflow.ellipsis, style: Style.titre(14)),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      width: 300,
+                      child: ListTile(
+                        title: Text(widget.userPayCheck[index]['name'], overflow: TextOverflow.ellipsis, style: Style.titre(14)),
+                        subtitle: Text(widget.userPayCheck[index]['contact'], style: Style.sousTitre(14)),
+                        leading: Container(
+                          height: 60,
+                          width: 60,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              image: DecorationImage(
+                                  image: AssetImage(
+                                      "images/boss.png"),
+                                  fit: BoxFit.cover
+                              )
+                          ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+
                 })) : Container(
               height: ((widget.infoAuthor['placeTotalVehicule'] - 1) % 3 == 0) ? 300:400,
               width: double.infinity,
@@ -367,15 +387,11 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
 
                         Navigator.pushNamed(context, Profil.rootName);
                       } else if(stopTravel["etat"] == 'notFound') {
-                        Fluttertoast.showToast(
-                            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: colorError,
-                            textColor: Colors.white,
-                            fontSize: 16.0
-                        );
+                        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (builder) => Login()));
 
@@ -407,30 +423,35 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
           ],
         ),
       ),
-      floatingActionButton: choice.contains(2) ? FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: (){
-          final data = choice.where((element) => element == 2).toList();
-          if(user!.wallet >= data.length * widget.price) {
-            appState.setChoiceForTravel(choice);
-            appState.setTravelId(widget.id);
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (builder) => VerifyUser(
-                redirect: ResultBuyCovoiturage.rootName, key: UniqueKey(),)));
+          if(choice.contains(2) && widget.state != 0) {
+            final data = choice.where((element) => element == 2).toList();
+            if(user!.wallet >= data.length * widget.price) {
+              appState.setChoiceForTravel(choice);
+              appState.setTravelId(widget.id);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => VerifyUser(
+                    redirect: ResultBuyCovoiturage.rootName, key: UniqueKey(),)));
+            } else {
+              Fluttertoast.showToast(
+                  msg: "Votre solde est inssufisant pour cet achat",
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: colorError,
+                  textColor: Colors.white,
+                  fontSize: 16.0
+              );
+            }
           } else {
-            Fluttertoast.showToast(
-                msg: "Votre solde est inssufisant pour cet achat",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.CENTER,
-                timeInSecForIosWeb: 1,
-                backgroundColor: colorError,
-                textColor: Colors.white,
-                fontSize: 16.0
-            );
+            Share.share("${ConsumeAPI.TravelLink}${widget.id}");
           }
+
         },
         backgroundColor: colorText,
-        child: Icon(Icons.payment, color: Colors.white),
-      ):SizedBox(width: 10.0),
+        child: Icon(choice.contains(2) && widget.state != 0 ? Icons.payment : Icons.share, color: Colors.white),
+      ),
     );
   }
 
@@ -454,7 +475,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
 
   List<Widget> reformatHobbies() {
     List<Widget> hobbies = [];
-    for(int index = 0; index < widget.placePosition.length - 1; index++) {
+    for(int index = 0; index < widget.infoAuthor['hobiesCovoiturage'].length; index++) {
       hobbies.add(
           Chip(
             label: Text(widget.infoAuthor['hobiesCovoiturage'][index]),

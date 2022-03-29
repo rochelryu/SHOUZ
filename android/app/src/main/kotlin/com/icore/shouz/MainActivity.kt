@@ -1,4 +1,4 @@
-package com.icore.shouz
+package com.shouz.app
 
 import io.flutter.embedding.android.FlutterActivity
 

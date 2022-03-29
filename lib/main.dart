@@ -1,15 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/route.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/Pages/Checkout.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:uni_links/uni_links.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import './MenuDrawler.dart';
 import './OnBoarding.dart';
@@ -20,8 +22,22 @@ import './Pages/Login.dart';
 import './Pages/Opt.dart';
 import './ServicesWorker/WebSocketHelper.dart';
 import 'Provider/AppState.dart';
+import 'Provider/Notifications.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  AwesomeNotifications().initialize(
+      'resource://drawable/logo_notification',
+      [NotificationChannel(
+          channelKey: channelKey,
+          channelName: channelName,
+          channelDescription: channelDescription,
+          defaultColor: backgroundColor,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          soundSource: 'resource://raw/filling'
+        ),
+      ]);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,
@@ -34,29 +50,31 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AppState>(
       create: (_) => AppState(),
       lazy: false,
       child: MaterialApp(
+          navigatorKey: navigatorKey,
         title: 'Shouz',
         initialRoute: '/',
         routes: routes,
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
             primarySwatch: Colors.blue,
             primaryColor: backgroundColor,
             primaryColorDark: Colors.blue),
-        home: MyHomePage(title: 'Shouz', key: UniqueKey(),),
-        debugShowCheckedModeBanner: false,
+        home: MyHomePage(title: 'Shouz', key: UniqueKey(), navigatorKey: navigatorKey,)
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required Key key, required this.title}) : super(key: key);
+  GlobalKey<NavigatorState> navigatorKey;
+  MyHomePage({required Key key, required this.title, required this.navigatorKey}) : super(key: key);
 
   final String title;
 
@@ -65,124 +83,134 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   late AppState appState;
   IO.Socket? socket;
   int level = 15;
+  User? client;
   @override
   void initState() {
     super.initState();
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if(!isAllowed) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomForValidatePermissionNotification(
+                    'Permission de Notifications',
+                    "Shouz a besoin que vous lui accordiez la permission d'afficher vos notifications que vous alliez recevoir dans l'application.",
+                    "D'accord",
+                    ()=> AwesomeNotifications().requestPermissionToSendNotifications(),
+                    context),
+            barrierDismissible: false);
+      }
+    });
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod:         NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:    NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
+    );
+
     getNewLevel();
     initializeSocket();
   }
 
-  initializeNotification() async {
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    var initializationSettingsIOS = IOSInitializationSettings(
-        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-    var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: onSelectNotification);
-  }
-
-  Future onSelectNotification(String? payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: ' + payload);
-    }
-    await Navigator.pushNamed(context, Checkout.rootName);
-  }
-
-  Future onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) async {
-    // display a dialog with the notification details, tap ok to go to another page
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-        title: Text(title!),
-        content: Text(body!),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: Text('Ok'),
-            onPressed: () async {
-              Navigator.of(context, rootNavigator: true).pop();
-              await Navigator.pushNamed(context, Checkout.rootName);
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  // Future _showNotification(
-  //   FlutterLocalNotificationsPlugin notification,
-  // );
   void initializeSocket() async {
     socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
 
     socket!.onConnect((data) async {
-      print("connected...");
       appState = Provider.of<AppState>(context, listen: false);
-      /*if(appState.getSocketIO == null) {
-        appState.setSocket(socket!);
-      }*/
+
       appState.setSocket(socket!);
-      if (level == 5) {
-        //final client = await DBProvider.db.getClient();
-        //socket!.emit('loadNotif', [client.ident]);
-      }
+
     });
     socket!.on("reponseChangeProfil", (data) async {
-      //sample event
-      print('change avec success');
+      Fluttertoast.showToast(
+          msg: 'Changé avec succès',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.SNACKBAR,
+          timeInSecForIosWeb: 1,
+          backgroundColor: colorSuccess,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     });
+
+
+
     socket!.on("MsToClient", (data) async {
       appState.updateLoadingToSend(false);
       //sample event
-      if (appState.getIdOldConversation == data['_id'] ||
-          appState.getIdOldConversation == '') {
+      if (appState.getIdOldConversation == data['_id']) {
         appState.setConversation(data);
+        if(client != null && client!.name.trim() != data['author'].trim()) {
+
+          appState.ackReadMessage(data['room']);
+        }
+      } else if(appState.getIdOldConversation == '') {
+        appState.setConversation(data);
+        appState.setNumberNotif(appState.getNumberNotif + 1);
+        final title = "${data['author']} vient de vous ecrire pour un deals";
+        final content = data['content'][data['content'].length - 1];
+        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
+        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+        createShouzNotification(title,body, {'room': data['room']});
       } else {
         appState.setNumberNotif(appState.getNumberNotif + 1);
-        print(
-            "${data['author']} vient de vous ecrire pour un deals allez Voir");
+        final title = "${data['author']} vient de vous ecrire pour un deals";
+        final content = data['content'][data['content'].length - 1];
+        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
+        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+        createShouzNotification(title,body, {'room': data['room']});
       }
     });
-    socket!.on("receivedConversation", (data) {
+
+    socket!.on("ackReadMessageComeBack", (data) async {
+
+      if (appState.getIdOldConversation == data['_id']) {
+        appState.setConversation(data);
+      }
+    });
+
+    socket!.on("receivedConversation", (data) async {
       //sample event
       if (data['etat'] == 'found') {
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
+        if(client == null) {
+          final getClient = await DBProvider.db.getClient();
+          setState(() {
+            client = getClient;
+          });
+        }
+
+        appState.ackReadMessage(data['result']['room']);
       } else {
         appState.setConversation({});
         appState.setIdOldConversation('');
       }
     });
-    socket!.on("receivedNotification", (data) {
-      //sample event
-      appState.setNumberNotif(data);
+    socket!.on("receivedNotification", (data) async {
+      if(data['withWallet']) {
+        User newClient = await DBProvider.db.getClient();
+        await DBProvider.db.updateClientWallet(data['wallet'], newClient.ident);
+      }
+      appState.setNumberNotif(data['totalNotif']);
+
     });
 
     socket!.on("agreePaiement", (data) async {
-      print('agreePaiement');
-      print(data);
       await DBProvider.db.updateClient(data['recovery'], data['ident']);
       await DBProvider.db.updateClientWallet(data['wallet'], data['ident']);
     });
 
     socket!.on("insufficient balance", (data) {
-      Fluttertoast.showToast(
-          msg: data,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: colorError,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
+      
+      showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Insufficient balance', data, context),
+              barrierDismissible: false);
 
     });
 
@@ -195,17 +223,12 @@ class _MyHomePageState extends State<MyHomePage> {
         appState.setConversation(data);
         appState.setIdOldConversation(data['_id']);
       } else {
-        if (appState.getIdOldConversation == '') {
-          // for user which have not created the roomsConversation
-          appState.setConversation(data);
-          appState.setIdOldConversation(data['_id']);
-          appState.setNumberNotif(appState.getNumberNotif + 1);
-          print(
-              "${data['author']} vient de vous ecrire pour un deals allez Voir");
-        } else {
-          appState.setNumberNotif(appState.getNumberNotif + 1);
-          print("${data['author']} vient de vous ecrire pour un deals");
-        }
+        appState.setNumberNotif(appState.getNumberNotif + 1);
+        final title = "${data['author']} vient de vous ecrire pour un deals";
+        final content = data['content'][data['content'].length - 1];
+        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
+        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+        createShouzNotification(title,body, {'room': data['room']});
       }
     });
     socket!.on("typingResponse", (data) async {
@@ -213,22 +236,47 @@ class _MyHomePageState extends State<MyHomePage> {
         appState.updateTyping(data['typing'] as bool);
       }
     });
-    socket!.on("socket_info_connected", (data) {
-      //sample event
-      print("socket_info_connected $data");
-    });
+
     socket!.on('disconnect', (_) {
       appState.deleteSocket();
-      print('disconnect');
     });
-    //socket!.connect();
+
+
+    //For AwesomeNotification
+    socket!.on("innerdeals", (data) async {
+      createShouzNotification(data['title'],data['content'], {'room': data['room']});
+    });
+
+    socket!.on("innernotifications", (data) async {
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
+    });
+
+    socket!.on("innerevent", (data) async {
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], 'eventId': data['eventId'] });
+    });
+    socket!.on("innerprofil", (data) async {
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
+    });
+    socket!.on("innertravel", (data) async {
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], 'travelId': data['travelId'] });
+    });
+    socket!.on("innerhomepage", (data) async {
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
+    });
+    socket!.on("createvoyage", (data) async {
+
+      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
+    });
+
+
   }
 
   Future getNewLevel() async {
     try {
-      int level = await getLevel();
+      int levelLocal = await getLevel();
+
       setState(() {
-        this.level = level;
+        level = levelLocal;
       });
     } catch (e) {
       print("Erreur $e");
@@ -236,8 +284,48 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void dispose() {
+    AwesomeNotifications().actionSink.close();
+    AwesomeNotifications().createdSink.close();
+    AwesomeNotifications().dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
+    return Scaffold(
+      body: StreamBuilder<String?>(
+          stream: linkStream,
+          builder: (context, streamSnapshot) {
+            final link = streamSnapshot.data ?? '';
+
+            if (link.isNotEmpty) {
+              final arrayInfo = link.split('/');
+              final idElement = arrayInfo.last;
+              final categorie = arrayInfo[arrayInfo.length - 2];
+              return loadDeepLink(categorie, idElement);
+            }
+            else {
+              return FutureBuilder<String?>(
+                  future: getInitialLink(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return LoadHide(key: UniqueKey());
+                    }
+                    final linkInitial = snapshot.data ?? '';
+                    if(linkInitial.isEmpty) {
+                      return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
+                    } else {
+                      final arrayInfo = linkInitial.split('/');
+                      final idElement = arrayInfo.last;
+                      final categorie = arrayInfo[arrayInfo.length - 2];
+                      return loadDeepLink(categorie, idElement);
+                    }
+                  });
+            }
+          }),
+    );
+    //return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
   }
 
   Widget levelUser(int level) {
@@ -254,6 +342,21 @@ class _MyHomePageState extends State<MyHomePage> {
         return ChoiceHobie();
       case 5:
         return MenuDrawler();
+      default:
+        return LoadHide(key: UniqueKey());
+    }
+  }
+
+  Widget loadDeepLink(String categorie, String id) {
+    switch (categorie) {
+      case 'deals':
+        return LoadProduct(key: UniqueKey(), productId: id);
+      case 'event':
+        return LoadEvent(key: UniqueKey(), eventId: id);
+      case 'new':
+        return LoadNew(key: UniqueKey(), actualityId: id);
+      case 'travel':
+        return LoadTravel(key: UniqueKey(), travelId: id);
       default:
         return LoadHide(key: UniqueKey());
     }

@@ -35,11 +35,20 @@ class AppState with ChangeNotifier {
       "identUser": identUser,
     };
     _socket!.emit("typing", [jsonData]);
+  }
+
+  ackReadMessage(String room) {
+    final jsonData = {
+      "id": this.getIdOldConversation,
+      "room": room,
+    };
+    _socket!.emit("ackReadMessage", [jsonData]);
     notifyListeners();
   }
 
   updateTyping(bool typing) {
     this.typing = typing;
+    notifyListeners();
   }
 
   updateLoadingToSend(bool loadingToSend) {
@@ -173,6 +182,26 @@ class AppState with ChangeNotifier {
 
       _socket!.emit("message", [jsonData]);
       notifyListeners();
+  }
+
+  void relanceDeals(
+      {required String destinate,
+        required String id,
+        String content = '',
+        String imageName = '',
+        String base64 = '',}) async {
+    User newClient = await DBProvider.db.getClient();
+    final jsonData = {
+      "content": content,
+      "ident": newClient.ident,
+      "room": destinate,
+      "base64": base64,
+      "image": imageName,
+      "id": id
+    };
+
+    _socket!.emit("relanceDeals", [jsonData]);
+    notifyListeners();
   }
 
   void changeProfilPicture({required String imageName, required String base64}) async {

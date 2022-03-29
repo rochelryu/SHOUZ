@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:shouz/Constant/CodeScanner.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'package:shouz/Pages/CreateEvent.dart';
-import 'package:shouz/Pages/IntPharma.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import 'Login.dart';
+import 'choice_categorie_scan.dart';
 import 'choice_method_payement.dart';
 import 'demande_conducteur.dart';
 
@@ -35,14 +35,14 @@ class _WidgetPageState extends State<WidgetPage> {
                   "desc": "Decoder le code réçu par vos invités"
                 }
              ,
-          {
+          /*{
             "icon": "pharmacie de garde",
             "desc": "Disponible pour votre localité"
           },
           {
             "icon": "prix des médicaments",
             "desc": "Liste standard de prix de médicament"
-          },
+          },*/
           {
             "icon": "Récharger son shouzpay",
             "desc": "Par Crypto Monnaie ou Mobile Money"
@@ -106,7 +106,7 @@ class _WidgetPageState extends State<WidgetPage> {
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push((MaterialPageRoute(
-                builder: (BuildContext context) => IntPharma(key: UniqueKey(),))));
+                builder: (BuildContext context) => Login())));
           },
         );
         break;
@@ -128,7 +128,6 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            print(item);
           },
         );
         break;
@@ -172,7 +171,7 @@ class _WidgetPageState extends State<WidgetPage> {
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context)
-                .push((MaterialPageRoute(builder: (context) => CodeScanner())));
+                .push((MaterialPageRoute(builder: (context) => ChoiceCategorieScan())));
           },
         );
         break;

@@ -9,12 +9,15 @@ import 'package:shouz/Utils/network_util.dart';
 
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
-  static final BASE_URL = "http://192.168.1.180:8000";//192.168.1.180"; // 192.168.1.100 127.0.0.1 172.20.10.4 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+  static final BASE_URL = "https://app.shouz.network";//http://192.168.1.180:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
   static final SIGINSECONDSTEP_URL = BASE_URL + "/client/secondStep";
   static final UPDATEHOBIE_URL = BASE_URL + "/client/updateHobbies";
   static final UPDATEPOSITION_URL = BASE_URL + "/client/updateCurentPosition";
+  static final UPDATE_RECOVERY_URL = BASE_URL + "/client/updateRecovery";
+  static final VERIFY_TWILIO_URL = BASE_URL + "/client/verifyTwilio";
+  static final RESEND_RECOVERY_URL = BASE_URL + "/client/resendRecovery";
   static final SETTINGS_URL = BASE_URL + "/client/settings";
   static final RECHARGE_BYCRYPTO_URL = BASE_URL + "/client/transactionCrypto";
   static final DEMANDERETRAIT_URL = BASE_URL + "/client/demandeRetrait";
@@ -22,13 +25,16 @@ class ConsumeAPI {
   static final RESPONSE_FINAL_DEALS_URL = BASE_URL + "/client/responseProductForLastStep";
   static final ADD_COMMENT_ON_ACTUALITY_URL = BASE_URL + "/client/addComment";
   static final GET_PROFIL_URL = BASE_URL + "/client/getProfil";
+  static final VERIFY_URL = BASE_URL + "/client/verify";
   static final UPDATE_PROFIL_PICTURE_URL = BASE_URL + "/client/changeProfil";
+  static final UPDATE_BASIC_INFO_URL = BASE_URL + "/client/changeBasicInfo";
   static final GET_USER_BY_FILTER_URL = BASE_URL + "/client/getClientByNumber";
   static final UPDATE_PROFIL_PIN_URL = BASE_URL + "/client/updatePin";
   static final VERIFY_FRIEND = BASE_URL + "/client/verify";
 
   static final VIDE_NOTIFICATION_URL = BASE_URL + "/client/videNotif";
   static final DEMANDE_CONDUCTEUR_URL = BASE_URL + "/client/demandeConducteur";
+  static final DEMANDE_VOYAGEUR_URL = BASE_URL + "/client/demandeVoyageur";
   static final ALL_NOTIFICATION_URL = BASE_URL + "/client/getAllNotif";
   static final PERCENTAGE_METHOD_PAYEMENT_URL = BASE_URL + "/client/getPercentageModePayement";
   static final GET_MOBILE_MONEY_AVALAIBLE_URL = BASE_URL + "/client/getMobileMoneyAvalaible";
@@ -43,27 +49,46 @@ class ConsumeAPI {
   static final GET_TYPE_EVENT_URL = BASE_URL + "/event/getAllType";
   static final RECUP_CUMUL_URL = BASE_URL + "/event/recupGain";
   static final SET_DECODEUR_URL = BASE_URL + "/event/setDecodeur";
+  static final DECODE_BY_SCAN_URL = BASE_URL + "/event/decodeTicketByScan";
+  static final DECODE_BY_NUMBER_URL = BASE_URL + "/event/decodeTicketByNumero";
+  static final GET_ALL_EVENT_WHEN_VERIFY_SCAN_URL = BASE_URL + "/event/getAllEventWhenVerifyScan";
   static final GET_EVENT_URL = BASE_URL + "/event/getEvent";
   static final GET_ALL_DECODEUR_FOR_EVENT_URL = BASE_URL + "/event/getAllDecodeurForEvent";
+  static final GET_DETAILS_FOR_EVENT_URL = BASE_URL + "/event/getDetailsOfEvent";
 
 
   static final ALL_CATEGIRES_WITHOUT_FILTER_URL =
       BASE_URL + "/categorie/display";
   static final VERIFY_CATEGIRES = BASE_URL + "/categorie/verify";
   static final SERVICE_METEO_URL = BASE_URL + "/other-service/getMeteo";
+
   static final ADD_VIEW_AERTICLE_URL = BASE_URL + "/actualite/addView";
   static final GET_ACTUALITE_URL = BASE_URL + "/actualite/getActualite";
   static final GET_ACTUALITE_BY_CATEGORIE_URL = BASE_URL + "/actualite/getActualiteByCategorie";
+  static final GET_ACTUALITE_DETAILS_URL = BASE_URL + "/actualite/getActualiteDetails";
+
   static final GET_COMMENT_ACTUALITE_URL = BASE_URL + "/client/getCommentAllInfo";
   static final GET_VERIFY_ITEM_IN_FAVOR_URL = BASE_URL + "/client/verifyIfExistItemInFavor";
+  static final ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL = BASE_URL + "/client/addOrRemoveItemInFavorite";
   static final SET_DEALS_URL = BASE_URL + "/products/inside";
+  static final ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
   static final GET_DETAILS_URL = BASE_URL + "/products/getDetailsOfProduct";
+  static final GET_DETAILS_DEALS_FOR_LINK_URL = BASE_URL + "/products/getDetailsProductForLink";
+  static final GET_DETAILS_FOR_CHAT_URL = BASE_URL + "/products/getDetailsOfProductForChat";
   static final GET_PRODUCT_URL = BASE_URL + "/products/getProduct";
+
+
+
   static final GET_TRAVEL_URL = BASE_URL + "/travel/getTravel";
+  static final VERIFY_ELIGBLE_FOR_CREATE_TRAVEL_URL = BASE_URL + "/travel/verifyIfEligible";
   static final DETAILS_TRAVEL_URL = BASE_URL + "/travel/detailsTravel";
+  static final GET_ALL_TRAVEL_WHEN_VERIFY_SCAN_URL = BASE_URL + "/travel/getAllTravelWhenVerifyScan";
   static final SET_TRAVEL_URL = BASE_URL + "/travel/inside";
   static final SET_BUY_TRAVEL_URL = BASE_URL + "/travel/buyTravel";
   static final STOP_TRAVEL_URL = BASE_URL + "/travel/stopTravel";
+  static final DECODE_TRAVEL_BY_SCAN_URL = BASE_URL + "/travel/decodeTicketByScan";
+  static final DECODE_BY_NUMBER_FOR_TRAVEL_URL = BASE_URL + "/travel/decodeTicketByNumero";
+  static final GET_DETAILS_FOR_TRAVEL_URL = BASE_URL + "/travel/getDetailsOfTravelt";
 
 
   // Assets File URL
@@ -76,6 +101,11 @@ class ConsumeAPI {
   static final AssetCovoiturageServer = BASE_URL + "/covoiturage/";
   static final AssetPublicServer = BASE_URL + "/public/";
   static final AssetConversationServer = BASE_URL + "/public/conversation/";
+  // For Deep Link
+  static final ProductLink = BASE_URL + "/app/deals/";
+  static final EventLink = BASE_URL + "/app/event/";
+  static final TravelLink = BASE_URL + "/app/travel/";
+  static final NewsLink = BASE_URL + "/app/new/";
   //static final _API_KEY = "somerandomkey";
 
   ConsumeAPI() {}
@@ -122,10 +152,10 @@ class ConsumeAPI {
 
   // For Categorie
   Future<List<dynamic>> getAllCategrie(
-      [String search = "", String sort = 'not']) async {
+      [String search = "", String sort = 'not', String domaine = '3']) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
-        '$ALL_CATEGIRES_URL/${newClient.ident}?search=${search}&sort=$sort');
+        '$ALL_CATEGIRES_URL/${newClient.ident}?search=$search&sort=$sort&domaine=$domaine');
     List<dynamic> allCategorie =
         res['result'].map((c) => Categorie.fromJson(c)).toList();
     return allCategorie;
@@ -182,6 +212,17 @@ class ConsumeAPI {
     return res['info'];
   }
 
+  Future<Map<String, dynamic>> verifyClient() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    if(res['etat'] == 'badLevel' || res['etat'] == 'notFound') {
+      await DBProvider.db.delClient();
+      setLevel(1);
+    }
+    return res;
+  }
+
   Future<List<dynamic>> getAllPreference() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$PREFERENCE_URL/${newClient.ident}');
@@ -196,7 +237,6 @@ class ConsumeAPI {
   setSettings() async {
     User newClient = await DBProvider.db.getClient();
     final body = {'id': newClient.ident, 'credentials': newClient.recovery};
-    print(body);
     return _netUtil.post(SETTINGS_URL, body: body).then((dynamic res) async {
       /*if (res['etat'] == 'found') {
         await DBProvider.db
@@ -288,6 +328,58 @@ class ConsumeAPI {
       return res['etat'];
     });
   }
+  changeBasicInfo(String name, String email) async {
+    User newClient = await DBProvider.db.getClient();
+    final jsonData = {
+      "name": name,
+      "id": newClient.ident,
+      "email": email,
+      "recovery": newClient.recovery
+    };
+
+    return _netUtil
+        .post(UPDATE_BASIC_INFO_URL, body: jsonData)
+        .then((dynamic res) async {
+      if (res['etat'] == 'found') {
+        final user = User.fromJson(res['result']);
+        await DBProvider.db.delClient();
+        await DBProvider.db.newClient(user);
+      }else if  (res["etat"] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res['etat'];
+    });
+  }
+
+  demandeVoyageur(
+      String pieceRectoName,
+      String base64pieceRectoName,
+      String pieceVersoName,
+      String base64pieceVersoName,
+      String pictureProfilName,
+      String basepictureProfilName,
+
+      ) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'pieceRectoName': pieceRectoName,
+      'base64pieceRectoName': base64pieceRectoName,
+      'pieceVersoName': pieceVersoName,
+      'base64pieceVersoName': base64pieceVersoName,
+      'pictureProfilName': pictureProfilName,
+      'basepictureProfilName': basepictureProfilName,
+    };
+    return _netUtil.post(DEMANDE_VOYAGEUR_URL, body: body).then((dynamic res) async {
+      if(res["etat"] == 'found') {
+        await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+        await DBProvider.db.updateClientIsActivateForBuyTravel(1, newClient.ident);
+      }
+      return res;
+    });
+  }
 
   changePin({required String pin}) async {
     User newClient = await DBProvider.db.getClient();
@@ -316,11 +408,13 @@ class ConsumeAPI {
     return _netUtil
         .post(SET_SUBSCRIBE_EVENT_URL, body: jsonData)
         .then((dynamic res) async {
-          print(res);
       if (res['etat'] == 'found') {
         await DBProvider.db.updateClientWallet(res['result']['wallet'], ident);
         await DBProvider.db.updateClient(res['result']['recovery'], ident);
         await DBProvider.db.updateClientIsActivateForfait(1, ident);
+      } else if (res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
       }
       return res['etat'];
     });
@@ -349,7 +443,6 @@ class ConsumeAPI {
       await DBProvider.db.newClient(user);
     } else {
       await DBProvider.db.delClient();
-      await DBProvider.db.delAllHobies();
       setLevel(1);
     }
     return res['etat'];
@@ -366,7 +459,6 @@ class ConsumeAPI {
     final res = await _netUtil.get('$PERCENTAGE_METHOD_PAYEMENT_URL/${newClient.ident}?credentials=${newClient.recovery}');
     if(res["etat"] == 'notFound') {
       await DBProvider.db.delClient();
-      await DBProvider.db.delAllHobies();
       setLevel(1);
     }
     return res;
@@ -377,7 +469,6 @@ class ConsumeAPI {
     final res = await _netUtil.get('$GET_MOBILE_MONEY_AVALAIBLE_URL/${newClient.ident}?credentials=${newClient.recovery}');
     if(res["etat"] == 'notFound') {
       await DBProvider.db.delClient();
-      await DBProvider.db.delAllHobies();
       setLevel(1);
     }
     return res;
@@ -395,9 +486,7 @@ class ConsumeAPI {
   // For Actualite
   Future<Map<String, dynamic>> getActualite() async {
     User newClient = await DBProvider.db.getClient();
-    //final _sysLng = ui.window.locale.languageCode;
     final res = await _netUtil.get('$GET_ACTUALITE_URL/${newClient.ident}');
-    //print(res);
     return res;
   }
   Future<List<dynamic>> getActualitiesByCategorieId(String idActality, int limit) async {
@@ -406,22 +495,33 @@ class ConsumeAPI {
     return res['actualiteArray'];
   }
 
-  Future<List<dynamic>> getCommentActualite(id_actualite) async {
+  Future<Map<String, dynamic>> getActualitiesDetailsById(String idActality) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_COMMENT_ACTUALITE_URL/${newClient.ident}/$id_actualite');
+    final res = await _netUtil.get('$GET_ACTUALITE_DETAILS_URL/${newClient.ident}?idActality=$idActality');
+    return res;
+  }
+
+  Future<List<dynamic>> getCommentActualite(idActualite) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_COMMENT_ACTUALITE_URL/${newClient.ident}/$idActualite');
     return res['result'];
   }
 
-  addView(String id, String id_actualite) {
+  addView(String id, String idActualite) {
     return _netUtil.post(ADD_VIEW_AERTICLE_URL,
-        body: {"id": id, "actualiteId": id_actualite}).then((dynamic res) {
+        body: {"id": id, "actualiteId": idActualite}).then((dynamic res) {
       return {'etat': res["etat"]};
     });
   }
 
-  Future<bool> verifyIfExistItemInFavor(String id_item, int domaine) async {
+  Future<bool> verifyIfExistItemInFavor(String idItem, int domaine) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_VERIFY_ITEM_IN_FAVOR_URL/${newClient.ident}/$id_item?domaine=${domaine.toString()}');
+    final res = await _netUtil.get('$GET_VERIFY_ITEM_IN_FAVOR_URL/${newClient.ident}/$idItem?domaine=${domaine.toString()}');
+    return res;
+  }
+  Future<bool> addOrRemoveItemInFavorite(String idItem, int domaine) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL/${newClient.ident}/$idItem?domaine=${domaine.toString()}');
     return res;
   }
 
@@ -432,12 +532,25 @@ class ConsumeAPI {
     return res;
   }
 
+  Future<Map<dynamic,dynamic>> getDetailsForProductLink(String idProduct) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_DETAILS_DEALS_FOR_LINK_URL/${newClient.ident}?idProduct=$idProduct&credentials=${newClient.recovery}');
+    return res;
+  }
 
 
   Future<Map<dynamic,dynamic>> getDetailsDeals(String productid) async {
     final res = await _netUtil.get('$GET_DETAILS_URL/$productid');
     return res;
   }
+  Future<Map<dynamic,dynamic>> getDetailsDealsForChat(List<String> room) async {
+    User newClient = await DBProvider.db.getClient();
+    final idUser = room[0] == newClient.ident ? room[1]:room[0];
+    final res = await _netUtil.get('$GET_DETAILS_FOR_CHAT_URL/$idUser');
+    return res;
+  }
+
+
 
   Future<List<dynamic>> updateDealFullForFutur(List<dynamic> dealFullForFutur) async {
 
@@ -471,13 +584,88 @@ class ConsumeAPI {
       'quantity': quantity,
       'level': level.toString()
     };
-
     return _netUtil.post(SET_DEALS_URL, body: body).then((dynamic res) async {
-      if(res['etat'] == 'found' && res['recovery'] != '') {
+
+      if(res['etat'] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
         await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
+      } else if(res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
       }
       return res['etat'];
+    });
+  }
+
+  archiveProductDeals(String product) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'recovery': newClient.recovery,
+      'product': product,
+    };
+
+    return _netUtil.post(ARCHIVE_DEALS_URL, body: body).then((dynamic res) async {
+      if(res['etat'] == 'found') {
+        await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+      } else if(res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+
+  //Recovery
+  updateRecovery() async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+
+    };
+
+    return _netUtil.post(UPDATE_RECOVERY_URL, body: body).then((dynamic res) async {
+      if (res["etat"] == "found") {
+        return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
+      } else {
+        await DBProvider.db.delClient();
+        setLevel(1);
+        return {'etat': res["etat"]};
+      }
+    });
+  }
+
+  verifyTwilio(String code) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'code': code,
+
+    };
+
+    return _netUtil.post(VERIFY_TWILIO_URL, body: body).then((dynamic res) async {
+      return res;
+    });
+  }
+
+  resendRecovery() async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+
+    };
+
+    return _netUtil.post(RESEND_RECOVERY_URL, body: body).then((dynamic res) async {
+      if (res["etat"] == "found") {
+        return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
+      } else {
+        await DBProvider.db.delClient();
+        setLevel(1);
+        return {'etat': res["etat"]};
+      }
     });
   }
 
@@ -507,7 +695,6 @@ class ConsumeAPI {
         return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
       } else {
         await DBProvider.db.delClient();
-        await DBProvider.db.delAllHobies();
         setLevel(1);
         return {'etat': res["etat"]};
       }
@@ -530,9 +717,84 @@ class ConsumeAPI {
       return res;
     });
   }
+
+  Future<Map<dynamic, dynamic>> getAllEventFor() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_ALL_EVENT_WHEN_VERIFY_SCAN_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    return res;
+  }
+
+
+  decodeTicketByScan(String ticketId, String eventId, String numberTicket, String priceTotal, String priceUnity) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'eventId': eventId,
+      'ticketId': ticketId,
+      'numberTicket': numberTicket,
+      'priceTotal': priceTotal,
+      'priceUnity': priceUnity,
+    };
+    return _netUtil.post(DECODE_BY_SCAN_URL, body: body).then((dynamic res) async {
+      if(res['etat'] =='notFound' && res['error'] == "Vous n'êtes pas authorisé"){
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+  decodeTicketByNumero( String eventId, String numberClient) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'eventId': eventId,
+      'numberClient': numberClient,
+    };
+    return _netUtil.post(DECODE_BY_NUMBER_FOR_TRAVEL_URL, body: body).then((dynamic res) async {
+      if(res['etat'] =='notFound' && res['error'] == "Vous n'êtes pas authorisé"){
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+
+  decodeTicketTravelByScan(String code) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'code': code,
+
+    };
+    return _netUtil.post(DECODE_TRAVEL_BY_SCAN_URL, body: body).then((dynamic res) async {
+      if(res['etat'] =='notFound' && res['error'] == "Vous n'êtes pas authorisé"){
+        await DBProvider.db.delClient();
+        setLevel(1);
+      } else if(res['etat'] =='found' && res['result'] == "Tous vos passagers sont arrivé à destination donc nous venons de virer le montant des tickets directement sur votre compte SHOUZPAY") {
+        await DBProvider.db.updateClient(res['info']['recovery'], newClient.ident);
+        await DBProvider.db.updateClientWallet(res['info']['wallet'], newClient.ident);
+      }
+      return res;
+    });
+  }
+
+
   Future<Map<String, dynamic>> getEvents() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$GET_EVENT_URL/${newClient.ident}');
+    return res;
+  }
+
+  Future<Map<String, dynamic>> verifyIfClientIsActivateForCovoiturage() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$VERIFY_ELIGBLE_FOR_CREATE_TRAVEL_URL?idClient=${newClient.ident}&credentials=${newClient.recovery}');
+    if(res['etat'] == 'notFound') {
+      await DBProvider.db.delClient();
+      setLevel(1);
+    }
     return res;
   }
 
@@ -545,7 +807,7 @@ class ConsumeAPI {
   setEvent(
       String title,
       String describe,
-      String categorie,
+      List<String> categorie,
       String imageCover,
       String imageCoverBase64,
       String position,
@@ -559,6 +821,7 @@ class ConsumeAPI {
     final body = {
       'id': newClient.ident,
       'authorName': newClient.name,
+      'credentials': newClient.recovery,
       'title': title,
       'email': email,
       'describe': describe,
@@ -566,7 +829,7 @@ class ConsumeAPI {
       'imageCover': imageCover,
       'imageCoverBase64': imageCoverBase64,
       'position': position,
-      'categorie': categorie,
+      'categorie': categorie.join(','),
       'prices': prices,
       'enventDate': enventDate,
       'videoPub': videoPub,
@@ -575,8 +838,8 @@ class ConsumeAPI {
 
     return _netUtil.post(SET_EVENT_URL, body: body).then((dynamic res) async {
       if(res["etat"] == 'found') {
-        final clientActive = await DBProvider.db.updateClientIsActivateForfait(0, newClient.ident);
-        print(clientActive);
+        await DBProvider.db.updateClientIsActivateForfait(0, newClient.ident);
+        await DBProvider.db.updateClient(res["result"]["recovery"], newClient.ident);
       }
       return res;
     });
@@ -594,13 +857,11 @@ class ConsumeAPI {
       'priceUnity': typeTicket
     };
     return _netUtil.post(SET_BUY_EVENT_URL, body: body).then((dynamic res) async {
-      print(res);
       if(res["etat"] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
         await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
       } else if(res["etat"] == 'notFound') {
         await DBProvider.db.delClient();
-        await DBProvider.db.delAllHobies();
         setLevel(1);
       }
       return res;
@@ -636,7 +897,6 @@ class ConsumeAPI {
       'ticketId': ticketId,
     };
     return _netUtil.post(DROP_TICKET_URL, body: body).then((dynamic res) async {
-      print(res);
       if(res["etat"] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
         await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
@@ -653,6 +913,18 @@ class ConsumeAPI {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
         '$GET_TRAVEL_URL/${newClient.ident}?origin=$origin&destinate=$destinate');
+    return res;
+  }
+
+  Future<Map<dynamic, dynamic>> getAllTravelFor() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_ALL_TRAVEL_WHEN_VERIFY_SCAN_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    return res;
+  }
+
+  Future<Map<dynamic,dynamic>> getDetailsForTravel(String idTravel) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_DETAILS_FOR_EVENT_URL/${newClient.ident}?idTravel=$idTravel&credentials=${newClient.recovery}');
     return res;
   }
 
@@ -715,8 +987,6 @@ class ConsumeAPI {
       'pictureProfilConducteurBase64': pictureProfilConducteurBase64,
       'numberPlaceAvailable': numberPlaceAvailable.toString(),
     };
-    print({'id': body['id'], 'credentials': newClient.recovery,});
-
     return _netUtil.post(DEMANDE_CONDUCTEUR_URL, body: body).then((dynamic res) async {
       if(res["etat"] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
@@ -768,7 +1038,6 @@ class ConsumeAPI {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
       } else if(res["etat"] == 'notFound') {
         await DBProvider.db.delClient();
-        await DBProvider.db.delAllHobies();
         setLevel(1);
       }
       return res;
@@ -795,7 +1064,33 @@ class ConsumeAPI {
     });
   }
 
-  // For communication
+  decodeTicketTravelByNumero( String travelId, String numberClient) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'credentials': newClient.recovery,
+      'travelId': travelId,
+      'numberClient': numberClient,
+    };
+    return _netUtil.post(DECODE_BY_NUMBER_FOR_TRAVEL_URL, body: body).then((dynamic res) async {
+      if(res['etat'] =='notFound' && res['error'] == "Vous n'êtes pas authorisé"){
+        await DBProvider.db.delClient();
+        setLevel(1);
+      } else if(res['etat'] =='found' && res['result'] == "Tous vos passagers sont arrivé à destination donc nous venons de virer le montant des tickets directement sur votre compte SHOUZPAY") {
+        await DBProvider.db.updateClient(res['info']['recovery'], newClient.ident);
+        await DBProvider.db.updateClientWallet(res['info']['wallet'], newClient.ident);
+      }
+      return res;
+    });
+  }
+
+  // For Event
+
+  Future<Map<dynamic,dynamic>> getDetailsForEvent(String idEvent) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_DETAILS_FOR_EVENT_URL/${newClient.ident}?idEvent=$idEvent&credentials=${newClient.recovery}');
+    return res;
+  }
 
 
 

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
 
@@ -40,15 +40,11 @@ class _AddDecodeurState extends State<AddDecodeur> {
           decodeur = list;
         });
       } else {
-        Fluttertoast.showToast(
-            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
+        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
       }

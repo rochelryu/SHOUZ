@@ -26,7 +26,6 @@ class _VerifyUserState extends State<VerifyUser> {
       String pin = await getPin();
       setState(() {
         this.pin = pin;
-        print('pin ${pin.length}');
         createPass = (this.pin.length > 0) ? false : true;
         if (pin.length == 0) {
           message = "Créer un mot de passe pour securiser tout vos achats";
@@ -265,7 +264,6 @@ class _VerifyUserState extends State<VerifyUser> {
                       child: GestureDetector(
                         onTap: () async {
                           if (createPass) {
-                            print(password);
                             setState(() {
                               passwordSave = password;
                               keyContainer = [false, false, false, false];

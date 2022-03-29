@@ -24,6 +24,7 @@ class User {
   double wallet = 0;
   int inscriptionIsDone  = 0;
   int isActivateForfait  = 0;
+  int isActivateForBuyTravel = 0;
   User(this.numero, this.prefix);
 
   Map<String, dynamic> toMap() => {
@@ -45,6 +46,7 @@ class User {
         "wallet": wallet,
         "inscriptionIsDone": inscriptionIsDone,
         "isActivateForfait": isActivateForfait,
+        "isActivateForBuyTravel": isActivateForBuyTravel,
       };
 
   User.fromJson(Map<dynamic, dynamic> json)
@@ -66,6 +68,7 @@ class User {
         hobiesDeals = json["hobiesDeals"] ?? [],
         recovery = json["recovery"],
         currencies = json["currencies"],
+        isActivateForBuyTravel = json["isActivateForBuyTravel"],
         wallet = double.parse(json["wallet"].toString()),
         inscriptionIsDone = json["inscriptionIsDone"] ? 1 : 0,
         isActivateForfait = json["isActivateForfait"] ? 1 : 0,
@@ -92,6 +95,7 @@ class User {
         hobiesDeals = json["hobiesDeals"],
         recovery = json["recovery"],
         currencies = json["currencies"],
+        isActivateForBuyTravel = json["isActivateForBuyTravel"],
         inscriptionIsDone = json["inscriptionIsDone"],
         isActivateForfait = json["isActivateForfait"],
         hobiesEvents = json["hobiesEvents"];

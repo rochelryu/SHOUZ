@@ -12,6 +12,9 @@ import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:shouz/Constant/widget_common.dart';
+
+import 'Login.dart';
 
 class CreateDeals extends StatefulWidget {
   static String rootName = '/createDeals';
@@ -48,6 +51,7 @@ class _CreateDealsState extends State<CreateDeals> {
   bool _isCategorie = false;
   bool monVal = false;
   User? user;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   selectDate(BuildContext context) async {
     User newClient = await DBProvider.db.getClient();
@@ -85,7 +89,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
     if (result != null) {
       List<File> files = result.paths.map((path) => File(path!)).toList();
-      final end = (files.length > 4) ? 4 : files.length;
+      final end = (files.length > 6) ? 6 : files.length;
       final images = files.sublist(0, end);
       setState(() {
         post = images;
@@ -329,7 +333,7 @@ class _CreateDealsState extends State<CreateDeals> {
                       maxLength: 260,
                       maxLines: 7,
                       cursorColor: colorText,
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_4,
@@ -429,7 +433,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Selectionner les images",
+                                      "Charger les images",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
@@ -718,7 +722,7 @@ class _CreateDealsState extends State<CreateDeals> {
       String imageTitle = imageListTitle.join(',');
       String imagesBuffers = base64Image.join(',');
       int level = monVal ? 3 : 1;
-      final product = await new ConsumeAPI().setProductDeals(
+      final product = await consumeAPI.setProductDeals(
           nameProduct,
           describe,
           dropdownValue!,
@@ -730,7 +734,6 @@ class _CreateDealsState extends State<CreateDeals> {
           price,
           quantity);
       setState(() => requestLoading = false);
-      print(product);
       if (product == 'found') {
         dropdownValue = null;
         post.clear();
@@ -749,7 +752,15 @@ class _CreateDealsState extends State<CreateDeals> {
         await askedToLead(
             "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
             true, context);
-      } else if (product == 'FreeInPayPrice') {
+      } else if (product == 'notFound') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+            barrierDismissible: false);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => Login()));
+      }else if (product == 'FreeInPayPrice') {
         await askedToLead(
             "Un produit Gratuit ne peut être assimilé à un prix", false, context);
       } else if (product == 'IncorrectPrice') {

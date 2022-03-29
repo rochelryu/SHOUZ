@@ -2,6 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleURLTypes</key>
+     <array>
+       <dict>
+         <key>CFBundleTypeRole</key>
+         <string>Editor</string>
+         <key>CFBundleURLName</key>
+         <string>app.shouz.network</string>
+         <key>CFBundleURLSchemes</key>
+         <array>
+           <string>https</string>
+         </array>
+       </dict>
+     </array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -27,18 +40,18 @@
     	<key>NSAllowsArbitraryLoads</key>
     	<true/>
     </dict>
+    <key>io.flutter.embedded_views_preview</key>
+    <true/>
     <key>NSCameraUsageDescription</key>
     <string>Shouz veut utiliser votre appareil photo</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Shouz à besoin de récupérer votre position</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Shouz à besoin de récupérer votre position</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Shouz à besoin de récupérer votre position en temps réel</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Shouz à besoin d'avoir accès à votre microphone</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Shouz a besoin d'avoir accès à votre gallery</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>Shouz veut avoir la permission de vous aider vocalement</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

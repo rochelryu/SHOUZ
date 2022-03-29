@@ -11,6 +11,8 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import 'Login.dart';
+
 class ResultSubscribeForfait extends StatefulWidget {
   static String rootName = '/resultSubscribeForfait';
   @override
@@ -35,8 +37,8 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
       final data = consumeAPI.subscribeEvent(forfait: appState.getForfaitEventEnum, ident: user.ident, recovery:user.recovery );
       setState(() {
         subscribeCallback = data;
-        size = 299;
-        sizeReverse = 250;
+        size = 259;
+        sizeReverse = 200;
       });
     } catch (e) {
       print("Erreur $e");
@@ -51,12 +53,21 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              Navigator.pushNamed(context, MenuDrawler.rootName);
+            }),
+      ),
       body: FutureBuilder(
           future: subscribeCallback,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
-                return IsErrorSubscribe();
+                return isErrorSubscribe('error');
               case ConnectionState.waiting:
                 return Center(
                   child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
@@ -69,12 +80,12 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
 
               case ConnectionState.done:
                 if (snapshot.hasError) {
-                  return IsErrorSubscribe();
+                  return isErrorSubscribe('error');
                 }
                 var info = snapshot.data;
                 return info == "found"
                     ? IsSuccessSubscribe()
-                    : IsErrorSubscribe();
+                    : isErrorSubscribe(info);
 
               // return new CardTopNewActu()
             }
@@ -82,7 +93,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
     );
   }
 
-  Widget IsErrorSubscribe() {
+  Widget isErrorSubscribe(String etat) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       height: MediaQuery.of(context).size.height,
@@ -96,7 +107,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
               height: MediaQuery.of(context).size.height * 0.39,
             ),
             Text(
-                "Un problème de connexion avec le serveur, veuillez ressayer plutard.\n Ne vous inquiétez pas aucun prélèvement n'a été fait",
+                etat == 'notFound' ? "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte" : "Un problème de connexion avec le serveur, veuillez ressayer plutard.\n Ne vous inquiétez pas aucun prélèvement n'a été fait",
                 textAlign: TextAlign.center,
                 style: Style.sousTitreEvent(15)),
             SizedBox(height: 35),
@@ -104,7 +115,8 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                 child: Icon(Icons.block, color: Colors.white),
                 color: colorError,
                 onPressed: () async {
-                  await Navigator.pushNamed(context, MenuDrawler.rootName);
+                  etat == 'notFound' ? Navigator.of(context).push(MaterialPageRoute(
+                      builder: (builder) => Login())) : Navigator.pushNamed(context,  MenuDrawler.rootName);
                 }),
           ]),
     );
@@ -120,8 +132,8 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
         children: <Widget>[
           AnimatedContainer(
             duration: transitionMedium,
-            height: 1.0 + size,
-            width: 1.0 + size,
+            height: 1.0 + size -70,
+            width: 1.0 + size -70,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: colorText, width: 1.0),
@@ -129,27 +141,29 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                     fit: BoxFit.cover,
                     image: AssetImage('images/letsgoevent.gif'))),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 45),
           AnimatedContainer(
             duration: transitionLong,
-            height: 1 + sizeReverse - 100.0,
+            height: 60,
+
             width: 1 + size + 50.0,
             child: gradientAppropriate(
                 forfaitEventEnum: appState.getForfaitEventEnum),
           ),
           AnimatedContainer(
               duration: transitionSuperLong,
-              height: 1 + sizeReverse - 10.0,
+              height: 1.0 + sizeReverse,
               width: 1 + size + 70.0,
               child: Container(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Text(
                       "Vous avez souscrit avec succès à ce forfait. Le nombre de place maximum pour votre prochain évènement est ${appState.getMaxPlace.toString()}" ,
                       style: Style.menuStyleItem(13),
                       textAlign: TextAlign.center,
                     ),
+                    SizedBox(height: 15),
                     ElevatedButton(
                         style: raisedButtonStyle,
                         child: Text('Créer votre évenement maintenant', textAlign: TextAlign.center,),

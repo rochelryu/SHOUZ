@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shouz/Constant/PageTransition.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/Login.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import './CreateProfil.dart';
 import '../MenuDrawler.dart';
@@ -24,6 +24,8 @@ class Otp extends StatefulWidget {
 }
 
 class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  User? newClient;
   // Constants
   final int time = 60;
   late AnimationController _controller;
@@ -35,10 +37,13 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   int? _secondDigit;
   int? _thirdDigit;
   int? _fourthDigit;
+  int? _fiveDigit;
+  int? _sixDigit;
 
   late Timer timer;
   late int totalTimeInSeconds;
   late bool _hideResendButton;
+  bool loadVerification =false;
 
   String userName = "";
   bool didReadNotifications = false;
@@ -85,7 +90,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
     return new Padding(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: new Text(
-        "Veuillez entrer le code de confirmation qui a été envoyé à votre numero",
+        "Veuillez entrer le code de confirmation qui a été envoyé au ${newClient == null ? '': newClient!.numero}",
         textAlign: TextAlign.center,
         style: new TextStyle(
             fontSize: 16.0,
@@ -105,6 +110,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         _otpTextField(_secondDigit),
         _otpTextField(_thirdDigit),
         _otpTextField(_fourthDigit),
+        _otpTextField(_fiveDigit),
+        _otpTextField(_sixDigit),
       ],
     );
   }
@@ -146,9 +153,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Resend" button
   get _getResendButton {
-    return new RaisedButton(
-      color: colorText,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    return new ElevatedButton(
+      style: raisedButtonStyle,
       child: new Container(
         height: 42,
         width: 150,
@@ -160,8 +166,34 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         ),
       ),
       onPressed: () async {
-        User newClient = await DBProvider.db.getClient();
-        print(newClient.recovery);
+        setState(() {
+          _hideResendButton = true;
+          totalTimeInSeconds = time;
+        });
+        _startCountdown();
+        final user = await consumeAPI.resendRecovery();
+        if (user['etat'] == 'found') {
+          await DBProvider.db.delClient();
+          await DBProvider.db.newClient(user['user']);
+          Fluttertoast.showToast(
+              msg: "Code renvoyé veuillez verifier",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: colorSuccess,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
+
+        } else {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (builder) => Login()));
+        }
         // Resend you OTP via API or anything
       },
     );
@@ -254,36 +286,51 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                           _firstDigit!,
                           _secondDigit!,
                           _thirdDigit!,
-                          _fourthDigit!
+                          _fourthDigit!,
+                          _fiveDigit!,
+                          _sixDigit!,
                         ];
                         if (beta.join("").indexOf('null') == -1) {
-                          User newClient = await DBProvider.db.getClient();
-                          if (newClient.recovery == beta.join("")) {
-                            if (newClient.name == '' ||
-                                newClient.inscriptionIsDone == 0) {
+
+                          final verify = await consumeAPI.verifyTwilio(beta.join(""));
+                          if (verify['etat'] == 'found') {
+                            if (newClient!.name == '' ||
+                                newClient!.inscriptionIsDone == 0) {
                               setLevel(3);
                               Navigator.push(
                                   context, ScaleRoute(widget: CreateProfil()));
                             } else {
                               setLevel(5);
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      DialogCustomError(
-                                          'De retour',
-                                          'Nous sommes heureux de vous revoir ${newClient.name}',
-                                          context),
-                                  barrierDismissible: false);
-                              Navigator.pushNamed(context, MenuDrawler.rootName);
+                              final user = await consumeAPI.updateRecovery();
+                              if (user['etat'] == 'found') {
+                                await DBProvider.db.delClient();
+                                await DBProvider.db.newClient(user['user']);
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        dialogCustomError(
+                                            'De retour',
+                                            'Nous sommes heureux de vous revoir ${newClient!.name}',
+                                            context),
+                                    barrierDismissible: false);
+                                Navigator.pushNamed(context, MenuDrawler.rootName);
+                              } else {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                                    barrierDismissible: false);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (builder) => Login()));
+                              }
+
                             }
                           } else {
-                            print(newClient.recovery);
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) =>
-                                    DialogCustomError(
+                                    dialogCustomError(
                                         'Erreur',
-                                        'Ce code ne correspond pas à celui donné par SHOUZ',
+                                        verify['error'],
                                         context),
                                 barrierDismissible: false);
                           }
@@ -304,7 +351,11 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                       ),
                       onPressed: () {
                         setState(() {
-                          if (_fourthDigit != null) {
+                          if (_sixDigit != null) {
+                            _sixDigit = null;
+                          } else if (_fiveDigit != null) {
+                            _fiveDigit = null;
+                          } else if (_fourthDigit != null) {
                             _fourthDigit = null;
                           } else if (_thirdDigit != null) {
                             _thirdDigit = null;
@@ -326,7 +377,9 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     totalTimeInSeconds = time;
+
     super.initState();
+    loadInfo();
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: time))
           ..addStatusListener((status) {
@@ -347,6 +400,13 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  loadInfo() async {
+    final user = await DBProvider.db.getClient();
+    setState(() {
+      newClient = user;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     _screenSize = MediaQuery.of(context).size;
@@ -361,40 +421,10 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget DialogCustomError(String title, String message, BuildContext context) {
-    bool isIos = Platform.isIOS;
-    return isIos
-        ? new CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  })
-            ],
-          )
-        : new AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            elevation: 20.0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
-            actions: <Widget>[
-              FlatButton(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  })
-            ],
-          );
-  }
-
 // Returns "Otp custom text field"
   Widget _otpTextField(int? digit) {
     return new Container(
-      width: 35.0,
+      width: 25.0,
       height: 45.0,
       alignment: Alignment.center,
       child: new Text(
@@ -471,6 +501,10 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         _thirdDigit = _currentDigit;
       } else if (_fourthDigit == null) {
         _fourthDigit = _currentDigit;
+      } else if (_fiveDigit == null) {
+        _fiveDigit = _currentDigit;
+      } else if (_sixDigit == null) {
+        _sixDigit = _currentDigit;
       }
     });
   }
@@ -485,6 +519,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   }
 
   void clearOtp() {
+    _sixDigit = null;
+    _fiveDigit = null;
     _fourthDigit = null;
     _thirdDigit = null;
     _secondDigit = null;

@@ -43,19 +43,20 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
   int numberConnected = 0;
 
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+
   @override
   void initState() {
     super.initState();
-    LoadInfo();
+    loadInfo();
     _controller =
         AnimationController(vsync: this, duration: prefix0.transitionMedium);
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
-    //print(PermissionName.values);
   }
 
-  LoadInfo() async {
+  loadInfo() async {
     User user = await DBProvider.db.getClient();
     setState(() {
       newClient = user;

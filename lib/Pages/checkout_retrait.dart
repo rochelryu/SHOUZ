@@ -170,9 +170,10 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           height: MediaQuery.of(context).size.height/2.4,
           width: MediaQuery.of(context).size.width/1.2,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Text("1. Entré le montant que vous voulez retirer votre solde actuel est ${newClient == null ? '':newClient!.wallet.toString()}", style: Style.sousTitre(11)),
+              SizedBox(height: 15),
               Container(
                 height: 45,
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -197,12 +198,14 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                   },
                 ),
               ),
+              SizedBox(height: 15),
               Text("2. Entré votre adresse Bitcoin dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
+              SizedBox(height: 15),
               Row(
                 children: <Widget>[
                   Expanded(
                     child: Container(
-                      height: 45,
+                      height: 55,
                       width: double.infinity,
                       padding: EdgeInsets.only(left: 10.0, right: 3.0),
                       decoration: BoxDecoration(
@@ -248,13 +251,12 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                           }
                           setState(() {
                             amount = '';
-                            txHashEth = '';
+                            txHashBtc = '';
+                            loadingFetchButton = false;
                           });
                           _controller.clear();
                           _controllerSecond.clear();
-                          setState(() {
-                            loadingFetchButton = true;
-                          });
+
                         } else {
                           Fluttertoast.showToast(
                               msg: 'Montant minimum de retrait est 1000 XOF et on peut retirer un montant multiple de 100',
@@ -290,9 +292,10 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           height: MediaQuery.of(context).size.height/2.4,
           width: MediaQuery.of(context).size.width/1.2,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Text("1. Entré le montant que vous voulez retirer votre solde actuel est ${newClient == null ? '':newClient!.wallet.toString()}", style: Style.sousTitre(11)),
+              SizedBox(height: 15),
               Container(
                 height: 45,
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -317,12 +320,14 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                   },
                 ),
               ),
+              SizedBox(height: 15),
               Text("2. Entré votre adresse Ethereum dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
+              SizedBox(height: 15),
               Row(
                 children: <Widget>[
                   Expanded(
                     child: Container(
-                      height: 45,
+                      height: 55,
                       width: double.infinity,
                       padding: EdgeInsets.only(left: 10.0, right: 3.0),
                       decoration: BoxDecoration(
@@ -370,12 +375,11 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                           setState(() {
                             amount = '';
                             txHashEth = '';
+                            loadingFetchButton = false;
                           });
                           _controller.clear();
                           _controllerSecond.clear();
-                          setState(() {
-                            loadingFetchButton = false;
-                          });
+
                         } else {
                           Fluttertoast.showToast(
                               msg: 'Montant minimum de retrait est 1000 XOF et on peut retirer un montant multiple de 100',

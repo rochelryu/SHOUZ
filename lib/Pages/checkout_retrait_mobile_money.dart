@@ -297,7 +297,7 @@ class _CheckoutRetraitMobileMoneyState
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMtnMoney,
                 onPressed: () async {
-                  if(mtnNumero.trim().length == 10 && int.parse(_controller.text) > 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
+                  if(mtnNumero.trim().length == 10 && int.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
                     setState(() {
                       loadConfirmation = true;
                     });
@@ -320,7 +320,7 @@ class _CheckoutRetraitMobileMoneyState
 
                   } else {
                     Fluttertoast.showToast(
-                        msg: 'Verifié le numero Mtn ainsi que le montant (le montant doit être un multiple de 100 et commencer par 1000 XOF)',
+                        msg: 'Verifié le numero Mtn ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIosWeb: 1,
@@ -403,7 +403,7 @@ class _CheckoutRetraitMobileMoneyState
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleWave,
                 onPressed: () async {
-                  if(waveNumero.trim().length == 10 && int.parse(_controller.text) > 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
+                  if(waveNumero.trim().length == 10 && int.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
                     setState(() {
                       loadConfirmation = true;
                     });
@@ -424,7 +424,7 @@ class _CheckoutRetraitMobileMoneyState
                     _controller.clear();
                   } else {
                     Fluttertoast.showToast(
-                        msg: 'Verifié le numero Wave ainsi que le montant (le montant doit être un multiple de 100 et commencer par 1000 XOF)',
+                        msg: 'Verifié le numero Wave ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIosWeb: 1,
@@ -506,7 +506,7 @@ class _CheckoutRetraitMobileMoneyState
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleOrangeMoney,
                 onPressed: () async {
-                  if(orangeNumero.trim().length == 10 && int.parse(_controller.text) > 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
+                  if(orangeNumero.trim().length == 10 && int.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
                     setState(() {
                       loadConfirmation = true;
                     });
@@ -527,7 +527,7 @@ class _CheckoutRetraitMobileMoneyState
                     _controller.clear();
                   } else {
                     Fluttertoast.showToast(
-                        msg: 'Verifié le numero Orange ainsi que le montant (le montant doit être un multiple de 100 et commencer par 1000 XOF)',
+                        msg: 'Verifié le numero Orange ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIosWeb: 1,
@@ -609,7 +609,7 @@ class _CheckoutRetraitMobileMoneyState
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMoovMoney,
                 onPressed: () async {
-                  if(moovNumero.trim().length == 10 && int.parse(_controller.text) > 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
+                  if(moovNumero.trim().length == 10 && int.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
                     setState(() {
                       loadConfirmation = true;
                     });
@@ -630,7 +630,7 @@ class _CheckoutRetraitMobileMoneyState
                     _controller.clear();
                   } else {
                     Fluttertoast.showToast(
-                        msg: 'Verifié le numero Moov ainsi que le montant (le montant doit être un multiple de 100 et commencer par 1000 XOF)',
+                        msg: 'Verifié le numero Moov ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIosWeb: 1,

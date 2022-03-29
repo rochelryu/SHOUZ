@@ -91,7 +91,7 @@ class CardTopNewActu {
           onTap: () {
             Navigator.of(context).push((MaterialPageRoute(
                 builder: (BuildContext context) =>
-                    DetailsActu(title: this.title, id: this.id))));
+                    DetailsActu(title: this.title, id: this.id, comeBack: 0,))));
           },
           child: Stack(
             children: <Widget>[
@@ -190,7 +190,7 @@ class CardTopNewActu {
       onTap: () {
         Navigator.of(context).push((MaterialPageRoute(
             builder: (BuildContext context) =>
-                DetailsActu(title: this.title, id: this.id))));
+                DetailsActu(title: this.title, id: this.id, comeBack: 0,))));
       },
       child: Padding(
         padding:
@@ -266,6 +266,7 @@ class CardTopNewActu {
         onTap: () {
           Navigator.of(context).push((MaterialPageRoute(
               builder: (BuildContext context) => DetailsActu(
+                  comeBack: 0,
                   title: this.title,
                   id: this.id,
                   content: this.content,
@@ -355,7 +356,7 @@ class CardTopNewActu {
   }
 
   List<Widget> displayMinatureImageInNews(
-      dynamic contents, double width, String imageCover) {
+      dynamic contents, double width, String imageCover, BuildContext context) {
     List<String> parseContent = [];
     for (var i = 0; i < contents.length; i++) {
       final value = contents[i];
@@ -364,7 +365,6 @@ class CardTopNewActu {
         parseContent.add(value['inImage'].toString());
       }
     }
-    print(imageCover);
     if (parseContent.length >= 2) {
       List<Widget> listPicturePreview = [
         ClipRRect(
@@ -414,7 +414,7 @@ class CardTopNewActu {
       List<Widget> listPicturePreview = [
         ClipRRect(
           borderRadius: BorderRadius.circular(5.0),
-          child: Image.network(imageCover, fit: BoxFit.cover, height: 250),
+          child: Image.network(imageCover, fit: BoxFit.cover, width: width*2, height: 250),
         )
       ];
       return listPicturePreview;
@@ -429,7 +429,7 @@ class CardTopNewActu {
         onTap: () {
           Navigator.of(context).push((MaterialPageRoute(
               builder: (BuildContext context) =>
-                  DetailsActu(title: this.title, id: this.id, autherName: this.authorName, comment: this.comment, numberVue: this.numberVue, authorProfil: this.authorProfil, content: this.content,imageCover: this.imageCover, ))));
+                  DetailsActu(title: this.title, id: this.id,comeBack: 0, autherName: this.authorName, comment: this.comment, numberVue: this.numberVue, authorProfil: this.authorProfil, content: this.content,imageCover: this.imageCover, ))));
         },
         child: Card(
           elevation: 5.0,
@@ -452,9 +452,9 @@ class CardTopNewActu {
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: displayMinatureImageInNews(this.content,
-                      MediaQuery.of(context).size.width / 2.3, this.image),
+                      MediaQuery.of(context).size.width / 2.3, this.image, context),
                 )
               ],
             ),

@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:huawei_location/permission/permission_handler.dart';
+import 'package:location/location.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
@@ -15,11 +21,16 @@ class _OnBoardingState extends State<OnBoarding> {
   late PageController _controller;
   int _counter = 0;
   bool lastPage = false;
+  late Location location;
+  late PermissionStatus _permissionGranted;
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  PermissionHandler permissionHandler = PermissionHandler();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    location = new Location();
     _controller = PageController(initialPage: _counter);
   }
 
@@ -32,12 +43,6 @@ class _OnBoardingState extends State<OnBoarding> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Container(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -47,10 +52,46 @@ class _OnBoardingState extends State<OnBoarding> {
             PageView.builder(
               itemCount: pageList.length,
               controller: _controller,
-              onPageChanged: (index) {
+              onPageChanged: (index) async {
                 setState(() {
                   _counter = index;
                 });
+                if(_counter == 4) {
+                  if(Platform.isAndroid) {
+                    AndroidDeviceInfo androidInfo = await deviceInfo
+                        .androidInfo;
+                    if (androidInfo.brand!.indexOf('HUAWEI') != -1 ||
+                        androidInfo.brand!.indexOf('HONOR') != -1) {
+                      bool status = await permissionHandler.requestLocationPermission();
+                      if(!status) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidatePermissionNotification(
+                                    'Permission de Localisation importante',
+                                    "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                                    "D'accord",
+                                        () async => await permissionHandler.requestLocationPermission(),
+                                    context),
+                            barrierDismissible: false);
+                      }
+                    } else {
+                      _permissionGranted = await location.hasPermission();
+                      if (_permissionGranted == PermissionStatus.denied) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidatePermissionNotification(
+                                    'Permission de Localisation importante',
+                                    "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                                    "D'accord",
+                                        () async => await location.requestPermission(),
+                                    context),
+                            barrierDismissible: false);
+                      }
+                    }
+                  }
+                }
                 if (_counter == pageList.length - 1)
                   lastPage = true;
                 else
@@ -131,11 +172,10 @@ class _OnBoardingState extends State<OnBoarding> {
                 child: PageIndicator(_counter, pageList.length),
               ),
             ),
-            Positioned(
+            if(lastPage) Positioned(
               right: 30.0,
               bottom: 30.0,
-              child: lastPage
-                  ? FloatingActionButton(
+              child: FloatingActionButton(
                       backgroundColor: backgroundColor,
                       child: Icon(
                         Icons.arrow_forward,
@@ -146,7 +186,6 @@ class _OnBoardingState extends State<OnBoarding> {
                         Navigator.push(context, ScaleRoute(widget: Login()));
                       },
                     )
-                  : Container(),
             )
           ],
         ),

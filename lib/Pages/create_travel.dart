@@ -3,10 +3,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:timeline_tile/timeline_tile.dart';
-
-import 'Profil.dart';
 
 class CreateTravel extends StatefulWidget {
   static String rootName = '/createTravel';
@@ -21,7 +20,6 @@ class _CreateTravelState extends State<CreateTravel> {
   late DateTime date = new DateTime.now();
   late TimeOfDay time = new TimeOfDay.now();
   final formKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
   final ConsumeAPI consumeAPI = new ConsumeAPI();
 
   String beginCity = "";
@@ -127,11 +125,7 @@ class _CreateTravelState extends State<CreateTravel> {
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
-                        /*gradient: LinearGradient(
-                            colors: [Colors.grey[200], Colors.black12],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight
-                        ),*/
+
                           color: backgroundColorSec,
                           border: Border.all(
                               width: 1.0,
@@ -285,7 +279,7 @@ class _CreateTravelState extends State<CreateTravel> {
                 startChild: new Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    height: 140,
+                    height: 150,
                     width: double.infinity,
                     child: Column(
                       children: <Widget>[
@@ -437,7 +431,6 @@ class _CreateTravelState extends State<CreateTravel> {
     );
     return Scaffold(
       backgroundColor: backgroundColor,
-      key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -484,10 +477,10 @@ class _CreateTravelState extends State<CreateTravel> {
     formKey.currentState;
     setState(() => _isLoading = true);
     print('$beginCity , $lieuRencontre , ${dateChoice.toString()} , $endCity, $price');
-    if (beginCity.length > 5 &&
-        lieuRencontre.length > 4 &&
+    if (beginCity.length > 2 &&
+        lieuRencontre.length > 3 &&
         dateChoice != null &&
-        endCity.length > 5 &&
+        endCity.length > 2 &&
         price.length > 3) {
       final travel = await consumeAPI.setTravel(beginCity, lieuRencontre, dateChoice.toString(), endCity, price);
       setState(() => _isLoading = false);
@@ -507,7 +500,7 @@ class _CreateTravelState extends State<CreateTravel> {
         await askedToLead(
             "Votre voyage est en ligne, vous recevrez des notifications lorsqu'un client achetera une place",
             true, context);
-        Navigator.pushNamed(context, Profil.rootName);
+        Navigator.pushNamed(context, MenuDrawler.rootName);
       } else {
         await askedToLead(
             "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
@@ -520,7 +513,7 @@ class _CreateTravelState extends State<CreateTravel> {
   }
 
   void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
       backgroundColor: colorError,
       content: new Text(
         text,

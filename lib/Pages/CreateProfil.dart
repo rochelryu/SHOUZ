@@ -22,10 +22,9 @@ class _CreateProfil extends State<CreateProfil> {
   String? base64Image;
   final picker = ImagePicker();
   File? tmpFile;
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future getImage(BuildContext context) async {
-    var image = await picker.getImage(source: ImageSource.gallery);
+    var image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
@@ -40,7 +39,7 @@ class _CreateProfil extends State<CreateProfil> {
   }
 
   Future getCamera(BuildContext context) async {
-    var image = await picker.getImage(source: ImageSource.camera);
+    var image = await picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       setState(() {
         profil = {"type": 2, "data": File(image.path)};
@@ -66,7 +65,6 @@ class _CreateProfil extends State<CreateProfil> {
   Widget build(BuildContext context) {
     heigth = MediaQuery.of(context).size.height / 5.8;
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: prefix0.backgroundColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -75,16 +73,13 @@ class _CreateProfil extends State<CreateProfil> {
               heigth = 0;
             });
             final name = await DBProvider.db.updateName(value);
-            print(name);
             if (tmpFile == null) {
               final fileName = profil["data"];
               final profils = await DBProvider.db.newProfil(fileName, '');
-              print(profils);
             } else {
               final fileName = tmpFile?.path.split('/').last;
               final profils =
                   await DBProvider.db.newProfil(fileName!, base64Image!);
-              print(profils);
             }
             prefix0.setLevel(4);
             Navigator.of(context)
@@ -130,7 +125,7 @@ class _CreateProfil extends State<CreateProfil> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
                                 image: DecorationImage(
-                                    image: ChoiceType(
+                                    image: choiceType(
                                         profil["type"], profil["data"]),
                                     fit: BoxFit.cover)),
                             child: Stack(
@@ -217,7 +212,7 @@ class _CreateProfil extends State<CreateProfil> {
                                                     ),
                                                     Divider(
                                                         color: Colors.white12),
-                                                    FlatButton(
+                                                    TextButton(
                                                       child: Text("Retour",
                                                           style: prefix0.Style
                                                               .sousTitre(12)),
@@ -258,7 +253,7 @@ class _CreateProfil extends State<CreateProfil> {
                       EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                   child: Container(
                     width: double.infinity,
-                    height: 50,
+                    height: 70,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +308,7 @@ class _CreateProfil extends State<CreateProfil> {
     );
   }
 
-  ChoiceType(type, data) {
+  choiceType(type, data) {
     if (type == 1) {
       return new AssetImage(data);
     } else {
@@ -331,6 +326,6 @@ class _CreateProfil extends State<CreateProfil> {
             Text('Votre nom et prénoms doivent depasser 4 caractères'),
           ],
         ));
-    _scaffoldKey.currentState?.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

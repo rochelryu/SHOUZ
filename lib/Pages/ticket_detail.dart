@@ -89,7 +89,7 @@ class TicketDetail extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Padding(
+                    placeTotal < 3 ? Padding(
                       padding: EdgeInsets.symmetric(horizontal: 60),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
@@ -121,7 +121,7 @@ class TicketDetail extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
+                    ): SizedBox(width: 10,),
                   ],
                 ),
               ),

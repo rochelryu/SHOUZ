@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
+import 'package:shouz/Provider/Notifications.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import 'ChatDetails.dart';
 import 'Login.dart';
@@ -29,24 +30,22 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     super.initState();
     _controller =  new TabController(length: 4, vsync: this);
     getInfo();
-    notificationsFull = new ConsumeAPI().getAllNotif();
+    notificationsFull = consumeAPI.getAllNotif();
   }
 
   Future getInfo() async {
     try {
       final videNotif = await consumeAPI.videNotif();;
       if(videNotif != 'found') {
-        Fluttertoast.showToast(
-            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: prefix0.colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
+        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
+      } else {
+        cancelAllAwesomeNotification();
       }
     } catch (e) {
       print("Erreur $e");
@@ -55,16 +54,16 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: prefix0.backgroundColor,
+        backgroundColor: backgroundColor,
         title: Text('Notifications'),
         bottom: new TabBar(
           controller: _controller,
           unselectedLabelColor: Color(0xdd3c5b6d),
-          labelColor: prefix0.colorText,
-          indicatorColor: prefix0.colorText,
+          labelColor: colorText,
+          indicatorColor: colorText,
           tabs: [
             new Tab(
               text: 'Deals',
@@ -95,15 +94,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     (BuildContext context, AsyncSnapshot snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
-                      return Column(
-                        children: <Widget>[
-                          Expanded(
-                              child: Center(
-                                child: Text("Erreur de connexion avec le serveur",
-                                    style: prefix0.Style.titreEvent(18)),
-                              )),
-                        ],
-                      );
+                      return isErrorSubscribe(context);
                     case ConnectionState.waiting:
                       return Column(children: <Widget>[
                         Expanded(
@@ -122,8 +113,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -229,8 +220,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -320,15 +311,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
 
                     case ConnectionState.done:
                       if (snapshot.hasError) {
-                        return Column(children: <Widget>[
-                          Expanded(
-                              child: Padding(
-                                  padding: EdgeInsets.all(30),
-                                  child: Center(
-                                      child: Text("${snapshot.error}",
-                                          style: prefix0.Style.sousTitreEvent(
-                                              15)))))
-                        ]);
+                        return isErrorSubscribe(context);
                       }
                       var notificationsDeals = snapshot.data;
                       if (notificationsDeals['result']['deals'].length == 0) {
@@ -349,7 +332,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                     Text(
                                         "Vous n'avez aucune notification de deals pour le moment",
                                         textAlign: TextAlign.center,
-                                        style: prefix0.Style.sousTitreEvent(15)),
+                                        style: Style.sousTitreEvent(15)),
                                     SizedBox(height: 20),
 
                                   ])),
@@ -370,15 +353,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     (BuildContext context, AsyncSnapshot snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
-                      return Column(
-                        children: <Widget>[
-                          Expanded(
-                              child: Center(
-                                child: Text("Erreur de connexion avec le serveur",
-                                    style: prefix0.Style.titreEvent(18)),
-                              )),
-                        ],
-                      );
+                      return isErrorSubscribe(context);
                     case ConnectionState.waiting:
                       return Column(children: <Widget>[
                         Expanded(
@@ -397,8 +372,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -504,8 +479,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -595,15 +570,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
 
                     case ConnectionState.done:
                       if (snapshot.hasError) {
-                        return Column(children: <Widget>[
-                          Expanded(
-                              child: Padding(
-                                  padding: EdgeInsets.all(30),
-                                  child: Center(
-                                      child: Text("${snapshot.error}",
-                                          style: prefix0.Style.sousTitreEvent(
-                                              15)))))
-                        ]);
+                        return isErrorSubscribe(context);
                       }
                       var notificationsEvents = snapshot.data;
                       if (notificationsEvents['result']['allEventNotif'].length == 0) {
@@ -624,7 +591,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                     Text(
                                         "Vous n'avez aucune notification d'évènement pour le moment",
                                         textAlign: TextAlign.center,
-                                        style: prefix0.Style.sousTitreEvent(15)),
+                                        style: Style.sousTitreEvent(15)),
                                     SizedBox(height: 20),
 
                                   ])),
@@ -645,15 +612,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     (BuildContext context, AsyncSnapshot snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
-                      return Column(
-                        children: <Widget>[
-                          Expanded(
-                              child: Center(
-                                child: Text("Erreur de connexion avec le serveur",
-                                    style: prefix0.Style.titreEvent(18)),
-                              )),
-                        ],
-                      );
+                      return isErrorSubscribe(context);
                     case ConnectionState.waiting:
                       return Column(children: <Widget>[
                         Expanded(
@@ -672,8 +631,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -779,8 +738,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -870,15 +829,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
 
                     case ConnectionState.done:
                       if (snapshot.hasError) {
-                        return Column(children: <Widget>[
-                          Expanded(
-                              child: Padding(
-                                  padding: EdgeInsets.all(30),
-                                  child: Center(
-                                      child: Text("${snapshot.error}",
-                                          style: prefix0.Style.sousTitreEvent(
-                                              15)))))
-                        ]);
+                        return isErrorSubscribe(context);
                       }
                       var notificationsDeals = snapshot.data;
                       if (notificationsDeals['result']['travels'].length == 0) {
@@ -899,7 +850,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                     Text(
                                         "Vous n'avez aucune notification de voyage pour le moment",
                                         textAlign: TextAlign.center,
-                                        style: prefix0.Style.sousTitreEvent(15)),
+                                        style: Style.sousTitreEvent(15)),
                                     SizedBox(height: 20),
 
                                   ])),
@@ -920,15 +871,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     (BuildContext context, AsyncSnapshot snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
-                      return Column(
-                        children: <Widget>[
-                          Expanded(
-                              child: Center(
-                                child: Text("Erreur de connexion avec le serveur",
-                                    style: prefix0.Style.titreEvent(18)),
-                              )),
-                        ],
-                      );
+                      return isErrorSubscribe(context);
                     case ConnectionState.waiting:
                       return Column(children: <Widget>[
                         Expanded(
@@ -947,8 +890,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -1054,8 +997,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                         colors: [
-                                          prefix0.backgroundColor,
-                                          prefix0.tint
+                                          backgroundColor,
+                                          tint
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment
@@ -1145,15 +1088,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
 
                     case ConnectionState.done:
                       if (snapshot.hasError) {
-                        return Column(children: <Widget>[
-                          Expanded(
-                              child: Padding(
-                                  padding: EdgeInsets.all(30),
-                                  child: Center(
-                                      child: Text("${snapshot.error}",
-                                          style: prefix0.Style.sousTitreEvent(
-                                              15)))))
-                        ]);
+                        return isErrorSubscribe(context);
                       }
                       var notificationsDeals = snapshot.data;
                       if (notificationsDeals['result']['transactions'].length == 0) {
@@ -1174,7 +1109,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                     Text(
                                         "Vous n'avez aucune notification de rechargement ou retrait pour le moment",
                                         textAlign: TextAlign.center,
-                                        style: prefix0.Style.sousTitreEvent(15)),
+                                        style: Style.sousTitreEvent(15)),
                                     SizedBox(height: 20),
 
                                   ])),
@@ -1208,6 +1143,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     context,
                     MaterialPageRoute(
                         builder: (builder) => ChatDetails(
+                            comeBack: 0,
                             room: atMoment[index]['room'],
                             productId: atMoment[index]['productId'],
                             name: atMoment[index]['name'],
@@ -1226,7 +1162,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                          border: Border.all(color: prefix0.colorText, width: 1.0),
+                          border: Border.all(color: colorText, width: 1.0),
                           borderRadius: BorderRadius.circular(50.0),
                           image: DecorationImage(
                             image: NetworkImage("${ConsumeAPI.AssetProfilServer}${atMoment[index]['imageOtherUser']}"),
@@ -1240,7 +1176,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                         child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(atMoment[index]['content'], style: prefix0.Style.contextNotif(11), maxLines: 3,)
+                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
                         ],
                       ),),
                     ),
@@ -1279,8 +1215,6 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => VerifyUser(
                         redirect: CreateTravel.rootName, key: UniqueKey(),)));
-                } else {
-                  print(atMoment[index]);
                 }
 
               },
@@ -1308,7 +1242,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(atMoment[index]['content'], style: prefix0.Style.contextNotif(11), maxLines: 3,)
+                            Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
                           ],
                         ),),
                     ),
@@ -1355,7 +1289,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(atMoment[index]['content'], style: prefix0.Style.contextNotif(11), maxLines: 3,)
+                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
                         ],
                       ),),
                   ),
@@ -1401,7 +1335,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(atMoment[index]['content'], style: prefix0.Style.contextNotif(11), maxLines: 3,)
+                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
                         ],
                       ),),
                   ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -8,6 +7,7 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
 
@@ -35,15 +35,11 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
 
       final event = await consumeAPI.buyEvent(appState.getidEvent, appState.getPriceTicketTotal, appState.getNumberTicket, appState.getPriceUnityTicket);
       if(event["etat"] == "notFound"){
-        Fluttertoast.showToast(
-            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
+        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
       } else {
@@ -135,9 +131,9 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Text(
-                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets.\n🥳Aussi avec SHOUZ vous avez les possibilitées suivantes:\n    - Partager des tickets à d'autres utilisateurs SHOUZ afin qu'ils accèdent à l'evenement avant ou après vous. (Par Exemple si vous êtes indisponible)\n    - Vous pouvez annuler l'achat et recuperer votre argent si vous trouvez que vous ne pouvez plus participer à l'évènement. (Mais vous devez le faire avant le debut de l'evenement).\n Pour voir tous vos tickets allez dans l'onglet Outils > Mes Tickets Évènements" ,
+                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets.\n🥳Aussi avec SHOUZ vous avez les possibilitées suivantes:\n    - Partager des tickets à d'autres utilisateurs SHOUZ afin qu'ils accèdent à l'evenement avant ou après vous. (Par Exemple si vous êtes indisponible)\n    - Vous pouvez annuler l'achat et recuperer votre argent si vous trouvez que vous ne pouvez plus participer à l'évènement. (Mais vous devez le faire avant le debut de l'evenement).\n Pour voir vos tickets allez dans l'onglet Profil puis Évènements et cliquez sur l'évènement concerné" ,
                       style: Style.menuStyleItem(13),
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                     ),
                     ElevatedButton(
                         style: raisedButtonStyle,

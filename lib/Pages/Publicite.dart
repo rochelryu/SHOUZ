@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 
+final mesUsers = ["","","",""];
 
 class Publicite extends StatefulWidget {
   @override
@@ -87,7 +88,6 @@ class CardScrollWidget extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: InkWell(
                   onTap: (){
-                    print(mesUsers[i]);
                   },
                   child: AspectRatio(
                     aspectRatio: cardAspectRatio,
@@ -95,7 +95,6 @@ class CardScrollWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16.0),
                       child: InkWell(
                         onTap: (){
-                          print(mesUsers[i]);
                         },
                         child: Stack(
                           fit: StackFit.expand,
@@ -119,7 +118,6 @@ class CardScrollWidget extends StatelessWidget {
                                       ),
                                       child: GestureDetector(
                                         onTap: (){
-                                          print(mesUsers[i]);
                                         },
                                         child: Text("Voir plus", textAlign: TextAlign.start, style: Style.titre(20.0)),
                                       ),

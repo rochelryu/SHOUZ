@@ -1,32 +1,18 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shouz/Pages/ticket_detail.dart';
-import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
-import '../Models/User.dart';
 import 'my_flutter_app_second_icons.dart';
 
 Color colorOne = tint;
 Color colorTwo = backgroundColorSec;
 Color colorThree = colorText;
-enum TypePayement { trovaExchange, bitcoin, ethereum, orange, mtn, moov, wave, visa }
+enum TypePayement { bitcoin, ethereum, orange, mtn, moov, wave, visa }
 
-/*final indicatorList = [
-  BallPulseIndicator(),
-  BallBeatIndicator(),
-  BallGridPulseIndicator(),
-  BallScaleIndicator(),
-  BallScaleMultipleIndicator(),
-  BallSpinFadeLoaderIndicator(),
-  LineScaleIndicator(),
-  LineScalePartyIndicator(),
-  LineScalePulseOutIndicator(),
-];*/
+
 bool primaryTheme = true;
 final Color backgroundColor = (!primaryTheme) ? Colors.white : Color(0xFF2d3447);
 final Color backgroundColorSec = Color(0xFF4A4A58);
@@ -36,7 +22,7 @@ final Color colorTextShadow = Color(0xFF2979FF);
 final Color colorError = Color(0xFFB71C1C);
 final Color colorWarning = Color(0xFFDEB31C);
 final Color colorSuccess = Color(0xFF4CAF50);
-final Color colorPrimary = /*(!primaryTheme)? Colors.black87: */ Colors.white;
+final Color colorPrimary = Colors.white;
 final Color colorSecondary = Colors.grey;
 final Color colorWelcome = Colors.white70;
 final Color secondColor =
@@ -45,10 +31,13 @@ final transitionMedium = new Duration(milliseconds: 400);
 final transitionLong = new Duration(milliseconds: 800);
 final transitionSuperLong = new Duration(milliseconds: 1200);
 
+final String channelKey = "shouz_channel";
+final String channelName = "Shouz Notifications";
+final String channelDescription = "Shouz, Social Department of CLUBDOUZE";
+
 class DealsSkeletonData {
   List<dynamic> imageUrl;
   var title;
-  var favorite;
   var price;
   var numero;
   var autor;
@@ -61,11 +50,11 @@ class DealsSkeletonData {
   var id;
   var profil;
   var onLine;
-  //List<String> PersonneLike = [];
+  var archive;
+  var level;
   DealsSkeletonData(
       {required this.imageUrl,
       this.title,
-      this.favorite,
       this.price,
       this.numero,
       this.autor,
@@ -76,185 +65,31 @@ class DealsSkeletonData {
       this.id,
       this.profil,
       this.quantity,
+      this.archive,
+        this.level,
       this.onLine, this.authorName});
 }
 
-List atMoment = [
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-];
+int channelId() {
+  return DateTime.now().millisecondsSinceEpoch;
+}
 
-List atSemaine = [
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-];
-
-List atMois = [
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-  {
-    "author": mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-    "name": "Ryu",
-    "verbe": "vous a écrit",
-    "complement": "pour un deals",
-    "product": "Nike au revoir",
-    "productImage":
-        mesUsersLocal[new Random().nextInt(mesUsersLocal.length - 1)],
-  },
-];
-List<String> mesUsers = [
-  "https://image.freepik.com/photos-gratuite/femme-tailleur-travaillant-usine-couture_1303-15841.jpg",
-  "https://image.freepik.com/vecteurs-libre/pensee-intelligence-artificielle-dans-tete-humanoide-reseau-neurones-ia-cerveau-numerique_119244-52.jpg",
-  "https://image.freepik.com/psd-gratuit/modele-vente-banniere-coloree_1393-167.jpg",
-  "https://image.freepik.com/vecteurs-libre/illustration-maman-drole-faisant-mouvement-limande_102811-35.jpg",
-  "https://image.freepik.com/photos-gratuite/gens-heureux-dansent-dans-concert-discotheque_31965-606.jpg",
-  "https://image.freepik.com/vecteurs-libre/modele-affiche-evenement-musique-formes-abstraites_1361-1316.jpg",
-  "https://image.freepik.com/vecteurs-libre/modele-affiche-evenement-beaute_1361-1225.jpg"
-];
-List<String> prices = ["Gratuit", "5000 F cfa", "15000 F cfa"];
-List<String> mesUsersLocal = [
-  "images/actu.png",
-  "images/l.jpg",
-  "images/l2.jpg",
-  "images/noter.png",
-  "images/publi.png",
-  "images/ryu.jpg",
-  "images/ryuotaKise.jpg",
-  "images/secondvoyage.png"
-];
-
-var dealsList = [
-  DealsModel(
-      imageUrl: "images/l.jpg",
-      title: "Nike Au revoir",
-      favorite: false,
-      price: 35000,
-      numero: "48803377",
-      autor: "images/me.jpg",
-      registerDate: "il y 6 heures"),
-  DealsModel(
-      imageUrl: "images/l2.jpg",
-      title: "Nike Au revoir",
-      favorite: false,
-      price: 25000,
-      numero: "48803377",
-      autor: "images/l2.jpg",
-      registerDate: "il y 8 heures"),
-  DealsModel(
-      imageUrl: "images/me.jpg",
-      title: "Nike Au revoir",
-      favorite: true,
-      price: 15000,
-      numero: "48803377",
-      autor: "images/l.jpg",
-      registerDate: "il y 12 heures"),
-  DealsModel(
-      imageUrl: "images/ryotaFluid.jpg",
-      title: "Nike Au revoir",
-      favorite: true,
-      price: 5000,
-      numero: "48803377",
-      autor: "images/ryotaFluid.jpg",
-      registerDate: "il y 16 heures"),
-  DealsModel(
-      imageUrl: "images/ryuotaKise.jpg",
-      title: "Nike Au revoir",
-      favorite: true,
-      price: 1000,
-      numero: "48803377",
-      autor: "images/ryuotaKise.jpg",
-      registerDate: "il y 18 heures"),
-  DealsModel(
-      imageUrl: "images/soulE.jpg",
-      title: "Nike Au revoir",
-      favorite: false,
-      price: 3000,
-      numero: "48803377",
-      autor: "images/soulE.jpg",
-      registerDate: "hier à 09h15"),
-];
 var pageList = [
   PageModel(
       imageUrl: "images/actu.png",
       title: "ACTUALITES",
-      body: "Suivez l'actualité d'ici et d'ailleurs",
+      body: "Suivez l'actualité d'ici et d'ailleurs. En plus soyez informés des dernières offres d'emploi et appel d'offre de votre localité",
       titleGradient: gradient[0]),
   PageModel(
       imageUrl: "images/deals.png",
       title: "DEALS",
       body:
-          "Vendez et/ou achetez sans frais et même avec des bons de reduction",
+          "Vendez sans frais ou achetez un produit avec la possibilité de discuter le prix d'achat. Nous vous livrons le produit, satisfait ou remboursé",
       titleGradient: gradient[1]),
   PageModel(
       imageUrl: "images/event.png",
       title: "EVENEMENTS",
-      body: "Suivez des évènements ou partagez vos évènements",
+      body: "Créer vos évènements et gagnez 100% sur la vente de vos tickets. Une personne qui achète des tickets peut les partager ou les annuler si besoin est",
       titleGradient: gradient[2]),
   PageModel(
       imageUrl: "images/voyage.png",
@@ -272,7 +107,53 @@ var pageList = [
       body: "Et tout ça selon vos préférences.",
       titleGradient: gradient[5]),
 ];
+var pageExplicationEventList = [
+  PageExplicationModel(
+      imageUrl: "images/hello.svg",
+      body: "Salut à vous et bienvenue dans les explications de la rubrique événement.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
+  PageExplicationModel(
+      imageUrl: "images/surveillance.svg",
+      body: "1- Cette rubrique existe pour tous ceux qui veulent organiser des événements et pouvoir vendre leurs tickets directement dans SHOUZ.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par une ou plusieurs personnes à qui vous aurez donné la permission (des vigils ou autres agents de sécurité).\nVotre décodeur doit avoir un compte SHOUZ car c'est avec son compte sous la rubrique décodage de ticket qu'il pourra décoder vos tickets."),
+  PageExplicationModel(
+      imageUrl: "images/allInOneExplainEvent.jpeg",
+      body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'on nombre maximal de ticket)."),
+  PageExplicationModel(
+      imageUrl: "images/ConsultingEvent.svg",
+      body: "3- Les clients qui achètent les tickets sont tout comme vous nos priorités donc nous travaillons afin d'améliorer leur cadre et possibilités d'actions dans SHOUZ.\nPar exemple un client qui achète un ticket de plusieurs places peut partager des places à d'autres membres dans l'application ce qui fera qu'eux aussi auront des tickets du nombre de places qui leur seront allouées.\nCeci est la fonctionnalité de partage de ticket qui est utilisé en cas d'indisponibilité ou de retard de celui qui a acheté les tickets. Et sert également à faciliter l'achat de tickets par des mentors afin de les distribuer aux membres intéressés."),
+  PageExplicationModel(
+      imageUrl: "images/cashIn.svg",
+      body: "4- Les clients qui achètent les tickets peuvent annuler l'achat de leur ticket s'ils trouvent qu'ils ne seront plus disponibles pour participer à l'événement, ainsi il récupère 90% du montant du ticket acheté, 5% vont dans les caisses de SHOUZ et les autres 5% vont sur le solde cumule du créateur de l'événement ainsi que le ticket qui redevient à nouveau disponible pour achat.\nMais l'annulation de ticket peut se faire si l'acheteur est pris un ticket d'aux plus 2 places et durant un temps, si on arrive à 24h avant le début de l'événement, aucun ticket ne peut être annulé."),
+  PageExplicationModel(
+      imageUrl: "images/CancelledEvent.svg",
+      body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est reposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
+  PageExplicationModel(
+      imageUrl: "images/notification.svg",
+      body: "6 - Nous notifions le créateur de l'événement lorsqu'un ticket est acheté, le nombre de tickets encore disponibles, s'il y a un ticket qui a été déjà décoder et qui essaye d'être décodé une nouvelle fois pour une tentative de fraude.\nNous assurons au créateur de l'événement une totale sécurité concernant l'achat et le décodage de ticket pour ses événements et nous assurons aussi une large communauté intéressée.\nNous tenons à rappeler que les événements ne sont visibles que chez ceux qui sont intéressés par la même catégorie qu'à l'événement."),
+];
 
+var pageExplicationTravelList = [
+  PageExplicationModel(
+      imageUrl: "images/tranquile.png",
+      body: "Salut à vous et bienvenue dans les explications de la rubrique Voyage.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
+  PageExplicationModel(
+      imageUrl: "images/conducteur.svg",
+      body: "1- Cette rubrique existe pour tous ceux qui veulent rémunérer leurs voyages en vendant des places de leur vehicule lors de leurs differents voyage entre ville.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par vous-même lors de l'embarcation. Au moment d'embarquer il vous suffit de vous rendre sous la rubrique Outils>Vérifications Tickets>decoder ticket de voyage."),
+  PageExplicationModel(
+      imageUrl: "images/driving.svg",
+      body: "2- N'importe qui ne peut créer un voyage et le rémunérer. Pour pouvoir créer un voyage il vous faut faire une demande conductrice auprès de Shouz en envoyant des images de la carte grise, carte de visite technique, permis de conduire, assurance, et aussi une photo de votre véhicule et une autre image de vous.\nCette demande peut se faire sous la rubrique Outils>Devenir Conducteur. Nos robots analyseront vos documents de façon minutieuse et avec les supports de vérification adéquate car il en va de la sécurité de nos utilisateurs intéressés."),
+  PageExplicationModel(
+      imageUrl: "images/secondvoyage.png",
+      body: "3- N'importe qui ne peut être passager d'un voyage. Pour pouvoir être passager il faut débloquer son compte en envoyant des images d'une pièce d'identité(CNI, PASSPORT, PERMIS ou ATTESTATION) aussi une image de soi ayant attrapé la pièce en question de par la main.\nCette demande peut se faire sous la rubrique Paramètre>compte>Information Voyage. Nos robots analyseront vos documents de façon minutieuse et avec les supports de vérification adéquate car il en va de la sécurité de nos conducteurs."),
+  PageExplicationModel(
+      imageUrl: "images/voyage.png",
+      body: "4- Le prix du ticket est donné par le conducteur. lors de l'achat des tickets le conducteur ne reçoit pas immédiatement l'argent. s'est après avoir decoder le ticket du passager à l'arrivée que le conducteur reçoit ainsi l'argent du ticket. Il reçoit 90% de la vente du ticket et SHOUZ reçoit les 10% restant.\nPar contre si lors de son voyage l'administration SHOUZ l'appelle pour récupérer un colis dans sa ville de départ pour remettre à une tierce personne sur son trajet, le conducteur bénéficiera d'un avantage commission ce qui lui permettra de gagner 95% au lieu de 90% sur chaque ticket."),
+  PageExplicationModel(
+      imageUrl: "images/wait vehicule.svg",
+      body: "5- En résumé, le principe est simple, pour devenir conducteur et gagner 90% ou 95% de chaque ticket vendu vous devez faire une demande conductrice.\nPour pouvoir acheter une place pour un voyage il faut que votre compte soit authentifié et pour cela vous deviez envoyer des informations vous concernant à l'administration SHOUZ. "),
+  PageExplicationModel(
+      imageUrl: "images/notime.svg",
+      body: "6 - Tout traitement de demande conducteur ou voyageur par l'administration SHOUZ prend moins de 48h"),
+];
 List<List<Color>> gradient = [
   [Color(0xFF9CCC64), Color(0xFF33691E)],
   [Color(0xFFE2859F), Color(0xFFFCCF31)],
@@ -288,6 +169,13 @@ class PageModel {
   var body;
   List<Color> titleGradient = [];
   PageModel({this.imageUrl, this.title, this.body, required this.titleGradient});
+}
+
+
+class PageExplicationModel {
+  var imageUrl;
+  var body;
+  PageExplicationModel({this.imageUrl, this.body});
 }
 
 class DealsModel {
@@ -358,9 +246,6 @@ class ImageArround extends CustomClipper<Rect> {
 }
 
 class Style {
-  Widget widget;
-  Style(this.widget);
-
   static const Color colorPrimary = Color.fromARGB(255, 255, 255, 255);
   static const Color colorPrimaryDark = Color.fromARGB(255, 41, 41, 41);
   static const Color colorAccent = Color.fromARGB(255, 30, 198, 89);
@@ -491,6 +376,14 @@ class Style {
     );
   }
 
+  static dynamic titreBlue(double size) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "LexendExa",
+      color: colorText,
+    );
+  }
+
   static dynamic secondTitre(double size) {
     return TextStyle(
         fontSize: size,
@@ -504,6 +397,22 @@ class Style {
       fontSize: size,
       fontFamily: "LexendExa",
       color: colorSecondary,
+    );
+  }
+
+  static dynamic sousTitreBlack(double size) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "LexendExa",
+      color: Colors.black,
+    );
+  }
+
+  static dynamic sousTitreBlackOpacity(double size) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "LexendExa",
+      color: Colors.black45,
     );
   }
 
@@ -585,9 +494,9 @@ class Style {
         );
   }
 
-  static dynamic simpleTextOnBoard() {
+  static dynamic simpleTextOnBoard([double size = 17.0]) {
     return TextStyle(
-      fontSize: 17.0,
+      fontSize: size,
       fontFamily: "Montserrat-Light",
       color: colorSecondary,
       letterSpacing: 1.1,
@@ -604,6 +513,7 @@ class Style {
       //fontWeight: FontWeight.w600,
     );
   }
+
 
   static dynamic simpleTextOnNews() {
     return TextStyle(
@@ -646,9 +556,9 @@ class Style {
 
   //Style Of Deals
 
-  static dynamic titleDealsProduct() {
+  static dynamic titleDealsProduct([double size = 13.0]) {
     return TextStyle(
-      fontSize: 13.0,
+      fontSize: size,
       fontFamily: "Montserrat-Black",
       color: colorPrimary,
       letterSpacing: 1.1,
@@ -752,6 +662,15 @@ class Style {
     );
   }
 
+  static dynamic titleInSegmentInTypeRequest() {
+    return TextStyle(
+      fontSize: 14.0,
+      fontFamily: "Montserrat-Light",
+      color: colorText,
+      letterSpacing: 1.0,
+    );
+  }
+
   static dynamic priceOldDealsProduct() {
     return TextStyle(
         fontSize: 13.0,
@@ -772,6 +691,23 @@ class Style {
       fontSize: 16.0,
       fontFamily: "Montserrat-Light",
       color: colorSecondary,
+      letterSpacing: 1.0,
+    );
+  }
+  static dynamic textBeginCity(double size) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "Montserrat-Black",
+      color: Colors.redAccent,
+      letterSpacing: 1.0,
+    );
+  }
+
+  static dynamic textEndCity(double size) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "Montserrat-Black",
+      color: colorText,
       letterSpacing: 1.0,
     );
   }
@@ -817,7 +753,6 @@ Future<String> getPin() async {
 
 Future<File> setPin(String pin) async {
   final file = await _localPin;
-  print('$pin saved');
   return file.writeAsString('$pin');
 }
 
@@ -843,7 +778,6 @@ Future<File> get _localPin async {
 
 resetAllData() async {
   await DBProvider.db.delClient();
-  await DBProvider.db.delAllHobies();
   setLevel(0);
 }
 
@@ -918,165 +852,6 @@ const String kNamelNullError = "Nom invalide";
 const String kPhoneNumberNullError = "Numero invalide";
 const String kAddressNullError = "Adresse invalide";
 
-final otpInputDecoration = InputDecoration(
-  contentPadding:
-      EdgeInsets.symmetric(vertical: getProportionateScreenWidth(15)),
-  border: outlineInputBorder(),
-  focusedBorder: outlineInputBorder(),
-  enabledBorder: outlineInputBorder(),
-);
-
-OutlineInputBorder outlineInputBorder() {
-  return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(getProportionateScreenWidth(15)),
-    borderSide: BorderSide(color: colorText),
-  );
-}
-Widget dialogCustomError(String title, String message, BuildContext context) {
-  bool isIos = Platform.isIOS;
-  return isIos
-      ? new CupertinoAlertDialog(
-    title: Text(title),
-    content: Text(message),
-    actions: <Widget>[
-      CupertinoDialogAction(
-          child: Text("Ok"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          })
-    ],
-  )
-      : new AlertDialog(
-    title: Text(title),
-    content: Text(message),
-    elevation: 20.0,
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0)),
-    actions: <Widget>[
-      FlatButton(
-          child: Text("Ok"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          })
-    ],
-  );
-}
-
-Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context) {
-  bool isIos = Platform.isIOS;
-  return isIos
-      ? new CupertinoAlertDialog(
-    title: Text(title),
-    content: Text(message),
-    actions: <Widget>[
-      CupertinoDialogAction(
-          child: Text("Annuler", style: Style.chatOutMe(15),),
-          onPressed: () {
-            Navigator.of(context).pop();
-          }),
-      CupertinoDialogAction(
-          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError(),),
-          onPressed: () async {
-            await callback();
-            Navigator.of(context).pop();
-          }),
-    ],
-  )
-      : new AlertDialog(
-    title: Text(title),
-    content: Text(message),
-    elevation: 20.0,
-    shape:
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-    actions: <Widget>[
-      FlatButton(
-          child: Text("Annuler", style: Style.chatOutMe(15),),
-          onPressed: () {
-            Navigator.of(context).pop();
-          }),
-      FlatButton(
-          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError()),
-          onPressed: () {
-            callback();
-            Navigator.of(context).pop();
-          }),
-    ],
-  );
-}
-
-Widget livraisonWidget(String assetFile, String title) {
-  return Container(
-    width: 120,
-    height: 70,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          child: Image.asset(assetFile, fit: BoxFit.contain),
-        ),
-        SizedBox(height: 5),
-        Text(title, style: Style.chatIsMe(12))
-      ],
-    ),
-  );
-}
-
-Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitle, var eventDate, User user) {
-  return Container(
-    padding: EdgeInsets.only(top: 5, bottom: 5, left: 12),
-    height: 200,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Vos tickets déjà achetés : ", style: Style.sousTitreEvent(15),),
-        SizedBox(height: 5),
-        Expanded(
-          child: ListView.builder(
-              itemCount: tickets.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  width: 170,
-                  margin: EdgeInsets.only(right: 15),
-                  child: Column(
-                    children: [
-                      Card(
-                        elevation: 7.0,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                              return new TicketDetail(eventTitle, tickets[index]['idEvent'], tickets[index]['_id'], tickets[index]['nameImage'], tickets[index]['placeTotal'],tickets[index]['priceTicket'],tickets[index]['typeTicket'], eventDate, user);
-                            }));
-                          },
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(7),
-
-                              ),
-                              child: Hero(
-                                tag: tickets[index]['_id'],
-                                child: Image.network(
-                                    "${ConsumeAPI.AssetBuyEventServer}${tickets[index]['idEvent']}/${tickets[index]['nameImage']}",
-                                    fit: BoxFit.cover),
-                              ),
-                            ),
-                        ),
-                      ),
-                      Text("${tickets[index]['placeTotal'].toString()} Ticket${tickets[index]['placeTotal'] > 1 ? 'S': ''} de ${tickets[index]['typeTicket'].toUpperCase() == 'GRATUIT' ? 'type': '' } ${tickets[index]['typeTicket']}", style: Style.simpleTextOnNews(), textAlign: TextAlign.center,)
-                    ],
-                  ),
-                );
-              }),
-        ),
-      ],
-    ),
-  );
-}
-
 class SizeConfig {
   static late MediaQueryData _mediaQueryData;
   static double screenWidth = 0;
@@ -1110,9 +885,9 @@ double getProportionateScreenWidth(double inputWidth) {
 final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   onPrimary: Colors.white,
   primary: colorText,
-  minimumSize: Size(88, 36),
-  padding: EdgeInsets.symmetric(horizontal: 16),
-  shape: RoundedRectangleBorder(
+  minimumSize: const Size(88, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20)),
   ),
 );
@@ -1121,6 +896,16 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
 final ButtonStyle raisedButtonStyleError = ElevatedButton.styleFrom(
   onPrimary: Colors.white,
   primary: colorError,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
+final ButtonStyle raisedButtonStyleSuccess = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: colorSuccess,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -1166,6 +951,15 @@ final ButtonStyle raisedButtonStyleMoovMoney = ElevatedButton.styleFrom(
   ),
 );
 
+final ButtonStyle outlineButtonStyle = OutlinedButton.styleFrom(
+  primary: colorText,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
 
 //AlertType Modal
 Future<Null> askedToLead(String message, bool success, BuildContext context) async {
@@ -1185,10 +979,10 @@ Future<Null> askedToLead(String message, bool success, BuildContext context) asy
                 Text(message,
                     textAlign: TextAlign.center,
                     style: Style.sousTitre(13)),
-                RaisedButton(
+                ElevatedButton(
                     child: Text('Ok'),
-                    color:
-                    success ? colorSuccess : colorError,
+                    style:
+                    success ? raisedButtonStyleSuccess : raisedButtonStyleError,
                     onPressed: () {
                       Navigator.pop(context);
                     }),

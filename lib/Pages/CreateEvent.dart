@@ -3,10 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
+import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:video_player/video_player.dart';
 
@@ -33,9 +37,10 @@ class _CreateEventState extends State<CreateEvent> {
   String base64Image = "";
   String base64Video = "";
   List<VideoPlayerController> postVideo = [];
-  List<dynamic> allCategorie = [];
+  List<String> allCategorie = [];
   String nameProduct = "";
   TextEditingController nameProductCtrl = new TextEditingController();
+  TextEditingController eCtrl = new TextEditingController();
   String describe = "";
   String email = "";
   TextEditingController describeCtrl = new TextEditingController();
@@ -44,18 +49,22 @@ class _CreateEventState extends State<CreateEvent> {
   TextEditingController positionCtrl = new TextEditingController();
   String price = "";
   TextEditingController priceCtrl = new TextEditingController();
-  String? dropdownValue;
   bool _isName = true;
   bool _isEmail = false;
   bool _isDescribe = false;
   bool _isPrice = false;
+  bool onClickOfAddPrice = false;
   bool _isPosition = false;
   bool _isNumber = false;
+  bool _isQuantity = false;
   int? numero;
   TextEditingController numeroCtrl = new TextEditingController();
   bool _isLoading = false;
-  bool _isCategorie = false;
   bool monVal = false;
+  List<List<TextEditingController>> _controllers = [];
+  List<Row> _fields = [];
+
+
 
   Future<Null> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -92,19 +101,126 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   loadCategorie() async {
-    final data = await consumeAPI.getAllCategrieWithoutFilter("event");
+    //final data = await consumeAPI.getAllCategrieWithoutFilter("event");
     final maxPlaceData = await consumeAPI.getMaxPlaceForCreateEvent();
     setState(() {
-      allCategorie = data;
+      //allCategorie = data;
       maxPlace = maxPlaceData;
+    });
+  }
+
+  addTypeTicket() {
+    final controllerPrice = TextEditingController();
+    final controllerQuantity = TextEditingController();
+    final field = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Card(
+            color: Colors.transparent,
+            elevation: _isPrice ? 4.0 : 0.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0)),
+            child: Container(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.35,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  color: backgroundColorSec,
+                  border: Border.all(
+                      width: 1.0,
+                      color: _isPrice
+                          ? colorText
+                          : backgroundColor),
+                  borderRadius: BorderRadius.circular(50.0)),
+              child: new TextField(
+                controller: controllerPrice,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w300),
+                cursorColor: colorText,
+                onChanged: (text) {
+                  setState(() {
+                    _isName = true;
+                    _isDescribe = false;
+                    _isEmail = false;
+                    _isPrice = false;
+                    _isPosition = false;
+                    _isNumber = false;
+                    _isLoading = false;
+                    monVal = false;
+                  });
+                },
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "Prix",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+          ),
+          Card(
+            color: Colors.transparent,
+            elevation: _isQuantity ? 4.0 : 0.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0)),
+            child: Container(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.35,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  color: backgroundColorSec,
+                  border: Border.all(
+                      width: 1.0,
+                      color: _isQuantity
+                          ? colorText
+                          : backgroundColor),
+                  borderRadius: BorderRadius.circular(50.0)),
+              child: new TextField(
+                controller: controllerQuantity,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w300),
+                cursorColor: colorText,
+                onChanged: (text) {
+                  setState(() {
+                    _isName = true;
+                    _isDescribe = false;
+                    _isEmail = false;
+                    _isPrice = false;
+                    _isPosition = false;
+                    _isNumber = false;
+                    _isLoading = false;
+                    monVal = false;
+                  });
+                },
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "Quantité",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+          ),
+        ]);
+
+    setState(() {
+      _controllers.add([controllerPrice, controllerQuantity]);
+    _fields.add(field);
+    onClickOfAddPrice = true;
     });
   }
 
   @override
   void dispose() {
+    if(_controller != null) {
+      _controller!.removeListener(() {});
+      _controller!.dispose();
+    }
     super.dispose();
-    _controller!.removeListener(() {});
-    _controller!.dispose();
   }
 
   Future getImage() async {
@@ -222,7 +338,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isPosition = false;
                           _isNumber = false;
                           _isLoading = false;
-                          _isCategorie = false;
                           monVal = false;
                           nameProduct = text;
                         });
@@ -274,7 +389,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isPosition = false;
                           _isNumber = false;
                           _isLoading = false;
-                          _isCategorie = false;
                           monVal = false;
                           describe = text;
                         });
@@ -284,76 +398,17 @@ class _CreateEventState extends State<CreateEvent> {
                       maxLength: 360,
                       maxLines: 9,
                       cursorColor: colorText,
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_two,
                               color: _isDescribe
                                   ? colorText
                                   : Colors.grey),
-                          labelText: "Description du produit",
+                          labelText: "Description de l'évènement",
                           labelStyle: TextStyle(
                             color: Colors.white,
                           )),
-                    ),
-                  ),
-                ),
-              ),
-              new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: Colors.transparent,
-                  elevation: _isCategorie ? 4.0 : 0.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0)),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        /*gradient: LinearGradient(
-                            colors: [Colors.grey[200], Colors.black12],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight
-                        ),*/
-                        color: backgroundColorSec,
-                        border: Border.all(
-                            width: 1.0,
-                            color: _isCategorie
-                                ? colorText
-                                : backgroundColor),
-                        borderRadius: BorderRadius.circular(50.0)),
-                    child: DropdownButtonFormField<String>(
-                      hint: Text('Veuillez choisir une categorie',
-                          style: Style.sousTitre(14)),
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      isExpanded: true,
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
-
-                      onChanged: (newValue) {
-                        setState(() {
-                          _isCategorie = true;
-                          dropdownValue = newValue;
-                          _isName = false;
-                          _isEmail = false;
-                          _isDescribe = false;
-                          _isPrice = false;
-                          _isPosition = false;
-                          _isNumber = false;
-                          _isLoading = false;
-                          monVal = false;
-                        });
-                      },
-                      items: allCategorie.map((value) {
-                        return DropdownMenuItem<String>(
-                          value: value['_id'],
-                          child: Text(value['name'],
-                              style: Style.sousTitre(15)),
-                        );
-                      }).toList(),
                     ),
                   ),
                 ),
@@ -380,8 +435,8 @@ class _CreateEventState extends State<CreateEvent> {
                               color: Colors.white,
                               strokeWidth: 1,
                               child: Container(
-                                height: 100,
-                                width: 100,
+                                height: 110,
+                                width: 110,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
@@ -389,7 +444,7 @@ class _CreateEventState extends State<CreateEvent> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Selectionner une image",
+                                      "Charger une image",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
@@ -414,8 +469,8 @@ class _CreateEventState extends State<CreateEvent> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0)),
                               child: Container(
-                                height: 100,
-                                width: 100,
+                                height: 110,
+                                width: 110,
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     image: DecorationImage(
@@ -429,7 +484,7 @@ class _CreateEventState extends State<CreateEvent> {
                     }),
               ),
               Container(
-                height: 140,
+                height: 155,
                 width: double.infinity,
                 padding: EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
                 child: ListView.builder(
@@ -450,8 +505,8 @@ class _CreateEventState extends State<CreateEvent> {
                               color: Colors.white,
                               strokeWidth: 1,
                               child: Container(
-                                height: 110,
-                                width: 120,
+                                height: 140,
+                                width: 130,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
@@ -484,8 +539,8 @@ class _CreateEventState extends State<CreateEvent> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0)),
                               child: Container(
-                                height: 100,
-                                width: 120,
+                                height: 140,
+                                width: 130,
                                 child: VideoPlayer(postVideo[index - 1]),
                               ),
                             ),
@@ -549,7 +604,6 @@ class _CreateEventState extends State<CreateEvent> {
                                       _isPrice = false;
                                       _isPosition = false;
                                       _isLoading = false;
-                                      _isCategorie = false;
                                       monVal = false;
                                       numero = int.parse(text);
                                     });
@@ -609,7 +663,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isDescribe = false;
                           _isPrice = false;
                           _isLoading = false;
-                          _isCategorie = false;
                           monVal = false;
                           position = text;
                         });
@@ -637,10 +690,11 @@ class _CreateEventState extends State<CreateEvent> {
               new Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                    "Veuillez entrer les prix des différents tickets et le nombre de place de chaque type de ticket en les separants par des virgules",
+                    "Si l'entrée est gratuite, écrivez gratuit à la place du prix",
                     style: Style.sousTitre(13)),
               ),
-              new Padding(
+              ..._listView(),
+              /*new Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -673,7 +727,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isPosition = false;
                           _isNumber = false;
                           _isLoading = false;
-                          _isCategorie = false;
                           monVal = false;
                           price = text;
                         });
@@ -691,14 +744,17 @@ class _CreateEventState extends State<CreateEvent> {
                     ),
                   ),
                 ),
-              ),
-              new Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                    "Veuillez entrer vôtre email, nous vous enverons fréquement des mails concernant l'évolution de votre évènement",
-                    style: Style.sousTitre(13)),
-              ),
-              new Padding(
+              ),*/
+              OutlinedButton(
+                style: outlineButtonStyle,
+                  onPressed: addTypeTicket, child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, color: colorText,),
+                  Text("Ajouter ${onClickOfAddPrice ?'encore':''} un type de ticket"),
+                ],
+              )),
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -731,7 +787,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isPosition = false;
                           _isNumber = false;
                           _isLoading = false;
-                          _isCategorie = false;
                           monVal = false;
                           email = text;
                         });
@@ -742,7 +797,7 @@ class _CreateEventState extends State<CreateEvent> {
                           prefixIcon: Icon(Icons.looks_6,
                               color:
                               _isEmail ? colorText : Colors.grey),
-                          hintText: "example@gmail.com",
+                          hintText: "votre adresse email",
                           hintStyle: TextStyle(
                             color: Colors.white,
                           )),
@@ -750,6 +805,138 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                 ),
               ),
+              allCategorie.length < 3 ? Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Veuillez selectionner des categories pour votre évènement. (Max Categorie: 3)",
+                  /*textAlign: TextAlign.justify,*/ style:
+                Style.sousTitre(13.0),
+                ),
+              ):SizedBox(width: 10),
+              allCategorie.length < 3 ? Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Card(
+                    elevation: 10.0,
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.only(left: 10.0),
+                      width: MediaQuery.of(context).size.width,
+                      child: TypeAheadField(
+                        hideSuggestionsOnKeyboardHide: false,
+                        textFieldConfiguration: TextFieldConfiguration(
+                          //autofautofocusocus: true,
+                          controller: eCtrl,
+                          style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w300),
+
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            suffixIcon: IconButton(
+                                icon: Icon(Icons.add,
+                                    color: Colors.black87, size: 32.0),
+                                onPressed: () async {
+                                  final etat = await new ConsumeAPI()
+                                      .verifyCategorieExist(eCtrl.text);
+                                  if (etat) {
+                                    if (allCategorie.indexOf(eCtrl.text) == -1) {
+                                      setState(() {
+                                        allCategorie.add(eCtrl.text);
+                                      });
+                                    }
+                                    eCtrl.clear();
+                                  } else {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            DialogCustomError(
+                                                'Erreur',
+                                                'Categorie inexistante dans notre registre',
+                                                context),
+                                        barrierDismissible: false);
+                                  }
+                                }),
+                            hintText:
+                            "Economie, Bourse, Festival, Coupé décalé, Gospel, Boom Party",
+                            hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey[500],
+                                fontSize: 13.0),
+                          ),
+                        ),
+                        hideOnEmpty: true,
+                        suggestionsCallback: (pattern) async {
+                          return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'', 'not', '2');
+                        },
+                        itemBuilder: (context, suggestion) {
+                          final categorie = suggestion as Categorie;
+                          return ListTile(
+                            title: Text(categorie.name,
+                                style: Style.priceDealsProduct()),
+                            trailing: (categorie.popularity == 1)
+                                ? Icon(Icons.star, color: colorText)
+                                : Icon(Icons.star_border,
+                                color: colorText),
+                          );
+                        },
+                        onSuggestionSelected: (suggestion) async {
+                          final categorie = suggestion as Categorie;
+                          eCtrl.text = categorie.name;
+                        },
+                      ),
+                    ),
+                  )):SizedBox(width: 10),
+              Padding(
+                  padding:
+                  EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
+                  child: Text('Categories choisies',
+                      textAlign: TextAlign.start,
+                      style: Style.enterChoiceHobieInSecondaryOption(
+                          16.0))),
+              allCategorie.length == 0
+                  ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 25.0),
+                  child: Text(
+                    "Veuillez choisir au moins une catégorie",
+                    style: Style.sousTitreEvent(15),
+                  ))
+                  : Wrap(
+                spacing: 6.0,
+                children: <Widget>[
+                  MasonryGridView.count(
+                    physics: new BouncingScrollPhysics(),
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    mainAxisSpacing: 0,
+                    crossAxisSpacing: 0,
+                    padding: EdgeInsets.all(0.0),
+                    itemCount: allCategorie.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Chip(
+                        elevation: 10.0,
+                        deleteIcon: Icon(Icons.delete,
+                            color: Colors.black87, size: 17.0),
+                        deleteButtonTooltipMessage: "Retirer",
+                        onDeleted: () async {
+                          setState(() {
+                            allCategorie.removeAt(index);
+                          });
+                        },
+                        avatar: CircleAvatar(
+                            backgroundColor: colorText,
+                            child: Text(
+                                allCategorie[index]
+                                    .substring(0, 1)
+                                    .toUpperCase(),
+                                style: TextStyle(color: Colors.white))),
+                        label: Text(allCategorie[index]),
+                        backgroundColor: Colors.white,
+                      );
+                    },
+
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -805,66 +992,80 @@ class _CreateEventState extends State<CreateEvent> {
   void _submit() async {
     formKey.currentState;
     setState(() => _isLoading = true);
-    //print('$nameProduct , $describe , $dropdownValue, $base64Image, $base64Video, ${dateChoice.toString()} , ${numero.toString()}, $position, $price');
+    
     if (nameProduct.length > 5 &&
         describe.length > 20 &&
-        dropdownValue != null &&
+        allCategorie.length <= 3 &&
+        allCategorie.length > 0 &&
         base64Image != '' &&
         dateChoice != null &&
         numero != null &&
         numero! <= maxPlace  &&
         position.length > 5 &&
-        price.length > 4 && email.indexOf('@') > 4) {
-      String imageCover = post[0].path.split('/').last;
-      String videoPub = (video != null) ? video!.path.split('/').last : "";
-      final event = await new ConsumeAPI().setEvent(
-          nameProduct,
-          describe,
-          dropdownValue!,
-          imageCover,
-          base64Image,
-          position,
-          dateChoice.toString(),
-          numero!,
-          price,
-          email,
-          videoPub,
-          base64Video
+        _controllers.length > 0 &&
+        email.indexOf('@') > 4) {
+      final array = _controllers
+          .map((arrayItem) => "${arrayItem[0].text}:${arrayItem[1].text.length > 0 ? arrayItem[1].text:'0'}")
+          .toList()
+          .where((element) => element != ":0")
+          .toList();
+      final placeTotal = array.map((e) => int.parse(e.substring(e.indexOf(':') +1))).reduce((value, element) => value + element);
+      if(numero == placeTotal){
+        String imageCover = post[0].path.split('/').last;
+        String videoPub = (video != null) ? video!.path.split('/').last : "";
+        final event = await new ConsumeAPI().setEvent(
+            nameProduct,
+            describe,
+            allCategorie,
+            imageCover,
+            base64Image,
+            position,
+            dateChoice.toString(),
+            numero!,
+            array.join(','),
+            email,
+            videoPub,
+            base64Video
 
-      );
-      setState(() => _isLoading = false);
-      print(event);
-      if (event['etat'] == 'found') {
-        setState(() {
-          dateChoice = null;
-          video = null;
-          dropdownValue = null;
-          post.clear();
-          postVideo.clear();
+        );
+        setState(() => _isLoading = false);
+        if (event['etat'] == 'found') {
+          setState(() {
+            dateChoice = null;
+            video = null;
+            allCategorie = [];
+            post.clear();
+            postVideo.clear();
 
-          emailCtrl.clear();
-          nameProductCtrl.clear();
-          describeCtrl.clear();
-          positionCtrl.clear();
-          priceCtrl.clear();
-          numeroCtrl.clear();
-          base64Image = '';
-          base64Video = '';
-          nameProduct = "";
-          describe = "";
-          position = "";
-          price = "";
-          email = '';
-          numero = null;
-        });
+            emailCtrl.clear();
+            nameProductCtrl.clear();
+            describeCtrl.clear();
+            positionCtrl.clear();
+            priceCtrl.clear();
+            numeroCtrl.clear();
+            base64Image = '';
+            base64Video = '';
+            nameProduct = "";
+            describe = "";
+            position = "";
+            price = "";
+            email = '';
+            numero = null;
+          });
+          await askedToLead(
+              "Votre évènement est en ligne, vous pouvez le manager où que vous soyez",
+              true, context);
+          Navigator.pushNamed(context, MenuDrawler.rootName);
+        }
+        else {
+          await askedToLead(
+              event['error'],
+              false, context);
+        }
+      }else {
+        setState(() => _isLoading = false);
         await askedToLead(
-            "Votre évènement est en ligne, vous pouvez le manager où que vous soyez",
-            true, context);
-        Navigator.pushNamed(context, MenuDrawler.rootName);
-      }
-      else {
-        await askedToLead(
-            event['error'],
+            "Le nombre de ticket de tous vos types de tickets est différent du nombre total de ticket que vous avez fait rentrer dans la section [3].\nVeuillez rectifier cela pour pouvoir envoyer votre évènement",
             false, context);
       }
     } else {
@@ -885,5 +1086,49 @@ class _CreateEventState extends State<CreateEvent> {
           onPressed: () {
           }),
     ));
+  }
+
+  Widget DialogCustomError(String title, String message, BuildContext context) {
+    bool isIos = Platform.isIOS;
+    return isIos
+        ? new CupertinoAlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        CupertinoDialogAction(
+            child: Text("Ok"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            })
+      ],
+    )
+        : new AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      elevation: 20.0,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0)),
+      actions: <Widget>[
+        FlatButton(
+            child: Text("Ok"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            })
+      ],
+    );
+  }
+
+  List<Widget> _listView() {
+    List<Widget> tabs = [];
+    _fields.map((value) {
+      tabs.add(Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            height: 60,
+            width: double.infinity,
+            child: value,
+          )));
+    }).toList();
+    return tabs;
   }
 }

@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,6 +19,8 @@ import 'package:shouz/Provider/AppState.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:timeline_tile/timeline_tile.dart';
+import 'package:record/record.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 class ChatDetails extends StatefulWidget {
   var name;
@@ -23,8 +29,9 @@ class ChatDetails extends StatefulWidget {
   var productId;
   var profil;
   var room;
+  int comeBack;
   @override
-  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId, this.room});
+  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId, this.room, required this.comeBack});
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
@@ -44,6 +51,18 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   TextEditingController priceCtrl = TextEditingController();
   String quantity = "";
   TextEditingController quantityCtrl = TextEditingController();
+  String displayTime = '00:00';
+
+  Timer? _timer;
+  Timer? _ampTimer;
+  final _audioRecorder = Record();
+  //String pathRecordAudio = '';
+
+  double opacity = 0.0;
+
+
+
+  bool isListeen = false;
 
   Future getImage() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
@@ -63,31 +82,19 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    isListeen = false;
     _tabController = TabController(length: 2, vsync: this);
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
 
-
-    // reformateData(conversation);
-    // getUser();
-    // initializeSocket();
   }
-
-//  @override
-//  didChangeDependencies() {
-//    if(decompte == 0) {
-//      appState = Provider.of<AppState>(context);
-//      appState.getConversation(widget.authorId);
-//      decompte++;
-//    }
-//  }
 
   @override
   dispose() {
-
-    /*appState.updateTyping(false);
-    appState.setConversation({});
-    appState = null;*/
+    _timer?.cancel();
+    _ampTimer?.cancel();
+    _audioRecorder.dispose();
+    //File(_current!.path ?? '').delete();
     super.dispose();
   }
 
@@ -105,7 +112,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
     final room = widget.room == '' ? "${widget.authorId}_${client.ident}_${widget.productId}": widget.room;
     appState.getConversation(room);
-    final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
+      final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
     setState(() {
       this.room = room.toString();
       productDetails = productInfo;
@@ -142,6 +149,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               message: value['content'],
               registerDate: value['date'].substring(11, 16).toString(),
               idDocument: conversation['_id'],
+              isReadByOtherUser: value['isReadByOtherUser'],
               image: value['image']));
         } else if (date < 1) {
           if (!againToday) {
@@ -155,11 +163,13 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               message: value['content'],
               registerDate: value['date'].substring(11, 16).toString(),
               idDocument: conversation['_id'],
+              isReadByOtherUser: value['isReadByOtherUser'],
               image: value['image']));
         } else {
           tabs.add(Bubble(
               isMe: isMe,
               message: value['content'],
+              isReadByOtherUser: value['isReadByOtherUser'],
               registerDate: value['date']
                   .substring(0, 16)
                   .toString()
@@ -280,6 +290,51 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
             ],
           ),
         )
+      );
+    }
+    if(productDetails != null && productDetails!['result']['quantity']>0 && conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' && conversation['levelDelivery'] >= 5 && conversation['levelDelivery'] < 7) {
+      tabs.add(
+          Container(
+            height: 140,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Il y'a encore ce produit en stock, voulez vous relancer un nouveau Deal ?", style: Style.titleNews(), textAlign: TextAlign.center,),
+                SizedBox(height: 15),
+                ElevatedButton(
+                  onPressed: () async {
+                    appState.relanceDeals(
+                        destinate: room,
+                        content: "Encore moi 👋🏽",
+                        id: appState.getIdOldConversation
+                        );
+                  },
+                  child: new Text(
+                    "Oui, je suis intéressé.",
+                    style: Style.sousTitreEvent(15),
+                  ),
+                  style: raisedButtonStyle,
+
+                ),
+              ],
+            ),
+          )
+      );
+    }
+    if(productDetails != null && conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' &&  conversation['levelDelivery'] == 7) {
+      tabs.add(
+          Container(
+            height: 40,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Le produit ne se trouvait pas avec le vendeur", style: Style.titleNews(), textAlign: TextAlign.center,),
+
+              ],
+            ),
+          )
       );
     }
     return tabs;
@@ -475,13 +530,15 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context);
     final conversation = appState.getConversationGetter;
     Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
+        Duration(seconds: 1),
+            () => _scrollController
             .jumpTo(_scrollController.position.maxScrollExtent));
 
     return new Scaffold(
@@ -501,7 +558,13 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(onPressed: (){
-              Navigator.pop(context);
+              appState.setConversation({});
+              appState.setIdOldConversation('');
+              if(widget.comeBack == 0) {
+                Navigator.pop(context);
+              } else {
+                Navigator.pushNamed(context, MenuDrawler.rootName);
+              }
             }, icon: Icon(Icons.arrow_back)),
             Container(
               height: 40,
@@ -530,10 +593,16 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    SizedBox(width: 8),
+                    SizedBox(width: 3),
                     appState.getTyping
-                        ? LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)
+                        ? Container(
+                      height: 6,
+                      width: 25,
+                      padding: EdgeInsets.only(top: 2),
+                      child: LoadingIndicator(indicatorType: Indicator.ballPulse,colors: [colorSecondary], strokeWidth: 1),
+                    )
                         : SizedBox(width: 8),
+
                   ],
                 )
               ],
@@ -542,185 +611,249 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         ),
         centerTitle: false,
       ),
-      body: newClient == null ? Center(
-        child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
-      ) : GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Stack(
-          children: <Widget>[
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Flexible(
-                    child: ListView.builder(
-                        physics: BouncingScrollPhysics(),
-                        controller: _scrollController,
-                        shrinkWrap: true,
-                        itemCount: 1,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                                top: 5.0, left: 5.0, right: 5.0, bottom: conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? 10 :70.0),
-                            child: Column(
-                              children: reformateView(conversation),
-                            ),
-                          );
-                        }),
-                  )
-                ],
+      body: newClient == null ? Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage('images/backgoundChat.png'),
+              fit: BoxFit.cover
+          )
+        ),
+        child: Center(
+          child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
+        ),
+      ) : Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('images/backgoundChat.png'),
+                fit: BoxFit.cover
+            )
+        ),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                child: Column(
+                  children: <Widget>[
+                    Flexible(
+                      child: ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                          itemCount: 1,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                  top: 5.0, left: 5.0, right: 5.0, bottom: conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? 10 :70.0),
+                              child: Column(
+                                children: reformateView(conversation),
+                              ),
+                            );
+                          }),
+                    )
+                  ],
+                ),
               ),
-            ),
-            conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' ? SizedBox(width: 10):Positioned(
-              bottom: 0,
-              left: 0,
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                  padding: EdgeInsets.all(3.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                    color: Colors.white,
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     offset: Offset(-2,0),
-                    //     color: Colors.grey[200],
-                    //     blurRadius: 2,
-                    //   )
-                    // ]
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        child: _image == null
-                            ? SizedBox(width: 10)
-                            : Container(
-                                height:
-                                    MediaQuery.of(context).size.height / 1.76,
-                                width: double.infinity,
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(30),
-                                        topRight: Radius.circular(30.0)),
-                                    child: Image.file(_image!)),
+              if ((conversation['etatCommunication'] != null && conversation['etatCommunication'] != 'Seller and Buyer validate price final') || conversation['etatCommunication'] == null) Positioned(
+                bottom: 0,
+                left: 0,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: <Widget>[
+                    if (_image != null) Container(
+                      height: 85,
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            child: Container(
+                              height: 85,
+                              width: 85,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 2.0,
+                                      color: colorPrimary),
+                                  borderRadius: BorderRadius.only(topRight: Radius.circular(4),topLeft: Radius.circular(4)),
+                                  image: DecorationImage(
+                                      image: FileImage(_image!),
+                                      fit: BoxFit.cover
+                                  )
                               ),
+                            ),
+                            onTap: () {
+                              setState(() { _image =null;});
+                            },
+                          )
+                        ],
                       ),
-                      Container(
-                        height: 50,
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Icon(MyFlutterAppSecond.attach,
-                                  color: colorText),
-                              onPressed: getImage,
-                            ),
-                            Expanded(
-                              child: TextFormField(
-                                controller: eCtrl,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                style: Style.chatOutMe(14),
-                                keyboardType: TextInputType.text,
-                                maxLines: 1,
-                                decoration: InputDecoration(
-                                    hintText: "Entrer le message",
-                                    border: InputBorder.none,
-                                    hintStyle: Style.sousTitre(14)),
-                                onChanged: (text) async {
-                                  setState(() {
-                                    message = text;
-                                    if (message.length == 1) {
-                                      inWrite(true, room, newClient!.ident);
-                                      // appState.setTyping(true, widget.authorId);
-                                    } else if (message.length == 0) {
-                                      inWrite(false, room, newClient!.ident);
-                                      // appState.setTyping(false, widget.authorId);
-                                    }
-                                  });
-                                },
+                    ),
+                    Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(30),topLeft: Radius.circular(_image != null ? 0:30),),
+                        color: Colors.white
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(MyFlutterAppSecond.attach,
+                                color: colorText),
+                            onPressed: getImage,
+                          ),
+                          Expanded(
+                            child: isListeen ? Container(
+                              height: 50,
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  AnimatedOpacity(
+                                      child: Container(
+                                        height: 15,
+                                        width: 15,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: colorError,
+                                        ),
+                                      ),
+                                      opacity: opacity,
+                                      duration: const Duration(seconds: 1)),
+                                  SizedBox(width: 10),
+                                  Text(displayTime, style: Style.simpleTextBlack())
+                                ],
                               ),
-                            ),
-                            appState.getLoadingToSend ?  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2) : IconButton(
-                              icon: Icon(MyFlutterAppSecond.email,
-                                  color: colorText),
-                              onPressed: () {
-                                if (_image == null && message == "") {
-                                  Fluttertoast.showToast(
-                                      msg: 'Ecrivé au moins quelque chose avant d\'envoyer',
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: colorError,
-                                      textColor: Colors.black,
-                                      fontSize: 16.0
-                                  );
-                                } else {
-                                  appState.updateLoadingToSend(true);
-                                  setState(() {
-                                    eCtrl.text = "";
-                                    File? imm = _image;
-                                    _image = null;
-                                    if (appState.getConversationGetter['_id'] == null) {
-                                      if (imm != null) {
-                                        final base64Image =
-                                        base64Encode(imm.readAsBytesSync());
-                                        String imageCover =
-                                            imm.path.split('/').last;
-                                        appState.createChatMessage(
-                                            destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
-                                            base64: base64Image,
-                                            imageName: imageCover,
-                                            content: message);
-                                        inWrite(false, room, newClient!.ident);
-                                      } else {
-                                        appState.createChatMessage(
-                                            destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
-                                            content: message);
-                                        inWrite(false, room, newClient!.ident);
-                                      }
-                                      // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
-                                      Timer(
-                                          Duration(milliseconds: 10),
-                                              () => _scrollController.jumpTo(
-                                              _scrollController
-                                                  .position.maxScrollExtent));
-                                    } else {
-                                      if (imm != null) {
-                                        final base64Image =
-                                        base64Encode(imm.readAsBytesSync());
-                                        String imageCover =
-                                            imm.path.split('/').last;
-                                        appState.sendChatMessage(
-                                            destinate: room,
-                                            base64: base64Image,
-                                            imageName: imageCover,
-                                            content: message,
-                                            id: appState.getIdOldConversation);
-                                        inWrite(false, room, newClient!.ident);
-                                      } else {
-                                        appState.sendChatMessage(
-                                            destinate: room,
-                                            content: message,
-                                            id: appState.getIdOldConversation);
-                                        inWrite(false, room, newClient!.ident);
-                                      }
-                                      // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
-                                    }
-                                    message = '';
-                                  });
-                                }
-
+                            ) : TextFormField(
+                              controller: eCtrl,
+                              textCapitalization:
+                              TextCapitalization.sentences,
+                              style: Style.chatOutMe(14),
+                              keyboardType: TextInputType.text,
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                  hintText: "Entrer le message",
+                                  border: InputBorder.none,
+                                  hintStyle: Style.sousTitre(14)),
+                              onChanged: (text) async {
+                                setState(() {
+                                  message = text;
+                                  if (message.length == 1) {
+                                    inWrite(true, room, newClient!.ident);
+                                    // appState.setTyping(true, widget.authorId);
+                                  } else if (message.length == 0) {
+                                    inWrite(false, room, newClient!.ident);
+                                    // appState.setTyping(false, widget.authorId);
+                                  }
+                                });
                               },
                             ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-            )
-          ],
+                          ),
+                          if(isListeen) IconButton(
+                            icon: Icon(Icons.delete_sharp, color: backgroundColorSec),
+                            onPressed: () {
+                              setState(() {
+                                isListeen = false;
+                              });
+                            },
+                          ),
+                          if (appState.getLoadingToSend) LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)
+                          else if ((!appState.getLoadingToSend && message.length > 0 && !isListeen) || _image != null) IconButton(
+                            icon: Icon(MyFlutterAppSecond.email,
+                                color: colorText),
+                            onPressed: () {
+                              if (_image == null && message == "") {
+                                Fluttertoast.showToast(
+                                    msg: 'Ecrivé au moins quelque chose avant d\'envoyer',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: colorError,
+                                    textColor: Colors.black,
+                                    fontSize: 16.0
+                                );
+                              } else {
+                                appState.updateLoadingToSend(true);
+                                setState(() {
+                                  eCtrl.text = "";
+                                  File? imm = _image;
+                                  _image = null;
+                                  if (appState.getConversationGetter['_id'] == null) {
+                                    if (imm != null) {
+                                      final base64Image =
+                                      base64Encode(imm.readAsBytesSync());
+                                      String imageCover =
+                                          imm.path.split('/').last;
+                                      appState.createChatMessage(
+                                          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+                                          base64: base64Image,
+                                          imageName: imageCover,
+                                          content: message);
+                                      inWrite(false, room, newClient!.ident);
+                                    } else {
+                                      appState.createChatMessage(
+                                          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+                                          content: message);
+                                      inWrite(false, room, newClient!.ident);
+                                    }
+                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
+                                    Timer(
+                                        Duration(milliseconds: 10),
+                                            () => _scrollController.jumpTo(
+                                            _scrollController
+                                                .position.maxScrollExtent));
+                                  } else {
+                                    if (imm != null) {
+                                      final base64Image =
+                                      base64Encode(imm.readAsBytesSync());
+                                      String imageCover =
+                                          imm.path.split('/').last;
+                                      appState.sendChatMessage(
+                                          destinate: room,
+                                          base64: base64Image,
+                                          imageName: imageCover,
+                                          content: message,
+                                          id: appState.getIdOldConversation);
+                                      inWrite(false, room, newClient!.ident);
+                                    } else {
+                                      appState.sendChatMessage(
+                                          destinate: room,
+                                          content: message,
+                                          id: appState.getIdOldConversation);
+                                      inWrite(false, room, newClient!.ident);
+                                    }
+                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
+                                  }
+                                  message = '';
+                                });
+                              }
+
+                            },
+                          )
+                          else if (!appState.getLoadingToSend && message.length == 0 && _image == null) IconButton(
+                              icon: Icon(isListeen ? MyFlutterAppSecond.email :Icons.mic_none_outlined, color: colorText,),
+                              onPressed: () async {
+                                if(!isListeen) {
+                                  _start();
+                                } else {
+                                  appState.updateLoadingToSend(true);
+                                  _stop();
+                                }
+                              },
+                            ),
+
+                        ],
+                      ),
+                    )
+                  ],
+                ))
+            ],
+          ),
         ),
       ),
 
@@ -809,9 +942,9 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   height: 170,
                                   child: propositionAuteur(conversation['etatCommunication'], (newClient != null && room.split('_')[0] == newClient!.ident), conversation['priceFinal'], conversation['quantityProduct']),
                                 ),
-                                (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient!.ident) ? new RaisedButton(
+                                if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient!.ident) ElevatedButton(
                               onPressed: () {
-;                                if(int.parse(quantity) <= productDetails!['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
+                                if(int.parse(quantity) <= productDetails!['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
                                   appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation );
                                   Navigator.pop(context);
                                   Fluttertoast.showToast(
@@ -839,12 +972,8 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 "Envoyer la proposition",
                                 style: Style.sousTitreEvent(15),
                               ),
-                              color: colorText,
-                              disabledElevation: 0.0,
-                              disabledColor: Colors.grey[300],
-                              elevation: 4.0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-                            ): SizedBox(width: 10),
+                              style: raisedButtonStyle,
+                            ),
                               ],
                             ),
                           ),
@@ -952,7 +1081,197 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           style: Style.sousTitreEvent(15))];
     }
   }
+
+  _pathRecord() async {
+    try {
+
+      if (await _audioRecorder.hasPermission()) {
+        String customPath = '/chat_records_';
+        Directory appDocDirectory;
+        if (Platform.isIOS) {
+          appDocDirectory = await getApplicationDocumentsDirectory();
+        } else {
+          appDocDirectory = (await getExternalStorageDirectory())!;
+        }
+
+        customPath = appDocDirectory.path +
+            customPath +
+            DateTime.now().millisecondsSinceEpoch.toString()+'.m4a';
+        setState(() {
+          //pathRecordAudio = customPath;
+        });
+        return customPath;
+
+      } else {
+        final statusPermissionMicro = await Permission.microphone.request();
+        final statusPermissionStorage = await Permission.storage.request();
+        final statusPermissionManageStorage = await Permission.manageExternalStorage.request();
+        if(statusPermissionMicro != PermissionStatus.granted) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Permission Microphone', "Il est impératif que vous nous donniez la permission de votre microphone", context),
+              barrierDismissible: false);
+          await Permission.microphone.request();
+        }
+        if(statusPermissionStorage != PermissionStatus.granted) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Permission Stockage', "Il est impératif que vous nous donniez la permission de votre stockage fichiers", context),
+              barrierDismissible: false);
+          await Permission.storage.request();
+        }
+        if(statusPermissionManageStorage != PermissionStatus.granted) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Permission Enregistrement Stockage', "Il est impératif que vous nous donniez la permission de gestion stockage fichiers", context),
+              barrierDismissible: false);
+          await Permission.manageExternalStorage.request();
+        }
+        await _pathRecord();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _start2() async {
+    /*try {
+      await _recorder!.start();
+      var recording = await _recorder?.current(channel: 0);
+      print(recording);
+      setState(() {
+        _current = recording;
+        _currentStatus = recording!.status!;
+        displayTime = "00:00";
+        isListeen = true;
+      });
+      print('_currentStatus');
+      print(_currentStatus);
+
+      const tick = const Duration(seconds: 1);
+      new Timer.periodic(tick, (Timer t) async {
+        var current = await _recorder?.current(channel: 0);
+        print('current');
+        print(current!.status);
+        print(current);
+        setState(() {
+          _current = current;
+          _currentStatus = current.status!;
+          displayTime = reformatTimerForDisplayOnChrono(t.tick);
+          opacity = opacity == 0.0 ? 1.0: 0.0;
+        });
+        if (_currentStatus == RecordingStatus.Stopped) {
+          print('OK ICI STOP');
+          t.cancel();
+        }
+      });
+    } catch (e) {
+      print("erreur de ouf");
+      print(e);
+    }*/
+  }
+
+
+  _stop2() async {
+    /*await _recorder?.stop();
+
+    var current = await _recorder?.current(channel: 0);
+
+    print(current);
+    print(displayTime);
+    setState(() {
+      _current = current;
+      _currentStatus = current!.status!;
+      isListeen = false;
+    });
+    print('after');
+    print(displayTime);
+    String audioName = _current!.path!.split('/').last;
+    final base64Audio = base64Encode(File(_current!.path!).readAsBytesSync());
+    if(appState.getConversationGetter['_id'] == null) {
+      appState.createChatMessage(
+          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+          base64: base64Audio,
+          imageName: audioName,
+          content: message);
+    } else {
+      appState.sendChatMessage(
+          destinate: room,
+          base64: base64Audio,
+          imageName: audioName,
+          content: message,
+          id: appState.getIdOldConversation);
+    }
+    print('stop on');*/
+    //await File(_current!.path!).delete();
+
+  }
+
+  Future<void> _start() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        await _audioRecorder.start(
+          path: await _pathRecord(),
+          encoder: AudioEncoder.AAC,
+        );
+
+        bool isRecording = await _audioRecorder.isRecording();
+        setState(() {
+          displayTime = "00:00";
+          isListeen = isRecording;
+        });
+
+        _startTimer();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _stop() async {
+    _timer?.cancel();
+    _ampTimer?.cancel();
+    final path = await _audioRecorder.stop();
+
+
+    setState(() {
+      isListeen = false;
+    });
+    String audioName = path!.split('/').last;
+    final base64Audio = base64Encode(File(path).readAsBytesSync());
+    if(appState.getConversationGetter['_id'] == null) {
+      appState.createChatMessage(
+          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+          base64: base64Audio,
+          imageName: audioName,
+          content: message);
+    } else {
+      appState.sendChatMessage(
+          destinate: room,
+          base64: base64Audio,
+          imageName: audioName,
+          content: message,
+          id: appState.getIdOldConversation);
+    }
+
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _ampTimer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() {
+        displayTime = reformatTimerForDisplayOnChrono(t.tick);
+        opacity = opacity == 0.0 ? 1.0: 0.0;
+      });
+    });
+  }
 }
+
 
 class Bubble extends StatefulWidget {
   final bool isMe;
@@ -960,24 +1279,24 @@ class Bubble extends StatefulWidget {
   final String registerDate;
   final String image;
   final String idDocument;
+  final bool isReadByOtherUser;
 
   Bubble(
       {required this.message,
       required this.isMe,
       required this.registerDate,
       required this.image,
+      required this.isReadByOtherUser,
       required this.idDocument});
   @override
   _BubbleState createState() => _BubbleState();
 }
 
 class _BubbleState extends State<Bubble> {
-  bool stat = false;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    setState(() {});
   }
 
   Widget sendEtat(etat, isMe) {
@@ -997,11 +1316,7 @@ class _BubbleState extends State<Bubble> {
 
   @override
   Widget build(BuildContext context) {
-    Timer(Duration(milliseconds: 3000), () {
-      setState(() {
-        stat = true;
-      });
-    });
+
     return Container(
       margin: EdgeInsets.all(10.0),
       padding:
@@ -1034,27 +1349,24 @@ class _BubbleState extends State<Bubble> {
                           )),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    widget.image == ''
-                        ? SizedBox(width: 2.0)
-                        : ClipRRect(
+                    if (widget.image != '') ClipRRect(
                             borderRadius: widget.isMe
-                                ? BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    bottomRight: Radius.circular(20),
-                                    bottomLeft: Radius.circular(20),
-                                  )
-                                : BorderRadius.only(
-                                    topRight: Radius.circular(20),
-                                    topLeft: Radius.circular(20),
-                                    bottomRight: Radius.circular(20),
-                                  ),
-                            child: Image.network(
-                                "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}"),
-                          ),
-                    Container(
+                                    ? BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                  bottomLeft: Radius.circular(20),
+                            )
+                            : BorderRadius.only(
+                              topRight: Radius.circular(20),
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                      ),
+                      child: widget.image.indexOf('.m4a') == -1 ? Image.network(
+                          "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}"): LoadAudioAsset(url: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}", isMe: widget.isMe, key: UniqueKey(),),
+                    ),
+                    if(widget.message != '') Container(
                       child: Text(
                         widget.message,
                         style: widget.isMe
@@ -1078,7 +1390,7 @@ class _BubbleState extends State<Bubble> {
                       style: Style.chatIsMe(12),
                     ),
                     SizedBox(width: 7),
-                    sendEtat(stat, widget.isMe),
+                    sendEtat(widget.isReadByOtherUser, widget.isMe),
                   ],
                 ),
               )
@@ -1089,5 +1401,158 @@ class _BubbleState extends State<Bubble> {
     );
   }
 
+
+
 }
+
+
+class LoadAudioAsset extends StatefulWidget {
+  String url;
+  bool isMe;
+  LoadAudioAsset({required Key key, required this.url, required this.isMe}) : super(key: key);
+
+  @override
+  _LoadAudioAssetState createState() => _LoadAudioAssetState();
+}
+
+class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  bool isListenSound = false, firstListeen = true;
+  Duration _duration = new Duration();
+  Duration _position = new Duration();
+  AudioPlayer audioPlayer = AudioPlayer();
+
+  Future play() async {
+
+    int result = await audioPlayer.play(widget.url);
+    if (result == 1) {
+      controller.forward();
+      setState(() {
+        firstListeen = false;
+      });
+    }
+  }
+  Future pause() async {
+    int result = await audioPlayer.pause();
+    if (result == 1) {
+      controller.reverse();
+
+    }
+  }
+
+  Future resume() async {
+    int result = await audioPlayer.resume();
+    if (result == 1) {
+      controller.forward();
+
+    }
+  }
+
+  void changeToSecond(int millisecond) async {
+    Duration duration = Duration(milliseconds: millisecond);
+    await audioPlayer.seek(duration);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300)
+    );
+    audioPlayer.setUrl(widget.url);
+    audioPlayer.onDurationChanged.listen((d) {
+      setState(() {
+        _duration = d;
+      });
+    });
+    audioPlayer.onAudioPositionChanged.listen((p) {
+      setState(() {
+        _position = p;
+      });
+    });
+
+    audioPlayer.onPlayerCompletion.listen((event) {
+      setState(() {
+        isListenSound = false;
+        firstListeen = true;
+        _position = new Duration(milliseconds: 0);
+      });
+      controller.reverse();
+    });
+  }
+
+
+  @override
+  void dispose() {
+    audioPlayer.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 45,
+      width: MediaQuery.of(context).size.width*0.95,
+      child: Row(
+        children: [
+          GestureDetector (
+            onTap: () async {
+              if(isListenSound && !firstListeen) {
+                await pause();
+              } else if(firstListeen && !isListenSound) {
+                await play();
+              } else {
+                await resume();
+              }
+              setState(() {
+                isListenSound = !isListenSound;
+              });
+            },
+            child: AnimatedIcon(
+              icon: AnimatedIcons.play_pause,
+              progress: controller,
+              color: widget.isMe ? Colors.white: colorText,
+              size: 40,
+            ),
+          ),
+          SizedBox(width: 2),
+          Expanded(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 50,
+                  child: Text(_position.toString().substring(2).split('.')[0], style: widget.isMe
+                      ? Style.chatIsMe(15)
+                      : Style.chatOutMe(15.0)),
+                ),
+                Expanded(child: Slider(
+                  inactiveColor: widget.isMe ? Colors.white.withOpacity(0.4) : colorText.withOpacity(0.4),
+                  activeColor: widget.isMe ? Colors.white: colorText,
+                  value: _position.inMilliseconds.toDouble(),
+                  max: _duration.inMilliseconds.toDouble(),
+                  min: 0.0,
+                  onChanged: (value) {
+                    setState(() {
+                      changeToSecond(value.toInt());
+                      value = value;
+                    });
+                  },
+                )),
+                SizedBox(
+                  width: 50,
+                  child: Text(_duration.toString().substring(2).split('.')[0], style: widget.isMe
+                      ? Style.chatIsMe(15)
+                      : Style.chatOutMe(15.0), textAlign: TextAlign.start),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 

@@ -10,7 +10,9 @@ import 'package:shouz/Utils/Database.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import '../Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'CovoiturageChoicePlace.dart';
+import 'DetailsDeals.dart';
 import 'EventDetails.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 class Profil extends StatefulWidget {
   static String rootName = '/profil';
@@ -51,6 +53,7 @@ class _ProfilState extends State<Profil> {
                 new SliverAppBar(
                   floating: true,
                   elevation: 10.0,
+                  leading: SizedBox(width: 6),
                   expandedHeight: 200.0,
                   backgroundColor: backgroundColor,
                   pinned: true,
@@ -115,9 +118,13 @@ class _ProfilState extends State<Profil> {
                               Positioned(
                                 top: 65,
                                 right: 10,
-                                child: Text(
-                                  (newClient != null ) ? '${newClient!.wallet} ${newClient!.currencies}': '',
-                                  style: Style.titleInSegment(),
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  color: colorText.withOpacity(0.5),
+                                  child: Text(
+                                    (newClient != null ) ? '${newClient!.wallet} ${newClient!.currencies}': '',
+                                    style: Style.titleInSegment(),
+                                  ),
                                 ),
                               )
                             ],
@@ -146,15 +153,7 @@ class _ProfilState extends State<Profil> {
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Center(
-                                child: Text("Erreur de connexion",
-                                    style: Style.titreEvent(18)),
-                              )),
-                            ],
-                          );
+                          return isErrorSubscribe(context);
                         case ConnectionState.waiting:
                           return Column(children: <Widget>[
                             Expanded(
@@ -649,15 +648,7 @@ class _ProfilState extends State<Profil> {
 
                         case ConnectionState.done:
                           if (snapshot.hasError) {
-                            return Column(children: <Widget>[
-                              Expanded(
-                                  child: Padding(
-                                      padding: EdgeInsets.all(30),
-                                      child: Center(
-                                          child: Text("${snapshot.error}",
-                                              style:
-                                                  Style.sousTitreEvent(15)))))
-                            ]);
+                            return isErrorSubscribe(context);
                           } else {
                             var infoUser = snapshot.data;
                             if (infoUser['favoriteActualite'].length == 0) {
@@ -672,7 +663,7 @@ class _ProfilState extends State<Profil> {
                                               0.39,
                                         ),
                                         Text(
-                                            "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
+                                            "Aucune actualité n'a été ajouté en favorie",
                                             textAlign: TextAlign.center,
                                             style: Style.sousTitreEvent(15))
                                       ]));
@@ -722,15 +713,7 @@ class _ProfilState extends State<Profil> {
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Center(
-                                child: Text("Erreur de connexion",
-                                    style: Style.titreEvent(18)),
-                              )),
-                            ],
-                          );
+                          return isErrorSubscribe(context);
                         case ConnectionState.waiting:
                           return Column(children: <Widget>[
                             Expanded(
@@ -1225,15 +1208,7 @@ class _ProfilState extends State<Profil> {
 
                         case ConnectionState.done:
                           if (snapshot.hasError) {
-                            return Column(children: <Widget>[
-                              Expanded(
-                                  child: Padding(
-                                      padding: EdgeInsets.all(30),
-                                      child: Center(
-                                          child: Text("${snapshot.error}",
-                                              style:
-                                                  Style.sousTitreEvent(15)))))
-                            ]);
+                            return isErrorSubscribe(context);
                           }
                           var infoUser = snapshot.data;
                           if (infoUser['favoriteDeals'].length == 0 &&
@@ -1268,7 +1243,7 @@ class _ProfilState extends State<Profil> {
                                   : SizedBox(width: 10),
                               (infoUser['myDeals'].length != 0)
                                   ? Container(
-                                      height: 200,
+                                      height: 180,
                                       child: ListView.builder(
                                         physics: BouncingScrollPhysics(),
                                         scrollDirection: Axis.horizontal,
@@ -1285,7 +1260,27 @@ class _ProfilState extends State<Profil> {
                                                   EdgeInsets.only(right: 30.0),
                                               child: InkWell(
                                                 onTap: () {
-                                                  print(index);
+                                                  Navigator.of(context)
+                                                      .push((MaterialPageRoute(builder: (context) {
+                                                    DealsSkeletonData element = new DealsSkeletonData(
+                                                      quantity: item['quantity'],
+                                                      level: item['level'],
+                                                      numberFavorite: item['numberFavorite'],
+                                                      lieu: item['lieu'],
+                                                      id: item['_id'],
+                                                      registerDate: item['registerDate'],
+                                                      profil: item['profil'],
+                                                      imageUrl: item['images'],
+                                                      title: item['name'],
+                                                      price: item['price'],
+                                                      autor: item['author'],
+                                                      numero: item['numero'],
+                                                      describe: item['describe'],
+                                                      onLine: item['onLine'],
+                                                      authorName: item['authorName'],
+                                                    );
+                                                    return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
+                                                  })));
                                                 },
                                                 child: Column(
                                                   mainAxisAlignment:
@@ -1295,6 +1290,9 @@ class _ProfilState extends State<Profil> {
                                                   children: <Widget>[
                                                     Card(
                                                       elevation: 10.0,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                                                      ),
                                                       child: Container(
                                                         height: 100,
                                                         width: 200,
@@ -1312,7 +1310,7 @@ class _ProfilState extends State<Profil> {
                                                     ),
                                                     SizedBox(height: 5.0),
                                                     Container(
-                                                      height: 80,
+                                                      height: 60,
                                                       width: 200,
                                                       child: Column(
                                                         children: <Widget>[
@@ -1355,12 +1353,33 @@ class _ProfilState extends State<Profil> {
                                           itemCount:
                                               infoUser['favoriteDeals'].length,
                                           itemBuilder: (context, index) {
+                                            final item = infoUser['favoriteDeals'][index];
                                             return new InkWell(
                                               onTap: () {
-                                                print(index);
+                                                Navigator.of(context)
+                                                    .push((MaterialPageRoute(builder: (context) {
+                                                  DealsSkeletonData element = new DealsSkeletonData(
+                                                    quantity: item['quantity'],
+                                                    level: item['level'],
+                                                    numberFavorite: item['numberFavorite'],
+                                                    lieu: item['lieu'],
+                                                    id: item['_id'],
+                                                    registerDate: item['registerDate'],
+                                                    profil: item['profil'],
+                                                    imageUrl: item['images'],
+                                                    title: item['name'],
+                                                    price: item['price'],
+                                                    autor: item['author'],
+                                                    numero: item['numero'],
+                                                    describe: item['describe'],
+                                                    onLine: item['onLine'],
+                                                    authorName: item['authorName'],
+                                                  );
+                                                  return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
+                                                })));
                                               },
                                               child: Image.network(
-                                                  "${ConsumeAPI.AssetProductServer}${infoUser['favoriteDeals'][index]['images'][0]}",
+                                                  "${ConsumeAPI.AssetProductServer}${item['images'][0]}",
                                                   fit: BoxFit.cover),
                                             );
                                           }),
@@ -1392,15 +1411,7 @@ class _ProfilState extends State<Profil> {
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Center(
-                                child: Text("Erreur de connexion",
-                                    style: Style.titreEvent(18)),
-                              )),
-                            ],
-                          );
+                          return isErrorSubscribe(context);
                         case ConnectionState.waiting:
                           return Column(children: <Widget>[
                             Expanded(
@@ -1895,15 +1906,7 @@ class _ProfilState extends State<Profil> {
 
                         case ConnectionState.done:
                           if (snapshot.hasError) {
-                            return Column(children: <Widget>[
-                              Expanded(
-                                  child: Padding(
-                                      padding: EdgeInsets.all(30),
-                                      child: Center(
-                                          child: Text("${snapshot.error}",
-                                              style:
-                                                  Style.sousTitreEvent(15)))))
-                            ]);
+                            return isErrorSubscribe(context);
                           }
                           var infoUser = snapshot.data;
                           if (infoUser['favoriteEvents'].length == 0 &&
@@ -1913,8 +1916,8 @@ class _ProfilState extends State<Profil> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                   new SvgPicture.asset(
-                                    "images/empty.svg",
-                                    semanticsLabel: 'Shouz Pay',
+                                    "images/emptyevent.svg",
+                                    semanticsLabel: 'Empty Event',
                                     height: MediaQuery.of(context).size.height *
                                         0.39,
                                   ),
@@ -1938,7 +1941,7 @@ class _ProfilState extends State<Profil> {
                                   : SizedBox(width: 10),
                               (infoUser['myEvents'].length != 0)
                                   ? Container(
-                                      height: 200,
+                                      height: 175,
                                       child: ListView.builder(
                                         physics: BouncingScrollPhysics(),
                                         scrollDirection: Axis.horizontal,
@@ -1955,7 +1958,29 @@ class _ProfilState extends State<Profil> {
                                                   EdgeInsets.only(right: 30.0),
                                               child: InkWell(
                                                 onTap: () {
-                                                  print(index);
+                                                  Navigator.of(context).push(MaterialPageRoute(
+                                                      builder: (builder) => EventDetails(
+                                                        0,
+                                                        item['imageCover'],
+                                                        index,
+                                                        item['price'],
+                                                        item['numberFavorite'],
+                                                        item['authorName'],
+                                                        item['describe'],
+                                                        item['_id'],
+                                                        item['numberTicket'],
+                                                        item['position'],
+                                                        item['enventDate'],
+                                                        item['title'],
+                                                        item['positionRecently'],
+                                                        item['videoPub'],
+                                                        item['allTicket'],
+                                                        item['authorId'],
+                                                        item['cumulGain'],
+                                                        item['authorId'] == newClient!.ident,
+                                                        item['state'],
+                                                        item['favorie'],
+                                                      )));
                                                 },
                                                 child: Column(
                                                   mainAxisAlignment:
@@ -1965,7 +1990,9 @@ class _ProfilState extends State<Profil> {
                                                   children: <Widget>[
                                                     Card(
                                                       elevation: 10.0,
-
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                                                      ),
                                                       child: Container(
                                                         height: 100,
                                                         width: 200,
@@ -1974,16 +2001,17 @@ class _ProfilState extends State<Profil> {
                                                                 BorderRadius
                                                                     .circular(
                                                                         6.0),
-                                                            image: DecorationImage(
-                                                                image: NetworkImage(
-                                                                    "${ConsumeAPI.AssetEventServer}${item['imageCover']}"),
-                                                                fit: BoxFit
-                                                                    .cover)),
-                                                      ),
+                                                            ),
+                                                          child: Hero(
+                                                            tag: index,
+                                                            child: Image.network("${ConsumeAPI.AssetEventServer}${item['imageCover']}",
+                                                            fit: BoxFit.cover,),
+                                                          ),
+                                                     ),
                                                     ),
                                                     SizedBox(height: 5.0),
                                                     Container(
-                                                      height: 80,
+                                                      height: 60,
                                                       width: 200,
                                                       child: Column(
                                                         children: <Widget>[
@@ -2020,16 +2048,15 @@ class _ProfilState extends State<Profil> {
                                           itemCount:
                                               infoUser['favoriteEvents'].length,
                                           itemBuilder: (context, index) {
-                                            final positionRecently =
-                                                infoUser['favoriteEvents']
-                                                    [index]['positionRecently'];
+                                            final indexHero = index + 10000;
                                             return InkWell(
                                               onTap: () {
                                                 Navigator.of(context).push(MaterialPageRoute(
                                                     builder: (builder) => EventDetails(
+                                                        0,
                                                         infoUser['favoriteEvents'][index]
                                                             ['imageCover'],
-                                                        index,
+                                                      indexHero,
                                                         infoUser['favoriteEvents']
                                                             [index]['price'],
                                                         infoUser['favoriteEvents']
@@ -2049,13 +2076,12 @@ class _ProfilState extends State<Profil> {
                                                             [index]['position'],
                                                         infoUser['favoriteEvents']
                                                                 [index]
-                                                            ['registerDate'],
+                                                            ['enventDate'],
                                                         infoUser['favoriteEvents']
                                                             [index]['title'],
                                                         infoUser['favoriteEvents']
                                                                 [index]
                                                             ['positionRecently'],
-                                                        infoUser['favoriteEvents'][index]['state'],
                                                       infoUser['favoriteEvents'][index]['videoPub'],
                                                       infoUser['favoriteEvents'][index]['allTicket'],
                                                       infoUser['favoriteEvents'][index]['authorId'],
@@ -2074,7 +2100,7 @@ class _ProfilState extends State<Profil> {
                                                       height: double.infinity,
                                                       width: double.infinity,
                                                       child: Hero(
-                                                        tag: index,
+                                                        tag: indexHero,
                                                         child: Image.network(
                                                             "${ConsumeAPI.AssetEventServer}${infoUser['favoriteEvents'][index]['imageCover']}",
                                                             fit: BoxFit.cover),
@@ -2207,15 +2233,7 @@ class _ProfilState extends State<Profil> {
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Center(
-                                    child: Text("Erreur de connexion",
-                                        style: Style.titreEvent(18)),
-                                  )),
-                            ],
-                          );
+                          return isErrorSubscribe(context);
                         case ConnectionState.waiting:
                           return Column(children: <Widget>[
                             Expanded(
@@ -2710,15 +2728,7 @@ class _ProfilState extends State<Profil> {
 
                         case ConnectionState.done:
                           if (snapshot.hasError) {
-                            return Column(children: <Widget>[
-                              Expanded(
-                                  child: Padding(
-                                      padding: EdgeInsets.all(30),
-                                      child: Center(
-                                          child: Text("${snapshot.error}",
-                                              style:
-                                              Style.sousTitreEvent(15)))))
-                            ]);
+                            return isErrorSubscribe(context);
                           }
                           var infoUser = snapshot.data;
                           if (infoUser['buyTravel'].length == 0 &&
@@ -2773,6 +2783,7 @@ class _ProfilState extends State<Profil> {
                                                 MaterialPageRoute(
                                                     builder: (builder)=> CovoiturageChoicePlace(
                                                         item['id'],
+                                                      0,
                                                       item['beginCity'],
                                                       item['endCity'],
                                                       item['lieuRencontre'],
@@ -2875,6 +2886,7 @@ class _ProfilState extends State<Profil> {
                                               MaterialPageRoute(
                                                   builder: (builder)=> CovoiturageChoicePlace(
                                                     item['id'],
+                                                    0,
                                                     item['beginCity'],
                                                     item['endCity'],
                                                     item['lieuRencontre'],
@@ -2894,7 +2906,7 @@ class _ProfilState extends State<Profil> {
                                         child: Card(
                                           color: Colors.white,
                                           shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),),
                                           child: Column(
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
@@ -2916,11 +2928,11 @@ class _ProfilState extends State<Profil> {
                                                   children: [
                                                     Row(
                                                       children: [
-                                                        Text(item['beginCity'].toString().toUpperCase()),
+                                                        Text(item['beginCity'].toString().toUpperCase(), style: Style.textBeginCity(11)),
                                                         SizedBox(width: 3),
                                                         Expanded(child: Divider()),
                                                         SizedBox(width: 3),
-                                                        Text(item['endCity'].toString().toUpperCase())
+                                                        Text(item['endCity'].toString().toUpperCase(), style: Style.textEndCity(11))
                                                       ],
                                                     )
                                                   ],
@@ -2931,7 +2943,7 @@ class _ProfilState extends State<Profil> {
                                                 padding: EdgeInsets.symmetric(horizontal: 13),
                                                 child: Row(
                                                   children: [
-                                                    Icon(Icons.time_to_leave),
+                                                    Icon(Icons.directions_car, size: 19,color: item['state'] == 1 ? Colors.redAccent : colorText,),
                                                     SizedBox(width: 5),
                                                     Text(
                                                       DateTime.parse(item['travelDate']).day.toString() +
@@ -2947,7 +2959,7 @@ class _ProfilState extends State<Profil> {
                                                           'h ' +
                                                           DateTime.parse(item['travelDate'])
                                                               .minute
-                                                              .toString(),
+                                                              .toString(), style: Style.simpleTextOnBoard(13),
                                                     ),
                                                   ],
                                                 )

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,6 +22,8 @@ class VipDeals extends StatefulWidget {
   var registerDate;
   var quantity;
   var authorName;
+  var archive;
+  var level;
   String id;
   List<String> personneLike = [];
   VipDeals(
@@ -28,6 +31,7 @@ class VipDeals extends StatefulWidget {
       this.title,
       this.favorite,
       this.price,
+      this.level,
       this.numero,
       this.autor,
       required this.id,
@@ -38,6 +42,7 @@ class VipDeals extends StatefulWidget {
       this.lieu,
       this.registerDate,
       this.quantity,
+      this.archive,
       this.authorName});
   @override
   _VipDealsState createState() => _VipDealsState();
@@ -136,9 +141,6 @@ class _VipDealsState extends State<VipDeals> {
                       IconButton(
                           icon: Icon(Icons.call, color: Colors.green),
                           onPressed: () {
-                            setState(() {
-                              widget.favorite = !widget.favorite;
-                            });
                             launch("tel:${widget.numero}");
                           }),
 
@@ -146,10 +148,7 @@ class _VipDealsState extends State<VipDeals> {
                       IconButton(
                           icon: Icon(Style.social_normal, color: tint),
                           onPressed: () {
-                            setState(() {
-                              widget.favorite = !widget.favorite;
-                            });
-                            launch("https:${widget.numero}");
+                            Share.share("${ConsumeAPI.ProductLink}${widget.id}");
                           }),
                     ],
                   ),
@@ -185,6 +184,7 @@ class _VipDealsState extends State<VipDeals> {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
                       DealsSkeletonData item = new DealsSkeletonData(
+                          level: widget.level,
                           quantity: widget.quantity,
                           numberFavorite: widget.numberFavorite,
                           lieu: widget.lieu,
@@ -193,15 +193,15 @@ class _VipDealsState extends State<VipDeals> {
                           profil: widget.profil,
                           imageUrl: widget.imageUrl,
                           title: widget.title,
-                          favorite: widget.favorite,
                           price: widget.price,
                           autor: widget.autor,
                           numero: widget.numero,
                           describe: widget.describe,
                           onLine: widget.onLine,
                           authorName: widget.authorName,
+                          archive: widget.archive,
                       );
-                      return DetailsDeals(dealsDetailsSkeleton: item);
+                      return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                     })));
                   },
                   child: Column(

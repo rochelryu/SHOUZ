@@ -99,7 +99,6 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
 
     if (result != null) {
       List<File> files = result.paths.map((path) {
-        print(path);
         return File(path!);
       }).toList();
       final end = (files.length > 2) ? 2 : files.length;
@@ -111,8 +110,6 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
             .toList();
       });
     }
-    print(post.length);
-    print(base64.length);
   }
   Future getImagesPermis() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

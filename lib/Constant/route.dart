@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shouz/Pages/Actualite.dart';
 import 'package:shouz/Pages/Checkout.dart';
 import 'package:shouz/Pages/ChoiceHobie.dart';
 import 'package:shouz/Pages/CreateDeals.dart';
@@ -17,8 +16,11 @@ import 'package:shouz/Pages/checkout_retrait.dart';
 import 'package:shouz/Pages/checkout_retrait_mobile_money.dart';
 import 'package:shouz/Pages/create_travel.dart';
 import 'package:shouz/Pages/demande_conducteur.dart';
+import 'package:shouz/Pages/event_decode.dart';
 import 'package:shouz/Pages/result_buy_covoiturage.dart';
 import 'package:shouz/Pages/result_buy_event.dart';
+import 'package:shouz/Pages/travel_decode.dart';
+import 'package:shouz/Pages/update_info_basic.dart';
 
 import '../MenuDrawler.dart';
 
@@ -42,5 +44,8 @@ final routes = {
   Notifications.rootName: (context) => Notifications(),
   CheckoutRechargeMobileMoney.rootName: (context) => CheckoutRechargeMobileMoney(key: UniqueKey(),),
   CheckoutRetraitMobileMoney.rootName: (context) => CheckoutRetraitMobileMoney(key: UniqueKey(),),
+  UpdateInfoBasic.rootName: (context) => UpdateInfoBasic(key: UniqueKey(),),
   CheckoutRetrait.rootName: (context) => CheckoutRetrait(),
+  EventDecode.rootName: (context) => EventDecode(),
+  TravelDecode.rootName: (context) => TravelDecode(),
 };

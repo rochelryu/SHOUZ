@@ -9,8 +9,12 @@ import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'package:shouz/MenuDrawler.dart';
+import 'package:shouz/Pages/explication_travel.dart';
+import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+
+import 'explication_event.dart';
 
 class Setting extends StatefulWidget {
   static String rootName = '/setting';
@@ -26,6 +30,9 @@ class _SettingState extends State<Setting> {
   Map<String, dynamic> newClient = {
     'name': '',
     'level': '',
+    'prefix': '',
+    'numero': '',
+    'email': '',
   };
   Map profil = {"type": 1, "data": ''};
 
@@ -37,7 +44,6 @@ class _SettingState extends State<Setting> {
         this.pin = pin;
         createPass = (this.pin.length > 0) ? false : true;
       });
-      print("pindeOuf $pin, ${createPass.toString()}");
     } catch (e) {
       print("Erreur $e");
     }
@@ -71,7 +77,6 @@ class _SettingState extends State<Setting> {
       final info = await new ConsumeAPI()
           .changeProfilPicture(imageName: imageCover, base64: base64Image);
       Navigator.pop(context);
-      print(info);
     }
   }
 
@@ -212,7 +217,7 @@ class _SettingState extends State<Setting> {
                                                   ),
                                                 ),
                                                 Divider(color: Colors.white12),
-                                                FlatButton(
+                                                TextButton(
                                                   child: Text("Retour",
                                                       style: prefix0.Style
                                                           .sousTitre(12)),
@@ -243,12 +248,13 @@ class _SettingState extends State<Setting> {
                         ),
                       ),
                     ),
-                    Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Text(newClient['name'],
-                            textAlign: TextAlign.center,
-                            style: prefix0.Style.grandTitre(18))),
-                    aboutInfoCompte(newClient['level']),
+                    Text(newClient['name'],
+                        textAlign: TextAlign.center,
+                        style: prefix0.Style.grandTitre(18)),
+                    Text("${newClient['prefix']} ${newClient['numero']}",
+                        style: prefix0.Style.sousTitre(14.0), textAlign: TextAlign.center),
+                    Text(newClient['email'],
+                        style: prefix0.Style.sousTitre(14.0), textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -260,12 +266,12 @@ class _SettingState extends State<Setting> {
             SizedBox(height: 5),
             ListTile(
               onTap: () {
-                print("Level");
+                Navigator.pushNamed(context, UpdateInfoBasic.rootName);
               },
               leading: Icon(Icons.person, color: prefix0.colorText, size: 35),
               title: Text("Compte", style: prefix0.Style.titre(14)),
               subtitle: Text(
-                "Nom, numéro, email, wallet",
+                "Nom, numéro, email, pièce...",
                 style: prefix0.Style.sousTitre(12),
               ),
             ),
@@ -289,29 +295,30 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () {
-                print("Level");
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 0,)));
               },
               leading:
                   Icon(Icons.event_seat, color: prefix0.colorText, size: 33),
               title:
-                  Text("Compte évènementiel", style: prefix0.Style.titre(14)),
-              subtitle: Text("Vendre les tickets de votre évènement",
+                  Text("Rubrique évènementiel", style: prefix0.Style.titre(14)),
+              subtitle: Text("Explication détaillée de cette rubrique",
                   style: prefix0.Style.sousTitre(12)),
             ),
             ListTile(
               onTap: () {
-                print("Level");
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (builder) => ExplicationTravel(key: UniqueKey(), typeRedirect: 0,)));
               },
               leading: Icon(Icons.directions_car,
                   color: prefix0.colorText, size: 33),
               title:
-                  Text("Compte Automobiliste", style: prefix0.Style.titre(14)),
-              subtitle: Text("Fructifier vos voyages",
+                  Text("Rubrique Voyage", style: prefix0.Style.titre(14)),
+              subtitle: Text("Explication détaillée de cette rubrique",
                   style: prefix0.Style.sousTitre(12)),
             ),
             ListTile(
               onTap: () {
-                print("Level");
               },
               leading:
                   Icon(Icons.help_outline, color: prefix0.colorText, size: 33),
@@ -323,7 +330,6 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () {
-                print("Level");
               },
               leading: Icon(Icons.people, color: prefix0.colorText, size: 33),
               title: Text("Partager", style: prefix0.Style.titre(14)),
@@ -334,12 +340,11 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () {
-                print("Level");
               },
               leading: Icon(Icons.bookmark, color: prefix0.colorText, size: 33),
               title: Text("A propos", style: prefix0.Style.titre(14)),
               subtitle: Text(
-                "Info sur l'application, ICORE ",
+                "Info sur l'application, CLUBDOUZE",
                 style: prefix0.Style.sousTitre(12),
               ),
             ),
@@ -357,13 +362,4 @@ class _SettingState extends State<Setting> {
     }
   }
 
-  Widget aboutInfoCompte(level) {
-//    final parE = event ? "évenementiel" : "";
-//    final parD = deals ? "de vente" : "";
-//    final parT = travel ? "de voyageur" : "";
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.0),
-        child: Text("Compte ${level.toString()}",
-            style: prefix0.Style.sousTitre(14.0), textAlign: TextAlign.center));
-  }
 }

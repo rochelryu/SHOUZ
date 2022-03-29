@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Login.dart';
@@ -46,22 +47,16 @@ class _CheckoutRechargeMobileMoneyState
     try {
 
       final data = await consumeAPI.getMobileMoneyAvalaible();
-      print("data['result']");
-      print(data['result']);
       if(data["etat"] == 'found') {
         setState(() {
           info = data["result"];
         });
       } else if(data["etat"] == 'notFound') {
-        Fluttertoast.showToast(
-            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
+        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
 
@@ -453,11 +448,17 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                           onChanged: (value) {
                             setState(() {
-                              final amount = int.parse(value);
-                              if (amount >= 2000 ) {
-                                setState(() {
-                                  previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                });
+                              if(value.length > 3) {
+                                final amount = int.parse(value);
+                                if (amount >= 2000 ) {
+                                  setState(() {
+                                    previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                                  });
+                                } else {
+                                  setState(() {
+                                    previsionMontant = "N/A";
+                                  });
+                                }
                               } else {
                                 setState(() {
                                   previsionMontant = "N/A";

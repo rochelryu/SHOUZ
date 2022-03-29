@@ -9,6 +9,7 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import '../MenuDrawler.dart';
 
@@ -63,7 +64,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);
-                        setLevel(6);
+                        setLevel(5);
                         setState(() {
                           changeLoading = false;
                         });
@@ -197,11 +198,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
-                        return Center(
-                            child: Text(
-                          "Erreur de connection, veuillez verifier votre connection et reesayer",
-                          style: Style.sousTitreEvent(15),
-                        ));
+                        return isErrorSubscribe(context);
                       case ConnectionState.waiting:
                         return Center(
                           child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
@@ -212,11 +209,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         );
                       case ConnectionState.done:
                         if (snapshot.hasError) {
-                          return Center(
-                              child: Text(
-                            "${snapshot.error}",
-                            style: Style.sousTitreEvent(15),
-                          ));
+                          return isErrorSubscribe(context);
                         }
                         var populaire = snapshot.data;
                         return new Wrap(

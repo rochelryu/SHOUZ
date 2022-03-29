@@ -15,16 +15,14 @@ class _LoginState extends State<Login> {
 
   _displaySnackBar(BuildContext context) {
     final snackBar = SnackBar(content: Text('Format de Numero incorrecte'));
-    _scaffoldKey.currentState?.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   late User user;
   String numero = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: prefix0.backgroundColor,
       body: new GestureDetector(
           onTap: (){
@@ -104,11 +102,8 @@ class _LoginState extends State<Login> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    RaisedButton(
-                      color: prefix0.colorText,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0)
-                      ),
+                    ElevatedButton(
+                      style: prefix0.raisedButtonStyle,
                       child: Container(
                         height: 40,
                         width: MediaQuery.of(context).size.width/1.45,
@@ -123,7 +118,6 @@ class _LoginState extends State<Login> {
                               user = res['user'];
                             });
                             await DBProvider.db.delClient();
-                            await DBProvider.db.delAllHobies();
                             await DBProvider.db.newClient(user);
                             prefix0.setLevel(2);
                               Navigator.of(context).push(
@@ -142,12 +136,12 @@ class _LoginState extends State<Login> {
                           top: 30,
                           left: 10,
                           child: Container(
-                            height: 70,
-                            width: 70,
+                            height: 85,
+                            width: 85,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50.0),
                               image: DecorationImage(
-                                image: AssetImage("images/evelyn.jpg"),
+                                image: AssetImage("images/userBoy18.png"),
                                 fit: BoxFit.cover,
                               )
                             ),
@@ -170,7 +164,7 @@ class _LoginState extends State<Login> {
                         ),
                         Positioned(
                           top: 50,
-                          left: 100,
+                          left: 130,
                           child: Container(
                             height: 120,
                             width: 120,
@@ -192,7 +186,7 @@ class _LoginState extends State<Login> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/ppt.jpeg"),
+                                  image: AssetImage("images/userGirl07.jpg"),
                                   fit: BoxFit.cover,
                                 )
                             ),
@@ -200,22 +194,22 @@ class _LoginState extends State<Login> {
                         ),
                         Positioned(
                           bottom: 120,
-                          right: 80,
+                          right: 110,
                           child: Container(
-                            height: 70,
-                            width: 70,
+                            height: 95,
+                            width: 95,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/nash.jpg"),
+                                  image: AssetImage("images/userGirl09.jpg"),
                                   fit: BoxFit.cover,
                                 )
                             ),
                           ),
                         ),
                         Positioned(
-                          top: 20,
-                          right: 0,
+                          top: 40,
+                          right: 10,
                           child: Container(
                             height: 90,
                             width: 90,
@@ -228,11 +222,7 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
-                        Positioned(
-                          bottom: 5,
-                          left: 5,
-                          child: Text("+ 100K utilisateurs", style: prefix0.Style.sousTitre(14),),
-                        ),
+
                       ],
                     ),
                     )

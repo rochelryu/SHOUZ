@@ -21,9 +21,11 @@ class RecentDeals extends StatefulWidget {
   var registerDate;
   var quantity;
   var authorName;
+  var archive;
+  var level;
   String id;
   List<String> PersonneLike = [];
-  RecentDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName });
+  RecentDeals({this.imageUrl, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive });
   @override
   _RecentDeals createState() => _RecentDeals();
 }
@@ -39,99 +41,68 @@ class _RecentDeals extends State<RecentDeals> {
   @override
   Widget build(BuildContext context) {
     final color = widget.onLine ? Colors.green[300] : Colors.yellow[300];
-    return Padding(padding: EdgeInsets.all(0),
+    return Padding(padding: EdgeInsets.all(10),
       child: Stack(
         children: <Widget>[
           Container(
-            height: 320,
             width: MediaQuery.of(context).size.width,
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 280,
-                      height: 250,
-                      child: InkWell(
-                        onTap: (){
-                          Navigator.of(context)
-                              .push((MaterialPageRoute(builder: (context) {
-                            DealsSkeletonData item = new DealsSkeletonData(
-                                quantity: widget.quantity,
-                                numberFavorite: widget.numberFavorite,
-                                lieu: widget.lieu,
-                                id: widget.id,
-                                registerDate: widget.registerDate,
-                                profil: widget.profil,
-                                imageUrl: widget.imageUrl,
-                                title: widget.title,
-                                favorite: widget.favorite,
-                                price: widget.price,
-                                autor: widget.autor,
-                                numero: widget.numero,
-                                describe: widget.describe,
-                                onLine: widget.onLine,
-                                authorName: widget.authorName,
-                            );
-                            return DetailsDeals(dealsDetailsSkeleton: item);
-                          })));
-                        },
-                        child: Image.network("${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}"),
-                      ),
-                    ),
-                    Text(widget.title, style: Style.titleDealsProduct()),
-                    Text("${widget.price.toString()} ETH", style: Style.priceDealsProduct()),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        IconButton(icon: (Icon(Icons.favorite, color: widget.favorite ? Colors.redAccent : Colors.grey, size: 22.0)), onPressed: (){
-                          setState(() {
-                            widget.favorite = !widget.favorite;
-                          });
-                        }),
-                        Text(widget.numberFavorite.toString(), style: Style.numberOfLike()),
-                      ],
+            child: InkWell(
+              onTap: (){
+                Navigator.of(context)
+                    .push((MaterialPageRoute(builder: (context) {
+                  DealsSkeletonData item = new DealsSkeletonData(
+                    level: widget.level,
+                    quantity: widget.quantity,
+                    numberFavorite: widget.numberFavorite,
+                    lieu: widget.lieu,
+                    id: widget.id,
+                    registerDate: widget.registerDate,
+                    profil: widget.profil,
+                    imageUrl: widget.imageUrl,
+                    title: widget.title,
+                    price: widget.price,
+                    autor: widget.autor,
+                    numero: widget.numero,
+                    describe: widget.describe,
+                    onLine: widget.onLine,
+                    authorName: widget.authorName,
+                    archive: widget.archive,
+                  );
+                  return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
+                })));
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    height: 145,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        image: DecorationImage(
+                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}"),
+                            fit: BoxFit.cover
+                        )
                     ),
 
-                    SizedBox(height: 15.0),
-                    IconButton(icon: Icon(Style.chatting, color: Colors.yellow), onPressed: (){
-                      setState(() {
-                        widget.favorite = !widget.favorite;
-                      });
-                      launch("sms:${widget.numero}");
-                    }),
-                    SizedBox(height: 15.0),
-                    IconButton(icon: Icon(Icons.share, color: Colors.white), onPressed: (){
-                      setState(() {
-                        widget.favorite = !widget.favorite;
-                      });
-                      launch("https:${widget.numero}");
-                    }),
-                  ],
-                ),
-                SizedBox(width: 10.0),
-              ],
-            ),
+                  ),
+                  Text("${widget.title}", style: Style.titleDealsProduct(11.0), maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.start,),
+                  Text("${widget.price.toString()} XOF", style: Style.priceDealsProduct(), textAlign: TextAlign.center,),
+                ],
+              ),
+            )
+
           ),
           Positioned(
-            top:230,
+            bottom:30,
             left: 15,
             child: Material(
               elevation: 15.0,
               borderRadius: BorderRadius.circular(50.0),
               child: Container(
-                height: 50,
-                width: 50,
+                height: 40,
+                width: 40,
                 decoration: BoxDecoration(
 
                   border: Border.all(width: 2.0, color: color!),

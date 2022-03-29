@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/PageIndicatorSecond.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
@@ -6,9 +7,11 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../MenuDrawler.dart';
 import 'comment_actu.dart';
 
 class DetailsActu extends StatefulWidget {
+  int comeBack;
   String title;
   String id;
   var comment;
@@ -21,6 +24,7 @@ class DetailsActu extends StatefulWidget {
   DetailsActu(
       {required this.title,
       required this.id,
+        required this.comeBack,
       this.autherName,
       this.authorProfil,
       this.comment,
@@ -36,6 +40,7 @@ class _DetailsActuState extends State<DetailsActu> {
   int _currentItem = 0;
   bool lastPage = false;
   bool favorite = false;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   late PageController _controller;
 
@@ -56,9 +61,8 @@ class _DetailsActuState extends State<DetailsActu> {
 
   LoadInfo() async {
     User newClient = await DBProvider.db.getClient();
-    final result = await new ConsumeAPI().verifyIfExistItemInFavor(widget.id, 0);
-    final etat = await new ConsumeAPI().addView(newClient.ident, widget.id);
-    print(etat);
+    final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
+    await consumeAPI.addView(newClient.ident, widget.id);
     setState(() {
       favorite = result;
     });
@@ -196,7 +200,11 @@ class _DetailsActuState extends State<DetailsActu> {
                 child: IconButton(
                   icon: Icon(Icons.chevron_left),
                   onPressed: () {
-                    Navigator.pop(context);
+                    if(widget.comeBack == 0) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pushNamed(context, MenuDrawler.rootName);
+                    }
                   },
                   color: Colors.white,
                 ),
@@ -212,9 +220,10 @@ class _DetailsActuState extends State<DetailsActu> {
                     children: <Widget>[
                       IconButton(
                         icon: Icon(Icons.favorite),
-                        onPressed: () {
+                        onPressed: () async {
+                          final actionFavorite = await consumeAPI.addOrRemoveItemInFavorite(widget.id, 0);
                           setState(() {
-                            favorite = !favorite;
+                            favorite = actionFavorite;
                           });
                         },
                         color: favorite ? colorError : Colors.white,
@@ -222,7 +231,7 @@ class _DetailsActuState extends State<DetailsActu> {
                       IconButton(
                         icon: Icon(Style.social_normal),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Share.share("${ConsumeAPI.NewsLink}${widget.id}");
                         },
                         color: Colors.white,
                       ),
@@ -286,7 +295,7 @@ class _DetailsActuState extends State<DetailsActu> {
                 child: GradientText(
                   page['inTitle'],
                   textAlign: TextAlign.center,
-                  colors: [Color(0xFF9708CC), Color(0xFF43CBFF)],
+                  colors: gradient[1],
                   style: Style.titleNews(),
                 ),
               ),

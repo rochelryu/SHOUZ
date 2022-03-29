@@ -23,7 +23,7 @@ class _ExplainEventState extends State<ExplainEvent> {
   String forfaitName = '';
   int maxPlace = 0;
   late List<dynamic> displayItem;
-  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/none.jpg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpg', 'title': 'GOLD'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
+  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/none.jpg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpg', 'title': 'GOLD'},{'img': 'images/platine.jpg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
   bool isFinishLoad = false;
   User? newClient;
 
@@ -247,6 +247,13 @@ class _ExplainEventState extends State<ExplainEvent> {
         'GOLD',
         textAlign: TextAlign.left,
         colors: [Color(0xFFFFEA00), Color(0xFFFF0000)],
+        style: Style.titreEvent(20),
+      );
+    } else if (title == 'PLATINE') {
+      return GradientText(
+        'PLATINE',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFF004D40), Color(0xFF80CBC4)],
         style: Style.titreEvent(20),
       );
     } else if (title == 'DIAMOND') {

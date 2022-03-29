@@ -1,6 +1,6 @@
 
 import 'dart:async';
-
+import 'package:shouz/Constant/widget_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -171,7 +171,7 @@ class _ShareTicketState extends State<ShareTicket> {
                     ),
 
                     Container(
-                      height: 30,
+                      height: 40,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -235,7 +235,7 @@ class _ShareTicketState extends State<ShareTicket> {
                             if(shareTicket['etat'] == 'found') {
                               if(shareTicket['result']['placeTotal']> 0) {
                                 await askedToLead(
-                                    "Vous avez envoyer un ticket de ${place} place(s) à ${friend!['name']}, il vous reste encore ${shareTicket['result']['placeTotal'].toString()}",
+                                    "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}, il vous reste encore ${shareTicket['result']['placeTotal'].toString()}",
                                     true, context);
                                 setState(() {
                                   place = 0;
@@ -243,7 +243,7 @@ class _ShareTicketState extends State<ShareTicket> {
                                 });
                               } else {
                                 await askedToLead(
-                                    "Vous avez envoyer un ticket de ${place} place(s) à ${friend!['name']}.",
+                                    "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}.",
                                     true, context);
                                 setState(() {
                                   place = 0;

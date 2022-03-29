@@ -7,6 +7,7 @@ import 'package:shouz/Pages/Checkout.dart';
 import 'package:shouz/Pages/checkout_recharge_mobile_money.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
 import 'checkout_retrait.dart';
@@ -41,15 +42,11 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
           info = data["result"];
         });
       } else if(data["etat"] == 'notFound') {
-        Fluttertoast.showToast(
-            msg: "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
+        showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
 
@@ -111,7 +108,6 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                       color: Colors.white,
                       child: InkWell(
                         onTap: () {
-                          print(info!['PERCENTAGE_SHOUZPAY_CRYPTO'].toString());
                           appState.setPercentageRecharge(info!['PERCENTAGE_SHOUZPAY_CRYPTO']);
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (builder) => VerifyUser(key: UniqueKey(), redirect: widget.isRetrait ? CheckoutRetrait.rootName : Checkout.rootName,)));
@@ -146,7 +142,6 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                       color: Colors.white,
                       child: InkWell(
                         onTap: () {
-                          print(info!['PERCENTAGE_SHOUZPAY_MOBILE_MONEY'].toString());
                           appState.setPercentageRecharge(info!['PERCENTAGE_SHOUZPAY_MOBILE_MONEY']);
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (builder) => VerifyUser(key: UniqueKey(), redirect: widget.isRetrait ? CheckoutRetraitMobileMoney.rootName : CheckoutRechargeMobileMoney.rootName,)));
