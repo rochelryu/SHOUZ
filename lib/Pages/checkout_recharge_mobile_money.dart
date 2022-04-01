@@ -492,10 +492,11 @@ class _CheckoutRechargeMobileMoneyState
                       loadConfirmation = true;
                     });
                     final rechargeCrypto = await consumeAPI.rechargeMobileMoney('wave', waveNumero.trim(), _controller.text);
+                    setState(() {
+                      loadConfirmation = false;
+                    });
                     if(rechargeCrypto['etat'] == 'found') {
-                      setState(() {
-                        loadConfirmation = false;
-                      });
+
                       final titleAlert = "Votre compte vient d'être rechargé avec succès";
                       await askedToLead(titleAlert, true, context);
                       _controller.clear();
