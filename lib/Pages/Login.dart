@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Opt.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -23,8 +23,8 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
-      body: new GestureDetector(
+      backgroundColor: backgroundColor,
+      body: GestureDetector(
           onTap: (){
             FocusScope.of(context).requestFocus(new FocusNode());
           },
@@ -39,7 +39,7 @@ class _LoginState extends State<Login> {
                   children: <Widget>[
                     Card(
                       elevation: 6.0,
-                      color: prefix0.backgroundColorSec,
+                      color: backgroundColorSec,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50.0)
                       ),
@@ -56,7 +56,7 @@ class _LoginState extends State<Login> {
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12.0),
-                      child: Text("Vous devez vous enregistrer par votre numero, un code de confirmation vous sera envoyé pour confirmer votre identité", style: prefix0.Style.titre(13.0), textAlign: TextAlign.center,),
+                      child: Text("Vous devez vous enregistrer par votre numero, un code de confirmation vous sera envoyé pour confirmer votre identité", style: Style.titre(13.0), textAlign: TextAlign.center,),
                     ),
                     Container(
                       height: MediaQuery.of(context).size.height * 0.10,
@@ -65,7 +65,7 @@ class _LoginState extends State<Login> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text("+225", style: prefix0.Style.titre(20)),
+                          Text("+225", style: Style.titre(20)),
                           SizedBox(width: 20.0),
                           Container(
                             height: 45,
@@ -103,12 +103,12 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     ElevatedButton(
-                      style: prefix0.raisedButtonStyle,
+                      style: raisedButtonStyle,
                       child: Container(
                         height: 40,
                         width: MediaQuery.of(context).size.width/1.45,
                         child: Center(
-                          child: Text("S'enregistrer", style: prefix0.Style.titre(18)),
+                          child: Text("S'enregistrer", style: Style.titre(18)),
                         ),
                       ),
                       onPressed: () async {
@@ -119,7 +119,7 @@ class _LoginState extends State<Login> {
                             });
                             await DBProvider.db.delClient();
                             await DBProvider.db.newClient(user);
-                            prefix0.setLevel(2);
+                            setLevel(2);
                               Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (builder) => Otp(key: UniqueKey(),)

@@ -80,11 +80,16 @@ class _MenuDrawlerState extends State<MenuDrawler>
     screenWidth = size.width;
     return Scaffold(
       backgroundColor: prefix0.backgroundColor,
-      body: Stack(
-        children: <Widget>[
-          menu(context, numberNotif),
-          dashboard(context, numberNotif),
-        ],
+      body: GestureDetector(
+        onTap: (){
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Stack(
+          children: <Widget>[
+            menu(context, numberNotif),
+            dashboard(context, numberNotif),
+          ],
+        ),
       ),
     );
   }
@@ -246,6 +251,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
               IconButton(
                 icon: Icon(prefix0.Style.menu, color: Colors.white),
                 onPressed: () {
+                  FocusScope.of(context).requestFocus(new FocusNode());
                   setState(() {
                     showBadge = !showBadge;
                     if (isCollasped) {
@@ -257,11 +263,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   });
                 },
               ),
-              Positioned(
+              if (showBadge && numberNotif != 0) Positioned(
                 top: 2,
                 right: 2,
-                child: showBadge && numberNotif != 0
-                    ? Container(
+                child:Container(
                         width: 17,
                         height: 17,
                         decoration: BoxDecoration(
@@ -271,8 +276,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                         child: Center(
                           child: Text(numberNotif.toString()),
                         ),
-                      )
-                    : Container(),
+                      ),
               ),
             ]),
           ),

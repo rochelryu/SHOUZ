@@ -1,6 +1,4 @@
-import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -9,6 +7,7 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
+import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
 import '../Models/Categorie.dart';
 
@@ -59,7 +58,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                   icon: Icon(Icons.arrow_back, color: colorPrimary, size: 32.0),
                 ),
                 IconButton(
-                  icon: IconAction(choice.length, changeLoading),
+                  icon: iconAction(choice.length, changeLoading),
                   highlightColor: Colors.black,
                   onPressed: () async {
                     if (choice.length > 4) {
@@ -84,7 +83,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) =>
-                                DialogCustomError(
+                                dialogCustomError(
                                     'Echec',
                                     'Veuillez ressayer ulterieurement',
                                     context),
@@ -96,7 +95,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                       });
                       showDialog(
                           context: context,
-                          builder: (BuildContext context) => DialogCustomError(
+                          builder: (BuildContext context) => dialogCustomError(
                               'Erreur',
                               'Veuillez choisir au moins 5 préferences',
                               context),
@@ -141,30 +140,6 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
 
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              suffixIcon: IconButton(
-                                  icon: Icon(Icons.add,
-                                      color: Colors.black87, size: 32.0),
-                                  onPressed: () async {
-                                    final etat = await new ConsumeAPI()
-                                        .verifyCategorieExist(eCtrl.text);
-                                    if (etat) {
-                                      if (choice.indexOf(eCtrl.text) == -1) {
-                                        setState(() {
-                                          choice.add(eCtrl.text);
-                                        });
-                                      }
-                                      eCtrl.clear();
-                                    } else {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              DialogCustomError(
-                                                  'Erreur',
-                                                  'Categorie inexistante dans notre registre',
-                                                  context),
-                                          barrierDismissible: false);
-                                    }
-                                  }),
                               hintText:
                               "Architecture, Sport, Imobilier, Coupé décalé, Forum",
                               hintStyle: TextStyle(
@@ -191,6 +166,25 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           onSuggestionSelected: (suggestion) async {
                             final categorie = suggestion as Categorie;
                             eCtrl.text = categorie.name;
+                            final etat = await new ConsumeAPI()
+                                .verifyCategorieExist(eCtrl.text);
+                            if (etat) {
+                              if (choice.indexOf(eCtrl.text) == -1) {
+                                setState(() {
+                                  choice.insert(0, eCtrl.text);
+                                });
+                              }
+                              eCtrl.clear();
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      dialogCustomError(
+                                          'Erreur',
+                                          'Categorie inexistante dans notre registre',
+                                          context),
+                                  barrierDismissible: false);
+                            }
                           },
                         ),
                       ),
@@ -256,37 +250,8 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
     );
   }
 
-  Widget DialogCustomError(String title, String message, BuildContext context) {
-    bool isIos = Platform.isIOS;
-    return isIos
-        ? new CupertinoAlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: <Widget>[
-        CupertinoDialogAction(
-            child: Text("Ok"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            })
-      ],
-    )
-        : new AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      elevation: 20.0,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0)),
-      actions: <Widget>[
-        FlatButton(
-            child: Text("Ok"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            })
-      ],
-    );
-  }
 
-  Widget IconAction(int length, bool action) {
+  Widget iconAction(int length, bool action) {
     if (action) {
       return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {

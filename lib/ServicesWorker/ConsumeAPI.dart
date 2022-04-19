@@ -526,9 +526,9 @@ class ConsumeAPI {
   }
 
   // For Deals
-  Future<List<dynamic>> getDeals() async {
+  Future<List<dynamic>> getDeals(int numberItemVip, int numberItemRecent, int numberItemPopulaire) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}');
+    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}?numberItemVip=${numberItemVip.toString()}&numberItemRecent=${numberItemRecent.toString()}&numberItemPopulaire=${numberItemPopulaire.toString()}');
     return res;
   }
 
@@ -552,7 +552,7 @@ class ConsumeAPI {
 
 
 
-  Future<List<dynamic>> updateDealFullForFutur(List<dynamic> dealFullForFutur) async {
+  List<dynamic> updateDealFullForFutur(List<dynamic> dealFullForFutur) {
 
     return dealFullForFutur;
   }

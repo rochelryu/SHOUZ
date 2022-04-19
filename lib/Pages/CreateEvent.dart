@@ -832,30 +832,6 @@ class _CreateEventState extends State<CreateEvent> {
 
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            suffixIcon: IconButton(
-                                icon: Icon(Icons.add,
-                                    color: Colors.black87, size: 32.0),
-                                onPressed: () async {
-                                  final etat = await new ConsumeAPI()
-                                      .verifyCategorieExist(eCtrl.text);
-                                  if (etat) {
-                                    if (allCategorie.indexOf(eCtrl.text) == -1) {
-                                      setState(() {
-                                        allCategorie.add(eCtrl.text);
-                                      });
-                                    }
-                                    eCtrl.clear();
-                                  } else {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) =>
-                                            DialogCustomError(
-                                                'Erreur',
-                                                'Categorie inexistante dans notre registre',
-                                                context),
-                                        barrierDismissible: false);
-                                  }
-                                }),
                             hintText:
                             "Economie, Bourse, Festival, Coupé décalé, Gospel, Boom Party",
                             hintStyle: TextStyle(
@@ -882,6 +858,25 @@ class _CreateEventState extends State<CreateEvent> {
                         onSuggestionSelected: (suggestion) async {
                           final categorie = suggestion as Categorie;
                           eCtrl.text = categorie.name;
+                          final etat = await new ConsumeAPI()
+                              .verifyCategorieExist(eCtrl.text);
+                          if (etat) {
+                            if (allCategorie.indexOf(eCtrl.text) == -1) {
+                              setState(() {
+                                allCategorie.add(eCtrl.text);
+                              });
+                            }
+                            eCtrl.clear();
+                          } else {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    DialogCustomError(
+                                        'Erreur',
+                                        'Categorie inexistante dans notre registre',
+                                        context),
+                                barrierDismissible: false);
+                          }
                         },
                       ),
                     ),

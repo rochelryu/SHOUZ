@@ -27,15 +27,18 @@ import 'Provider/Notifications.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   AwesomeNotifications().initialize(
-      'resource://drawable/logo_notification',
+      'resource://drawable/app_icon',
       [NotificationChannel(
+          icon: 'resource://drawable/app_icon',
           channelKey: channelKey,
           channelName: channelName,
           channelDescription: channelDescription,
           defaultColor: backgroundColor,
-          importance: NotificationImportance.High,
+          ledColor: Colors.white,
+          importance: NotificationImportance.Max,
           channelShowBadge: true,
-          soundSource: 'resource://raw/filling'
+          defaultRingtoneType: DefaultRingtoneType.Ringtone,
+          vibrationPattern: lowVibrationPattern
         ),
       ]);
   SystemChrome.setPreferredOrientations([
@@ -119,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
     socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
 
     socket!.onConnect((data) async {
+
       appState = Provider.of<AppState>(context, listen: false);
 
       appState.setSocket(socket!);
@@ -178,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
         if(client == null) {
-          final getClient = await DBProvider.db.getClient();
+          final User getClient = await DBProvider.db.getClient();
           setState(() {
             client = getClient;
           });
@@ -239,6 +243,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
     socket!.on('disconnect', (_) {
       appState.deleteSocket();
+      socket!.onConnect((data) async {
+        appState = Provider.of<AppState>(context, listen: false);
+
+        appState.setSocket(socket!);
+        final User getClient = await DBProvider.db.getClient();
+        appState.setJoinConnected(getClient.ident);
+      });
     });
 
 
@@ -285,8 +296,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    AwesomeNotifications().actionSink.close();
-    AwesomeNotifications().createdSink.close();
     AwesomeNotifications().dispose();
     super.dispose();
   }

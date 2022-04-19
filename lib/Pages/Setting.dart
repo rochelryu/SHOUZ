@@ -344,7 +344,7 @@ class _SettingState extends State<Setting> {
               leading: Icon(Icons.bookmark, color: prefix0.colorText, size: 33),
               title: Text("A propos", style: prefix0.Style.titre(14)),
               subtitle: Text(
-                "Info sur l'application, CLUBDOUZE",
+                "Info sur l'application, CLUB12",
                 style: prefix0.Style.sousTitre(12),
               ),
             ),

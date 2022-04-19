@@ -27,6 +27,7 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'dart:io';
 
+import 'demande_conducteur.dart';
 import 'explication_travel.dart';
 
 class Covoiturage extends StatefulWidget {
@@ -72,9 +73,7 @@ class _CovoiturageState extends State<Covoiturage> {
   LocationRequest locationRequest = LocationRequest();
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   bool isActivateCovoiturage =false;
-
-
-
+  int level = 0;
   bool trueLoad = true;
 
   String transcription = '';
@@ -82,12 +81,23 @@ class _CovoiturageState extends State<Covoiturage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     location = new Location();
     internetCheck();
+    getExplainCovoiturageMethod();
     getPositionCurrent();
+  }
+
+  Future getExplainCovoiturageMethod() async {
+    try {
+      int explainCovoiturage = await getExplainCovoiturage();
+      setState(() {
+        level = explainCovoiturage;
+      });
+    } catch (e) {
+      print("Erreur $e");
+    }
   }
 
   void internetCheck() async{
@@ -575,7 +585,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load2 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress(origine);
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$origine, Côte d'Ivoire");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 1){
@@ -602,7 +612,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load1 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress(destination);
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$destination, Côte d'Ivoire");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 0){
@@ -637,8 +647,19 @@ class _CovoiturageState extends State<Covoiturage> {
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (builder) => isActivateCovoiturage ? CreateTravel(key: UniqueKey()):ExplicationTravel(key: UniqueKey(), typeRedirect: 1,)));
+          if(isActivateCovoiturage) {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (builder) => CreateTravel(key: UniqueKey())));
+          } else {
+            if(level == 0) {
+              setExplain(2, "covoiturage");
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => ExplicationTravel(key: UniqueKey(), typeRedirect: 1)));
+            } else {
+              Navigator.pushNamed(context, DemandeConducteur.rootName);
+            }
+          }
+
         },
         backgroundColor: colorText,
         tooltip: isActivateCovoiturage ? "Créer un voyage": "Faire une demande con",

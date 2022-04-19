@@ -40,6 +40,11 @@ class DBProvider {
     return res;
   }
 
+  delProfil() async {
+    final db = await database;
+    db.delete("profil");
+  }
+
   Future<int> updateName(String name) async {
     final db = await database;
     return await db.rawUpdate("UPDATE Client SET name = ?", [name]);

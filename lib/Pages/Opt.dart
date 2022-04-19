@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/PageTransition.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
@@ -44,6 +45,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   late int totalTimeInSeconds;
   late bool _hideResendButton;
   bool loadVerification =false;
+  bool loadRequest = false;
 
   String userName = "";
   bool didReadNotifications = false;
@@ -119,7 +121,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 // Returns "OTP" input part
   get _getInputPart {
     return new Column(
-      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _getVerificationCodeLabel,
@@ -276,7 +277,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _otpKeyboardActionButton(
-                      label: new Icon(
+                      label: loadRequest ? LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2) :Icon(
                         Icons.check_circle,
                         color: Colors.white,
                         size: 32.0,
@@ -290,9 +291,14 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                           _fiveDigit!,
                           _sixDigit!,
                         ];
-                        if (beta.join("").indexOf('null') == -1) {
-
+                        if (beta.join("").indexOf('null') == -1 && !loadRequest) {
+                          setState(() {
+                            loadRequest = true;
+                          });
                           final verify = await consumeAPI.verifyTwilio(beta.join(""));
+                          setState(() {
+                            loadRequest = false;
+                          });
                           if (verify['etat'] == 'found') {
                             if (newClient!.name == '' ||
                                 newClient!.inscriptionIsDone == 0) {
@@ -410,10 +416,10 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _screenSize = MediaQuery.of(context).size;
-    return new Scaffold(
+    return Scaffold(
       appBar: _getAppbar,
       backgroundColor: backgroundColor,
-      body: new Container(
+      body: Container(
         width: _screenSize.width,
 //        padding: new EdgeInsets.only(bottom: 16.0),
         child: _getInputPart,
@@ -475,14 +481,14 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   _otpKeyboardActionButton({required Widget label, required VoidCallback onPressed}) {
     return new InkWell(
       onTap: onPressed,
-      borderRadius: new BorderRadius.circular(40.0),
-      child: new Container(
+      borderRadius: BorderRadius.circular(40.0),
+      child: Container(
         height: 80.0,
         width: 80.0,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
         ),
-        child: new Center(
+        child: Center(
           child: label,
         ),
       ),

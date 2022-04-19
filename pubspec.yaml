@@ -37,15 +37,16 @@ dependencies:
   latlong2: ^0.8.1
   flutter_map: ^0.14.0
   loading_indicator: ^3.0.3
-  geocoding: ^2.0.2
+  geocoding: ^2.0.4
   fluttertoast: ^8.0.9
   share_plus: ^3.1.0
   uni_links: ^0.5.1
   path_provider: ^2.0.9
   flutter_svg: ^1.0.3
   dotted_border: ^2.0.0+2
-  image_picker: ^0.8.4+11
-  awesome_notifications: ^0.7.0-beta.1
+  image_picker: ^0.8.5
+  awesome_notifications: ^0.7.0-beta.2
+  shared_preferences: ^2.0.13
 
   video_player: ^2.3.0
   http: ^0.13.4
@@ -61,7 +62,7 @@ dependencies:
   audioplayers: ^0.20.1
   permission_handler: ^9.2.0
   device_info_plus: ^3.2.2
-  record: ^3.0.3
+  record: ^3.0.4
 
 dev_dependencies:
   flutter_test:

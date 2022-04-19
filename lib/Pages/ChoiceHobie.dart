@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -20,19 +17,20 @@ class ChoiceHobie extends StatefulWidget {
 }
 
 class _ChoiceHobieState extends State<ChoiceHobie> {
-  TextEditingController eCtrl = new TextEditingController();
+  TextEditingController eCtrl = TextEditingController();
   List<String> choice = [];
   bool changeLoading = false;
   late Future<List<dynamic>> populaireInitial; // For display categorie of beginin
   late Future<List<dynamic>> populaire; // For display All categorie
   String value = "";
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    populaireInitial = new ConsumeAPI().getAllCategrie("", "only") as Future<List<dynamic>>;
-    populaire = new ConsumeAPI().getAllCategrie("", "only") as Future<List<dynamic>>;
+    populaireInitial = consumeAPI.getAllCategrie("", "only");
+    populaire = consumeAPI.getAllCategrie("", "only");
   }
 
   @override
@@ -50,7 +48,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 IconButton(
-                  icon: IconAction(choice.length, changeLoading),
+                  icon: iconAction(choice.length, changeLoading),
                   highlightColor: Colors.black,
                   onPressed: () async {
                     if (choice.length > 4) {
@@ -58,12 +56,13 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         changeLoading = true;
                       });
                       final profils = await DBProvider.db.getProfil();
-                      final signinUser = await new ConsumeAPI()
+                      final signinUser = await consumeAPI
                           .signinSecondStep(
                               profils['name'], profils['base'], choice);
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);
+                        await DBProvider.db.delProfil();
                         setLevel(5);
                         setState(() {
                           changeLoading = false;
@@ -76,7 +75,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) =>
-                                DialogCustomError(
+                                dialogCustomError(
                                     'Echec',
                                     'Veuillez ressayer ulterieurement',
                                     context),
@@ -88,7 +87,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       });
                       showDialog(
                           context: context,
-                          builder: (BuildContext context) => DialogCustomError(
+                          builder: (BuildContext context) => dialogCustomError(
                               'Erreur',
                               'Veuillez choisir au moins 5 préferences',
                               context),
@@ -132,30 +131,6 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
 
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              suffixIcon: IconButton(
-                                  icon: Icon(Icons.add,
-                                      color: Colors.black87, size: 32.0),
-                                  onPressed: () async {
-                                    final etat = await new ConsumeAPI()
-                                        .verifyCategorieExist(eCtrl.text);
-                                    if (etat) {
-                                      if (choice.indexOf(eCtrl.text) == -1) {
-                                        setState(() {
-                                          choice.add(eCtrl.text);
-                                        });
-                                      }
-                                      eCtrl.clear();
-                                    } else {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              DialogCustomError(
-                                                  'Erreur',
-                                                  'Categorie inexistante dans notre registre',
-                                                  context),
-                                          barrierDismissible: false);
-                                    }
-                                  }),
                               hintText:
                                   "Architecture, Sport, Imobilier, Coupé décalé, Forum",
                               hintStyle: TextStyle(
@@ -166,7 +141,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                           ),
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
-                            return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'');
+                            return consumeAPI.getAllCategrie(pattern.length > 0 ? pattern :'');
                           },
                           itemBuilder: (context, suggestion) {
                             final categorie = suggestion as Categorie;
@@ -182,6 +157,26 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                           onSuggestionSelected: (suggestion) async {
                             final categorie = suggestion as Categorie;
                             eCtrl.text = categorie.name;
+                            final etat = await consumeAPI
+                                .verifyCategorieExist(eCtrl.text);
+                            if (etat) {
+                              if (choice.indexOf(eCtrl.text) == -1) {
+                                setState(() {
+                                  choice.insert(0, eCtrl.text);
+                                });
+                              }
+                              eCtrl.clear();
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      dialogCustomError(
+                                          'Erreur',
+                                          'Categorie inexistante dans notre registre',
+                                          context),
+                                  barrierDismissible: false);
+                            }
+
                           },
                         ),
                       ),
@@ -234,7 +229,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                       if (choice
                                               .indexOf(populaire[index].name) ==
                                           -1) {
-                                        choice.add(populaire[index].name);
+                                        choice.insert(0, populaire[index].name);
                                       }
                                       populaire.removeAt(index);
                                     });
@@ -303,7 +298,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                                             }
                                           }
                                           if ((level == 0)) {
-                                            return val.add(item);
+                                            return val.insert(0, item);
                                           } else {
                                             return null;
                                           }
@@ -336,37 +331,8 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     );
   }
 
-  Widget DialogCustomError(String title, String message, BuildContext context) {
-    bool isIos = Platform.isIOS;
-    return isIos
-        ? new CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  })
-            ],
-          )
-        : new AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            elevation: 20.0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
-            actions: <Widget>[
-              FlatButton(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  })
-            ],
-          );
-  }
 
-  Widget IconAction(int length, bool action) {
+  Widget iconAction(int length, bool action) {
     if (action) {
       return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {

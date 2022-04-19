@@ -33,7 +33,7 @@ final transitionSuperLong = new Duration(milliseconds: 1200);
 
 final String channelKey = "shouz_channel";
 final String channelName = "Shouz Notifications";
-final String channelDescription = "Shouz, Social Department of CLUBDOUZE";
+final String channelDescription = "Shouz, Social Department of CLUB12";
 
 class DealsSkeletonData {
   List<dynamic> imageUrl;
@@ -751,6 +751,30 @@ Future<String> getPin() async {
   }
 }
 
+Future<int> getExplainEvent() async {
+  try {
+    final file = await _localExplainEvent;
+    String explainEvent = await file.readAsString();
+    return int.parse(explainEvent);
+  } catch (e) {
+    return 0;
+  }
+}
+
+Future<int> getExplainCovoiturage() async {
+  try {
+    final file = await _localExplainCovoiturage;
+    String explainCovoiturage = await file.readAsString();
+    return int.parse(explainCovoiturage);
+  } catch (e) {
+    return 0;
+  }
+}
+Future<File> setExplain(int pin, String categorieExplain) async {
+  final file = categorieExplain == "event" ? await _localExplainEvent: await _localExplainCovoiturage;
+  return file.writeAsString('$pin');
+}
+
 Future<File> setPin(String pin) async {
   final file = await _localPin;
   return file.writeAsString('$pin');
@@ -769,6 +793,16 @@ Future<String> get _localPath async {
 Future<File> get _localLevel async {
   final path = await _localPath;
   return File('$path/level.txt');
+}
+
+Future<File> get _localExplainEvent async {
+  final path = await _localPath;
+  return File('$path/explainEvent.txt');
+}
+
+Future<File> get _localExplainCovoiturage async {
+  final path = await _localPath;
+  return File('$path/explainCovoiturage.txt');
 }
 
 Future<File> get _localPin async {

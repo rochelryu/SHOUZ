@@ -7,7 +7,6 @@ import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VipDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:skeleton_text/skeleton_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import './CreateDeals.dart';
@@ -26,18 +25,50 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   String searchData = "";
   final GlobalKey _menuKey = new GlobalKey();
   late TabController _controller;
-  late Future<List<dynamic>> dealsFull;
+  List<dynamic> dealsFull  = [];
   ConsumeAPI consumeAPI =new ConsumeAPI();
-
+  ScrollController _scrollControllerVip = new ScrollController();
+  ScrollController _scrollControllerRecent = new ScrollController();
+  ScrollController _scrollControllerPopulaire = new ScrollController();
   List<PopupMenuItem<String>> pref = [];
+  int numberItemVip = 10, numberItemRecent = 8, numberItemPopulaire = 8;
+
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyVip = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyRecent = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyPopular = new GlobalKey<RefreshIndicatorState>();
+  bool loadingFull = true, loadMinim =false, isError = false;
 
 
   @override
   void initState() {
     super.initState();
+    _scrollControllerVip.addListener(() async {
+      if(_scrollControllerVip.position.pixels >= _scrollControllerVip.position.maxScrollExtent && !loadMinim) {
+        setState(() {
+          loadMinim = true;
+          numberItemVip += 10;
+        });
+        await loadProduct();
+      }
+    });
+    _scrollControllerRecent.addListener(() async {
+      if(_scrollControllerRecent.position.pixels >= _scrollControllerRecent.position.maxScrollExtent && !loadMinim) {
+        setState(() {
+          loadMinim = true;
+          numberItemRecent += 8;
+        });
+        await loadProduct();
+      }
+    });
+    _scrollControllerPopulaire.addListener(() async {
+      if(_scrollControllerPopulaire.position.pixels >= _scrollControllerPopulaire.position.maxScrollExtent && !loadMinim) {
+        setState(() {
+          loadMinim = true;
+          numberItemPopulaire += 8;
+        });
+        await loadProduct();
+      }
+    });
     _controller = new TabController(length: 3, vsync: this)
       ..addListener(() {
         if (_controller.indexIsChanging) {
@@ -50,20 +81,37 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
           changeMenuOptionButton();
         }
       });
-    dealsFull = consumeAPI.getDeals();
-    new Timer(const Duration(seconds: 1), changeMenuOptionButton);
+    loadProduct();
   }
 
-  Future loadProduct() async {
+  loadProduct() async {
+    final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
     setState(() {
-      dealsFull = consumeAPI.getDeals();
+      dealsFull = data;
     });
     new Timer(const Duration(seconds: 1), changeMenuOptionButton);
+    setState(() {
+      loadMinim = false;
+      loadingFull = false;
+    });
+  }
+  Future loadProductForFuture() async {
+    setState(() {
+      loadingFull = true;
+    });
+    final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
+    setState(() {
+      dealsFull = data;
+    });
+    new Timer(const Duration(seconds: 1), changeMenuOptionButton);
+    setState(() {
+      loadingFull = false;
+    });
   }
 
   changeMenuOptionButton() async {
     pref.clear();
-    var deals = await dealsFull;
+    var deals = dealsFull;
     for (var i = 0; i < deals[choiceSearch].length; i++) {
       final item = new PopupMenuItem<String>(
         child: Text(
@@ -82,13 +130,13 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     // Timer(Duration(milliseconds: 1000), () => _scrollController.jumpTo(_scrollController.position.maxScrollExtent));
 
-    final ButtonRyu = new PopupMenuButton(
+    final buttonFilter = new PopupMenuButton(
         key: _menuKey,
         icon: Icon(Icons.filter_list, color: Colors.white),
         itemBuilder: (_) => pref,
         tooltip: "Filtrage par categorie",
         onSelected: (value) async {
-          var deals = await dealsFull;
+          var deals = dealsFull;
           for (var i = 0; i < deals[choiceSearch].length; i++) {
             if (deals[choiceSearch][i]['name'] == value) {
               setState(() {
@@ -147,17 +195,17 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                         labelStyle: TextStyle(
                                           color: Colors.white,
                                         )),
-                                    onChanged: (String text) {
+                                    onChanged: (String text) async {
                                       setState(() {
                                         searchData = text;
-
-                                        if(searchData.length == 0) {
-                                          setState(() {
-                                            dealsFull = consumeAPI.getDeals();
-                                          });
-
-                                        }
                                       });
+                                      if(searchData.length == 0) {
+                                        final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
+                                        setState(() {
+                                          dealsFull = data;
+                                        });
+
+                                      }
                                     },
                                     onSubmitted: (String text) {
                                       searchDataInContext(text);
@@ -176,7 +224,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                         ),
                         Expanded(
                             flex: 1,
-                            child: ButtonRyu),
+                            child: buttonFilter),
                       ],
                     )),
                 SizedBox(height: 5.0),
@@ -204,666 +252,134 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                   ),
                 ),
                 new Container(
-                  height: MediaQuery.of(context).size.height - 240,
+                  height: MediaQuery.of(context).size.height - 230,
                   child: new TabBarView(
                     physics: NeverScrollableScrollPhysics(),
                     controller: _controller,
                     children: <Widget>[
                       RefreshIndicator(
                         key: _refreshIndicatorKeyVip,
-                        onRefresh: loadProduct,
-                        child: FutureBuilder(
-                            future: dealsFull,
-                            builder:
-                                (BuildContext context, AsyncSnapshot snapshot) {
-                              switch (snapshot.connectionState) {
-                                case ConnectionState.none:
-                                  return isErrorSubscribe(context);
-                                case ConnectionState.waiting:
-                                  return Column(children: <Widget>[
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: 2,
-                                        itemBuilder: (context, index) {
-                                          return loadDataSkeletonOfDeals(context);
-                                        },
-                                      ),
-                                    )
-                                  ]);
-
-                                case ConnectionState.active:
-                                  return Column(children: <Widget>[
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: 2,
-                                        itemBuilder: (context, index) {
-                                          return loadDataSkeletonOfDeals(context);
-                                        },
-                                      ),
-                                    )
-                                  ]);
-
-                                case ConnectionState.done:
-                                  if (snapshot.hasError) {
-                                    return isErrorSubscribe(context);
-                                  }
-                                  var populaireActu = snapshot.data;
-                                  if (populaireActu[0][choiceItemSearch]['body']
-                                      .length ==
-                                      0) {
-                                    return Center(
-                                        child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              SvgPicture.asset(
-                                                "images/empty.svg",
-                                                semanticsLabel: 'Shouz Pay',
-                                                height:
-                                                MediaQuery.of(context).size.height *
-                                                    0.39,
-                                              ),
-                                              Text(
-                                                  "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
-                                                  textAlign: TextAlign.center,
-                                                  style: Style.sousTitreEvent(15)),
-                                              SizedBox(height: 20),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).push((MaterialPageRoute(
-                                                      builder: (context) => ChoiceOtherHobie())));
-                                                },
-                                                child: Text('Ajouter Préférence'),
-                                                style: ElevatedButton.styleFrom(
-                                                  onPrimary: colorPrimary,
-                                                  primary: colorText,
-                                                  minimumSize: Size(88, 36),
-                                                  elevation: 4.0,
-                                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                                                ),
-                                              )
-                                            ]));
-                                  }
-                                  return Column(
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: new ListView.builder(
-                                          itemCount: populaireActu[0]
-                                          [choiceItemSearch]['body']
-                                              .length,
-                                          itemBuilder: (context, index) {
-                                            return VipDeals(
-                                                level: populaireActu[0]
-                                                [choiceItemSearch]['body']
-                                                [index]['level'],
-                                                imageUrl: populaireActu[0]
-                                                [choiceItemSearch]['body']
-                                                [index]['images'],
-                                                archive: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['archive'],
-                                                title: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['name'],
-                                                favorite: false,
-                                                price: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['price'].toString() + ' XOF',
-                                                numero: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['numero'],
-                                                autor: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['author'],
-                                                authorName: populaireActu[0][choiceItemSearch]['body'][index]['authorName'],
-                                                id: populaireActu[0][choiceItemSearch]
-                                                ['body'][index]['_id'],
-                                                profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
-                                                onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
-                                                describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
-                                                numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
-                                                lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
-                                                registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
-                                                quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
-                                          },
+                        onRefresh: loadProductForFuture,
+                        child: LayoutBuilder( builder: (context,contraints) {
+                          if(loadingFull){
+                            return Column(children: <Widget>[
+                                  Expanded(
+                                    child: ListView.builder(
+                                    itemCount: 2,
+                                    itemBuilder: (context, index) {
+                                      return loadDataSkeletonOfDeals(context);
+                                      },
+                                    ),
+                                  )
+                            ]);
+                          } else if(!loadingFull && isError) {
+                              return isErrorSubscribe(context);
+                          } else {
+                            var populaireActu = dealsFull;
+                            if (populaireActu[0][choiceItemSearch]['body']
+                                .length ==
+                                0) {
+                              return Center(
+                                  child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        SvgPicture.asset(
+                                          "images/empty.svg",
+                                          semanticsLabel: 'Shouz Pay',
+                                          height:
+                                          MediaQuery.of(context).size.height *
+                                              0.39,
                                         ),
-                                      )
-                                    ],
-                                  );
-                              }
-                            })
+                                        Text(
+                                            "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
+                                            textAlign: TextAlign.center,
+                                            style: Style.sousTitreEvent(15)),
+                                        SizedBox(height: 20),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push((MaterialPageRoute(
+                                                builder: (context) => ChoiceOtherHobie())));
+                                          },
+                                          child: Text('Ajouter Préférence'),
+                                          style: ElevatedButton.styleFrom(
+                                            onPrimary: colorPrimary,
+                                            primary: colorText,
+                                            minimumSize: Size(88, 36),
+                                            elevation: 4.0,
+                                            padding: EdgeInsets.symmetric(horizontal: 16),
+                                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                                          ),
+                                        )
+                                      ]));
+                            }
+                            return Column(
+                              children: <Widget>[
+                                Expanded(
+                                  child: new ListView.builder(
+                                    controller: _scrollControllerVip,
+                                    itemCount: populaireActu[0]
+                                    [choiceItemSearch]['body']
+                                        .length,
+                                    itemBuilder: (context, index) {
+                                      return VipDeals(
+                                          level: populaireActu[0]
+                                          [choiceItemSearch]['body']
+                                          [index]['level'],
+                                          imageUrl: populaireActu[0]
+                                          [choiceItemSearch]['body']
+                                          [index]['images'],
+                                          archive: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['archive'],
+                                          title: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['name'],
+                                          favorite: false,
+                                          price: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['price'].toString() + ' XOF',
+                                          numero: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['numero'],
+                                          autor: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['author'],
+                                          authorName: populaireActu[0][choiceItemSearch]['body'][index]['authorName'],
+                                          id: populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['_id'],
+                                          profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
+                                          onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
+                                          describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
+                                          numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
+                                          lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
+                                          registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
+                                          quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
+                                    },
+                                  ),
+                                )
+                              ],
+                            );
+                          }
+
+                          }
+
+                        )
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyRecent,
-                          onRefresh: loadProduct,
-                          child: FutureBuilder(
-                              future: dealsFull,
-                              builder:
-                                  (BuildContext context, AsyncSnapshot snapshot) {
-                                switch (snapshot.connectionState) {
-                                  case ConnectionState.none:
-                                    return isErrorSubscribe(context);
-                                  case ConnectionState.waiting:
-                                    return Column(children: <Widget>[
-                                      Expanded(
-                                        child: ListView.builder(
-                                          itemCount: 2,
-                                          itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 15.0,
-                                                  right: 15.0,
-                                                  top: 10.0,
-                                                  bottom: 5.0),
-                                              child: Stack(
-                                                children: <Widget>[
-                                                  Container(
-                                                    height: 200,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2,
-                                                    decoration: BoxDecoration(
-                                                        gradient: LinearGradient(
-                                                            colors: [
-                                                              backgroundColor,
-                                                              tint
-                                                            ],
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment
-                                                                .bottomRight),
-                                                        borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft:
-                                                            Radius.circular(
-                                                                10.0),
-                                                            bottomLeft:
-                                                            Radius.circular(
-                                                                10.0))),
-                                                    margin:
-                                                    EdgeInsets.only(top: 45.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: <Widget>[
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0, top: 8.0),
-                                                          child: SkeletonAnimation(
-                                                            child: Container(
-                                                              height: 15,
-                                                              width: MediaQuery.of(
-                                                                  context)
-                                                                  .size
-                                                                  .width *
-                                                                  0.6,
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  color: Colors
-                                                                      .grey[300]),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                            padding: EdgeInsets.only(
-                                                                left: 15.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                              crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                              children: <Widget>[
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(width: 5.0),
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            )),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  height: 5,
-                                                                  width: 45,
-                                                                  decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          10.0),
-                                                                      color: Colors
-                                                                          .grey[300]),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 15.0),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        SkeletonAnimation(
-                                                          child: Container(
-                                                            height: 40,
-                                                            width: 180,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.grey,
-                                                                borderRadius:
-                                                                BorderRadius.only(
-                                                                    bottomLeft: Radius
-                                                                        .circular(
-                                                                        10.0))),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2.3,
-                                                    child: Material(
-                                                      elevation: 30.0,
-                                                      borderRadius: BorderRadius.only(
-                                                          topLeft:
-                                                          Radius.circular(10.0),
-                                                          topRight:
-                                                          Radius.circular(10.0),
-                                                          bottomRight:
-                                                          Radius.circular(10.0)),
-                                                      child: SkeletonAnimation(
-                                                        child: Container(
-                                                          height: 200,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius
-                                                                  .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                      10.0)),
-                                                              color:
-                                                              Colors.grey[200]),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ]);
-
-                                  case ConnectionState.active:
-                                    return Column(children: <Widget>[
-                                      Expanded(
-                                        child: ListView.builder(
-                                          itemCount: 2,
-                                          itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 15.0,
-                                                  right: 15.0,
-                                                  top: 10.0,
-                                                  bottom: 5.0),
-                                              child: Stack(
-                                                children: <Widget>[
-                                                  Container(
-                                                    height: 200,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2,
-                                                    decoration: BoxDecoration(
-                                                        gradient: LinearGradient(
-                                                            colors: [
-                                                              backgroundColor,
-                                                              tint
-                                                            ],
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment
-                                                                .bottomRight),
-                                                        borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft:
-                                                            Radius.circular(
-                                                                10.0),
-                                                            bottomLeft:
-                                                            Radius.circular(
-                                                                10.0))),
-                                                    margin:
-                                                    EdgeInsets.only(top: 45.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: <Widget>[
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0, top: 8.0),
-                                                          child: SkeletonAnimation(
-                                                            child: Container(
-                                                              height: 15,
-                                                              width: MediaQuery.of(
-                                                                  context)
-                                                                  .size
-                                                                  .width *
-                                                                  0.6,
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  color: Colors
-                                                                      .grey[300]),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                            padding: EdgeInsets.only(
-                                                                left: 15.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                              crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                              children: <Widget>[
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(width: 5.0),
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            )),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  height: 5,
-                                                                  width: 45,
-                                                                  decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          10.0),
-                                                                      color: Colors
-                                                                          .grey[300]),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 15.0),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        SkeletonAnimation(
-                                                          child: Container(
-                                                            height: 40,
-                                                            width: 180,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.grey,
-                                                                borderRadius:
-                                                                BorderRadius.only(
-                                                                    bottomLeft: Radius
-                                                                        .circular(
-                                                                        10.0))),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2.3,
-                                                    child: Material(
-                                                      elevation: 30.0,
-                                                      borderRadius: BorderRadius.only(
-                                                          topLeft:
-                                                          Radius.circular(10.0),
-                                                          topRight:
-                                                          Radius.circular(10.0),
-                                                          bottomRight:
-                                                          Radius.circular(10.0)),
-                                                      child: SkeletonAnimation(
-                                                        child: Container(
-                                                          height: 200,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius
-                                                                  .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                      10.0)),
-                                                              color:
-                                                              Colors.grey[200]),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ]);
-
-                                  case ConnectionState.done:
-                                    if (snapshot.hasError) {
-                                      return isErrorSubscribe(context);
-                                    }
-                                    var populaireActu = snapshot.data;
+                          onRefresh: loadProductForFuture,
+                          child: LayoutBuilder( builder: (context,contraints) {
+                            if(loadingFull){
+                              return Column(children: <Widget>[
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: 2,
+                                    itemBuilder: (context, index) {
+                                      return loadDataSkeletonOfDeals(context);
+                                    },
+                                  ),
+                                )
+                              ]);
+                            } else if(!loadingFull && isError) {
+                              return isErrorSubscribe(context);
+                            } else {
+                              var populaireActu = dealsFull;
                                     if (populaireActu[1][choiceItemSearch]['body']
                                         .length ==
                                         0) {
@@ -905,6 +421,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       children: <Widget>[
                                         Expanded(
                                           child: MasonryGridView.count(
+                                            controller: _scrollControllerRecent,
                                             crossAxisCount: 2,
                                             mainAxisSpacing: 10,
                                             crossAxisSpacing: 10,
@@ -949,539 +466,23 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyPopular,
-                          onRefresh: loadProduct,
-                          child: FutureBuilder(
-                              future: dealsFull,
-                              builder:
-                                  (BuildContext context, AsyncSnapshot snapshot) {
-                                switch (snapshot.connectionState) {
-                                  case ConnectionState.none:
-                                    return isErrorSubscribe(context);
-                                  case ConnectionState.waiting:
-                                    return Column(children: <Widget>[
-                                      Expanded(
-                                        child: ListView.builder(
-                                          itemCount: 2,
-                                          itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 15.0,
-                                                  right: 15.0,
-                                                  top: 10.0,
-                                                  bottom: 5.0),
-                                              child: Stack(
-                                                children: <Widget>[
-                                                  Container(
-                                                    height: 200,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2,
-                                                    decoration: BoxDecoration(
-                                                        gradient: LinearGradient(
-                                                            colors: [
-                                                              backgroundColor,
-                                                              tint
-                                                            ],
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment
-                                                                .bottomRight),
-                                                        borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft:
-                                                            Radius.circular(
-                                                                10.0),
-                                                            bottomLeft:
-                                                            Radius.circular(
-                                                                10.0))),
-                                                    margin:
-                                                    EdgeInsets.only(top: 45.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: <Widget>[
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0, top: 8.0),
-                                                          child: SkeletonAnimation(
-                                                            child: Container(
-                                                              height: 15,
-                                                              width: MediaQuery.of(
-                                                                  context)
-                                                                  .size
-                                                                  .width *
-                                                                  0.6,
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  color: Colors
-                                                                      .grey[300]),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                            padding: EdgeInsets.only(
-                                                                left: 15.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                              crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                              children: <Widget>[
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(width: 5.0),
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            )),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  height: 5,
-                                                                  width: 45,
-                                                                  decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          10.0),
-                                                                      color: Colors
-                                                                          .grey[300]),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 15.0),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        SkeletonAnimation(
-                                                          child: Container(
-                                                            height: 40,
-                                                            width: 180,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.grey,
-                                                                borderRadius:
-                                                                BorderRadius.only(
-                                                                    bottomLeft: Radius
-                                                                        .circular(
-                                                                        10.0))),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2.3,
-                                                    child: Material(
-                                                      elevation: 30.0,
-                                                      borderRadius: BorderRadius.only(
-                                                          topLeft:
-                                                          Radius.circular(10.0),
-                                                          topRight:
-                                                          Radius.circular(10.0),
-                                                          bottomRight:
-                                                          Radius.circular(10.0)),
-                                                      child: SkeletonAnimation(
-                                                        child: Container(
-                                                          height: 200,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius
-                                                                  .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                      10.0)),
-                                                              color:
-                                                              Colors.grey[200]),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ]);
-
-                                  case ConnectionState.active:
-                                    return Column(children: <Widget>[
-                                      Expanded(
-                                        child: ListView.builder(
-                                          itemCount: 2,
-                                          itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 15.0,
-                                                  right: 15.0,
-                                                  top: 10.0,
-                                                  bottom: 5.0),
-                                              child: Stack(
-                                                children: <Widget>[
-                                                  Container(
-                                                    height: 200,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2,
-                                                    decoration: BoxDecoration(
-                                                        gradient: LinearGradient(
-                                                            colors: [
-                                                              backgroundColor,
-                                                              tint
-                                                            ],
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment
-                                                                .bottomRight),
-                                                        borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft:
-                                                            Radius.circular(
-                                                                10.0),
-                                                            bottomLeft:
-                                                            Radius.circular(
-                                                                10.0))),
-                                                    margin:
-                                                    EdgeInsets.only(top: 45.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: <Widget>[
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0, top: 8.0),
-                                                          child: SkeletonAnimation(
-                                                            child: Container(
-                                                              height: 15,
-                                                              width: MediaQuery.of(
-                                                                  context)
-                                                                  .size
-                                                                  .width *
-                                                                  0.6,
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  color: Colors
-                                                                      .grey[300]),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                            padding: EdgeInsets.only(
-                                                                left: 15.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                              crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                              children: <Widget>[
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(width: 5.0),
-                                                                SkeletonAnimation(
-                                                                  child: Container(
-                                                                    height: 5,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10.0),
-                                                                        color: Colors
-                                                                            .grey[
-                                                                        300]),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            )),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  height: 5,
-                                                                  width: 45,
-                                                                  decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          10.0),
-                                                                      color: Colors
-                                                                          .grey[300]),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 15.0),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: <Widget>[
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(width: 5.0),
-                                                              SkeletonAnimation(
-                                                                child: Container(
-                                                                  width: 30,
-                                                                  height: 30,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .grey[200],
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                        .circular(
-                                                                        30)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        SkeletonAnimation(
-                                                          child: Container(
-                                                            height: 40,
-                                                            width: 180,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.grey,
-                                                                borderRadius:
-                                                                BorderRadius.only(
-                                                                    bottomLeft: Radius
-                                                                        .circular(
-                                                                        10.0))),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                        2.3,
-                                                    child: Material(
-                                                      elevation: 30.0,
-                                                      borderRadius: BorderRadius.only(
-                                                          topLeft:
-                                                          Radius.circular(10.0),
-                                                          topRight:
-                                                          Radius.circular(10.0),
-                                                          bottomRight:
-                                                          Radius.circular(10.0)),
-                                                      child: SkeletonAnimation(
-                                                        child: Container(
-                                                          height: 200,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius
-                                                                  .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                      10.0),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                      10.0)),
-                                                              color:
-                                                              Colors.grey[200]),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ]);
-
-                                  case ConnectionState.done:
-                                    if (snapshot.hasError) {
-                                      return isErrorSubscribe(context);
-                                    }
-                                    var populaireActu = snapshot.data;
+                          onRefresh: loadProductForFuture,
+                          child: LayoutBuilder( builder: (context,contraints) {
+                            if(loadingFull){
+                              return Column(children: <Widget>[
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: 2,
+                                    itemBuilder: (context, index) {
+                                      return loadDataSkeletonOfDeals(context);
+                                    },
+                                  ),
+                                )
+                              ]);
+                            } else if(!loadingFull && isError) {
+                              return isErrorSubscribe(context);
+                            } else {
+                              var populaireActu = dealsFull;
                                     if (populaireActu[2][choiceItemSearch]['body']
                                         .length ==
                                         0) {
@@ -1523,6 +524,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       children: <Widget>[
                                         Expanded(
                                           child: MasonryGridView.count(
+                                            controller: _scrollControllerPopulaire,
                                             crossAxisCount: 2,
                                             mainAxisSpacing: 10,
                                             crossAxisSpacing: 10,
@@ -1590,11 +592,11 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   }
 
   void searchDataInContext(String text) async {
-    final List<dynamic> oldDealsNoFutur = await dealsFull;
+    final List<dynamic> oldDealsNoFutur = dealsFull;
     final newPartialDealsFull = oldDealsNoFutur[_controller.index][choiceItemSearch]['body'].where((element) => element['name'].toString().toLowerCase().indexOf(text.toLowerCase()) != -1).toList();
     oldDealsNoFutur[_controller.index][choiceItemSearch]['body'] = newPartialDealsFull;
     setState(() {
-      dealsFull = consumeAPI.updateDealFullForFutur(oldDealsNoFutur);
+      dealsFull = oldDealsNoFutur;
     });
   }
 

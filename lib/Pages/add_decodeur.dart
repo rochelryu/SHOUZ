@@ -135,7 +135,6 @@ class _AddDecodeurState extends State<AddDecodeur> {
 
                         decoration: InputDecoration(
                           border: InputBorder.none,
-
                           hintText:
                           "Recherche par son numero",
                           hintStyle: TextStyle(

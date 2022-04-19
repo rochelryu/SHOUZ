@@ -13,6 +13,8 @@ import './EventDetails.dart';
 import 'ChoiceOtherHobie.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import 'ExplainEvent.dart';
+
 class EventInter extends StatefulWidget {
   @override
   _EventInterState createState() => _EventInterState();
@@ -22,12 +24,25 @@ class _EventInterState extends State<EventInter> {
   User? user;
   late Future<Map<String, dynamic>> eventFull;
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  int level = 0;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   @override
   void initState() {
     super.initState();
     getUser();
     eventFull = consumeAPI.getEvents();
+    getExplainEventMethod();
+  }
+
+  Future getExplainEventMethod() async {
+    try {
+      int explainEvent = await getExplainEvent();
+      setState(() {
+        level = explainEvent;
+      });
+    } catch (e) {
+      print("Erreur $e");
+    }
   }
 
   getUser() async {
@@ -318,8 +333,14 @@ class _EventInterState extends State<EventInter> {
           if(user!.isActivateForfait != 0) {
             Navigator.pushNamed(context, CreateEvent.rootName);
           } else {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
+            if(level == 0){
+              setExplain(2, "event");
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
+            } else {
+              Navigator.pushNamed(context, ExplainEvent.rootName);
+            }
+
           }
 
         },

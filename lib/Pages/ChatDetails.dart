@@ -42,7 +42,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   late TabController _tabController;
   var scaffoldKey = GlobalKey<ScaffoldState>();
   File? _image;
-  int decompte = 0;
   final picker = ImagePicker();
   ConsumeAPI consumeAPI = new ConsumeAPI();
   Map<dynamic, dynamic>? productDetails;
@@ -483,7 +482,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Qte Restante', style: Style.chatIsMe(15)),
+                Text('Qte Proposé', style: Style.chatIsMe(15)),
                 Text(qte!.toString(), style: Style.titleNews()),
               ],
             ),
@@ -1137,78 +1136,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     }
   }
 
-  _start2() async {
-    /*try {
-      await _recorder!.start();
-      var recording = await _recorder?.current(channel: 0);
-      print(recording);
-      setState(() {
-        _current = recording;
-        _currentStatus = recording!.status!;
-        displayTime = "00:00";
-        isListeen = true;
-      });
-      print('_currentStatus');
-      print(_currentStatus);
-
-      const tick = const Duration(seconds: 1);
-      new Timer.periodic(tick, (Timer t) async {
-        var current = await _recorder?.current(channel: 0);
-        print('current');
-        print(current!.status);
-        print(current);
-        setState(() {
-          _current = current;
-          _currentStatus = current.status!;
-          displayTime = reformatTimerForDisplayOnChrono(t.tick);
-          opacity = opacity == 0.0 ? 1.0: 0.0;
-        });
-        if (_currentStatus == RecordingStatus.Stopped) {
-          print('OK ICI STOP');
-          t.cancel();
-        }
-      });
-    } catch (e) {
-      print("erreur de ouf");
-      print(e);
-    }*/
-  }
-
-
-  _stop2() async {
-    /*await _recorder?.stop();
-
-    var current = await _recorder?.current(channel: 0);
-
-    print(current);
-    print(displayTime);
-    setState(() {
-      _current = current;
-      _currentStatus = current!.status!;
-      isListeen = false;
-    });
-    print('after');
-    print(displayTime);
-    String audioName = _current!.path!.split('/').last;
-    final base64Audio = base64Encode(File(_current!.path!).readAsBytesSync());
-    if(appState.getConversationGetter['_id'] == null) {
-      appState.createChatMessage(
-          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
-          base64: base64Audio,
-          imageName: audioName,
-          content: message);
-    } else {
-      appState.sendChatMessage(
-          destinate: room,
-          base64: base64Audio,
-          imageName: audioName,
-          content: message,
-          id: appState.getIdOldConversation);
-    }
-    print('stop on');*/
-    //await File(_current!.path!).delete();
-
-  }
 
   Future<void> _start() async {
     try {

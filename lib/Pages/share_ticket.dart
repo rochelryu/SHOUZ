@@ -106,7 +106,6 @@ class _ShareTicketState extends State<ShareTicket> {
 
                             decoration: InputDecoration(
                               border: InputBorder.none,
-
                               hintText:
                               "Architecture, Sport, Imobilier, Coupé décalé, Forum",
                               hintStyle: TextStyle(

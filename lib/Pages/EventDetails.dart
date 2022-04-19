@@ -108,7 +108,6 @@ class _EventDetailsState extends State<EventDetails> {
     placeTotal = widget.numberTicket;
     eventDate = DateTime.parse(widget.enventDate);
     final newDate = eventDate.difference(DateTime.now());
-    print(newDate.inSeconds);
     setState(() {
       eventDateAlreadySkiped = newDate.inSeconds;
     });
@@ -512,9 +511,7 @@ class _EventDetailsState extends State<EventDetails> {
                   style: raisedButtonStyle,
                   child: Text("Acheter", style: Style.titre(18)),
                   onPressed: () {
-                    print('${priceItem.toString()} ${place.toString()} ${user.wallet.toString()}, $choice');
                     if ((priceItem != 0 || choice == "GRATUIT") && priceItem <= user.wallet) {
-                      print('${priceItem.toString()} ${place.toString()} ${user.wallet.toString()}, $choice');
                       appState.setIdEvent(widget.id);
                       appState.setNumberTicket(place);
                       appState.setPriceTicketTotal(priceItem.toString());

@@ -65,11 +65,6 @@ class _CodeScannerState extends State<CodeScanner> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                   /* if (result != null)
-                      Text(
-                          'Data: ${result!.code}')
-                    else
-                      const Text('Scan a code'),*/
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,7 +72,6 @@ class _CodeScannerState extends State<CodeScanner> {
                         IconButton(
                             onPressed: () async {
                               await controller?.toggleFlash();
-                              setState(() {});
                             },
                             icon: FutureBuilder(
                               future: controller?.getFlashStatus(),
@@ -87,20 +81,18 @@ class _CodeScannerState extends State<CodeScanner> {
                                 } else {
                                   return Icon(Icons.flash_off, color: Colors.white, size: 40);
                                 }
-                                return Text('Flash: ${snapshot.data}');
                               },
                             )),
                         SizedBox(width: 60),
                         IconButton(
                             onPressed: () async {
                               await controller?.flipCamera();
-                              setState(() {});
                             },
                             icon: FutureBuilder(
                               future: controller?.getCameraInfo(),
                               builder: (context, snapshot) {
                                 if (snapshot.data != null) {
-                                  return Icon(Icons.switch_camera, color: Colors.white, size: 40);
+                                  return const Icon(Icons.switch_camera, color: Colors.white, size: 40);
                                 } else {
                                   return const Icon(Icons.sync_problem, color:Colors.white, size: 40);
                                 }
@@ -189,13 +181,18 @@ class _CodeScannerState extends State<CodeScanner> {
         final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketByScan(infoTicketSplit![0], infoTicketSplit[1], infoTicketSplit[2], infoTicketSplit[3], infoTicketSplit[4]): await consumeAPI.decodeTicketTravelByScan(result!.code ?? '');
 
         if(inforDecode['etat'] == 'found') {
-          await askedToLead(
+          dialogCustomForValidateAction(
+              "Ticket Verifié",
               inforDecode['result'],
-              true, context);
-          setState(() {
-            scanned = false;
-            result = null;
-          });
+              "Continuer",
+              () {
+              setState(() {
+                scanned = false;
+                result = null;
+                });
+              },
+              context);
+
         }
         else if(inforDecode['etat'] =='notFound' && inforDecode['etat'] == "Vous n'êtes pas authorisé") {
           showDialog(
@@ -211,13 +208,17 @@ class _CodeScannerState extends State<CodeScanner> {
               builder: (builder) => Login()));
         }
         else {
-          await askedToLead(
+          dialogCustomForValidateAction(
+              "Erreur",
               inforDecode['error'],
-              false, context);
-          setState(() {
-            scanned = false;
-            result = null;
-          });
+              "Ok",
+                  () {
+                setState(() {
+                  scanned = false;
+                  result = null;
+                });
+              }, context);
+
         }
       }
 

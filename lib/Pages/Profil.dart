@@ -1240,7 +1240,7 @@ class _ProfilState extends State<Profil> {
                                           "Mes Produits (${infoUser['myDeals'].length})",
                                           style: Style.titleDealsProduct()),
                                     )
-                                  : SizedBox(width: 10),
+                                  : SizedBox(height: 10),
                               (infoUser['myDeals'].length != 0)
                                   ? Container(
                                       height: 180,
@@ -1334,7 +1334,7 @@ class _ProfilState extends State<Profil> {
                                         },
                                       ),
                                     )
-                                  : SizedBox(width: 10),
+                                  : SizedBox(height: 10),
                               (infoUser['favoriteDeals'].length != 0)
                                   ? Padding(
                                       padding: EdgeInsets.symmetric(
@@ -1938,7 +1938,7 @@ class _ProfilState extends State<Profil> {
                                           "Mes Evenements (${infoUser['myEvents'].length})",
                                           style: Style.titleDealsProduct()),
                                     )
-                                  : SizedBox(width: 10),
+                                  : SizedBox(height: 10),
                               (infoUser['myEvents'].length != 0)
                                   ? Container(
                                       height: 175,
@@ -2032,7 +2032,7 @@ class _ProfilState extends State<Profil> {
                                         },
                                       ),
                                     )
-                                  : SizedBox(width: 10),
+                                  : SizedBox(height: 10),
                               (infoUser['favoriteEvents'].length != 0)
                                   ? Padding(
                                       padding: EdgeInsets.symmetric(
