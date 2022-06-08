@@ -47,7 +47,8 @@ class NotificationController {
 
   /// Use this method to detect if the user dismissed a notification
   static Future <void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
-    // Your code goes here
+    AwesomeNotifications().getGlobalBadgeCounter()
+        .then((value) => AwesomeNotifications().setGlobalBadgeCounter(value - 1));
   }
 
   /// Use this method to detect when the user taps on a notification or action button

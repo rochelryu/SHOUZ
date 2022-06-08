@@ -21,7 +21,7 @@ class ChoiceCategorieScan extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height * 0.57,
+              height: MediaQuery.of(context).size.height * 0.6,
               padding: EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +58,7 @@ class ChoiceCategorieScan extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.12,
+                    height: MediaQuery.of(context).size.height * 0.14,
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: colorSecondary,

@@ -32,10 +32,11 @@ class ConsumeAPI {
   static final UPDATE_PROFIL_PIN_URL = BASE_URL + "/client/updatePin";
   static final VERIFY_FRIEND = BASE_URL + "/client/verify";
 
-  static final VIDE_NOTIFICATION_URL = BASE_URL + "/client/videNotif";
+  static final VIEW_NOTIFICATION_URL = BASE_URL + "/client/viewNotif";
   static final DEMANDE_CONDUCTEUR_URL = BASE_URL + "/client/demandeConducteur";
   static final DEMANDE_VOYAGEUR_URL = BASE_URL + "/client/demandeVoyageur";
   static final ALL_NOTIFICATION_URL = BASE_URL + "/client/getAllNotif";
+  static final ALL_NUMBER_NOTIFICATION_BY_CATEGORIE_URL = BASE_URL + "/client/getAllNumberNotifByCategorie";
   static final PERCENTAGE_METHOD_PAYEMENT_URL = BASE_URL + "/client/getPercentageModePayement";
   static final GET_MOBILE_MONEY_AVALAIBLE_URL = BASE_URL + "/client/getMobileMoneyAvalaible";
   static final GET_MAX_PLACE_FOR_CREATE_EVENT_URL = BASE_URL + "/client/getMaxPlaceForCreateEvent";
@@ -433,15 +434,11 @@ class ConsumeAPI {
     });
   }
 
-  Future<String> videNotif() async {
+  Future<String> viewNotif(String notificationId, String categorieNotif) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
-        '$VIDE_NOTIFICATION_URL/${newClient.ident}?credentials=${newClient.recovery}');
-    if(res['etat'] == 'found') {
-      final user = User.fromJson(res['result']);
-      await DBProvider.db.delClient();
-      await DBProvider.db.newClient(user);
-    } else {
+        '$VIEW_NOTIFICATION_URL/${newClient.ident}?credentials=${newClient.recovery}&notificationId=$notificationId&categorieNotif=$categorieNotif');
+    if(res['etat'] != 'found') {
       await DBProvider.db.delClient();
       setLevel(1);
     }
@@ -450,7 +447,21 @@ class ConsumeAPI {
 
   Future<Map<dynamic, dynamic>> getAllNotif() async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$ALL_NOTIFICATION_URL/${newClient.ident}');
+    final res = await _netUtil.get('$ALL_NOTIFICATION_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    return res;
+  }
+
+  Future<Map<dynamic, dynamic>> getAllNumberNotifByCategorie() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$ALL_NUMBER_NOTIFICATION_BY_CATEGORIE_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    if(res['etat'] == 'found') {
+      final user = User.fromJson(res['result']["user"]);
+      await DBProvider.db.delClient();
+      await DBProvider.db.newClient(user);
+    } else {
+      await DBProvider.db.delClient();
+      setLevel(1);
+    }
     return res;
   }
 

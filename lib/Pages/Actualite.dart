@@ -17,6 +17,8 @@ import 'package:shouz/Pages/more_actuality_by_categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import '../Constant/helper.dart';
+import '../Models/User.dart';
 import 'ChoiceHobie.dart';
 import 'Login.dart';
 
@@ -35,6 +37,7 @@ class _ActualiteState extends State<Actualite> {
   late Future<Map<String, dynamic>> topActualite;
   late Future<Map<String, dynamic>> contentActulite;
   PermissionHandler permissionHandler = PermissionHandler();
+  User? newClient;
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   ConsumeAPI consumeAPI = ConsumeAPI();
@@ -216,8 +219,10 @@ class _ActualiteState extends State<Actualite> {
   }
 
   cityFromCoord() async {
+    final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
+    final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
     final addresses =
-        await geocoding.placemarkFromCoordinates(locationData!.latitude!, locationData!.longitude!);
+        await geocoding.placemarkFromCoordinates(latitude!, longitude!);
     geocoding.Placemark first = addresses.first;
 
     String finalPosition;
@@ -230,10 +235,9 @@ class _ActualiteState extends State<Actualite> {
 
     final user = await consumeAPI.updatePosition(
         finalPosition,
-        locationData!.latitude!,
-        locationData!.longitude!,
+        latitude,
+        longitude,
         locationData!.speedAccuracy!);
-
     if (user['etat'] == 'found') {
       await DBProvider.db.delClient();
       await DBProvider.db.newClient(user['user']);
@@ -247,7 +251,7 @@ class _ActualiteState extends State<Actualite> {
           builder: (builder) => Login()));
     }
     final meteo = await consumeAPI
-        .getMeteo(locationData!.latitude!, locationData!.longitude!);
+        .getMeteo(latitude, longitude);
     if (meteo['etat'] == 'found') {
       setState(() {
         firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
@@ -261,12 +265,18 @@ class _ActualiteState extends State<Actualite> {
   @override
   void initState() {
     super.initState();
+    loadInfo();
     location = Location();
     getPositionCurrent();
     topActualite = consumeAPI.getActualite();
     contentActulite = topActualite;
-
     Timer(const Duration(seconds: 5), cityFromCoord);
+  }
+  loadInfo() async {
+    User user = await DBProvider.db.getClient();
+    setState(() {
+      newClient = user;
+    });
   }
 
   Future loadActualite() async {
@@ -302,7 +312,7 @@ class _ActualiteState extends State<Actualite> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(categorieName, style: Style.titre(25.0)),
+                Text(categorieName, style: Style.titre(20.0)),
                 TextButton(onPressed: (){
                   Navigator.push(
                       context,

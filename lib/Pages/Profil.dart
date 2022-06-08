@@ -36,7 +36,6 @@ class _ProfilState extends State<Profil> {
     User user = await DBProvider.db.getClient();
     setState(() {
       newClient = user;
-
     });
   }
 

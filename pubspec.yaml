@@ -63,6 +63,10 @@ dependencies:
   permission_handler: ^9.2.0
   device_info_plus: ^3.2.2
   record: ^3.0.4
+  firebase_messaging: ^11.2.14
+  firebase_core: ^1.15.0
+  onesignal_flutter: ^3.3.0
+  huawei_push: ^6.3.0+304
 
 dev_dependencies:
   flutter_test:

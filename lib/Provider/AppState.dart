@@ -39,7 +39,6 @@ class AppState with ChangeNotifier {
 
   ackReadMessage(String room) {
     final jsonData = {
-      "id": this.getIdOldConversation,
       "room": room,
     };
     _socket!.emit("ackReadMessage", [jsonData]);
@@ -116,6 +115,7 @@ class AppState with ChangeNotifier {
     //if(_socket )
     _socket!.emit("joinConnected", [id]);
     _socket!.emit("loadNotif", [id]);
+    notifyListeners();
   }
 
   setNumberTicket(int nbrTicket) {

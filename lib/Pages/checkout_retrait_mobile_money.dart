@@ -81,131 +81,151 @@ class _CheckoutRetraitMobileMoneyState
                     children: <Widget>[
 
 
-                      Card(
-                        elevation: (_character == TypePayement.wave) ? 15.0:1.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0)
-                        ),
-                        color: backgroundColorSec,
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          padding: EdgeInsets.only(right: 20, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Radio(
-                                activeColor: Colors.blue,
-                                value: TypePayement.wave,
-                                groupValue: _character,
-                                onChanged: (value) {
-                                  setState(() { _character = value as TypePayement; });
-                                },
-                              ),
-                              Text("Wave", style: Style.titre(18)),
-                              Container(
-                                height: 40,
-                                width: 40,
-                                child: Image.asset("images/wave.png", fit: BoxFit.cover,),
-                              )
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.wave; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.wave) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.blue,
+                                  value: TypePayement.wave,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("Wave", style: Style.titre(18)),
+                                Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                )
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Card(
-                        elevation: (_character == TypePayement.mtn) ? 15.0:1.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0)
-                        ),
-                        color: backgroundColorSec,
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          padding: EdgeInsets.only(right: 20, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Radio(
-                                activeColor: Colors.yellow,
-                                value: TypePayement.mtn,
-                                groupValue: _character,
-                                onChanged: (value) {
-                                  setState(() { _character = value as TypePayement; });
-                                },
-                              ),
-                              Text("MoMo", style: Style.titre(18)),
-                              Container(
-                                height: 50,
-                                width: 50,
-                                child: Image.asset("images/momo.png", fit: BoxFit.contain,),
-                              )
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.mtn; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.mtn) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.yellow,
+                                  value: TypePayement.mtn,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("MoMo", style: Style.titre(18)),
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.asset("images/momo.png", fit: BoxFit.contain,),
+                                )
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Card(
-                        elevation: (_character == TypePayement.orange) ? 15.0:1.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0)
-                        ),
-                        color: backgroundColorSec,
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          padding: EdgeInsets.only(right: 20, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Radio(
-                                activeColor: Colors.deepOrangeAccent,
-                                value: TypePayement.orange,
-                                groupValue: _character,
-                                onChanged: (value) {
-                                  setState(() { _character = value as TypePayement; });
-                                },
-                              ),
-                              Text("Orange Money", style: Style.titre(18)),
-                              Container(
-                                height: 50,
-                                width: 50,
-                                child: Image.asset("images/om.png", fit: BoxFit.contain,),
-                              )
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.orange; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.orange) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.deepOrangeAccent,
+                                  value: TypePayement.orange,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("Orange Money", style: Style.titre(18)),
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
+                                )
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Card(
-                        elevation: (_character == TypePayement.moov) ? 15.0:1.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0)
-                        ),
-                        color: backgroundColorSec,
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          padding: EdgeInsets.only(right: 20, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Radio(
-                                activeColor: Colors.blueAccent,
-                                value: TypePayement.moov,
-                                groupValue: _character,
-                                onChanged: (value) {
-                                  setState(() { _character = value as TypePayement; });
-                                },
-                              ),
-                              Text("Moov", style: Style.titre(18)),
-                              Container(
-                                height: 50,
-                                width: 50,
-                                child: Image.asset("images/moov.png", fit: BoxFit.contain,),
-                              )
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.moov; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.moov) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.blueAccent,
+                                  value: TypePayement.moov,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("Moov", style: Style.titre(18)),
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.asset("images/moov.png", fit: BoxFit.contain,),
+                                )
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

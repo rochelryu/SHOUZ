@@ -7,6 +7,7 @@ import 'package:huawei_location/location/location_settings_request.dart';
 import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/create_travel.dart';
@@ -169,6 +170,9 @@ class _CovoiturageState extends State<Covoiturage> {
               if(newClient!.lagitude != 0.0) {
                 locations.latitude = newClient!.lagitude;
                 locations.longitude = newClient!.longitude;
+              } else {
+                locations.latitude = defaultLatitude;
+                locations.longitude = defaultLongitude;
               }
             }
             setState(() {
@@ -227,8 +231,8 @@ class _CovoiturageState extends State<Covoiturage> {
                     setState(() {
                       locationData = LocationData.fromMap(
                           {
-                            "latitude" : newClient!.lagitude,
-                            "longitude" : newClient!.longitude,
+                            "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                            "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                             "accuracy" : 0.0,
                             "altitude" : 0.0,
                             "speed" : 0.0,
@@ -261,8 +265,8 @@ class _CovoiturageState extends State<Covoiturage> {
                   setState(() {
                     locationData = LocationData.fromMap(
                         {
-                          "latitude" : newClient!.lagitude,
-                          "longitude" : newClient!.longitude,
+                          "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                          "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                           "accuracy" : 0.0,
                           "altitude" : 0.0,
                           "speed" : 0.0,
@@ -302,8 +306,8 @@ class _CovoiturageState extends State<Covoiturage> {
                   setState(() {
                     locationData = LocationData.fromMap(
                         {
-                          "latitude" : newClient!.lagitude,
-                          "longitude" : newClient!.longitude,
+                          "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                          "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                           "accuracy" : 0.0,
                           "altitude" : 0.0,
                           "speed" : 0.0,
@@ -341,8 +345,8 @@ class _CovoiturageState extends State<Covoiturage> {
               setState(() {
                 locationData = LocationData.fromMap(
                     {
-                      "latitude" : newClient!.lagitude,
-                      "longitude" : newClient!.longitude,
+                      "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                      "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                       "accuracy" : 0.0,
                       "altitude" : 0.0,
                       "speed" : 0.0,
@@ -402,8 +406,8 @@ class _CovoiturageState extends State<Covoiturage> {
                   setState(() {
                     locationData = LocationData.fromMap(
                         {
-                          "latitude" : newClient!.lagitude,
-                          "longitude" : newClient!.longitude,
+                          "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                          "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                           "accuracy" : 0.0,
                           "altitude" : 0.0,
                           "speed" : 0.0,
@@ -436,8 +440,8 @@ class _CovoiturageState extends State<Covoiturage> {
                 setState(() {
                   locationData = LocationData.fromMap(
                       {
-                        "latitude" : newClient!.lagitude,
-                        "longitude" : newClient!.longitude,
+                        "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                        "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                         "accuracy" : 0.0,
                         "altitude" : 0.0,
                         "speed" : 0.0,
@@ -477,8 +481,8 @@ class _CovoiturageState extends State<Covoiturage> {
                 setState(() {
                   locationData = LocationData.fromMap(
                       {
-                        "latitude" : newClient!.lagitude,
-                        "longitude" : newClient!.longitude,
+                        "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                        "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                         "accuracy" : 0.0,
                         "altitude" : 0.0,
                         "speed" : 0.0,
@@ -511,8 +515,8 @@ class _CovoiturageState extends State<Covoiturage> {
               setState(() {
                 locationData = LocationData.fromMap(
                     {
-                      "latitude" : newClient!.lagitude,
-                      "longitude" : newClient!.longitude,
+                      "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                      "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                       "accuracy" : 0.0,
                       "altitude" : 0.0,
                       "speed" : 0.0,
@@ -544,8 +548,8 @@ class _CovoiturageState extends State<Covoiturage> {
             setState(() {
               locationData = LocationData.fromMap(
                   {
-                    "latitude" : newClient!.lagitude,
-                    "longitude" : newClient!.longitude,
+                    "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
+                    "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
                     "accuracy" : 0.0,
                     "altitude" : 0.0,
                     "speed" : 0.0,
@@ -641,7 +645,7 @@ class _CovoiturageState extends State<Covoiturage> {
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          !finishedLoadPosition ? Center(child: LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2)): mapping(context,locationData!.latitude ?? 0.0,locationData!.longitude ?? 0.0),
+          !finishedLoadPosition ? Center(child: LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2)): mapping(context,locationData!.latitude ?? defaultLatitude,locationData!.longitude ?? defaultLongitude),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -669,374 +673,370 @@ class _CovoiturageState extends State<Covoiturage> {
   }
 
   mapping(BuildContext context, double latitude, double longitude){
-    if(latitude != 0.0) {
-      return new Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          new FlutterMap(
-              options: new MapOptions(
-                center: LatLng(latitude, longitude),
-                minZoom: 4.0,
-                zoom: 7.0,
-              ),
-              layers: [
-                new TileLayerOptions(
-                  urlTemplate:
-                  "https://api.mapbox.com/styles/v1/rochelryu/ck1piq46n2i5y1cpdlmq6e8e2/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
-                  additionalOptions: {
-                    'accessToken': 'pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg',
-                    'id': 'mapbox.mapbox-streets-v8'
-                  },
-                  attributionBuilder: (_) {
-                    return Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Text("© SHOUZ MAP", style: Style.copyRight(),),
-                        )
-                      ],
-                    );
-                  },
-                ),
-                new MarkerLayerOptions(markers: [
-                  new Marker(
-                      width: 45.0,
-                      height: 45.0,
-                      point: LatLng(latitude, longitude),
-                      builder: (context) => new Container(
-                        child: Icon(Icons.location_on, color: colorText, size: 25.0),
-                      ))
-                ]),
-
-                new PolylineLayerOptions(
-                    polylines: [
-                      new Polyline(
-                          points: global,
-                          strokeWidth: 5.0,
-                          isDotted: true,
-                          color: colorText,
-                          gradientColors: gradient[3]
+    return new Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        new FlutterMap(
+            options: new MapOptions(
+              center: LatLng(latitude, longitude),
+              minZoom: 4.0,
+              zoom: 7.0,
+            ),
+            layers: [
+              new TileLayerOptions(
+                urlTemplate:
+                "https://api.mapbox.com/styles/v1/rochelryu/ck1piq46n2i5y1cpdlmq6e8e2/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
+                additionalOptions: {
+                  'accessToken': 'pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg',
+                  'id': 'mapbox.mapbox-streets-v8'
+                },
+                attributionBuilder: (_) {
+                  return Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Text("© SHOUZ MAP", style: Style.copyRight(),),
                       )
-                    ]
-                )
-              ]
-          ),
-          if(global.length == 2) Positioned(
-            top: 120.0,
-            left: MediaQuery.of(context).size.width * 0.49,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(50.0)
+                    ],
+                  );
+                },
               ),
-              child: Center(
-                child: IconButton(
-                  icon: Icon(Icons.search, color: backgroundColor, size: 25.0,),
-                  onPressed: (){
-                    if(global.length != 2) getPositionCurrent();
-                    else{
-                      showModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.transparent,
-                          elevation: 10.0,
-                          builder: (builder){
-                            return new Container(
-                              height: 360,
-                              decoration: BoxDecoration(
-                                  color: backgroundColor,
-                                  borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
-                              ),
-                              child: Center(
-                                child: FutureBuilder(
-                                    future: covoiturage,
-                                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                                      switch (snapshot.connectionState) {
-                                        case ConnectionState.none:
+              new MarkerLayerOptions(markers: [
+                new Marker(
+                    width: 45.0,
+                    height: 45.0,
+                    point: LatLng(latitude, longitude),
+                    builder: (context) => new Container(
+                      child: Icon(Icons.location_on, color: colorText, size: 25.0),
+                    ))
+              ]),
 
+              new PolylineLayerOptions(
+                  polylines: [
+                    new Polyline(
+                        points: global,
+                        strokeWidth: 5.0,
+                        isDotted: true,
+                        color: colorText,
+                        gradientColors: gradient[3]
+                    )
+                  ]
+              )
+            ]
+        ),
+        if(global.length == 2) Positioned(
+          top: 120.0,
+          left: MediaQuery.of(context).size.width * 0.49,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50.0)
+            ),
+            child: Center(
+              child: IconButton(
+                icon: Icon(Icons.search, color: backgroundColor, size: 25.0,),
+                onPressed: (){
+                  if(global.length != 2) getPositionCurrent();
+                  else{
+                    showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        elevation: 10.0,
+                        builder: (builder){
+                          return new Container(
+                            height: 360,
+                            decoration: BoxDecoration(
+                                color: backgroundColor,
+                                borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
+                            ),
+                            child: Center(
+                              child: FutureBuilder(
+                                  future: covoiturage,
+                                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.none:
+
+                                        return Column(
+                                          children: <Widget>[
+                                            Expanded(
+                                                child: Center(
+                                                  child: Text("Erreur de connexion", style: Style.titreEvent(18)),)
+                                            ),
+                                          ],
+                                        );
+                                      case ConnectionState.waiting:
+                                        return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
+                                      case ConnectionState.active:
+                                        return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
+                                      case ConnectionState.done:
+                                        if (snapshot.hasError){
+                                          return isErrorSubscribe(context);
+                                        }
+                                        var covoiturageFilter = snapshot.data;
+                                        if (covoiturageFilter['result'].length == 0) {
                                           return Column(
-                                            children: <Widget>[
-                                              Expanded(
-                                                  child: Center(
-                                                    child: Text("Erreur de connexion", style: Style.titreEvent(18)),)
-                                              ),
-                                            ],
-                                          );
-                                        case ConnectionState.waiting:
-                                          return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
-                                        case ConnectionState.active:
-                                          return  LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2);
-                                        case ConnectionState.done:
-                                          if (snapshot.hasError){
-                                            return isErrorSubscribe(context);
-                                          }
-                                          var covoiturageFilter = snapshot.data;
-                                          if (covoiturageFilter['result'].length == 0) {
-                                            return Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  new SvgPicture.asset(
-                                                    "images/notdepart.svg",
-                                                    semanticsLabel: 'NotTravel',
-                                                    height: MediaQuery.of(context).size.height * 0.3,
-                                                  ),
-                                                  Text("Aucun voyage pour le moment selon ces coordonées", textAlign: TextAlign.center, style: Style.sousTitreEvent(15))
-                                                ]);
-                                          }
-                                          return Container(
-                                            height: MediaQuery.of(context).size.height/1.9,
-                                            alignment: Alignment.bottomCenter,
-                                            padding: EdgeInsets.only(left: 15.0),
-                                            child: ListView.builder(
-                                              physics: BouncingScrollPhysics(),
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: covoiturageFilter['result'].length,
-                                              itemBuilder: (context,index){
-                                                final ident = covoiturageFilter['result'][index];
-                                                final register = DateTime.parse(ident['travelDate']); //.toString();
-                                                String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 1) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
-                                                afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
-                                                afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
-                                                return new Padding(
-                                                  padding: EdgeInsets.only(left: 20.0, top: 40.0,bottom: 10.0),
-                                                  child: InkWell(
-                                                    onTap: (){
-                                                      if(newClient != null && newClient!.isActivateForBuyTravel == 2) {
-                                                        Navigator.of(context).push((
-                                                            MaterialPageRoute(
-                                                                builder: (builder)=> CovoiturageChoicePlace(
-                                                                  ident['id'],
-                                                                  0,
-                                                                  ident['beginCity'],
-                                                                  ident['endCity'],
-                                                                  ident['lieuRencontre'],
-                                                                  ident['price'],
-                                                                  ident['travelDate'],
-                                                                  ident['authorId'],
-                                                                  ident['placePosition'],
-                                                                  ident['userPayCheck'],
-                                                                  ident['infoAuthor'],
-                                                                  ident['commentPayCheck'],
-                                                                  newClient != null && ident['authorId'] == newClient!.ident,
-                                                                  ident['state'],
-                                                                )
-                                                            )
-                                                        ));
-                                                      } else {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (BuildContext context) =>
-                                                                dialogCustomForValidateAction('Mesure de Sécurité',
-                                                                    "Vu que c'est votre première fois de vouloir acheter une place de voyage nous devons récupérer des informations supplémentaires sur votre identité",
-                                                                    "Ok c'est compris",
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                new SvgPicture.asset(
+                                                  "images/notdepart.svg",
+                                                  semanticsLabel: 'NotTravel',
+                                                  height: MediaQuery.of(context).size.height * 0.3,
+                                                ),
+                                                Text("Aucun voyage pour le moment selon ces coordonées", textAlign: TextAlign.center, style: Style.sousTitreEvent(15))
+                                              ]);
+                                        }
+                                        return Container(
+                                          height: MediaQuery.of(context).size.height/1.9,
+                                          alignment: Alignment.bottomCenter,
+                                          padding: EdgeInsets.only(left: 15.0),
+                                          child: ListView.builder(
+                                            physics: BouncingScrollPhysics(),
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: covoiturageFilter['result'].length,
+                                            itemBuilder: (context,index){
+                                              final ident = covoiturageFilter['result'][index];
+                                              final register = DateTime.parse(ident['travelDate']); //.toString();
+                                              String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 1) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
+                                              afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
+                                              afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
+                                              return new Padding(
+                                                padding: EdgeInsets.only(left: 20.0, top: 40.0,bottom: 10.0),
+                                                child: InkWell(
+                                                  onTap: (){
+                                                    if(newClient != null && newClient!.isActivateForBuyTravel == 2) {
+                                                      Navigator.of(context).push((
+                                                          MaterialPageRoute(
+                                                              builder: (builder)=> CovoiturageChoicePlace(
+                                                                ident['id'],
+                                                                0,
+                                                                ident['beginCity'],
+                                                                ident['endCity'],
+                                                                ident['lieuRencontre'],
+                                                                ident['price'],
+                                                                ident['travelDate'],
+                                                                ident['authorId'],
+                                                                ident['placePosition'],
+                                                                ident['userPayCheck'],
+                                                                ident['infoAuthor'],
+                                                                ident['commentPayCheck'],
+                                                                newClient != null && ident['authorId'] == newClient!.ident,
+                                                                ident['state'],
+                                                              )
+                                                          )
+                                                      ));
+                                                    } else {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) =>
+                                                              dialogCustomForValidateAction('Mesure de Sécurité',
+                                                                "Vu que c'est votre première fois de vouloir acheter une place de voyage nous devons récupérer des informations supplémentaires sur votre identité",
+                                                                "Ok c'est compris",
                                                                     ()=> Navigator.pushNamed(context, UpdateInfoBasic.rootName),
-                                                                    context,
-                                                                ),
-                                                            barrierDismissible: false);
-
-                                                      }
-
-                                                    },
-                                                    child: Card(
-                                                      elevation: 4.0,
-                                                      color: backgroundColor,
-                                                      child: Container(
-                                                        child: Column(
-                                                          mainAxisAlignment: MainAxisAlignment.start,
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: <Widget>[
-                                                            Container(
-                                                              height: 160,
-                                                              width: 240,
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius: BorderRadius.circular(6.0),
-                                                                  image: DecorationImage(
-                                                                      image: NetworkImage("${ConsumeAPI.AssetTravelServer}${ident['authorId']}/${ident['infoAuthor']['vehiculeCover']}"),
-                                                                      fit: BoxFit.cover
-                                                                  )
+                                                                context,
                                                               ),
+                                                          barrierDismissible: false);
+
+                                                    }
+
+                                                  },
+                                                  child: Card(
+                                                    elevation: 4.0,
+                                                    color: backgroundColor,
+                                                    child: Container(
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: <Widget>[
+                                                          Container(
+                                                            height: 160,
+                                                            width: 240,
+                                                            decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(6.0),
+                                                                image: DecorationImage(
+                                                                    image: NetworkImage("${ConsumeAPI.AssetTravelServer}${ident['authorId']}/${ident['infoAuthor']['vehiculeCover']}"),
+                                                                    fit: BoxFit.cover
+                                                                )
                                                             ),
-                                                            Container(
-                                                              width: 240,
-                                                              child: Column(
-                                                                children: <Widget>[
-                                                                  Padding(
-                                                                    padding: EdgeInsets.all(5.0),
-                                                                    child: Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                                      children: <Widget>[
-                                                                        Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0),
-                                                                        SizedBox(width: 10),
-                                                                        Text(ident['endCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
-                                                                      ],
-                                                                    ),
+                                                          ),
+                                                          Container(
+                                                            width: 240,
+                                                            child: Column(
+                                                              children: <Widget>[
+                                                                Padding(
+                                                                  padding: EdgeInsets.all(5.0),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    children: <Widget>[
+                                                                      Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0),
+                                                                      SizedBox(width: 10),
+                                                                      Text(ident['endCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
+                                                                    ],
                                                                   ),
-                                                                  Padding(
-                                                                    padding: EdgeInsets.all(5.0),
-                                                                    child: Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                                      children: <Widget>[
-                                                                        Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0),
-                                                                        SizedBox(width: 10),
-                                                                        Text(ident['beginCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
-                                                                      ],
-                                                                    ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.all(5.0),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    children: <Widget>[
+                                                                      Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0),
+                                                                      SizedBox(width: 10),
+                                                                      Text(ident['beginCity'].toString().toUpperCase(), maxLines: 3, style: Style.titleDealsProduct()),
+                                                                    ],
                                                                   ),
-                                                                  Padding(
-                                                                    padding: EdgeInsets.all(5.0),
-                                                                    child: Column(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      children: <Widget>[
-                                                                        Row(mainAxisAlignment: MainAxisAlignment.start,
-                                                                          children: <Widget>[
-                                                                            Icon(Icons.account_balance_wallet, color: Colors.white, size: 22.0),
-                                                                            SizedBox(width: 10.0),
-                                                                            Text(ident['price'].toString() + ' ' + ident['infoAuthor']['currencies'], style: Style.titleInSegment()),
-                                                                          ],),
-                                                                        SizedBox(height: 5.0),
-                                                                        Row(mainAxisAlignment: MainAxisAlignment.start,
-                                                                          children: <Widget>[
-                                                                            Icon(Icons.access_time, color: Colors.white, size: 22.0),
-                                                                            SizedBox(width: 10.0),
-                                                                            Text(afficheDate, style: Style.titleInSegment()),
-                                                                          ],),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.all(5.0),
+                                                                  child: Column(
+                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                    children: <Widget>[
+                                                                      Row(mainAxisAlignment: MainAxisAlignment.start,
+                                                                        children: <Widget>[
+                                                                          Icon(Icons.account_balance_wallet, color: Colors.white, size: 22.0),
+                                                                          SizedBox(width: 10.0),
+                                                                          Text(ident['price'].toString() + ' ' + ident['infoAuthor']['currencies'], style: Style.titleInSegment()),
+                                                                        ],),
+                                                                      SizedBox(height: 5.0),
+                                                                      Row(mainAxisAlignment: MainAxisAlignment.start,
+                                                                        children: <Widget>[
+                                                                          Icon(Icons.access_time, color: Colors.white, size: 22.0),
+                                                                          SizedBox(width: 10.0),
+                                                                          Text(afficheDate, style: Style.titleInSegment()),
+                                                                        ],),
 
-                                                                      ],
-                                                                    ),
+                                                                    ],
                                                                   ),
+                                                                ),
 
-                                                                ],
-                                                              ),
-                                                            )
+                                                              ],
+                                                            ),
+                                                          )
 
 
-                                                          ],
-                                                        ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                      }
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
                                     }
-                                ),
-
+                                  }
                               ),
-                            );
-                          });
-                    }
-                  },
-                ),
+
+                            ),
+                          );
+                        });
+                  }
+                },
               ),
             ),
           ),
-          Positioned(
-            top: 6.0,
-            right: 32.0,
-            left: 32.0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Card(
-                  shape: BeveledRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  elevation: 5.0,
-                  child: Container(
-                      height: 38,
-                      padding: EdgeInsets.all(5.0),
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          (!load1) ? Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0):CircularProgressIndicator(value: null, strokeWidth: 1.0,),
-                          Container(
-                            padding: EdgeInsets.only(left: 10),
-                            height: 30,
-                            width: MediaQuery.of(context).size.width/1.7,
-                            child: TextField(
-                              maxLines: 1,
-                              controller: eCtrl2,
-                              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w300),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "Ville ou point d'arrivé",
-                                hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[800], fontSize: 12.0),
-                              ),
-                              onChanged: (text){
-                                setState(() {
-                                  destination = text;
-                                });
-                              },
-                              onSubmitted: (text){
-                                setState(() {
-                                  destination = text;
-                                });
-                                coordFromCity();
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                  ),
+        ),
+        Positioned(
+          top: 6.0,
+          right: 32.0,
+          left: 32.0,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Card(
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-                SizedBox(height: 10.0),
-                if (ori) Card(
-                  shape: BeveledRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  elevation: 5.0,
-                  child: Container(
-                      height: 38,
-                      padding: EdgeInsets.all(5.0),
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          (!load1) ? Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0):CircularProgressIndicator(value: null, strokeWidth: 1.0,),
-                          Container(
-                            height: 30,
-                            padding: EdgeInsets.only(left: 10),
-                            width: MediaQuery.of(context).size.width/1.7,
-                            child: TextField(
-                              maxLines: 1,
-                              controller: eCtrl,
-                              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w300),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "Ville ou point d'origine",
-                                hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[800], fontSize: 12.0),
-                              ),
-                              onChanged: (text){
-                                setState(() {
-                                  origine = text;
-                                });
-                              },
-                              onSubmitted: (text){
-                                setState(() {
-                                  origine = text;
-                                });
-                                coordFromCityTwo();
-                              },
+                elevation: 5.0,
+                child: Container(
+                    height: 38,
+                    padding: EdgeInsets.all(5.0),
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        (!load1) ? Icon(prefix1.MyFlutterAppSecond.pin, color: colorText, size: 22.0):CircularProgressIndicator(value: null, strokeWidth: 1.0,),
+                        Container(
+                          padding: EdgeInsets.only(left: 10),
+                          height: 30,
+                          width: MediaQuery.of(context).size.width/1.7,
+                          child: TextField(
+                            maxLines: 1,
+                            controller: eCtrl2,
+                            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Ville ou point d'arrivé",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[800], fontSize: 12.0),
                             ),
+                            onChanged: (text){
+                              setState(() {
+                                destination = text;
+                              });
+                            },
+                            onSubmitted: (text){
+                              setState(() {
+                                destination = text;
+                              });
+                              coordFromCity();
+                            },
                           ),
-
-                        ],
-                      )
-                  ),
+                        ),
+                      ],
+                    )
                 ),
+              ),
+              SizedBox(height: 10.0),
+              if (ori) Card(
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 5.0,
+                child: Container(
+                    height: 38,
+                    padding: EdgeInsets.all(5.0),
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        (!load1) ? Icon(prefix1.MyFlutterAppSecond.pin, color: Colors.redAccent, size: 22.0):CircularProgressIndicator(value: null, strokeWidth: 1.0,),
+                        Container(
+                          height: 30,
+                          padding: EdgeInsets.only(left: 10),
+                          width: MediaQuery.of(context).size.width/1.7,
+                          child: TextField(
+                            maxLines: 1,
+                            controller: eCtrl,
+                            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Ville ou point d'origine",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[800], fontSize: 12.0),
+                            ),
+                            onChanged: (text){
+                              setState(() {
+                                origine = text;
+                              });
+                            },
+                            onSubmitted: (text){
+                              setState(() {
+                                origine = text;
+                              });
+                              coordFromCityTwo();
+                            },
+                          ),
+                        ),
+
+                      ],
+                    )
+                ),
+              ),
 
 
-              ],
-            ),
+            ],
           ),
-        ],
-      );
-    } else {
-      return isErrorLoadInfoBecauseNewPermissionAccording(context, "La permission de localisation a été donné récement donc votre appareil est entrain de nous donner le plein pouvoir.\nVeuillez revenir ici une prochaine fois.");
-    }
+        ),
+      ],
+    );
   }
 }

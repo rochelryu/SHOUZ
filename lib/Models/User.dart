@@ -59,7 +59,7 @@ class User {
         prefix = json["prefix"],
         images = json["images"] ?? '',
         lagitude = (json["positionRecently"] != null)
-            ? json["positionRecently"]["lagitude"]
+            ? json["positionRecently"]["latitude"]
             : 0,
         longitude = (json["positionRecently"] != null)
             ? json["positionRecently"]["longitude"]
@@ -85,18 +85,14 @@ class User {
         numero = json["numero"],
         prefix = json["prefix"],
         images = json["images"] ?? '',
-        lagitude = (json["positionRecently"] != null)
-            ? json["positionRecently"]["lagitude"]
-            : 0,
-        longitude = (json["positionRecently"] != null)
-            ? json["positionRecently"]["longitude"]
-            : 0,
-        hobiesActualite = json["hobiesActualite"],
-        hobiesDeals = json["hobiesDeals"],
+        lagitude = json["lagitude"],
+        longitude = json["longitude"],
+        hobiesActualite = [],
+        hobiesDeals = [],
         recovery = json["recovery"],
         currencies = json["currencies"],
         isActivateForBuyTravel = json["isActivateForBuyTravel"],
         inscriptionIsDone = json["inscriptionIsDone"],
         isActivateForfait = json["isActivateForfait"],
-        hobiesEvents = json["hobiesEvents"];
+        hobiesEvents = [];
 }

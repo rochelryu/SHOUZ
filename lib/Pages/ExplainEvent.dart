@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -10,6 +12,8 @@ import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+
+import 'choice_method_payement.dart';
 
 class ExplainEvent extends StatefulWidget {
   static String rootName = '/explainEvent';
@@ -211,12 +215,15 @@ class _ExplainEventState extends State<ExplainEvent> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Column(children: [
-                  RaisedButton(
+                  ElevatedButton(
                       child: Text('Ok'),
-                      color: colorError,
+                      style: raisedButtonStyleError,
                       onPressed: () {
                         Navigator.pop(context);
-                        //Navigator.pushNamed(context, '/checkout');
+                        Timer(const Duration(milliseconds: 1000), () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                        });
                       }),
                 ]),
               )

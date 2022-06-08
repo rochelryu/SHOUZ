@@ -52,73 +52,83 @@ class _CheckoutState extends State<Checkout> {
                       children: <Widget>[
 
 
-                        Card(
-                          elevation: (_character == TypePayement.bitcoin) ? 15.0:1.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0.0)
-                          ),
-                          color: backgroundColorSec,
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.only(right: 20, left: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Radio(
-                                  activeColor: Colors.orange,
-                                  value: TypePayement.bitcoin,
-                                  groupValue: _character,
-                                  onChanged: (value) {
-                                    setState(() { _character = value as TypePayement; });
-                                  },
-                                ),
-                                Text("Bitcoin", style: Style.titre(18)),
-                                Container(
-                                  height: 40,
-                                  width: 40,
-                                  child: SvgPicture.asset(
-                                    "images/bitcoin.svg",
-                                    semanticsLabel: 'Recharge Bitcoin',
+                        GestureDetector(
+                          onTap: () {
+                            setState(() { _character = TypePayement.bitcoin; });
+                          },
+                          child: Card(
+                            elevation: (_character == TypePayement.bitcoin) ? 15.0:1.0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(0.0)
+                            ),
+                            color: backgroundColorSec,
+                            child: Container(
+                              width: double.infinity,
+                              height: 50,
+                              padding: EdgeInsets.only(right: 20, left: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Radio(
+                                    activeColor: Colors.orange,
+                                    value: TypePayement.bitcoin,
+                                    groupValue: _character,
+                                    onChanged: (value) {
+                                      setState(() { _character = value as TypePayement; });
+                                    },
                                   ),
-                                )
+                                  Text("Bitcoin", style: Style.titre(18)),
+                                  Container(
+                                    height: 40,
+                                    width: 40,
+                                    child: SvgPicture.asset(
+                                      "images/bitcoin.svg",
+                                      semanticsLabel: 'Recharge Bitcoin',
+                                    ),
+                                  )
 
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        Card(
-                          elevation: (_character == TypePayement.ethereum) ? 15.0:1.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0.0)
-                          ),
-                          color: backgroundColorSec,
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.only(right: 20, left: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Radio(
-                                  activeColor: Colors.blue,
-                                  value: TypePayement.ethereum,
-                                  groupValue: _character,
-                                  onChanged: (value) {
-                                    setState(() { _character = value as TypePayement; });
-                                  },
-                                ),
-                                Text("Ethereum", style: Style.titre(18)),
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: SvgPicture.asset(
-                                    "images/ethereum.svg",
-                                    semanticsLabel: 'Recharge Ethereum',
+                        GestureDetector(
+                          onTap: () {
+                            setState(() { _character = TypePayement.ethereum; });
+                          },
+                          child: Card(
+                            elevation: (_character == TypePayement.ethereum) ? 15.0:1.0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(0.0)
+                            ),
+                            color: backgroundColorSec,
+                            child: Container(
+                              width: double.infinity,
+                              height: 50,
+                              padding: EdgeInsets.only(right: 20, left: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Radio(
+                                    activeColor: Colors.blue,
+                                    value: TypePayement.ethereum,
+                                    groupValue: _character,
+                                    onChanged: (value) {
+                                      setState(() { _character = value as TypePayement; });
+                                    },
                                   ),
-                                )
+                                  Text("Ethereum", style: Style.titre(18)),
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    child: SvgPicture.asset(
+                                      "images/ethereum.svg",
+                                      semanticsLabel: 'Recharge Ethereum',
+                                    ),
+                                  )
 
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

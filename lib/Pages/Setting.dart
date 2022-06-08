@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/ChangePin.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'package:shouz/MenuDrawler.dart';
@@ -13,7 +14,9 @@ import 'package:shouz/Pages/explication_travel.dart';
 import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../Constant/helper.dart';
 import 'explication_event.dart';
 
 class Setting extends StatefulWidget {
@@ -38,7 +41,7 @@ class _SettingState extends State<Setting> {
 
   Future getNewPin() async {
     try {
-      String pin = await prefix0.getPin();
+      String pin = await getPin();
 
       setState(() {
         this.pin = pin;
@@ -74,14 +77,14 @@ class _SettingState extends State<Setting> {
       setState(() {
         profil = {"type": 2, "data": File(image.path)};
       });
-      final info = await new ConsumeAPI()
+      await new ConsumeAPI()
           .changeProfilPicture(imageName: imageCover, base64: base64Image);
       Navigator.pop(context);
     }
   }
 
   Future getCamera(BuildContext context) async {
-    var image = await picker.getImage(source: ImageSource.camera);
+    var image = await picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       File imm = File(image.path);
       final base64Image = base64Encode(imm.readAsBytesSync());
@@ -98,7 +101,7 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context, listen: false);
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text("Paramêtre"),
         elevation: 0.0,
@@ -114,7 +117,7 @@ class _SettingState extends State<Setting> {
             ),
           )
         ],
-        backgroundColor: prefix0.backgroundColor,
+        backgroundColor: backgroundColor,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -157,7 +160,7 @@ class _SettingState extends State<Setting> {
                                             margin: EdgeInsets.symmetric(
                                                 vertical: 10, horizontal: 15),
                                             decoration: BoxDecoration(
-                                                color: prefix0.backgroundColor,
+                                                color: backgroundColor,
                                                 borderRadius:
                                                     BorderRadius.circular(7)
                                                 //borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
@@ -173,7 +176,7 @@ class _SettingState extends State<Setting> {
                                                             vertical: 15),
                                                     child: Text(
                                                         "Photo de profil",
-                                                        style: prefix0.Style
+                                                        style: Style
                                                             .titleInSegment())),
                                                 Divider(color: Colors.white12),
                                                 Expanded(
@@ -191,8 +194,7 @@ class _SettingState extends State<Setting> {
                                                           },
                                                           icon: Icon(
                                                               Icons.camera_alt,
-                                                              color: prefix0
-                                                                  .colorText,
+                                                              color: colorText,
                                                               size: 40),
                                                           tooltip:
                                                               "Prendre une Photo",
@@ -206,8 +208,7 @@ class _SettingState extends State<Setting> {
                                                               prefix1
                                                                   .MyFlutterAppSecond
                                                                   .attach,
-                                                              color: prefix0
-                                                                  .colorText,
+                                                              color: colorText,
                                                               size: 40),
                                                           tooltip:
                                                               "Choisir une Photo",
@@ -219,7 +220,7 @@ class _SettingState extends State<Setting> {
                                                 Divider(color: Colors.white12),
                                                 TextButton(
                                                   child: Text("Retour",
-                                                      style: prefix0.Style
+                                                      style: Style
                                                           .sousTitre(12)),
                                                   onPressed: () {
                                                     Navigator.pop(context);
@@ -250,11 +251,11 @@ class _SettingState extends State<Setting> {
                     ),
                     Text(newClient['name'],
                         textAlign: TextAlign.center,
-                        style: prefix0.Style.grandTitre(18)),
+                        style: Style.grandTitre(18)),
                     Text("${newClient['prefix']} ${newClient['numero']}",
-                        style: prefix0.Style.sousTitre(14.0), textAlign: TextAlign.center),
+                        style: Style.sousTitre(14.0), textAlign: TextAlign.center),
                     Text(newClient['email'],
-                        style: prefix0.Style.sousTitre(14.0), textAlign: TextAlign.center),
+                        style: Style.sousTitre(14.0), textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -268,11 +269,11 @@ class _SettingState extends State<Setting> {
               onTap: () {
                 Navigator.pushNamed(context, UpdateInfoBasic.rootName);
               },
-              leading: Icon(Icons.person, color: prefix0.colorText, size: 35),
-              title: Text("Compte", style: prefix0.Style.titre(14)),
+              leading: Icon(Icons.person, color: colorText, size: 35),
+              title: Text("Compte", style: Style.titre(14)),
               subtitle: Text(
                 "Nom, numéro, email, pièce...",
-                style: prefix0.Style.sousTitre(12),
+                style: Style.sousTitre(12),
               ),
             ),
             ListTile(
@@ -286,11 +287,11 @@ class _SettingState extends State<Setting> {
                       builder: (builder) => ChangePin()));
                 }
               },
-              leading: Icon(Icons.security, color: prefix0.colorText, size: 33),
-              title: Text("Sécurité", style: prefix0.Style.titre(14)),
+              leading: Icon(Icons.security, color: colorText, size: 33),
+              title: Text("Sécurité", style: Style.titre(14)),
               subtitle: Text(
                 "Créer/Modifier votre mot de passe",
-                style: prefix0.Style.sousTitre(12),
+                style: Style.sousTitre(12),
               ),
             ),
             ListTile(
@@ -299,11 +300,11 @@ class _SettingState extends State<Setting> {
                     builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 0,)));
               },
               leading:
-                  Icon(Icons.event_seat, color: prefix0.colorText, size: 33),
+                  Icon(Icons.event_seat, color: colorText, size: 33),
               title:
-                  Text("Rubrique évènementiel", style: prefix0.Style.titre(14)),
+                  Text("Rubrique évènementiel", style: Style.titre(14)),
               subtitle: Text("Explication détaillée de cette rubrique",
-                  style: prefix0.Style.sousTitre(12)),
+                  style: Style.sousTitre(12)),
             ),
             ListTile(
               onTap: () {
@@ -311,41 +312,44 @@ class _SettingState extends State<Setting> {
                     builder: (builder) => ExplicationTravel(key: UniqueKey(), typeRedirect: 0,)));
               },
               leading: Icon(Icons.directions_car,
-                  color: prefix0.colorText, size: 33),
+                  color: colorText, size: 33),
               title:
-                  Text("Rubrique Voyage", style: prefix0.Style.titre(14)),
+                  Text("Rubrique Voyage", style: Style.titre(14)),
               subtitle: Text("Explication détaillée de cette rubrique",
-                  style: prefix0.Style.sousTitre(12)),
+                  style: Style.sousTitre(12)),
             ),
             ListTile(
-              onTap: () {
+              onTap: () async {
+                await launch("https://www.shouz.network/");
               },
               leading:
-                  Icon(Icons.help_outline, color: prefix0.colorText, size: 33),
-              title: Text("Aide", style: prefix0.Style.titre(14)),
+                  Icon(Icons.help_outline, color: colorText, size: 33),
+              title: Text("Aide", style: Style.titre(14)),
               subtitle: Text(
                 "Q&R, contactez-nous, CPC",
-                style: prefix0.Style.sousTitre(12),
+                style: Style.sousTitre(12),
               ),
             ),
             ListTile(
               onTap: () {
-              },
-              leading: Icon(Icons.people, color: prefix0.colorText, size: 33),
-              title: Text("Partager", style: prefix0.Style.titre(14)),
+              Share.share(descriptionShouz, subject: "DESCRIPTION DE SHOUZ");
+            },
+              leading: Icon(Icons.people, color: colorText, size: 33),
+              title: Text("Partager", style: Style.titre(14)),
               subtitle: Text(
                 "Inviter des amis",
-                style: prefix0.Style.sousTitre(12),
+                style: Style.sousTitre(12),
               ),
             ),
             ListTile(
-              onTap: () {
+              onTap: () async {
+                await launch("https://www.shouz.network/");
               },
-              leading: Icon(Icons.bookmark, color: prefix0.colorText, size: 33),
-              title: Text("A propos", style: prefix0.Style.titre(14)),
+              leading: Icon(Icons.bookmark, color: colorText, size: 33),
+              title: Text("A propos", style: Style.titre(14)),
               subtitle: Text(
                 "Info sur l'application, CLUB12",
-                style: prefix0.Style.sousTitre(12),
+                style: Style.sousTitre(12),
               ),
             ),
           ],

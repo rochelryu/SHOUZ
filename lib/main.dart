@@ -1,9 +1,11 @@
 import 'dart:async';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:huawei_push/huawei_push.dart' as huawei;
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/route.dart';
@@ -21,15 +23,26 @@ import './Pages/LoadHide.dart';
 import './Pages/Login.dart';
 import './Pages/Opt.dart';
 import './ServicesWorker/WebSocketHelper.dart';
+import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 import 'Provider/Notifications.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-void main() {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  var body = message.notification?.body == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.notification?.body;
+  body = message.notification?.body == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+  createShouzNotification(message.notification!.title!, body!, message.data as Map<String, String>);
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   AwesomeNotifications().initialize(
-      'resource://drawable/app_icon',
+      'resource://drawable/icon_notif',
       [NotificationChannel(
-          icon: 'resource://drawable/app_icon',
+          icon: 'resource://drawable/icon_notif',
           channelKey: channelKey,
           channelName: channelName,
           channelDescription: channelDescription,
@@ -41,6 +54,15 @@ void main() {
           vibrationPattern: lowVibrationPattern
         ),
       ]);
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await FirebaseMessaging.instance
+      .setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,
@@ -90,9 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
   IO.Socket? socket;
   int level = 15;
   User? client;
+  String _token = '';
+
   @override
   void initState() {
     super.initState();
+    //configOneSignal();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if(!isAllowed) {
         showDialog(
@@ -113,10 +138,58 @@ class _MyHomePageState extends State<MyHomePage> {
         onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
-
+    listenFirebase();
     getNewLevel();
     initializeSocket();
   }
+
+  void _onTokenEvent(String event) {
+    _token = event;
+    print('TokenEvent $_token');
+  }
+
+  void _onTokenError(Object error) {
+    PlatformException e = error as PlatformException;
+    print('TokenErrorEvent ${e.message!}');
+  }
+  void _onNotificationOpenedApp(dynamic initialNotification) {
+    if (initialNotification != null) {
+      print('onNotificationOpenedApp ${initialNotification.toString()}');
+    }
+  }
+
+  Future<void> configOneSignal() async {
+    if (!mounted) return;
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+    await OneSignal.shared.setAppId(oneSignalAppId);
+    /*if (!mounted) return;
+    huawei.Push.getTokenStream.listen(_onTokenEvent, onError: _onTokenError);
+    dynamic initialNotification = await huawei.Push.getInitialNotification();
+    _onNotificationOpenedApp(initialNotification);*/
+  }
+
+  void listenFirebase() async {
+    FirebaseMessaging.onMessage.listen((message) {
+      firebaseMessagingInOpenHandler(message);
+    });
+  }
+
+  Future<void> firebaseMessagingInOpenHandler(RemoteMessage message) async {
+    // If you're going to use other Firebase services in the background, such as Firestore,
+    // make sure you call `initializeApp` before using other Firebase services.
+    appState = Provider.of<AppState>(context, listen: true);
+    if(message.data['room'] != null) {
+      if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
+        appState.setNumberNotif(appState.getNumberNotif + 1);
+        await _firebaseMessagingBackgroundHandler(message);
+      }
+    } else {
+      appState.setNumberNotif(appState.getNumberNotif + 1);
+      await _firebaseMessagingBackgroundHandler(message);
+    }
+  }
+
+
 
   void initializeSocket() async {
     socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
@@ -127,6 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
       appState.setSocket(socket!);
 
+      final User getClient = await DBProvider.db.getClient();
+      if(getClient.ident != "") {
+        appState.setJoinConnected(getClient.ident);
+      }
     });
     socket!.on("reponseChangeProfil", (data) async {
       Fluttertoast.showToast(
@@ -144,33 +221,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
     socket!.on("MsToClient", (data) async {
       appState.updateLoadingToSend(false);
-      //sample event
       if (appState.getIdOldConversation == data['_id']) {
         appState.setConversation(data);
-        if(client != null && client!.name.trim() != data['author'].trim()) {
-
+        final User getClient = await DBProvider.db.getClient();
+        if(getClient.name.trim() != data['author'].trim()) {
           appState.ackReadMessage(data['room']);
         }
-      } else if(appState.getIdOldConversation == '') {
-        appState.setConversation(data);
-        appState.setNumberNotif(appState.getNumberNotif + 1);
-        final title = "${data['author']} vient de vous ecrire pour un deals";
-        final content = data['content'][data['content'].length - 1];
-        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
-        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
-        createShouzNotification(title,body, {'room': data['room']});
-      } else {
-        appState.setNumberNotif(appState.getNumberNotif + 1);
-        final title = "${data['author']} vient de vous ecrire pour un deals";
-        final content = data['content'][data['content'].length - 1];
-        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
-        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
-        createShouzNotification(title,body, {'room': data['room']});
       }
     });
 
     socket!.on("ackReadMessageComeBack", (data) async {
-
       if (appState.getIdOldConversation == data['_id']) {
         appState.setConversation(data);
       }
@@ -181,14 +241,13 @@ class _MyHomePageState extends State<MyHomePage> {
       if (data['etat'] == 'found') {
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
+        appState.ackReadMessage(data['result']['room']);
         if(client == null) {
           final User getClient = await DBProvider.db.getClient();
           setState(() {
             client = getClient;
           });
         }
-
-        appState.ackReadMessage(data['result']['room']);
       } else {
         appState.setConversation({});
         appState.setIdOldConversation('');
@@ -221,19 +280,8 @@ class _MyHomePageState extends State<MyHomePage> {
     socket!.on("roomCreated", (data) async {
       appState.updateLoadingToSend(false);
       //sample event
-      User newClient = await DBProvider.db.getClient();
-      if (newClient.ident == data['userIdScondary']) {
-        // for user which have created the roomsConversation
         appState.setConversation(data);
         appState.setIdOldConversation(data['_id']);
-      } else {
-        appState.setNumberNotif(appState.getNumberNotif + 1);
-        final title = "${data['author']} vient de vous ecrire pour un deals";
-        final content = data['content'][data['content'].length - 1];
-        var body = content['image'] != '' && content['content'] == "" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : content['content'];
-        body = content['image'] != '' && content['image'].indexOf('.wav') != -1 ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
-        createShouzNotification(title,body, {'room': data['room']});
-      }
     });
     socket!.on("typingResponse", (data) async {
       if (appState.getIdOldConversation == data['id']) {
@@ -243,13 +291,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     socket!.on('disconnect', (_) {
       appState.deleteSocket();
-      socket!.onConnect((data) async {
-        appState = Provider.of<AppState>(context, listen: false);
-
-        appState.setSocket(socket!);
-        final User getClient = await DBProvider.db.getClient();
-        appState.setJoinConnected(getClient.ident);
-      });
     });
 
 
@@ -275,7 +316,6 @@ class _MyHomePageState extends State<MyHomePage> {
       createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
     });
     socket!.on("createvoyage", (data) async {
-
       createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
     });
 
@@ -284,6 +324,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future getNewLevel() async {
     try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("fcmToken");
+      print(fcmToken);
       int levelLocal = await getLevel();
 
       setState(() {

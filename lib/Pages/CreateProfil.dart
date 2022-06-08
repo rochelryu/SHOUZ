@@ -182,8 +182,7 @@ class _CreateProfil extends State<CreateProfil> {
                                                                     context);
                                                               },
                                                               icon: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
+                                                                  Icons.camera,
                                                                   color: prefix0
                                                                       .colorText,
                                                                   size: 40),
@@ -234,8 +233,8 @@ class _CreateProfil extends State<CreateProfil> {
                                               0.5) // Specifies the background color and the opacity
                                           ),
                                       child: Center(
-                                        child: Icon(Icons.camera,
-                                            color: Colors.white),
+                                        child: Icon(Icons.camera_alt,
+                                            color: Colors.white, size: 20,),
                                       ),
                                     ),
                                   ),

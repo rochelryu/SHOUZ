@@ -22,6 +22,8 @@ import 'package:timeline_tile/timeline_tile.dart';
 import 'package:record/record.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import 'choice_method_payement.dart';
+
 class ChatDetails extends StatefulWidget {
   var name;
   var onLine;
@@ -502,7 +504,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Prix Proposé', style: Style.chatIsMe(15)),
+                        Text('Prix Total Proposé', style: Style.chatIsMe(15)),
                         Text(priceFinal!.toString() + ' Fcfa', style: Style.titleNews()),
                       ],
                     ),
@@ -513,7 +515,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Qte Restante', style: Style.chatIsMe(15)),
+                        Text('Qte Proposé', style: Style.chatIsMe(15)),
                         Text(qte!.toString(), style: Style.titleNews()),
                       ],
                     ),
@@ -557,9 +559,10 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(onPressed: (){
-              appState.setConversation({});
-              appState.setIdOldConversation('');
+
               if(widget.comeBack == 0) {
+                appState.setConversation({});
+                appState.setIdOldConversation('');
                 Navigator.pop(context);
               } else {
                 Navigator.pushNamed(context, MenuDrawler.rootName);
@@ -1039,6 +1042,11 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                       textColor: Colors.white,
                       fontSize: 16.0
                   );
+
+                  Timer(const Duration(milliseconds: 3000), () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                  });
                 }
 
 

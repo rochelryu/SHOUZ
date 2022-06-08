@@ -32,6 +32,7 @@ class _CreateEventState extends State<CreateEvent> {
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final ConsumeAPI consumeAPI = new ConsumeAPI();
   int maxPlace = 0;
+  int durationEventByDay = 1;
   List<File> post = [];
   File? video;
   String base64Image = "";

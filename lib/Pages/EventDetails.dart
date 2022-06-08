@@ -293,7 +293,7 @@ class _EventDetailsState extends State<EventDetails> {
                         Text('Localisation', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
-                              await launch("https://www.google.com/maps/place/${widget.position}",forceWebView: true);
+                              await launch("https://www.google.com/maps/place/${widget.position}");
                             },
                             child: Text("Voir Map", style: Style.titreBlue(20),))
                         /*Text(

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "270595904509",
+    "project_id": "shouz-4aa71",
+    "storage_bucket": "shouz-4aa71.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270595904509:android:c4a50f0983df78ea36bf94",
+        "android_client_info": {
+          "package_name": "com.shouz.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "270595904509-i43c93fapf9icqgstpusu1l77d7dnfs6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO0FkuJRfeC2S-8W6SVk23wr33BLUpclU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "270595904509-i43c93fapf9icqgstpusu1l77d7dnfs6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

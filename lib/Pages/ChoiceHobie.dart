@@ -47,10 +47,8 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                IconButton(
-                  icon: iconAction(choice.length, changeLoading),
-                  highlightColor: Colors.black,
-                  onPressed: () async {
+                if (choice.length > 4 ) InkWell(
+                  onTap: () async {
                     if (choice.length > 4) {
                       setState(() {
                         changeLoading = true;
@@ -58,7 +56,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       final profils = await DBProvider.db.getProfil();
                       final signinUser = await consumeAPI
                           .signinSecondStep(
-                              profils['name'], profils['base'], choice);
+                          profils['name'], profils['base'], choice);
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);
@@ -94,7 +92,19 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                           barrierDismissible: false);
                     }
                   },
-                )
+                  child: Container(
+                    width: 140,
+                    height: 50,
+                    padding: EdgeInsets.only(right: 5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        !changeLoading ? Text("Suivant", style: Style.titre(15),): Text("Charg..", style: Style.titre(15),),
+                        iconAction(choice.length, changeLoading),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
             Column(
@@ -336,12 +346,8 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     if (action) {
       return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {
-      if (length <= 4) {
-        return Icon(Icons.close, color: colorPrimary, size: 32.0);
-      } else {
-        return Icon(Icons.navigate_next,
-            color: colorPrimary, size: 32.0);
-      }
+      return Icon(Icons.navigate_next,
+          color: colorPrimary, size: 32.0);
     }
   }
 }

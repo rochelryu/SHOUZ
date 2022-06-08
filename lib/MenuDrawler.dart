@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/ChoiceOtherHobie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -40,6 +40,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
   User? newClient;
   late String statusPermission;
   List<Widget> menus = [Actualite(), Deals(), EventInter(), Covoiturage()];
+  List<String> titleDomain = ['Actualité', 'E-commerce', 'Événementiel', 'Covoiturage'];
 
   int numberConnected = 0;
 
@@ -50,7 +51,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     super.initState();
     loadInfo();
     _controller =
-        AnimationController(vsync: this, duration: prefix0.transitionMedium);
+        AnimationController(vsync: this, duration: transitionMedium);
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
@@ -79,7 +80,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     screenHeight = size.height;
     screenWidth = size.width;
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       body: GestureDetector(
         onTap: (){
           FocusScope.of(context).requestFocus(new FocusNode());
@@ -131,13 +132,13 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 Container(
                   width: 150,
                   child: Text(newClient != null ? newClient!.name : '',
-                      style: prefix0.Style.titre(21), maxLines: 1),
+                      style: Style.titre(21), maxLines: 1),
                 ),
                 SizedBox(height: 5),
                 Container(
                   width: 150,
                   child: Text((newClient != null) ? newClient!.position : '',
-                      style: prefix0.Style.sousTitre(13)),
+                      style: Style.sousTitre(13)),
                 ),
                 SizedBox(height: 40),
                 ListTile(
@@ -148,7 +149,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   },
                   leading: Icon(Icons.account_circle, color: Colors.white),
                   title:
-                      Text("Profil", style: prefix0.Style.menuStyleItem(16.0)),
+                      Text("Profil", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
@@ -158,12 +159,12 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   },
                   leading: Icon(Icons.favorite, color: Colors.white),
                   title: Text("Préférences",
-                      style: prefix0.Style.menuStyleItem(16.0)),
+                      style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
                   onTap: () async {
-                    appState.setNumberNotif(0);
+
                     Navigator.of(context).push((MaterialPageRoute(
                         builder: (context) => Notifications())));
                   },
@@ -177,7 +178,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                               width: 17,
                               height: 17,
                               decoration: BoxDecoration(
-                                color: prefix0.colorText,
+                                color: colorText,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -190,7 +191,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     ),
                   ]),
                   title: Text("Notifications",
-                      style: prefix0.Style.menuStyleItem(16.0)),
+                      style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
@@ -200,7 +201,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   },
                   leading: Icon(Icons.widgets, color: Colors.white),
                   title:
-                      Text("Outils", style: prefix0.Style.menuStyleItem(16.0)),
+                      Text("Outils", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
@@ -209,8 +210,8 @@ class _MenuDrawlerState extends State<MenuDrawler>
                         (MaterialPageRoute(builder: (context) => Setting())));
                   },
                   leading: Icon(Icons.settings, color: Colors.white),
-                  title: Text("Paramettre",
-                      style: prefix0.Style.menuStyleItem(16.0)),
+                  title: Text("Paramètres",
+                      style: Style.menuStyleItem(16.0)),
                 ),
               ],
             ),
@@ -236,20 +237,20 @@ class _MenuDrawlerState extends State<MenuDrawler>
       left: isCollasped ? 0.5 * screenWidth : 0,
       right: isCollasped ? -0.4 * screenWidth : 0,
       bottom: isCollasped ? 0.15 * screenWidth : 0,
-      duration: prefix0.transitionMedium,
+      duration: transitionMedium,
       child: Material(
-        animationDuration: prefix0.transitionMedium,
+        animationDuration: transitionMedium,
         borderRadius: BorderRadius.circular(10.0),
         elevation: 8,
-        color: prefix0.backgroundColor,
+        color: backgroundColor,
         child: Scaffold(
-          backgroundColor: prefix0.backgroundColor,
+          backgroundColor: backgroundColor,
           appBar: AppBar(
             elevation: 0.0,
-            backgroundColor: prefix0.backgroundColor,
+            backgroundColor: backgroundColor,
             leading: Stack(children: <Widget>[
               IconButton(
-                icon: Icon(prefix0.Style.menu, color: Colors.white),
+                icon: Icon(Style.menu, color: Colors.white),
                 onPressed: () {
                   FocusScope.of(context).requestFocus(new FocusNode());
                   setState(() {
@@ -270,7 +271,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                         width: 17,
                         height: 17,
                         decoration: BoxDecoration(
-                          color: prefix0.colorText,
+                          color: colorText,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -279,6 +280,8 @@ class _MenuDrawlerState extends State<MenuDrawler>
                       ),
               ),
             ]),
+            title: Text(titleDomain[appState.getIndexBottomBar]),
+            centerTitle: true,
           ),
           body: menus[appState.getIndexBottomBar],
           bottomNavigationBar: (!isCollasped)
@@ -288,7 +291,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     appState.setIndexBottomBar(index);
                   },
                   height: isIos ? 65.0 : 50.0,
-                  color: prefix0.tint,
+                  color: tint,
                   buttonBackgroundColor: Colors.white,
                   backgroundColor: Colors.transparent,
                   //animationCurve: Curves.linearToEaseOut,
@@ -314,16 +317,16 @@ class _MenuDrawlerState extends State<MenuDrawler>
                */
                     Icon(prefix1.MyFlutterAppSecond.newspaper,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 0) ? prefix0.tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 0) ? tint : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.shop,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 1) ? prefix0.tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 1) ? tint : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.calendar,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 2) ? prefix0.tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 2) ? tint : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.destination,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 3) ? prefix0.tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 3) ? tint : Colors.white),
                   ],
                 )
               : null,

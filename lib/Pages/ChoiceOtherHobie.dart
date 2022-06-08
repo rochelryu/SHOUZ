@@ -57,10 +57,9 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                   highlightColor: Colors.black,
                   icon: Icon(Icons.arrow_back, color: colorPrimary, size: 32.0),
                 ),
-                IconButton(
-                  icon: iconAction(choice.length, changeLoading),
-                  highlightColor: Colors.black,
-                  onPressed: () async {
+                choice.length > 4 ?
+                InkWell(
+                  onTap: () async {
                     if (choice.length > 4) {
                       setState(() {
                         changeLoading = true;
@@ -102,7 +101,19 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           barrierDismissible: false);
                     }
                   },
-                ),
+                  child: Container(
+                    width: 140,
+                    height: 50,
+                    padding: EdgeInsets.only(right: 5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        !changeLoading ? Text("Suivant", style: Style.titre(15),): Text("Charg..", style: Style.titre(15),),
+                        iconAction(choice.length, changeLoading),
+                      ],
+                    ),
+                  ),
+                ): SizedBox(width: 10),
 
               ],
             ),
@@ -255,12 +266,8 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
     if (action) {
       return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
     } else {
-      if (length <= 4) {
-        return Icon(Icons.close, color: colorPrimary, size: 32.0);
-      } else {
-        return Icon(Icons.navigate_next,
-            color: colorPrimary, size: 32.0);
-      }
+      return Icon(Icons.navigate_next,
+          color: colorPrimary, size: 32.0);
     }
   }
 }

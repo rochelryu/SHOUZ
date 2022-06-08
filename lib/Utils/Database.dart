@@ -65,13 +65,14 @@ class DBProvider {
           newClient.email,
           newClient.longitude,
           newClient.lagitude,
-          newClient.pin,
+          'pin',
           newClient.wallet,
           newClient.inscriptionIsDone,
           newClient.isActivateForfait,
           newClient.currencies,
           newClient.isActivateForBuyTravel,
         ]);
+
     return res;
   }
 
@@ -79,7 +80,7 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Client");
     List<User> list = res.map((c) => User.fromJsonLite(c)).toList();
-    return list[list.length - 1];
+    return list.length > 0 ? list[list.length - 1]: new User("null", "null");
   }
 
   getProfil() async {

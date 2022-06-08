@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
-import 'package:shouz/Provider/Notifications.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import '../MenuDrawler.dart';
+import '../Provider/AppState.dart';
+import '../Provider/Notifications.dart';
 import 'ChatDetails.dart';
+import 'LoadHide.dart';
 import 'Login.dart';
+import 'Profil.dart';
+import 'choice_categorie_scan.dart';
 import 'create_travel.dart';
 
 class Notifications extends StatefulWidget {
@@ -21,6 +27,7 @@ class Notifications extends StatefulWidget {
 class _NotificationsState extends State<Notifications>  with SingleTickerProviderStateMixin{
   late TabController _controller;
   ConsumeAPI consumeAPI =new ConsumeAPI();
+  int numberNotifDeals = 0, numberNotifEvent = 0, numberNotifCovoiturage = 0, numberNotifShouzPay = 0;
 
   late Future<Map<dynamic, dynamic>> notificationsFull;
 
@@ -33,20 +40,29 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     notificationsFull = consumeAPI.getAllNotif();
   }
 
+
   Future getInfo() async {
     try {
-      final videNotif = await consumeAPI.videNotif();;
-      if(videNotif != 'found') {
+
+      final getAllNumberNotifByCategorie = await consumeAPI.getAllNumberNotifByCategorie();
+      if(getAllNumberNotifByCategorie['etat'] != 'found') {
         showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
-              barrierDismissible: false);
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+            barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
       } else {
-        cancelAllAwesomeNotification();
+        setState(() {
+          numberNotifDeals = getAllNumberNotifByCategorie['result']['numberNotifDeals'];
+          numberNotifEvent = getAllNumberNotifByCategorie['result']['numberNotifEvent'];
+          numberNotifCovoiturage = getAllNumberNotifByCategorie['result']['numberNotifCovoiturage'];
+          numberNotifShouzPay = getAllNumberNotifByCategorie['result']['numberNotifShouzPay'];
+        });
+        await cancelAllAwesomeNotification();
       }
+
     } catch (e) {
       print("Erreur $e");
     }
@@ -57,6 +73,12 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
       backgroundColor: backgroundColor,
       appBar: AppBar(
         elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: ()async {
+            await Navigator.pushNamedAndRemoveUntil(context,MenuDrawler.rootName, (route) => route.isFirst);
+          },
+        ),
         backgroundColor: backgroundColor,
         title: Text('Notifications'),
         bottom: new TabBar(
@@ -66,19 +88,119 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           indicatorColor: colorText,
           tabs: [
             new Tab(
-              text: 'Deals',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text('Deals', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: numberNotifDeals != 0
+                        ? Container(
+                      width: 17,
+                      height: 17,
+                      decoration: BoxDecoration(
+                        color: colorText,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                          child: Text(
+                            numberNotifDeals.toString(),
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    )
+                        : Container(),
+                  ),
+                ],
+              ),
             ),
             new Tab(
               //icon: const Icon(Icons.shopping_cart),
-              text: 'Events',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text('Events', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: numberNotifEvent != 0
+                        ? Container(
+                      width: 17,
+                      height: 17,
+                      decoration: BoxDecoration(
+                        color: colorText,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                          child: Text(
+                            numberNotifEvent.toString(),
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    )
+                        : Container(),
+                  ),
+                ],
+              ),
             ),
             new Tab(
               //icon: const Icon(Icons.shopping_cart),
-              text: 'Travel',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text('Voyages', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: numberNotifCovoiturage != 0
+                        ? Container(
+                      width: 17,
+                      height: 17,
+                      decoration: BoxDecoration(
+                        color: colorText,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                          child: Text(
+                            numberNotifCovoiturage.toString(),
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    )
+                        : Container(),
+                  ),
+                ],
+              ),
             ),
             new Tab(
               //icon: const Icon(Icons.shopping_cart),
-              text: 'ShouzPay',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text('ShouzPay', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: numberNotifShouzPay != 0
+                        ? Container(
+                      width: 17,
+                      height: 17,
+                      decoration: BoxDecoration(
+                        color: colorText,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                          child: Text(
+                            numberNotifShouzPay.toString(),
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    )
+                        : Container(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -1133,12 +1255,21 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   Widget displayNotifDeals(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
-      item = new ListView.builder(
+      item = ListView.builder(
         shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
             return InkWell(
-              onTap: (){
+              onTap: () async {
+                if(!atMoment[index]['isAlreadyRead']) {
+                  final appState = Provider.of<AppState>(context, listen: false);
+                  final numberNotif = appState.getNumberNotif - 1;
+                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                  setState(() {
+                    numberNotifDeals = (numberNotifDeals - 1) >0 ? numberNotifDeals - 1: 0;
+                  });
+                  await consumeAPI.viewNotif(atMoment[index]['notificationId'], "DEALS");
+                }
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -1152,7 +1283,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                             //authorId prend la valeur de idOtherUser
                             authorId: atMoment[index]['idOtherUser'])));
               },
-              child: Padding(
+              child: Container(
+                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1210,7 +1342,16 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemCount: atMoment.length,
           itemBuilder: (context, index){
             return InkWell(
-              onTap: (){
+              onTap: () async {
+                if(!atMoment[index]['isAlreadyRead']) {
+                  final appState = Provider.of<AppState>(context, listen: false);
+                  final numberNotif = appState.getNumberNotif - 1;
+                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                  setState(() {
+                    numberNotifCovoiturage = (numberNotifCovoiturage - 1) >0 ? numberNotifCovoiturage - 1: 0;
+                  });
+                  await consumeAPI.viewNotif(atMoment[index]['_id'], "TRAVELS");
+                }
                 if(atMoment[index]['typeTravel'] == 'DEMANDE_TRAVELER') {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => VerifyUser(
@@ -1218,7 +1359,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                 }
 
               },
-              child: Padding(
+              child: Container(
+                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1265,36 +1407,52 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: atMoment[index]['stateForProcessus'] == 0 ? Colors.green[200]: Colors.orange[300],
+            return InkWell(
+              onTap: () async {
+                if(!atMoment[index]['isAlreadyRead']) {
+                  final appState = Provider.of<AppState>(context, listen: false);
+                  final numberNotif = appState.getNumberNotif - 1;
+                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                  setState(() {
+                    numberNotifShouzPay = (numberNotifShouzPay - 1) >0 ? numberNotifShouzPay - 1: 0;
+                  });
+                  await consumeAPI.viewNotif(atMoment[index]['_id'], "SHOUZPAY");
+                }
+                Navigator.of(context)
+                    .push((MaterialPageRoute(builder: (context) => Profil())));
+              },
+              child: Container(
+                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: atMoment[index]['stateForProcessus'] == 0 ? Colors.green[200]: Colors.orange[300],
+                      ),
+
+                      child: Icon(atMoment[index]['stateForProcessus'] == 0 ? iconForRechargeOrRetrait(atMoment[index]['typeTransaction']): Icons.donut_large_outlined,
+                          color: atMoment[index]['stateForProcessus'] == 0  ? Colors.green[900]: Colors.orange[700], size: 22.0),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
+                          ],
+                        ),),
                     ),
 
-                    child: Icon(atMoment[index]['stateForProcessus'] == 0 ? Icons.done_all_outlined: Icons.donut_large_outlined,
-                        color: atMoment[index]['stateForProcessus'] == 0  ? Colors.green[900]: Colors.orange[700], size: 22.0),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
-                        ],
-                      ),),
-                  ),
-
-                ],
+                  ],
+                ),
               ),
             );
           });
@@ -1304,6 +1462,8 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     return item;
   }
 
+
+
   Widget displayNotifEvents(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
@@ -1311,36 +1471,59 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: atMoment[index]['typeEvent'] == 'ALL_TICKET_SELL' ? Colors.green[200]: Colors.yellow[300],
+            return InkWell(
+                onTap: () async {
+                  if(!atMoment[index]['isAlreadyRead']) {
+                    final appState = Provider.of<AppState>(context, listen: false);
+                    final numberNotif = appState.getNumberNotif - 1;
+                    appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                    setState(() {
+                      numberNotifEvent = (numberNotifEvent - 1) >0 ? numberNotifEvent - 1: 0;
+                    });
+                    await consumeAPI.viewNotif(atMoment[index]['_id'], "EVENTS");
+                  }
+                  if(atMoment[index]['typeEvent'] == "ATTRIBUTION_DECODAGE") {
+                    Navigator.of(context)
+                        .push((MaterialPageRoute(builder: (context) => ChoiceCategorieScan())));
+                  } else {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => LoadEvent(key: UniqueKey(), eventId: atMoment[index]['_id'])));
+                  }
+                },
+              child: Container(
+                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: atMoment[index]['typeEvent'] == 'ATTRIBUTION_DECODAGE' ? Colors.yellow[300] : Colors.green[200],
+                      ),
+
+                      child: Icon(atMoment[index]['typeEvent'] == 'ATTRIBUTION_DECODAGE' ? Icons.qr_code_scanner: Icons.account_balance_wallet_outlined,
+                          color: atMoment[index]['typeEvent'] == 'ATTRIBUTION_DECODAGE' ? Colors.yellow[700] : Colors.green[900], size: 22.0),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
+                          ],
+                        ),),
                     ),
 
-                    child: Icon(atMoment[index]['typeEvent'] == 'ALL_TICKET_SELL' ? Icons.account_balance_wallet_outlined: Icons.qr_code_scanner,
-                        color: atMoment[index]['typeTravel'] == 'ALL_TICKET_SELL' ? Colors.green[900]: Colors.yellow[700], size: 22.0),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
-                        ],
-                      ),),
-                  ),
-
-                ],
+                  ],
+                ),
               ),
             );
           });
@@ -1348,6 +1531,14 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     else item = new SizedBox(height: 10.0);
 
     return item;
+  }
+
+  IconData iconForRechargeOrRetrait(String typeTransaction) {
+    if(typeTransaction.indexOf("RETRAIT") != -1) {
+      return Icons.upload_outlined;
+    } else {
+      return Icons.download_outlined;
+    }
   }
 }
 
