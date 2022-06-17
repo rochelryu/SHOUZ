@@ -44,7 +44,7 @@ class _WidgetPageState extends State<WidgetPage> {
             "desc": "Liste standard de prix de médicament"
           },*/
           {
-            "icon": "Récharger son shouzpay",
+            "icon": "Récharger son ShouzPay",
             "desc": "Par Crypto Monnaie ou Mobile Money"
           },
           {
@@ -217,7 +217,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "Récharger son shouzpay":
+      case "Récharger son ShouzPay":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),

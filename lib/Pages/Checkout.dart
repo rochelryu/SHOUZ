@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Provider/AppState.dart';
 
+import '../Models/User.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import '../Utils/Database.dart';
 
 class Checkout extends StatefulWidget {
   static String rootName = '/checkout';
@@ -21,6 +23,22 @@ class _CheckoutState extends State<Checkout> {
   bool verifyUser = false;
 
   TypePayement _character = TypePayement.bitcoin;
+  User? newClient;
+
+  @override
+  void initState() {
+    super.initState();
+    LoadInfo();
+  }
+
+  LoadInfo() async {
+    User user = await DBProvider.db.getClient();
+    setState(() {
+      newClient = user;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +68,7 @@ class _CheckoutState extends State<Checkout> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-
+                        Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
 
                         GestureDetector(
                           onTap: () {

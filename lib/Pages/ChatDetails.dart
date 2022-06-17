@@ -1043,7 +1043,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                       fontSize: 16.0
                   );
 
-                  Timer(const Duration(milliseconds: 3000), () {
+                  Timer(const Duration(milliseconds: 2000), () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
                   });
@@ -1150,7 +1150,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
       if (await _audioRecorder.hasPermission()) {
         await _audioRecorder.start(
           path: await _pathRecord(),
-          encoder: AudioEncoder.AAC,
         );
 
         bool isRecording = await _audioRecorder.isRecording();
@@ -1359,28 +1358,20 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
 
   Future play() async {
 
-    int result = await audioPlayer.play(widget.url);
-    if (result == 1) {
-      controller.forward();
-      setState(() {
-        firstListeen = false;
-      });
-    }
+    await audioPlayer.play(UrlSource(widget.url));
+    controller.forward();
+    setState(() {
+      firstListeen = false;
+    });
   }
   Future pause() async {
-    int result = await audioPlayer.pause();
-    if (result == 1) {
-      controller.reverse();
-
-    }
+    await audioPlayer.pause();
+    controller.reverse();
   }
 
   Future resume() async {
-    int result = await audioPlayer.resume();
-    if (result == 1) {
-      controller.forward();
-
-    }
+    await audioPlayer.resume();
+    controller.forward();
   }
 
   void changeToSecond(int millisecond) async {
@@ -1396,19 +1387,19 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
       vsync: this,
       duration: Duration(milliseconds: 300)
     );
-    audioPlayer.setUrl(widget.url);
+    audioPlayer.setSourceUrl(widget.url);
     audioPlayer.onDurationChanged.listen((d) {
       setState(() {
         _duration = d;
       });
     });
-    audioPlayer.onAudioPositionChanged.listen((p) {
+    audioPlayer.onPositionChanged.listen((p) {
       setState(() {
         _position = p;
       });
     });
 
-    audioPlayer.onPlayerCompletion.listen((event) {
+    audioPlayer.onPlayerComplete.listen((event) {
       setState(() {
         isListenSound = false;
         firstListeen = true;

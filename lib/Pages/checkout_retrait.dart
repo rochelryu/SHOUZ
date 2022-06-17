@@ -71,8 +71,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
-
-
+                      Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
                       GestureDetector(
                         onTap: () {
                           setState(() { _character = TypePayement.bitcoin; });

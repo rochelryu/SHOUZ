@@ -15,6 +15,7 @@ import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
+import 'choice_method_payement.dart';
 
 class CreateDeals extends StatefulWidget {
   static String rootName = '/createDeals';
@@ -640,6 +641,10 @@ class _CreateDealsState extends State<CreateDeals> {
                                 textColor: Colors.white,
                                 fontSize: 16.0
                             );
+                            Timer(const Duration(seconds: 3), () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                            });
                           }
 
                         },

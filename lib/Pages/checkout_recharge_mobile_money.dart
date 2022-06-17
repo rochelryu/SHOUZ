@@ -7,7 +7,9 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import '../Models/User.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import '../Utils/Database.dart';
 import 'Login.dart';
 import 'Notifications.dart';
 
@@ -35,6 +37,8 @@ class _CheckoutRechargeMobileMoneyState
 
   TypePayement _character = TypePayement.wave;
 
+  User? newClient;
+
 
   void initState() {
     super.initState();
@@ -50,6 +54,10 @@ class _CheckoutRechargeMobileMoneyState
       if(data["etat"] == 'found') {
         setState(() {
           info = data["result"];
+        });
+        User user = await DBProvider.db.getClient();
+        setState(() {
+          newClient = user;
         });
       } else if(data["etat"] == 'notFound') {
         showDialog(
@@ -106,7 +114,7 @@ class _CheckoutRechargeMobileMoneyState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
-
+                      Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
 
                       GestureDetector(
                         onTap: () {

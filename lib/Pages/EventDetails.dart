@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -7,6 +9,7 @@ import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Pages/add_decodeur.dart';
+import 'package:shouz/Pages/choice_method_payement.dart';
 import 'package:shouz/Pages/result_buy_event.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -522,6 +525,10 @@ class _EventDetailsState extends State<EventDetails> {
                             redirect: ResultBuyEvent.rootName, key: UniqueKey(),)));
                     } else if(priceItem > user.wallet) {
                       _displaySnackBar(context, 'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
+                      Timer(Duration(seconds: 3), () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                      });
                     } else{
                       _displaySnackBar(context, 'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',);
                     }

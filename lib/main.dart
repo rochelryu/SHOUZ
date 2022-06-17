@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -26,7 +28,6 @@ import './ServicesWorker/WebSocketHelper.dart';
 import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 import 'Provider/Notifications.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -113,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int level = 15;
   User? client;
   String _token = '';
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   @override
   void initState() {
@@ -156,16 +158,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (initialNotification != null) {
       print('onNotificationOpenedApp ${initialNotification.toString()}');
     }
-  }
-
-  Future<void> configOneSignal() async {
-    if (!mounted) return;
-    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
-    await OneSignal.shared.setAppId(oneSignalAppId);
-    /*if (!mounted) return;
-    huawei.Push.getTokenStream.listen(_onTokenEvent, onError: _onTokenError);
-    dynamic initialNotification = await huawei.Push.getInitialNotification();
-    _onNotificationOpenedApp(initialNotification);*/
   }
 
   void listenFirebase() async {
@@ -324,9 +316,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future getNewLevel() async {
     try {
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      print("fcmToken");
-      print(fcmToken);
+      if(Platform.isAndroid){
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          print("fcmToken");
+          print(fcmToken);
+        }
+      } else {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        print("fcmToken");
+        print(fcmToken);
+      }
+
       int levelLocal = await getLevel();
 
       setState(() {

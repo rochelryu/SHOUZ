@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -17,6 +19,7 @@ import 'package:shouz/Constant/widget_common.dart';
 
 import 'Login.dart';
 import 'Profil.dart';
+import 'choice_method_payement.dart';
 
 
 
@@ -443,6 +446,10 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                   textColor: Colors.white,
                   fontSize: 16.0
               );
+              Timer(const Duration(seconds: 2), () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+              });
             }
           } else {
             Share.share("${ConsumeAPI.TravelLink}${widget.id}");
