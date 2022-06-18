@@ -63,6 +63,7 @@ class _OnBoardingState extends State<OnBoarding> {
                     if (androidInfo.brand!.indexOf('HUAWEI') != -1 ||
                         androidInfo.brand!.indexOf('HONOR') != -1) {
                       bool status = await permissionHandler.requestLocationPermission();
+
                       if(!status) {
                         showDialog(
                             context: context,
@@ -89,6 +90,20 @@ class _OnBoardingState extends State<OnBoarding> {
                                     context),
                             barrierDismissible: false);
                       }
+                    }
+                  } else {
+                    _permissionGranted = await location.hasPermission();
+                    if (_permissionGranted == PermissionStatus.denied) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              dialogCustomForValidatePermissionNotification(
+                                  'Permission de Localisation importante',
+                                  "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                                  "D'accord",
+                                      () async => await location.requestPermission(),
+                                  context),
+                          barrierDismissible: false);
                     }
                   }
                 }

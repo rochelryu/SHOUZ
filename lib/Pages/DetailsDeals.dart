@@ -215,10 +215,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                           : Colors.grey,
                                       size: 22.0),
                                   onPressed: () async {
-                                    final actionFavorite = await consumeAPI.addOrRemoveItemInFavorite(widget.dealsDetailsSkeleton.id, 1);
                                     setState(() {
-                                      favorite = actionFavorite;
+                                      favorite = !favorite;
                                     });
+                                    await consumeAPI.addOrRemoveItemInFavorite(widget.dealsDetailsSkeleton.id, 1);
+
                                   },
                                 ),
                               ],

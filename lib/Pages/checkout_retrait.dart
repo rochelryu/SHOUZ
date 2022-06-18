@@ -181,7 +181,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Text("1. Entré le montant que vous voulez retirer votre solde actuel est ${newClient == null ? '':newClient!.wallet.toString()}", style: Style.sousTitre(11)),
+              Text("1. Entré le montant que vous voulez retirer", style: Style.sousTitre(11)),
               SizedBox(height: 15),
               Container(
                 height: 45,

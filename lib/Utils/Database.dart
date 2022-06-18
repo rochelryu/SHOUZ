@@ -21,7 +21,7 @@ class DBProvider {
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
-          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT,isActivateForBuyTravel INTEGER)''');
+          '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT,isActivateForBuyTravel INTEGER, tokenNotification TEXT, serviceNotification TEXT)''');
       await db.execute("CREATE TABLE profil (name TEXT, base BLOB NULL)");
 
     });
@@ -53,7 +53,7 @@ class DBProvider {
   newClient(User newClient) async {
     final db = await database;
     var res = await db.rawInsert(
-        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone, isActivateForfait, currencies, isActivateForBuyTravel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO Client (ident,name,numero,prefix,images,recovery, position, email, longitude, lagitude, pin, wallet, inscriptionIsDone, isActivateForfait, currencies, isActivateForBuyTravel, tokenNotification, serviceNotification) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
           newClient.ident,
           newClient.name,
@@ -71,6 +71,8 @@ class DBProvider {
           newClient.isActivateForfait,
           newClient.currencies,
           newClient.isActivateForBuyTravel,
+          newClient.tokenNotification,
+          newClient.serviceNotification
         ]);
 
     return res;

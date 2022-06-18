@@ -62,21 +62,21 @@ class NotificationController {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => LoadChat(key: UniqueKey(), room: notification.payload!['room'] ?? '')), (route) => route.isFirst);
     }
-    else if(notification.channelKey == channelKey && notification.payload!['roomAtReceive'] == "innerhomepage") {
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerhomepage") {
       MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(MenuDrawler.rootName, (route) => route.isFirst);
     }
-    else if(notification.channelKey == channelKey && notification.payload!['roomAtReceive'] == "createvoyage") {
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "createvoyage") {
       MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(CreateTravel.rootName, (route) => route.isFirst);
     }
-    else if(notification.channelKey == channelKey && notification.payload!['roomAtReceive'] == "innernotifications") {
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innernotifications") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => Notifications()), (route) => route.isFirst);
     }
-    else if(notification.channelKey == channelKey && notification.payload!['roomAtReceive'] == "innertravel") {
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innertravel") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => LoadTravel(key: UniqueKey(), travelId: notification.payload!['travelId'] ?? '')), (route) => route.isFirst);
     }
-    else if(notification.channelKey == channelKey && notification.payload!['roomAtReceive'] == "innerevent") {
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerevent") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => LoadEvent(key: UniqueKey(), eventId: notification.payload!['eventId'] ?? '')), (route) => route.isFirst);
     }

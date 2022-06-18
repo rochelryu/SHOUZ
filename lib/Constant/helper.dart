@@ -13,8 +13,7 @@ String reformatTimerForDisplayOnChrono(int time) {
 double defaultLatitude = 5.4143249;
 double defaultLongitude = -3.9770197;
 
-String descriptionShouz = '''
-
+String descriptionShouz = '''1 - Achete tout au plus bas prix possible en plus on te livre, c’est satisfait ou remboursé.\n 2 - Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\n 3 - Participe aux évènements qui t’intéressent avec la possibilité de partager tes tickets à tes amis. \n 4 - Crée tes propres évènements dans SHOUZ EVENT et vend tes tickets nous nous occupons de la sécurité des achats et de la vérification des tickets.\n 5 - Voyage à tout moment de ville en personnel en toute sécurité et à plus bas prix. \n 6 - Tu es propriétaire d’un véhicule, tu veux voyager mais pas seul ? Avec SHOUZ COVOITURAGE gagné de l’argent en vendant des places de voyage.\n 7 - Laissez-vous suivre par les actualités qui vous intéressent, nous vous donnerons aussi des offres d’emploi et appel d’offres selon vos centres d’intérêt. \n https:/www.shouznetwork
 ''';
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";

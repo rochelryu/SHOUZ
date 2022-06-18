@@ -35,7 +35,7 @@ dependencies:
   location: ^4.4.0
   huawei_location: ^6.0.0+303
   latlong2: ^0.8.1
-  flutter_map: ^1.0.0
+  flutter_map: ^1.1.0
   loading_indicator: ^3.1.0
   geocoding: ^2.0.4
   fluttertoast: ^8.0.9
@@ -48,7 +48,7 @@ dependencies:
   awesome_notifications: ^0.7.0-beta.2
   shared_preferences: ^2.0.15
 
-  video_player: ^2.4.4
+  video_player: ^2.4.5
   http: ^0.13.4
   sqflite: ^2.0.2+1
   flutter_typeahead: ^4.0.0
@@ -60,11 +60,11 @@ dependencies:
   timeline_tile: ^2.0.0
   qr_code_scanner: ^1.0.0
   audioplayers: ^1.0.0
-  permission_handler: ^10.0.0
+  permission_handler: ^9.2.0
   device_info_plus: ^3.2.4
   record: ^4.1.1
-  firebase_messaging: ^11.4.1
-  firebase_core: ^1.17.1
+  firebase_messaging: ^11.4.2
+  firebase_core: ^1.18.0
   onesignal_flutter: ^3.3.0
   huawei_push: ^6.3.0+304
 

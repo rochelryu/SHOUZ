@@ -79,6 +79,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   String room = '';
 
   late AppState appState;
+  var onLine = false;
 
   @override
   void initState() {
@@ -109,15 +110,22 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   getMessage() {}
 
   loadProfil() async {
+    setState(() {
+      onLine = widget.onLine;
+    });
     final client = await DBProvider.db.getClient();
 
     final room = widget.room == '' ? "${widget.authorId}_${client.ident}_${widget.productId}": widget.room;
     appState.getConversation(room);
-      final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
+    final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
+    final arrayOfId = room.toString().split('_');
+    final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == client.ident ? arrayOfId[1] : arrayOfId[0]);
+
     setState(() {
       this.room = room.toString();
       productDetails = productInfo;
       newClient = client;
+      onLine = infoOnLine;
     });
   }
 
@@ -575,8 +583,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               decoration: BoxDecoration(
                 border: Border.all(
                     width: 2.0,
-                    color:
-                        widget.onLine ? Colors.green[300]! : Colors.yellow[300]!),
+                    color: onLine ? Colors.green[300]! : Colors.yellow[300]!),
                 borderRadius: BorderRadius.circular(50.0),
                 image: DecorationImage(
                     image: NetworkImage(
@@ -590,7 +597,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               children: <Widget>[
                 Text(widget.name.toString().split('_')[0],
                   maxLines: 2, style: Style.titleInSegment(12.0), overflow: TextOverflow.ellipsis),
-                Text(widget.onLine ? "En ligne" : "Déconnecté",
+                Text(onLine ? "En ligne" : "",
                     style: Style.sousTitre(10)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,

@@ -21,6 +21,8 @@ class User {
   List? myEvents;
   List? myTravel;
   String pin = '';
+  String tokenNotification = '';
+  String serviceNotification = '';
   double wallet = 0;
   int inscriptionIsDone  = 0;
   int isActivateForfait  = 0;
@@ -47,6 +49,8 @@ class User {
         "inscriptionIsDone": inscriptionIsDone,
         "isActivateForfait": isActivateForfait,
         "isActivateForBuyTravel": isActivateForBuyTravel,
+        "tokenNotification": tokenNotification,
+        "serviceNotification": serviceNotification,
       };
 
   User.fromJson(Map<dynamic, dynamic> json)
@@ -72,6 +76,8 @@ class User {
         wallet = double.parse(json["wallet"].toString()),
         inscriptionIsDone = json["inscriptionIsDone"] ? 1 : 0,
         isActivateForfait = json["isActivateForfait"] ? 1 : 0,
+        tokenNotification = json["tokenNotification"] ?? '',
+        serviceNotification = json["serviceNotification"] ?? '',
         hobiesEvents = json["hobiesEvents"] ?? [];
 
   // this method is used only my app call SQLite database;
@@ -94,5 +100,7 @@ class User {
         isActivateForBuyTravel = json["isActivateForBuyTravel"],
         inscriptionIsDone = json["inscriptionIsDone"],
         isActivateForfait = json["isActivateForfait"],
+        tokenNotification = json["tokenNotification"] ?? '',
+        serviceNotification = json["serviceNotification"] ?? '',
         hobiesEvents = [];
 }

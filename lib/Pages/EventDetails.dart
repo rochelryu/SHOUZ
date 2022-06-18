@@ -185,10 +185,11 @@ class _EventDetailsState extends State<EventDetails> {
                           color: favorite ? Colors.redAccent : Colors.grey,
                           size: 22.0),
                       onPressed: () async {
-                        final actionFavorite = await consumeAPI.addOrRemoveItemInFavorite(widget.id, 2);
                         setState(() {
-                          favorite = actionFavorite;
+                          favorite = !favorite;
                         });
+                        await consumeAPI.addOrRemoveItemInFavorite(widget.id, 2);
+
                       },
                     ),
                   ),

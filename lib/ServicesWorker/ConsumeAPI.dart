@@ -17,6 +17,7 @@ class ConsumeAPI {
   static final UPDATEPOSITION_URL = BASE_URL + "/client/updateCurentPosition";
   static final UPDATE_RECOVERY_URL = BASE_URL + "/client/updateRecovery";
   static final VERIFY_TWILIO_URL = BASE_URL + "/client/verifyTwilio";
+  static final VERIFY_ONLINE_CLIENT_URL = BASE_URL + "/client/verifyOnline";
   static final RESEND_RECOVERY_URL = BASE_URL + "/client/resendRecovery";
   static final SETTINGS_URL = BASE_URL + "/client/settings";
   static final RECHARGE_BYCRYPTO_URL = BASE_URL + "/client/transactionCrypto";
@@ -211,6 +212,13 @@ class ConsumeAPI {
     final res = await _netUtil.get(
         '$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
     return res['info'];
+  }
+
+  Future<dynamic> verifyClientIsOnLine(String idClient) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$VERIFY_ONLINE_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idOther=$idClient');
+    return res["result"];
   }
 
   Future<Map<String, dynamic>> verifyClient() async {

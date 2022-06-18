@@ -141,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
     listenFirebase();
+    getTokenForNotificationProvider();
     getNewLevel();
     initializeSocket();
   }
@@ -285,52 +286,30 @@ class _MyHomePageState extends State<MyHomePage> {
       appState.deleteSocket();
     });
 
+  }
 
-    //For AwesomeNotification
-    socket!.on("innerdeals", (data) async {
-      createShouzNotification(data['title'],data['content'], {'room': data['room']});
-    });
+  Future getTokenForNotificationProvider() async {
 
-    socket!.on("innernotifications", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
-    });
-
-    socket!.on("innerevent", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], 'eventId': data['eventId'] });
-    });
-    socket!.on("innerprofil", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
-    });
-    socket!.on("innertravel", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], 'travelId': data['travelId'] });
-    });
-    socket!.on("innerhomepage", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
-    });
-    socket!.on("createvoyage", (data) async {
-      createShouzNotification(data['title'],data['content'], {'roomAtReceive': data['roomAtReceive'], });
-    });
-
-
+    if(Platform.isAndroid){
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        print("fcmToken");
+        print(fcmToken);
+      } else {
+        print("huawei");
+      }
+    } else {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("fcmToken");
+      print(fcmToken);
+    }
   }
 
   Future getNewLevel() async {
     try {
-      if(Platform.isAndroid){
-        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
-          final fcmToken = await FirebaseMessaging.instance.getToken();
-          print("fcmToken");
-          print(fcmToken);
-        }
-      } else {
-        final fcmToken = await FirebaseMessaging.instance.getToken();
-        print("fcmToken");
-        print(fcmToken);
-      }
 
       int levelLocal = await getLevel();
-
       setState(() {
         level = levelLocal;
       });

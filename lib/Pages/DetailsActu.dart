@@ -221,10 +221,11 @@ class _DetailsActuState extends State<DetailsActu> {
                       IconButton(
                         icon: Icon(Icons.favorite),
                         onPressed: () async {
-                          final actionFavorite = await consumeAPI.addOrRemoveItemInFavorite(widget.id, 0);
                           setState(() {
-                            favorite = actionFavorite;
+                            favorite = !favorite;
                           });
+                          await consumeAPI.addOrRemoveItemInFavorite(widget.id, 0);
+
                         },
                         color: favorite ? colorError : Colors.white,
                       ),
