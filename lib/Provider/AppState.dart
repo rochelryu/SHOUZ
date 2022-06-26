@@ -115,7 +115,7 @@ class AppState with ChangeNotifier {
     //if(_socket )
     _socket!.emit("joinConnected", [id]);
     _socket!.emit("loadNotif", [id]);
-    notifyListeners();
+    //notifyListeners();
   }
 
   setNumberTicket(int nbrTicket) {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VipDeals.dart';
@@ -82,6 +83,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         }
       });
     loadProduct();
+    verifyIfUserHaveReadModalExplain();
   }
 
   loadProduct() async {
@@ -95,6 +97,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       loadingFull = false;
     });
   }
+
   Future loadProductForFuture() async {
     setState(() {
       loadingFull = true;
@@ -107,6 +110,15 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     setState(() {
       loadingFull = false;
     });
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readDealsModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/ecommerce.gif", "1 - Acheteur: Achète tout ce qui t'intérèsse en discutant avec le vendeur afin de diminuer le prix et s'assurer de la qualité, en plus on te livre, c’est satisfait ou remboursé immédiatement et intégralement.\n2 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await prefs.setBool('readDealsModalExplain', true);
+    }
   }
 
   changeMenuOptionButton() async {

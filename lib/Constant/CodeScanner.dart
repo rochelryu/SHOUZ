@@ -21,6 +21,7 @@ class _CodeScannerState extends State<CodeScanner> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   bool scanned = false;
+  bool flashOn = false;
   QRViewController? controller;
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
@@ -72,32 +73,19 @@ class _CodeScannerState extends State<CodeScanner> {
                         IconButton(
                             onPressed: () async {
                               await controller?.toggleFlash();
+                              final infoFlash = await controller?.getFlashStatus();
+                              setState(() {
+                                flashOn = infoFlash!;
+                              });
                             },
-                            icon: FutureBuilder(
-                              future: controller?.getFlashStatus(),
-                              builder: (context, snapshot) {
-                                if(snapshot.data == true){
-                                  return Icon(Icons.flash_on, color: Colors.white, size: 40);
-                                } else {
-                                  return Icon(Icons.flash_off, color: Colors.white, size: 40);
-                                }
-                              },
-                            )),
+                            icon: flashOn ? Icon(Icons.flash_off, color: Colors.white, size: 35): Icon(Icons.flash_off, color: Colors.white, size: 35)),
                         SizedBox(width: 60),
                         IconButton(
                             onPressed: () async {
                               await controller?.flipCamera();
+
                             },
-                            icon: FutureBuilder(
-                              future: controller?.getCameraInfo(),
-                              builder: (context, snapshot) {
-                                if (snapshot.data != null) {
-                                  return const Icon(Icons.switch_camera, color: Colors.white, size: 40);
-                                } else {
-                                  return const Icon(Icons.sync_problem, color:Colors.white, size: 40);
-                                }
-                              },
-                            )),
+                            icon: Icon(Icons.switch_camera, color: Colors.white, size: 40)),
                       ],
                     ),
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/Pages/explication_event.dart';
@@ -32,6 +33,7 @@ class _EventInterState extends State<EventInter> {
     getUser();
     eventFull = consumeAPI.getEvents();
     getExplainEventMethod();
+    verifyIfUserHaveReadModalExplain();
   }
 
   Future getExplainEventMethod() async {
@@ -42,6 +44,15 @@ class _EventInterState extends State<EventInter> {
       });
     } catch (e) {
       print("Erreur $e");
+    }
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readEventModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/Events.gif", "1 - Acheteur: Participe à des évènements en achetant des tickets, tu as la possibilité de partager tes tickets à tes amis ou de demander un rembourssement en cas d'indisponibilité de ta part.\n2 - Promotteur: Crée tes propres évènements et vend tes tickets, nous nous occupons de la sécurité des achats et de la vérification des tickets.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await prefs.setBool('readEventModalExplain', true);
     }
   }
 

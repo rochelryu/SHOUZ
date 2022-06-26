@@ -253,7 +253,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
                           labelStyle: TextStyle(
                             color: Colors.white,
                           ),
-                        hintText: "Je fume souvent,j'aime ecouter la musique, j'aime converser, j'aime pas la cigarette"
+                        hintText: "Je fume,j'ecoute la musique, j'aime converser, pas de cigarette"
                       ),
                     ),
                   ),
@@ -500,7 +500,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Assurance Auto (Recto/Verso)",
+                                      "Assurance Auto (Page info)",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )

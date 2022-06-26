@@ -103,17 +103,13 @@ class _CreateDealsState extends State<CreateDeals> {
 
   @override
   Widget build(BuildContext context) {
-    var loginBtn = RaisedButton(
+    var loginBtn = ElevatedButton(
       onPressed: _submit,
       child: new Text(
         "Envoyer le produit",
         style: Style.sousTitreEvent(15),
       ),
-      color: colorText,
-      disabledElevation: 0.0,
-      disabledColor: Colors.grey[300],
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+      style: raisedButtonStyle,
     );
     var loginForm = Column(
       children: <Widget>[
@@ -714,7 +710,6 @@ class _CreateDealsState extends State<CreateDeals> {
   void _submit() async {
     final form = formKey.currentState;
     setState(() => requestLoading = true);
-    //print('$nameProduct , $describe , $dropdownValue, $base64Image, $base64Video, ${dateChoice.toString()} , ${numero.toString()}, $position, $price');
     if (nameProduct.length > 4 &&
         describe.length > 20 &&
         dropdownValue != null &&

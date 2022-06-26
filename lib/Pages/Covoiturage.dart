@@ -7,6 +7,7 @@ import 'package:huawei_location/location/location_settings_request.dart';
 import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
@@ -87,7 +88,17 @@ class _CovoiturageState extends State<Covoiturage> {
     location = new Location();
     internetCheck();
     getExplainCovoiturageMethod();
+    verifyIfUserHaveReadModalExplain();
     getPositionCurrent();
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readTravelModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/travelModal.png", "1 - Passager: Voyage à tout moment de ville en ville dans une voiture personnel en toute sécurité et avec un prix plus bas.\n2 - Conducteur: Tu es propriétaire d’un véhicule, tu veux voyager mais pas seul ? Avec SHOUZ COVOITURAGE gagne de l’argent en vendant des places de voyage.\nTout nos clients passagers ou conducteurs passent d'abord le test de verification d'identité avant de pouvoir acheter des tickets de voyages ou de créer un voyage.\nLa sécurité de nos clients avant tout.", context);
+      await prefs.setBool('readTravelModalExplain', true);
+    }
   }
 
   Future getExplainCovoiturageMethod() async {
@@ -323,16 +334,15 @@ class _CovoiturageState extends State<Covoiturage> {
                           "provider" : '',
                         }
                     );
+                    finishedLoadPosition = true;
                   });
 
                 } else {
                   setState(() {
                     locationData = test;
+                    finishedLoadPosition = true;
                   });
                 }
-                setState(() {
-                  finishedLoadPosition = true;
-                });
               }
             } else {
               var test = await location.getLocation();
@@ -362,16 +372,15 @@ class _CovoiturageState extends State<Covoiturage> {
                       "provider" : '',
                     }
                 );
+                finishedLoadPosition = true;
               });
 
             } else {
               setState(() {
                 locationData = test;
+                finishedLoadPosition = true;
               });
             }
-            setState(() {
-              finishedLoadPosition = true;
-            });
           }
 
         } catch (e) {
@@ -423,16 +432,15 @@ class _CovoiturageState extends State<Covoiturage> {
                           "provider" : '',
                         }
                     );
+                    finishedLoadPosition = true;
                   });
 
                 } else {
                   setState(() {
                     locationData = test;
+                    finishedLoadPosition = true;
                   });
                 }
-                setState(() {
-                  finishedLoadPosition = true;
-                });
               }
             } else {
               var test = await location.getLocation();
@@ -457,16 +465,15 @@ class _CovoiturageState extends State<Covoiturage> {
                         "provider" : '',
                       }
                   );
+                  finishedLoadPosition = true;
                 });
 
               } else {
                 setState(() {
                   locationData = test;
+                  finishedLoadPosition = true;
                 });
               }
-              setState(() {
-                finishedLoadPosition = true;
-              });
             }
           }
         } else {
@@ -498,11 +505,13 @@ class _CovoiturageState extends State<Covoiturage> {
                         "provider" : '',
                       }
                   );
+                  finishedLoadPosition = true;
                 });
 
               } else {
                 setState(() {
                   locationData = test;
+                  finishedLoadPosition = true;
                 });
               }
               setState(() {
@@ -532,16 +541,15 @@ class _CovoiturageState extends State<Covoiturage> {
                       "provider" : '',
                     }
                 );
+                finishedLoadPosition = true;
               });
 
             } else {
               setState(() {
                 locationData = test;
+                finishedLoadPosition = true;
               });
             }
-            setState(() {
-              finishedLoadPosition = true;
-            });
           }
           var test = await location.getLocation();
           if(test.latitude == null) {
@@ -565,16 +573,15 @@ class _CovoiturageState extends State<Covoiturage> {
                     "provider" : '',
                   }
               );
+              finishedLoadPosition = true;
             });
 
           } else {
             setState(() {
               locationData = test;
+              finishedLoadPosition = true;
             });
           }
-          setState(() {
-            finishedLoadPosition = true;
-          });
         }
 
       } catch (e) {
@@ -589,7 +596,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load2 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$origine, Côte d'Ivoire");
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$origine, Afrique");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 1){
@@ -616,7 +623,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load1 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$destination, Côte d'Ivoire");
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$destination, Afrique");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 0){
@@ -690,16 +697,7 @@ class _CovoiturageState extends State<Covoiturage> {
                   'accessToken': 'pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg',
                   'id': 'mapbox.mapbox-streets-v8'
                 },
-                attributionBuilder: (_) {
-                  return Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Text("© SHOUZ MAP", style: Style.copyRight(),),
-                      )
-                    ],
-                  );
-                },
+
               ),
               new MarkerLayerOptions(markers: [
                 new Marker(
@@ -707,7 +705,7 @@ class _CovoiturageState extends State<Covoiturage> {
                     height: 45.0,
                     point: LatLng(latitude, longitude),
                     builder: (context) => new Container(
-                      child: Icon(Icons.location_on, color: colorText, size: 25.0),
+                      child: Icon(Icons.location_on, color: colorText, size: 18.0),
                     ))
               ]),
 
@@ -722,7 +720,8 @@ class _CovoiturageState extends State<Covoiturage> {
                     )
                   ]
               )
-            ]
+            ],
+
         ),
         if(global.length == 2) Positioned(
           top: 120.0,

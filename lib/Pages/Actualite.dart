@@ -11,6 +11,7 @@ import 'package:huawei_location/location/location_request.dart';
 import 'package:huawei_location/location/location_settings_request.dart';
 import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/CardTopNewActu.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/more_actuality_by_categorie.dart';
@@ -218,6 +219,15 @@ class _ActualiteState extends State<Actualite> {
 
   }
 
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readActualityModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/news.gif", "Nous vous informons le plus tôt possible de ce qui se passe ici et ailleurs. Notre équipe s'occupe de démêler les fakes news afin de vous envoyer que ce qui est vrai, nous vous proposons même des appels d'offre & offres d'emploi.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await prefs.setBool('readActualityModalExplain', true);
+    }
+  }
+
   cityFromCoord() async {
     final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
     final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
@@ -270,6 +280,7 @@ class _ActualiteState extends State<Actualite> {
     getPositionCurrent();
     topActualite = consumeAPI.getActualite();
     contentActulite = topActualite;
+    verifyIfUserHaveReadModalExplain();
     Timer(const Duration(seconds: 5), cityFromCoord);
   }
   loadInfo() async {

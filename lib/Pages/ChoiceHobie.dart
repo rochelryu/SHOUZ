@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -31,6 +32,16 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     super.initState();
     populaireInitial = consumeAPI.getAllCategrie("", "only");
     populaire = consumeAPI.getAllCategrie("", "only");
+    verifyIfUserHaveReadModalExplain();
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin d'au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
+      await prefs.setBool('readPreferenceModalExplain', true);
+    }
   }
 
   @override

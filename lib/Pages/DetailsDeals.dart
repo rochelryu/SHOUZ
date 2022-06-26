@@ -114,22 +114,17 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (builder) => ViewerProduct(
-                                  index: "Hero#" + index.toString(),
+                                  index: index,
                                   level: widget.dealsDetailsSkeleton.level,
-                                  imgUrl: widget.dealsDetailsSkeleton
-                                      .imageUrl[_currentItem])),
+                                  imgUrl: widget.dealsDetailsSkeleton.imageUrl)),
                         );
                       },
                       child: Container(
                         height: MediaQuery.of(context).size.height / 2,
                         width: MediaQuery.of(context).size.width,
-                        child: Hero(
-                          transitionOnUserGestures: true,
-                          tag: "Hero#" + index.toString(),
-                          child: Image.network(
-                              "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[_currentItem]}",
-                              fit: BoxFit.cover),
-                        ),
+                        child: Image.network(
+                            "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[_currentItem]}",
+                            fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -397,8 +392,8 @@ class _DetailsDealsState extends State<DetailsDeals> {
 
 class ViewerProduct extends StatefulWidget {
   int level;
-  final String index;
-  final String imgUrl;
+  final int index;
+  final List<dynamic> imgUrl;
 
   ViewerProduct({required this.index, required this.imgUrl, required this.level});
   @override
@@ -407,6 +402,14 @@ class ViewerProduct extends StatefulWidget {
 
 class _ViewerProductState extends State<ViewerProduct> {
   bool isSave = false;
+  late PageController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PageController(initialPage: widget.index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -414,29 +417,18 @@ class _ViewerProductState extends State<ViewerProduct> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        actions: <Widget>[
-          if(widget.level == 3) IconButton(
-              tooltip: "Sauvergarder l'image",
-              icon: isSave
-                  ? Icon(Icons.save_alt, color: colorText)
-                  : Icon(Icons.save, color: Colors.white),
-              onPressed: () {
-                if (!isSave) {
-                  setState(() {
-                    isSave = true;
-                  });
-                }
-              }),
-        ],
+        
       ),
-      body: Center(
-        child: Hero(
-          transitionOnUserGestures: true,
-          tag: widget.index,
-          child: Image.network(
-              "${ConsumeAPI.AssetProductServer}${widget.imgUrl}",
-              fit: BoxFit.contain),
-        ),
+      body: PageView.builder(
+        itemCount: widget.imgUrl.length,
+        controller:controller,
+        itemBuilder: (context, index) {
+          return Center(
+            child: Image.network(
+                "${ConsumeAPI.AssetProductServer}${widget.imgUrl[index]}",
+                fit: BoxFit.contain),
+          );
+        }
       ),
     );
   }

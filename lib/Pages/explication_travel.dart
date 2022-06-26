@@ -75,6 +75,7 @@ class _ExplicationTravelState extends State<ExplicationTravel> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             page.imageUrl.toString().indexOf('.svg') == -1 ? Container(
+                              height: MediaQuery.of(context).size.height * 0.3,
                               padding: EdgeInsets.symmetric(horizontal: 20),
                               child: Image.asset(page.imageUrl),
                             ): SvgPicture.asset(
@@ -82,7 +83,7 @@ class _ExplicationTravelState extends State<ExplicationTravel> {
                               semanticsLabel: page.imageUrl.toString().toUpperCase(),
                               height:
                               MediaQuery.of(context).size.height *
-                                  0.39,
+                                  0.3,
                             ),
 
                             Padding(

@@ -504,6 +504,16 @@ class Style {
     );
   }
 
+  static dynamic simpleTextOnBoardWithBolder([double size = 17.0]) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "Montserrat-Light",
+      color: colorSecondary,
+      letterSpacing: 1.1,
+      fontWeight: FontWeight.w900,
+    );
+  }
+
   static dynamic simpleTextBlack() {
     return TextStyle(
       fontSize: 17.0,
@@ -1025,4 +1035,45 @@ Future<Null> askedToLead(String message, bool success, BuildContext context) asy
           ],
         );
       });
+}
+
+Future<Null> modalForExplain(String assetLink, String text, BuildContext context) async {
+  
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              height: 250,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(assetLink),
+                  fit: BoxFit.contain
+                )
+              ),
+            
+            ),
+            SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(text, style: Style.simpleTextOnBoardWithBolder(13.0), textAlign: TextAlign.center,),
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 45),
+                child: ElevatedButton(
+                    child: Text('Ok'),
+                    style: raisedButtonStyle,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              )
+          ],
+        );
+      },
+      barrierDismissible: false
+  );
 }
