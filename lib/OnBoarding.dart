@@ -57,6 +57,7 @@ class _OnBoardingState extends State<OnBoarding> {
                   _counter = index;
                 });
                 if(_counter == 4) {
+                  lastPage = false;
                   if(Platform.isAndroid) {
                     AndroidDeviceInfo androidInfo = await deviceInfo
                         .androidInfo;
@@ -107,6 +108,7 @@ class _OnBoardingState extends State<OnBoarding> {
                     }
                   }
                 }
+
                 if (_counter == pageList.length - 1)
                   lastPage = true;
                 else

@@ -175,7 +175,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
             ),
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.4,
+              height: MediaQuery.of(context).size.height / 2.35,
               transform: Matrix4.translationValues(0.0, -40, 0.0),
               decoration: BoxDecoration(
                   color: backgroundColor,
@@ -242,6 +242,15 @@ class _DetailsDealsState extends State<DetailsDeals> {
                           Icon(Icons.local_mall, color: colorText),
                           SizedBox(width: 5),
                           Text("${widget.dealsDetailsSkeleton.quantity} disponible${widget.dealsDetailsSkeleton.quantity > 1 ? 's':''}",
+                              style: Style.priceOldDealsProductBiggest())
+                        ],
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.tag, color: colorText),
+                          SizedBox(width: 5),
+                          Text(widget.dealsDetailsSkeleton.categorieName,
                               style: Style.priceOldDealsProductBiggest())
                         ],
                       ),

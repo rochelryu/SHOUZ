@@ -1277,6 +1277,7 @@ class _ProfilState extends State<Profil> {
                                                       describe: item['describe'],
                                                       onLine: item['onLine'],
                                                       authorName: item['authorName'],
+                                                      categorieName: item['categorieName'],
                                                     );
                                                     return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                                   })));
@@ -1373,6 +1374,7 @@ class _ProfilState extends State<Profil> {
                                                     describe: item['describe'],
                                                     onLine: item['onLine'],
                                                     authorName: item['authorName'],
+                                                    categorieName: item['categorieName'],
                                                   );
                                                   return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                                 })));

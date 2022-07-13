@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:huawei_push/huawei_push.dart' as huawei;
+//import 'package:huawei_push/huawei_push.dart' as huawei;
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/route.dart';
@@ -25,7 +23,6 @@ import './Pages/LoadHide.dart';
 import './Pages/Login.dart';
 import './Pages/Opt.dart';
 import './ServicesWorker/WebSocketHelper.dart';
-import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 import 'Provider/Notifications.dart';
 
@@ -113,8 +110,6 @@ class _MyHomePageState extends State<MyHomePage> {
   IO.Socket? socket;
   int level = 15;
   User? client;
-  String _token = '';
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   @override
   void initState() {
@@ -141,24 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
     listenFirebase();
-    getTokenForNotificationProvider();
+
     getNewLevel();
     initializeSocket();
-  }
-
-  void _onTokenEvent(String event) {
-    _token = event;
-    print('TokenEvent $_token');
-  }
-
-  void _onTokenError(Object error) {
-    PlatformException e = error as PlatformException;
-    print('TokenErrorEvent ${e.message!}');
-  }
-  void _onNotificationOpenedApp(dynamic initialNotification) {
-    if (initialNotification != null) {
-      print('onNotificationOpenedApp ${initialNotification.toString()}');
-    }
   }
 
   void listenFirebase() async {
@@ -288,23 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
-  Future getTokenForNotificationProvider() async {
 
-    if(Platform.isAndroid){
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
-        final fcmToken = await FirebaseMessaging.instance.getToken();
-        print("fcmToken");
-        print(fcmToken);
-      } else {
-        print("huawei");
-      }
-    } else {
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      print("fcmToken");
-      print(fcmToken);
-    }
-  }
 
   Future getNewLevel() async {
     try {

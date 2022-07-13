@@ -300,6 +300,7 @@ class _LoadProductState extends State<LoadProduct> {
           onLine: productInfo['result']['onLine'],
           authorName: productInfo['result']['authorName'],
           archive: productInfo['result']['archive'],
+          categorieName: productInfo['result']['categorieName'],
         );
         return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 1);
       })));

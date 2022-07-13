@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/ChoiceOtherHobie.dart';
@@ -44,17 +47,23 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
   int numberConnected = 0;
 
+  String _token = '';
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
     super.initState();
     loadInfo();
+    getTokenForNotificationProvider();
     _controller =
         AnimationController(vsync: this, duration: transitionMedium);
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+
   }
 
   loadInfo() async {
@@ -63,6 +72,42 @@ class _MenuDrawlerState extends State<MenuDrawler>
       newClient = user;
       id = newClient!.ident;
     });
+  }
+
+  Future getTokenForNotificationProvider() async {
+
+
+    if(Platform.isAndroid){
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
+        final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+        final prefs = await SharedPreferences.getInstance();
+        final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+        if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
+          final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+          if(infoSaveToken['etat'] == "found") {
+            await prefs.setString('tokenNotification', fcmToken.trim());
+            print("fcmToken for Menu Drawler");
+            print(fcmToken);
+          }
+        }
+      } else {
+        print("huawei");
+      }
+    } else {
+      final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+      final prefs = await SharedPreferences.getInstance();
+      final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+      if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
+        final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+        if(infoSaveToken['etat'] == "found") {
+          await prefs.setString('tokenNotification', fcmToken.trim());
+          print("fcmToken for Menu Drawler");
+          print(fcmToken);
+        }
+      }
+
+    }
   }
 
   @override

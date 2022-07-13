@@ -35,7 +35,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin d'au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
+      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
   }

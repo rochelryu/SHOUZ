@@ -52,6 +52,7 @@ class DealsSkeletonData {
   var onLine;
   var archive;
   var level;
+  var categorieName;
   DealsSkeletonData(
       {required this.imageUrl,
       this.title,
@@ -67,7 +68,7 @@ class DealsSkeletonData {
       this.quantity,
       this.archive,
         this.level,
-      this.onLine, this.authorName});
+      this.onLine, this.authorName, this.categorieName});
 }
 
 int channelId() {
@@ -94,7 +95,7 @@ var pageList = [
   PageModel(
       imageUrl: "images/voyage.png",
       title: "VOYAGES",
-      body: "Le covoiturage simplifie vos trajets",
+      body: "Le covoiturage simplifie vos trajets. Voyagez de ville en ville dans une personnelle confortable à bas prix et à n'importe qu'elle moment",
       titleGradient: gradient[3]),
   PageModel(
       imageUrl: "images/publi.png",
@@ -103,7 +104,7 @@ var pageList = [
       titleGradient: gradient[4]),
   PageModel(
       imageUrl: "images/choice.png",
-      title: "PREFERENCE",
+      title: "PREFERENCES",
       body: "Et tout ça selon vos préférences.",
       titleGradient: gradient[5]),
 ];
@@ -468,7 +469,7 @@ class Style {
 
   static dynamic titleOnBoardShadow() {
     return TextStyle(
-      fontSize: 46.0,
+      fontSize: 42.0,
       fontFamily: "Montserrat-Black",
       letterSpacing: 1.0,
       //fontWeight: FontWeight.w600,
@@ -477,7 +478,7 @@ class Style {
 
   static dynamic titleOnBoard() {
     return TextStyle(
-      fontSize: 35.0,
+      fontSize: 34.0,
       fontFamily: "Montserrat-Black",
       letterSpacing: 2.0,
       //fontWeight: FontWeight.w600,

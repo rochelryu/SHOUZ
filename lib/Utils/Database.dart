@@ -22,7 +22,7 @@ class DBProvider {
         onCreate: (Database db, int version) async {
       await db.execute(
           '''CREATE TABLE Client (id INTEGER PRIMARY KEY autoincrement, ident TEXT, name TEXT, numero TEXT, prefix TEXT, images TEXT, recovery TEXT, position TEXT, email TEXT, pin TEXT, longitude REAL, lagitude REAL, wallet REAL,inscriptionIsDone INTEGER,isActivateForfait INTEGER, currencies TEXT,isActivateForBuyTravel INTEGER, tokenNotification TEXT, serviceNotification TEXT)''');
-      await db.execute("CREATE TABLE profil (name TEXT, base BLOB NULL)");
+      await db.execute("CREATE TABLE profil (name TEXT, base TEXT NULL)");
 
     });
   }
@@ -88,6 +88,7 @@ class DBProvider {
   getProfil() async {
     final db = await database;
     var res = await db.query("profil");
+    print(res.length);
     return res[res.length - 1];
   }
 

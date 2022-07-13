@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -25,6 +28,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
   late Future<List<dynamic>> populaire; // For display All categorie
   String value = "";
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  String? base64Image;
 
   @override
   void initState() {
@@ -36,10 +40,11 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
   }
 
   verifyIfUserHaveReadModalExplain() async {
+
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin d'au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
+      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
   }
@@ -65,9 +70,10 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         changeLoading = true;
                       });
                       final profils = await DBProvider.db.getProfil();
+                      base64Image = profils['base'] != "" ? base64Encode(File(profils['base']).readAsBytesSync()): "";
                       final signinUser = await consumeAPI
                           .signinSecondStep(
-                          profils['name'], profils['base'], choice);
+                          profils['name'], base64Image, choice);
                       if (signinUser['etat'] == 'found') {
                         await DBProvider.db.delClient();
                         await DBProvider.db.newClient(signinUser['user']);

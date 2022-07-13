@@ -42,7 +42,6 @@ class _CheckoutRechargeMobileMoneyState
 
   void initState() {
     super.initState();
-    _controller.text = '0';
     appState = Provider.of<AppState>(context, listen: false);
     LoadInfo();
   }
@@ -108,14 +107,13 @@ class _CheckoutRechargeMobileMoneyState
           child: Column(
             children: <Widget>[
               Container(
-                  height: MediaQuery.of(context).size.height/2,
+                  height: MediaQuery.of(context).size.height * 0.42,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
-
                       GestureDetector(
                         onTap: () {
                           setState(() { _character = TypePayement.wave; });
@@ -418,8 +416,7 @@ class _CheckoutRechargeMobileMoneyState
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-
-            Text("1. Faites entrer votre numero de telephone Wave qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -427,79 +424,50 @@ class _CheckoutRechargeMobileMoneyState
               padding: EdgeInsets.only(left: 10.0, right: 3.0),
 
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Numero Tel",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (text){
+                  Container(
+                    height: 45,
+                    width: 150,
+                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                    decoration: BoxDecoration(
+                        color: Colors.white30,
+                        borderRadius: BorderRadius.circular(30.0)
+                    ),
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      controller: _controller,
+                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Montant",
+                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          if(value.length > 3) {
+                            final amount = int.parse(value);
+                            if (amount >= 2000 ) {
+                              setState(() {
+                                previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                              });
+                            } else {
+                              setState(() {
+                                previsionMontant = "N/A";
+                              });
+                            }
+                          } else {
                             setState(() {
-                              waveNumero = text;
+                              previsionMontant = "N/A";
                             });
-                          },
-                        ),
-                      )),
-                  SizedBox(width: 15,),
-                  Expanded(flex: 2,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _controller,
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Montant",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              if(value.length > 3) {
-                                final amount = int.parse(value);
-                                if (amount >= 2000 ) {
-                                  setState(() {
-                                    previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                  });
-                                } else {
-                                  setState(() {
-                                    previsionMontant = "N/A";
-                                  });
-                                }
-                              } else {
-                                setState(() {
-                                  previsionMontant = "N/A";
-                                });
-                              }
-                            });
-                          },
-                        ),
-                      ))
+                          }
+                        });
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
-
             Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
             SizedBox(height: 10),
             Text("2. Faites la transaction Wave au numero suivante :", style: Style.sousTitre(11)),
@@ -511,7 +479,43 @@ class _CheckoutRechargeMobileMoneyState
               cursorRadius: const Radius.circular(5),
 
             ),
-            SizedBox(height: 15,),
+            SizedBox(height: 10,),
+            Text("3. Après avoir finis de faire la transaction veuillez faire entrer le code de référence de cette transaction que vous avez reçu par message ici 👇 :", style: Style.sousTitre(11)),
+            SizedBox(height: 10,),
+            Container(
+              height: 45,
+              width: double.infinity,
+              padding: EdgeInsets.only(left: 10.0, right: 3.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 45,
+                    width: 250,
+                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                    decoration: BoxDecoration(
+                        color: Colors.white30,
+                        borderRadius: BorderRadius.circular(30.0)
+                    ),
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Code référence",
+                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                      ),
+                      onChanged: (text){
+                        setState(() {
+                          waveNumero = text;
+                        });
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(width: 15,),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleWave,
                 onPressed: () async {

@@ -16,6 +16,7 @@ class ConsumeAPI {
   static final UPDATEHOBIE_URL = BASE_URL + "/client/updateHobbies";
   static final UPDATEPOSITION_URL = BASE_URL + "/client/updateCurentPosition";
   static final UPDATE_RECOVERY_URL = BASE_URL + "/client/updateRecovery";
+  static final UPDATE_TOKEN_VERIFICATION_URL = BASE_URL + "/client/updateTokenVerification";
   static final VERIFY_TWILIO_URL = BASE_URL + "/client/verifyTwilio";
   static final VERIFY_ONLINE_CLIENT_URL = BASE_URL + "/client/verifyOnline";
   static final RESEND_RECOVERY_URL = BASE_URL + "/client/resendRecovery";
@@ -601,7 +602,9 @@ class ConsumeAPI {
       'categorie': categorie,
       'price': price,
       'quantity': quantity,
-      'level': level.toString()
+      'level': level.toString(),
+      'videoProduct': '',
+      'videoProductBase64': '',
     };
     return _netUtil.post(SET_DEALS_URL, body: body).then((dynamic res) async {
 
@@ -641,7 +644,6 @@ class ConsumeAPI {
     final body = {
       'id': newClient.ident,
       'credentials': newClient.recovery,
-
     };
 
     return _netUtil.post(UPDATE_RECOVERY_URL, body: body).then((dynamic res) async {
@@ -654,6 +656,7 @@ class ConsumeAPI {
       }
     });
   }
+
 
   verifyTwilio(String code) async {
     User newClient = await DBProvider.db.getClient();
@@ -1111,6 +1114,25 @@ class ConsumeAPI {
     return res;
   }
 
+  //TOKEN VEERIFICATION
+  updateTokenVerification(String token, String serviceNotification) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'token': token,
+      'serviceNotification': serviceNotification,
+      'credentials': newClient.recovery,
+    };
 
+    return _netUtil.post(UPDATE_TOKEN_VERIFICATION_URL, body: body).then((dynamic res) async {
+      if (res["etat"] == "found") {
+        return {'etat': res["etat"]};
+      } else {
+        await DBProvider.db.delClient();
+        setLevel(1);
+        return {'etat': res["etat"]};
+      }
+    });
+  }
 
 }

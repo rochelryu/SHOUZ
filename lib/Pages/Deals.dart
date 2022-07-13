@@ -356,6 +356,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           id: populaireActu[0][choiceItemSearch]
                                           ['body'][index]['_id'],
                                           profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
+                                          categorieName: populaireActu[0][choiceItemSearch]['body'][index]['categorieName'],
                                           onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
                                           describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
                                           numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
@@ -460,6 +461,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 autor: populaireActu[1][choiceItemSearch]
                                                 ['body'][index]['author'],
                                                 authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
+                                                categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
                                                 id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
                                                 profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
                                                 onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
@@ -563,6 +565,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 autor: populaireActu[2][choiceItemSearch]
                                                 ['body'][index]['author'],
                                                 authorName: populaireActu[2][choiceItemSearch]['body'][index]['authorName'],
+                                                categorieName: populaireActu[2][choiceItemSearch]['body'][index]['categorieName'],
                                                 id: populaireActu[2][choiceItemSearch]['body'][index]['_id'],
                                                 profil: populaireActu[2][choiceItemSearch]['body'][index]['profil'],
                                                 onLine: populaireActu[2][choiceItemSearch]['body'][index]['onLine'],

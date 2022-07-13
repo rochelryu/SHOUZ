@@ -19,7 +19,7 @@ class CreateProfil extends StatefulWidget {
 
 class _CreateProfil extends State<CreateProfil> {
   String value = '';
-  String? base64Image;
+  String? imagePath;
   final picker = ImagePicker();
   File? tmpFile;
 
@@ -33,7 +33,7 @@ class _CreateProfil extends State<CreateProfil> {
       Navigator.pop(context);
       setState(() {
         tmpFile = File(image.path);
-        base64Image = base64Encode(File(image.path).readAsBytesSync());
+        imagePath = image.path;
       });
     }
   }
@@ -47,7 +47,7 @@ class _CreateProfil extends State<CreateProfil> {
       Navigator.pop(context);
       setState(() {
         tmpFile = File(image.path);
-        base64Image = base64Encode(File(image.path).readAsBytesSync());
+        imagePath = image.path;
       });
     }
   }
@@ -79,7 +79,7 @@ class _CreateProfil extends State<CreateProfil> {
             } else {
               final fileName = tmpFile?.path.split('/').last;
               final profils =
-                  await DBProvider.db.newProfil(fileName!, base64Image!);
+                  await DBProvider.db.newProfil(fileName!, imagePath!);
             }
             prefix0.setLevel(4);
             Navigator.of(context)
