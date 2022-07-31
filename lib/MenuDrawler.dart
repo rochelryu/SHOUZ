@@ -79,7 +79,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
     if(Platform.isAndroid){
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      if(androidInfo.brand!.indexOf('HUAWEI') == - 1 || androidInfo.brand!.indexOf('HONOR') == - 1) {
+
+      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+        //print("huawei");
+      } else {
         final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
         final prefs = await SharedPreferences.getInstance();
         final String tokenNotification = prefs.getString('tokenNotification') ?? "";
@@ -87,12 +90,9 @@ class _MenuDrawlerState extends State<MenuDrawler>
           final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
           if(infoSaveToken['etat'] == "found") {
             await prefs.setString('tokenNotification', fcmToken.trim());
-            print("fcmToken for Menu Drawler");
-            print(fcmToken);
           }
         }
-      } else {
-        print("huawei");
+
       }
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
@@ -102,8 +102,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
         final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
         if(infoSaveToken['etat'] == "found") {
           await prefs.setString('tokenNotification', fcmToken.trim());
-          print("fcmToken for Menu Drawler");
-          print(fcmToken);
         }
       }
 

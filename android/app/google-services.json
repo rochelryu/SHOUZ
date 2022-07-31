@@ -29,6 +29,13 @@
             {
               "client_id": "270595904509-i43c93fapf9icqgstpusu1l77d7dnfs6.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "270595904509-rn31dnj0ueff8rbfcotsq05vq4vgpveo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shouz.app"
+              }
             }
           ]
         }

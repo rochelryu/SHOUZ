@@ -81,10 +81,10 @@ class _CovoiturageState extends State<Covoiturage> {
   String transcription = '';
 
 
+
   @override
   void initState() {
     super.initState();
-
     location = new Location();
     internetCheck();
     getExplainCovoiturageMethod();
@@ -156,7 +156,7 @@ class _CovoiturageState extends State<Covoiturage> {
                             context: context,
                             builder: (BuildContext context) => dialogCustomError('Echec', 'Veuillez Verifier votre connexion internet', context),
                             barrierDismissible: false
-                          );
+      );
     }
   }
 
@@ -596,7 +596,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load2 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$origine, Afrique");
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("${origine.toLowerCase()}, Côte d'Ivoire");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 1){
@@ -623,7 +623,7 @@ class _CovoiturageState extends State<Covoiturage> {
     setState(() {
       load1 = true;
     });
-    List<geocoding.Location> addresses = await geocoding.locationFromAddress("$destination, Afrique");
+    List<geocoding.Location> addresses = await geocoding.locationFromAddress("${destination.toLowerCase()}, Côte d'Ivoire");
     if(addresses.length > 0){
       geocoding.Location address = addresses.first;
       if(global.length > 0){
@@ -633,6 +633,9 @@ class _CovoiturageState extends State<Covoiturage> {
           load1 = false;
           ori = true;
         });
+        if(global.length > 1) {
+          covoiturage = consumeAPI.getCovoiturage(origine, destination);
+        }
       }
       else{
         setState(() {
@@ -716,7 +719,7 @@ class _CovoiturageState extends State<Covoiturage> {
                         strokeWidth: 5.0,
                         isDotted: true,
                         color: colorText,
-                        gradientColors: gradient[3]
+                        gradientColors: [colorText, Colors.redAccent],
                     )
                   ]
               )

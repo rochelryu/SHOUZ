@@ -31,6 +31,7 @@ class _CheckoutRechargeMobileMoneyState
   String moovNumero = '';
   String waveNumero = '';
   String previsionMontant = 'N/A';
+  int indexStepper = 0;
   bool loadConfirmation = false;
   Map<dynamic, dynamic>? info;
   TextEditingController _controller = TextEditingController();
@@ -107,7 +108,7 @@ class _CheckoutRechargeMobileMoneyState
           child: Column(
             children: <Widget>[
               Container(
-                  height: MediaQuery.of(context).size.height * 0.42,
+                  height: MediaQuery.of(context).size.height * 0.38,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Column(
@@ -116,7 +117,7 @@ class _CheckoutRechargeMobileMoneyState
                       Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.wave; });
+                          setState(() { _character = TypePayement.wave; indexStepper = 0; });
                         },
                         child: Card(
                           elevation: (_character == TypePayement.wave) ? 15.0:1.0,
@@ -153,7 +154,7 @@ class _CheckoutRechargeMobileMoneyState
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.mtn; });
+                          setState(() { _character = TypePayement.mtn; indexStepper = 0; });
                         },
                         child: Card(
                           elevation: (_character == TypePayement.mtn) ? 15.0:1.0,
@@ -190,7 +191,7 @@ class _CheckoutRechargeMobileMoneyState
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.orange; });
+                          setState(() { _character = TypePayement.orange; indexStepper = 0; });
                         },
                         child: Card(
                           elevation: (_character == TypePayement.orange) ? 15.0:1.0,
@@ -227,7 +228,7 @@ class _CheckoutRechargeMobileMoneyState
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.moov; });
+                          setState(() { _character = TypePayement.moov; indexStepper = 0; });
                         },
                         child: Card(
                           elevation: (_character == TypePayement.moov) ? 15.0:1.0,
@@ -283,540 +284,820 @@ class _CheckoutRechargeMobileMoneyState
     switch(type){
 
       case TypePayement.mtn:
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text("1. Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
-            SizedBox(height: 10),
-            Container(
-              height: 45,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 10.0, right: 3.0),
-              
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    flex: 3,
-                      child: Container(
-                    height: 45,
-                    width: double.infinity,
-                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                    decoration: BoxDecoration(
-                        color: Colors.white30,
-                        borderRadius: BorderRadius.circular(30.0)
-                    ),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(0),
+          child: Stepper(
+            margin: EdgeInsets.only(left: 50),
+              currentStep: indexStepper,
+              onStepCancel: () {
+                if(indexStepper > 0) {
 
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Numero Tel",
-                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                      ),
-                      onChanged: (text){
-                        setState(() {
-                          mtnNumero = text;
-                        });
-                      },
-                    ),
-                  )),
-                  SizedBox(width: 15,),
-                  Expanded(flex: 2,
-                      child: Container(
-                    height: 45,
-                    width: double.infinity,
-                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                    decoration: BoxDecoration(
-                        color: Colors.white30,
-                        borderRadius: BorderRadius.circular(30.0)
-                    ),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      controller: _controller,
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Montant",
-                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          final amount = int.parse(value);
-                          if (amount >= 2000 ) {
-                            setState(() {
-                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                            });
-                          } else {
-                            setState(() {
-                              previsionMontant = "N/A";
-                            });
-                          }
-                        });
-                      },
-                    ),
-                  ))
-                ],
-              ),
-            ),
-
-            Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
-            SizedBox(height: 10),
-            Text("2. Faites la transaction Mtn Money au numero suivante :", style: Style.sousTitre(11)),
-            SelectableText(info == null ? '' : '+225 ${info!['mtn']}', style: Style.mobileMoneyMtn(),
-              toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-              showCursor: true,
-              cursorWidth: 2,
-              cursorColor: Colors.white,
-              cursorRadius: const Radius.circular(5),
-
-            ),
-            SizedBox(height: 15,),
-            loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
-                style: raisedButtonStyleMtnMoney,
-                onPressed: () async {
-                  if(mtnNumero.trim().length == 10) {
-                    setState(() {
-                      loadConfirmation = true;
-                    });
-                    final rechargeCrypto = await consumeAPI.rechargeMobileMoney('mtn', mtnNumero.trim(), _controller.text);
-                    setState(() {
-                      loadConfirmation = false;
-                    });
-                    if(rechargeCrypto['etat'] == 'found') {
-                      final titleAlert = "Votre compte vient d'être rechargé avec succès";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, MenuDrawler.rootName);
-                    } else if(rechargeCrypto['etat'] == 'inWait') {
-                      final titleAlert = "Nous analysons cette transaction au près de MTN, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, Notifications.rootName);
+                  setState(() {
+                    indexStepper -= 1;
+                  });
+                }
+              },
+              onStepContinue: () {
+                if(indexStepper <= 1) {
+                  if(indexStepper == 0) {
+                    if(mtnNumero.trim().length == 10 && _controller.text.length > 3) {
+                      setState(() {
+                        indexStepper += 1;
+                      });
                     } else {
-                      await askedToLead(rechargeCrypto['error'], false, context);
+                      Fluttertoast.showToast(
+                          msg: 'Numero Mtn incorrect ou le montant est insufisant',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 5,
+                          backgroundColor: colorError,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
                     }
                   } else {
-                    Fluttertoast.showToast(
-                        msg: 'Numero Mtn incorrect, veuillez bien verifier',
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: colorError,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
+                    setState(() {
+                      indexStepper += 1;
+                    });
                   }
-                },
-                child: Text('Confirmer'))
-          ],
+
+                }
+              },
+              controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
+                return Row(
+                  children: [
+                    if(indexStepper <= 1) ElevatedButton(
+                        style: raisedButtonStyleMtnMoney,
+                        onPressed: controlsDetails.onStepContinue,
+                        child: Text('Suivant')),
+                    SizedBox(width: 15),
+                    if(indexStepper > 0) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+                  ],
+                );
+              },
+              steps: <Step>[
+                Step(
+                    title: Text("Information sur la transaction", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        SizedBox(height: 5),
+                        Container(
+                          height: 45,
+                          width: double.infinity,
+                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.phone,
+
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Numero Tel",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (text){
+                                        setState(() {
+                                          mtnNumero = text;
+                                        });
+                                      },
+                                    ),
+                                  )),
+                              SizedBox(width: 15,),
+                              Expanded(flex: 2,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      controller: _controller,
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Montant",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          final amount = int.parse(value);
+                                          if (amount >= 1000 ) {
+                                            setState(() {
+                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                                            });
+                                          } else {
+                                            setState(() {
+                                              previsionMontant = "N/A";
+                                            });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ))
+                            ],
+                          ),
+                        ),
+                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                      ],
+                    )
+                ),
+                Step(
+                  title: Text("Passé à l'action", style: Style.titre(13)),
+                  content: Column(
+                    children: [
+                      Text("Faites la transaction Mtn Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      SizedBox(height: 5),
+                      SelectableText(info == null ? '' : '${info!['mtn']}', style: Style.mobileMoneyMtn(),
+                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
+                        showCursor: true,
+                        cursorWidth: 2,
+                        cursorColor: Colors.white,
+                        cursorRadius: const Radius.circular(5),
+
+                      )
+                    ],
+                  ),
+                ),
+                Step(
+                  title: Text("Confirmation", style: Style.titre(13)),
+                  content: Column(
+                    children: [
+                      Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
+                      SizedBox(height: 10),
+                      loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
+                          style: raisedButtonStyleMtnMoney,
+                          onPressed: () async {
+                            if(mtnNumero.trim().length == 10) {
+                              setState(() {
+                                loadConfirmation = true;
+                              });
+                              final rechargeCrypto = await consumeAPI.rechargeMobileMoney('mtn', mtnNumero.trim(), _controller.text);
+                              setState(() {
+                                loadConfirmation = false;
+                              });
+                              if(rechargeCrypto['etat'] == 'found') {
+                                final titleAlert = "Votre compte vient d'être rechargé avec succès";
+                                await askedToLead(titleAlert, true, context);
+                                _controller.clear();
+                                Navigator.pushNamed(context, MenuDrawler.rootName);
+                              } else if(rechargeCrypto['etat'] == 'inWait') {
+                                final titleAlert = "Nous analysons cette transaction au près de MTN, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                await askedToLead(titleAlert, true, context);
+                                _controller.clear();
+                                Navigator.pushNamed(context, Notifications.rootName);
+                              } else {
+                                await askedToLead(rechargeCrypto['error'], false, context);
+                              }
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: 'Numero Mtn incorrect, veuillez bien verifier',
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: colorError,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0
+                              );
+                            }
+                          },
+                          child: Text('Oui, je confirme')),
+                      SizedBox(height: 10),
+                    ],
+                  )
+                ),
+              ]),
         );
       case TypePayement.wave:
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text("1. Faites entrer le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
-            SizedBox(height: 10),
-            Container(
-              height: 45,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 10.0, right: 3.0),
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(0),
+          child: Stepper(
+              margin: EdgeInsets.only(left: 50),
+              currentStep: indexStepper,
+              onStepCancel: () {
+                if(indexStepper > 0) {
 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 45,
-                    width: 150,
-                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                    decoration: BoxDecoration(
-                        color: Colors.white30,
-                        borderRadius: BorderRadius.circular(30.0)
-                    ),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      controller: _controller,
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Montant",
-                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          if(value.length > 3) {
-                            final amount = int.parse(value);
-                            if (amount >= 2000 ) {
-                              setState(() {
-                                previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                              });
-                            } else {
-                              setState(() {
-                                previsionMontant = "N/A";
-                              });
-                            }
-                          } else {
-                            setState(() {
-                              previsionMontant = "N/A";
-                            });
-                          }
-                        });
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
-            SizedBox(height: 10),
-            Text("2. Faites la transaction Wave au numero suivante :", style: Style.sousTitre(11)),
-            SelectableText(info == null ? '' : '+225 ${info!['wave']}', style: Style.mobileMoneyWave(),
-              toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-              showCursor: true,
-              cursorWidth: 2,
-              cursorColor: Colors.white,
-              cursorRadius: const Radius.circular(5),
-
-            ),
-            SizedBox(height: 10,),
-            Text("3. Après avoir finis de faire la transaction veuillez faire entrer le code de référence de cette transaction que vous avez reçu par message ici 👇 :", style: Style.sousTitre(11)),
-            SizedBox(height: 10,),
-            Container(
-              height: 45,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 10.0, right: 3.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 45,
-                    width: 250,
-                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                    decoration: BoxDecoration(
-                        color: Colors.white30,
-                        borderRadius: BorderRadius.circular(30.0)
-                    ),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Code référence",
-                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                      ),
-                      onChanged: (text){
-                        setState(() {
-                          waveNumero = text;
-                        });
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(width: 15,),
-            loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
-                style: raisedButtonStyleWave,
-                onPressed: () async {
-                  if(waveNumero.trim().length == 10) {
-                    setState(() {
-                      loadConfirmation = true;
-                    });
-                    final rechargeCrypto = await consumeAPI.rechargeMobileMoney('wave', waveNumero.trim(), _controller.text);
-                    setState(() {
-                      loadConfirmation = false;
-                    });
-                    if(rechargeCrypto['etat'] == 'found') {
-
-                      final titleAlert = "Votre compte vient d'être rechargé avec succès";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, MenuDrawler.rootName);
-                    } else if(rechargeCrypto['etat'] == 'inWait') {
-                      final titleAlert = "Nous analysons cette transaction au près de Wave, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, Notifications.rootName);
+                  setState(() {
+                    indexStepper -= 1;
+                  });
+                }
+              },
+              onStepContinue: () {
+                if(indexStepper <= 1) {
+                  if(indexStepper == 0) {
+                    if(_controller.text.length > 3) {
+                      setState(() {
+                        indexStepper += 1;
+                      });
                     } else {
-                      await askedToLead(rechargeCrypto['error'], false, context);
+                      Fluttertoast.showToast(
+                          msg: 'Le montant est insufisant',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 5,
+                          backgroundColor: colorError,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
                     }
                   } else {
-                    Fluttertoast.showToast(
-                        msg: 'Numero Wave incorrect, veuillez bien verifier',
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: colorError,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
+                    setState(() {
+                      indexStepper += 1;
+                    });
                   }
-                },
-                child: Text('Confirmer'))
-          ],
+
+                }
+              },
+              controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
+                return Row(
+                  children: [
+                    if(indexStepper <= 1) ElevatedButton(
+                        style: raisedButtonStyleWave,
+                        onPressed: controlsDetails.onStepContinue,
+                        child: Text('Suivant')),
+                    SizedBox(width: 15),
+                    if(indexStepper > 0) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+                  ],
+                );
+              },
+              steps: <Step>[
+                Step(
+                    title: Text("Information sur la transaction", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Faites entrer le montant de votre réchargement (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        SizedBox(height: 5),
+                        Container(
+                          height: 45,
+                          width: 150,
+                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          decoration: BoxDecoration(
+                              color: Colors.white30,
+                              borderRadius: BorderRadius.circular(30.0)
+                          ),
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: _controller,
+                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Montant",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                if(value.length > 3) {
+                                  final amount = int.parse(value);
+                                  if (amount >= 1000 ) {
+                                    setState(() {
+                                      previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                                    });
+                                  } else {
+                                    setState(() {
+                                      previsionMontant = "N/A";
+                                    });
+                                  }
+                                } else {
+                                  setState(() {
+                                    previsionMontant = "N/A";
+                                  });
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                      ],
+                    )
+                ),
+                Step(
+                  title: Text("Passé à l'action", style: Style.titre(13)),
+                  content: Column(
+                    children: [
+                      Text("Faites la transaction Wave de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      SizedBox(height: 5),
+                      SelectableText(info == null ? '' : '${info!['wave']}', style: Style.mobileMoneyWave(),
+                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
+                        showCursor: true,
+                        cursorWidth: 2,
+                        cursorColor: Colors.white,
+                        cursorRadius: const Radius.circular(5),
+
+                      )
+                    ],
+                  ),
+                ),
+                Step(
+                    title: Text("Confirmation", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Après la transaction, vous avez reçu un message de confirmation envoie Wave.\nÀ la dernière ligne du message se trouve le code de référence de la transaction.\nCopié le et venez le coller ici 👇", style: Style.sousTitre(10)),
+                        SizedBox(height: 5,),
+                        Container(
+                          height: 45,
+                          width: double.infinity,
+                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 45,
+                                width: 250,
+                                padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.white30,
+                                    borderRadius: BorderRadius.circular(30.0)
+                                ),
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Code référence",
+                                    hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                  ),
+                                  onChanged: (text){
+                                    setState(() {
+                                      waveNumero = text;
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 5,),
+                        loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
+                            style: raisedButtonStyleWave,
+                            onPressed: () async {
+                              if(waveNumero.trim().length == 10) {
+                                setState(() {
+                                  loadConfirmation = true;
+                                });
+                                final rechargeCrypto = await consumeAPI.rechargeMobileMoney('wave', waveNumero.trim(), _controller.text);
+                                setState(() {
+                                  loadConfirmation = false;
+                                });
+                                if(rechargeCrypto['etat'] == 'found') {
+
+                                  final titleAlert = "Votre compte vient d'être rechargé avec succès";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, MenuDrawler.rootName);
+                                } else if(rechargeCrypto['etat'] == 'inWait') {
+                                  final titleAlert = "Nous analysons cette transaction au près de Wave, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, Notifications.rootName);
+                                } else {
+                                  await askedToLead(rechargeCrypto['error'], false, context);
+                                }
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: 'Numero Wave incorrect, veuillez bien verifier',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: colorError,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                              }
+                            },
+                            child: Text('Terminer')),
+                        SizedBox(height: 10),
+                      ],
+                    )
+                ),
+              ]),
         );
+
       case TypePayement.orange:
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(0),
+          child: Stepper(
+              margin: EdgeInsets.only(left: 50),
+              currentStep: indexStepper,
+              onStepCancel: () {
+                if(indexStepper > 0) {
 
-            Text("1. Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
-            SizedBox(height: 10),
-            Container(
-              height: 45,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 10.0, right: 3.0),
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Numero Tel",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (text){
-                            setState(() {
-                              orangeNumero = text;
-                            });
-                          },
-                        ),
-                      )),
-                  SizedBox(width: 15,),
-                  Expanded(flex: 2,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _controller,
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Montant",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              final amount = int.parse(value);
-                              if (amount >= 2000 ) {
-                                setState(() {
-                                  previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                });
-                              } else {
-                                setState(() {
-                                  previsionMontant = "N/A";
-                                });
-                              }
-                            });
-                          },
-                        ),
-                      ))
-                ],
-              ),
-            ),
-
-            Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
-            SizedBox(height: 10),
-            Text("2. Faites la transaction Orange au numero suivante :", style: Style.sousTitre(11)),
-            SelectableText(info == null ? '' : '+225 ${info!['orange']}', style: Style.mobileMoneyOrange(),
-              toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-              showCursor: true,
-              cursorWidth: 2,
-              cursorColor: Colors.white,
-              cursorRadius: const Radius.circular(5),
-
-            ),
-            SizedBox(height: 15,),
-            loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
-                style: raisedButtonStyleOrangeMoney,
-                onPressed: () async {
-                  if(orangeNumero.trim().length == 10) {
-                    setState(() {
-                      loadConfirmation = true;
-                    });
-                    final rechargeCrypto = await consumeAPI.rechargeMobileMoney('orange', orangeNumero.trim(), _controller.text);
-                    setState(() {
-                      loadConfirmation = false;
-                    });
-                    if(rechargeCrypto['etat'] == 'found') {
-                      final titleAlert = "Votre compte vient d'être rechargé avec succès";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, MenuDrawler.rootName);
-                    } else if(rechargeCrypto['etat'] == 'inWait') {
-                      final titleAlert = "Nous analysons cette transaction au près de Orange, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, Notifications.rootName);
+                  setState(() {
+                    indexStepper -= 1;
+                  });
+                }
+              },
+              onStepContinue: () {
+                if(indexStepper <= 1) {
+                  if(indexStepper == 0) {
+                    if(orangeNumero.trim().length == 10 && _controller.text.length > 3) {
+                      setState(() {
+                        indexStepper += 1;
+                      });
                     } else {
-                      await askedToLead(rechargeCrypto['error'], false, context);
+                      Fluttertoast.showToast(
+                          msg: 'Numero Orange incorrect ou le montant est insufisant',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 5,
+                          backgroundColor: colorError,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
                     }
                   } else {
-                    Fluttertoast.showToast(
-                        msg: 'Numero Orange incorrect, veuillez bien verifier',
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: colorError,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
+                    setState(() {
+                      indexStepper += 1;
+                    });
                   }
-                },
-                child: Text('Confirmer'))
-          ],
+
+                }
+              },
+              controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
+                return Row(
+                  children: [
+                    if(indexStepper <= 1) ElevatedButton(
+                        style: raisedButtonStyleOrangeMoney,
+                        onPressed: controlsDetails.onStepContinue,
+                        child: Text('Suivant')),
+                    SizedBox(width: 15),
+                    if(indexStepper > 0) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+                  ],
+                );
+              },
+              steps: <Step>[
+                Step(
+                    title: Text("Information sur la transaction", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        SizedBox(height: 5),
+                        Container(
+                          height: 45,
+                          width: double.infinity,
+                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.phone,
+
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Numero Tel",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (text){
+                                        setState(() {
+                                          orangeNumero = text;
+                                        });
+                                      },
+                                    ),
+                                  )),
+                              SizedBox(width: 15,),
+                              Expanded(flex: 2,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      controller: _controller,
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Montant",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          final amount = int.parse(value);
+                                          if (amount >= 1000 ) {
+                                            setState(() {
+                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                                            });
+                                          } else {
+                                            setState(() {
+                                              previsionMontant = "N/A";
+                                            });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ))
+                            ],
+                          ),
+                        ),
+                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                      ],
+                    )
+                ),
+                Step(
+                  title: Text("Passé à l'action", style: Style.titre(13)),
+                  content: Column(
+                    children: [
+                      Text("Faites la transaction Orange Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      SizedBox(height: 5),
+                      SelectableText(info == null ? '' : '${info!['orange']}', style: Style.mobileMoneyOrange(),
+                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
+                        showCursor: true,
+                        cursorWidth: 2,
+                        cursorColor: Colors.white,
+                        cursorRadius: const Radius.circular(5),
+
+                      )
+                    ],
+                  ),
+                ),
+                Step(
+                    title: Text("Confirmation", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
+                        SizedBox(height: 10),
+                        loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
+                            style: raisedButtonStyleOrangeMoney,
+                            onPressed: () async {
+                              if(orangeNumero.trim().length == 10) {
+                                setState(() {
+                                  loadConfirmation = true;
+                                });
+                                final rechargeCrypto = await consumeAPI.rechargeMobileMoney('orange', orangeNumero.trim(), _controller.text);
+                                setState(() {
+                                  loadConfirmation = false;
+                                });
+                                if(rechargeCrypto['etat'] == 'found') {
+                                  final titleAlert = "Votre compte vient d'être rechargé avec succès";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, MenuDrawler.rootName);
+                                } else if(rechargeCrypto['etat'] == 'inWait') {
+                                  final titleAlert = "Nous analysons cette transaction au près de Orange, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, Notifications.rootName);
+                                } else {
+                                  await askedToLead(rechargeCrypto['error'], false, context);
+                                }
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: 'Numero Orange incorrect, veuillez bien verifier',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: colorError,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                              }
+                            },
+                            child: Text('Oui, je confirme')),
+                        SizedBox(height: 10),
+                      ],
+                    )
+                ),
+              ]),
         );
+
       case TypePayement.moov:
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(0),
+          child: Stepper(
+              margin: EdgeInsets.only(left: 50),
+              currentStep: indexStepper,
+              onStepCancel: () {
+                if(indexStepper > 0) {
 
-            Text("1. Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
-            SizedBox(height: 10),
-            Container(
-              height: 45,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 10.0, right: 3.0),
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Numero Tel",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (text){
-                            setState(() {
-                              moovNumero = text;
-                            });
-                          },
-                        ),
-                      )),
-                  SizedBox(width: 15,),
-                  Expanded(flex: 2,
-                      child: Container(
-                        height: 45,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _controller,
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Montant",
-                            hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              final amount = int.parse(value);
-                              if (amount >= 2000 ) {
-                                setState(() {
-                                  previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                });
-                              } else {
-                                setState(() {
-                                  previsionMontant = "N/A";
-                                });
-                              }
-                            });
-                          },
-                        ),
-                      ))
-                ],
-              ),
-            ),
-
-            Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
-            SizedBox(height: 10),
-            Text("2. Faites la transaction Moov au numero suivante :", style: Style.sousTitre(11)),
-            SelectableText(info == null ? '' : '+225 ${info!['moov']}', style: Style.mobileMoneyMoov(),
-              toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-              showCursor: true,
-              cursorWidth: 2,
-              cursorColor: Colors.red,
-              cursorRadius: const Radius.circular(5),
-
-            ),
-            SizedBox(height: 15,),
-            loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
-                style: raisedButtonStyleMoovMoney,
-                onPressed: () async {
-                  if(moovNumero.trim().length == 10) {
-                    setState(() {
-                      loadConfirmation = true;
-                    });
-                    final rechargeCrypto = await consumeAPI.rechargeMobileMoney('moov', moovNumero.trim(), _controller.text);
-                    setState(() {
-                      loadConfirmation = false;
-                    });
-                    if(rechargeCrypto['etat'] == 'found') {
-                      final titleAlert = "Votre compte vient d'être rechargé avec succès";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, MenuDrawler.rootName);
-                    } else if(rechargeCrypto['etat'] == 'inWait') {
-                      final titleAlert = "Nous analysons cette transaction au près de Moov, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
-                      await askedToLead(titleAlert, true, context);
-                      _controller.clear();
-                      Navigator.pushNamed(context, Notifications.rootName);
+                  setState(() {
+                    indexStepper -= 1;
+                  });
+                }
+              },
+              onStepContinue: () {
+                if(indexStepper <= 1) {
+                  if(indexStepper == 0) {
+                    if(moovNumero.trim().length == 10 && _controller.text.length > 3) {
+                      setState(() {
+                        indexStepper += 1;
+                      });
                     } else {
-                      await askedToLead(rechargeCrypto['error'], false, context);
+                      Fluttertoast.showToast(
+                          msg: 'Numero Moov incorrect ou le montant est insufisant',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 5,
+                          backgroundColor: colorError,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
                     }
                   } else {
-                    Fluttertoast.showToast(
-                        msg: 'Numero Moov incorrect, veuillez bien verifier',
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: colorError,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
+                    setState(() {
+                      indexStepper += 1;
+                    });
                   }
-                },
-                child: Text('Confirmer'))
-          ],
+
+                }
+              },
+              controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
+                return Row(
+                  children: [
+                    if(indexStepper <= 1) ElevatedButton(
+                        style: raisedButtonStyleMoovMoney,
+                        onPressed: controlsDetails.onStepContinue,
+                        child: Text('Suivant')),
+                    SizedBox(width: 15),
+                    if(indexStepper > 0) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+                  ],
+                );
+              },
+              steps: <Step>[
+                Step(
+                    title: Text("Information sur la transaction", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        SizedBox(height: 5),
+                        Container(
+                          height: 45,
+                          width: double.infinity,
+                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.phone,
+
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Numero Tel",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (text){
+                                        setState(() {
+                                          moovNumero = text;
+                                        });
+                                      },
+                                    ),
+                                  )),
+                              SizedBox(width: 15,),
+                              Expanded(flex: 2,
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity,
+                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white30,
+                                        borderRadius: BorderRadius.circular(30.0)
+                                    ),
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      controller: _controller,
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Montant",
+                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          final amount = int.parse(value);
+                                          if (amount >= 1000 ) {
+                                            setState(() {
+                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
+                                            });
+                                          } else {
+                                            setState(() {
+                                              previsionMontant = "N/A";
+                                            });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ))
+                            ],
+                          ),
+                        ),
+                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                      ],
+                    )
+                ),
+                Step(
+                  title: Text("Passé à l'action", style: Style.titre(13)),
+                  content: Column(
+                    children: [
+                      Text("Faites la transaction Moov Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      SizedBox(height: 5),
+                      SelectableText(info == null ? '' : '${info!['moov']}', style: Style.mobileMoneyMoov(),
+                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
+                        showCursor: true,
+                        cursorWidth: 2,
+                        cursorColor: Colors.white,
+                        cursorRadius: const Radius.circular(5),
+
+                      )
+                    ],
+                  ),
+                ),
+                Step(
+                    title: Text("Confirmation", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
+                        SizedBox(height: 10),
+                        loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
+                            style: raisedButtonStyleMoovMoney,
+                            onPressed: () async {
+                              if(moovNumero.trim().length == 10) {
+                                setState(() {
+                                  loadConfirmation = true;
+                                });
+                                final rechargeCrypto = await consumeAPI.rechargeMobileMoney('moov', moovNumero.trim(), _controller.text);
+                                setState(() {
+                                  loadConfirmation = false;
+                                });
+                                if(rechargeCrypto['etat'] == 'found') {
+                                  final titleAlert = "Votre compte vient d'être rechargé avec succès";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, MenuDrawler.rootName);
+                                } else if(rechargeCrypto['etat'] == 'inWait') {
+                                  final titleAlert = "Nous analysons cette transaction au près de Moov, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  await askedToLead(titleAlert, true, context);
+                                  _controller.clear();
+                                  Navigator.pushNamed(context, Notifications.rootName);
+                                } else {
+                                  await askedToLead(rechargeCrypto['error'], false, context);
+                                }
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: 'Numero Moov incorrect, veuillez bien verifier',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: colorError,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                              }
+                            },
+                            child: Text('Oui, je confirme')),
+                        SizedBox(height: 10),
+                      ],
+                    )
+                ),
+              ]),
         );
       default:
         return Container(

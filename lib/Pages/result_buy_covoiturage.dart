@@ -119,7 +119,7 @@ class _ResultBuyCovoiturageState extends State<ResultBuyCovoiturage> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Text(
-                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets pour le depart du voyage 🥳.\n. Sachez aussi que vous devez présenter ce ticket au chauffeur pour qu'il scan lorsque vous arriverai à destination afin que le conducteur soit payé.",
+                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets pour le depart du voyage 🥳.\nSachez aussi que vous devez présenter ce ticket au chauffeur pour qu'il scan lorsque vous arriverai à destination afin que le conducteur soit payé.",
                       style: Style.menuStyleItem(13),
                       textAlign: TextAlign.center,
                     ),
@@ -139,7 +139,10 @@ class _ResultBuyCovoiturageState extends State<ResultBuyCovoiturage> {
 
   Widget body(int isFinishLoad) {
     if(isFinishLoad == 0){
-      return LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2);
+      return Container(
+          height:MediaQuery.of(context).size.height,
+          width:MediaQuery.of(context).size.width,
+          child: Center(child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)));
     } else if(isFinishLoad == 1) {
       return isSuccessSubscribe(subscribeCallback!['result']);
     } else {

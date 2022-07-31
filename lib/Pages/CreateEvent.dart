@@ -133,7 +133,7 @@ class _CreateEventState extends State<CreateEvent> {
                           ? colorText
                           : backgroundColor),
                   borderRadius: BorderRadius.circular(50.0)),
-              child: new TextField(
+              child: TextField(
                 controller: controllerPrice,
                 style: TextStyle(
                     color: Colors.white,
@@ -178,7 +178,7 @@ class _CreateEventState extends State<CreateEvent> {
                           ? colorText
                           : backgroundColor),
                   borderRadius: BorderRadius.circular(50.0)),
-              child: new TextField(
+              child: TextField(
                 controller: controllerQuantity,
                 style: TextStyle(
                     color: Colors.white,
@@ -324,7 +324,7 @@ class _CreateEventState extends State<CreateEvent> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: nameProductCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -379,7 +379,7 @@ class _CreateEventState extends State<CreateEvent> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: describeCtrl,
                       onChanged: (text) {
                         setState(() {
@@ -594,7 +594,7 @@ class _CreateEventState extends State<CreateEvent> {
                                             ? colorText
                                             : backgroundColor),
                                     borderRadius: BorderRadius.circular(50.0)),
-                                child: new TextField(
+                                child: TextField(
                                   controller: numeroCtrl,
                                   onChanged: (text) {
                                     setState(() {
@@ -653,7 +653,7 @@ class _CreateEventState extends State<CreateEvent> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: positionCtrl,
                       onChanged: (text) {
                         setState(() {
@@ -714,7 +714,7 @@ class _CreateEventState extends State<CreateEvent> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: priceCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -774,7 +774,7 @@ class _CreateEventState extends State<CreateEvent> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: emailCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -1071,7 +1071,7 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+    scaffoldKey.currentState?.showSnackBar(SnackBar(
       backgroundColor: colorError,
       content: new Text(
         text,

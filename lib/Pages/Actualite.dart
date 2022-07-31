@@ -229,46 +229,52 @@ class _ActualiteState extends State<Actualite> {
   }
 
   cityFromCoord() async {
-    final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
-    final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
-    final addresses =
-        await geocoding.placemarkFromCoordinates(latitude!, longitude!);
-    geocoding.Placemark first = addresses.first;
+    try{
 
-    String finalPosition;
-    if (first.locality != null  && first.locality != '') {
-      finalPosition ='${first.locality}, ${first.isoCountryCode}';
-    } else {
-      finalPosition = '${first.administrativeArea}, ${first.country}';
-    }
-    finalPosition = finalPosition.trim();
+      final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
+      final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
+      final addresses =
+      await geocoding.placemarkFromCoordinates(latitude!, longitude!);
+      geocoding.Placemark first = addresses.first;
 
-    final user = await consumeAPI.updatePosition(
-        finalPosition,
-        latitude,
-        longitude,
-        locationData!.speedAccuracy!);
-    if (user['etat'] == 'found') {
-      await DBProvider.db.delClient();
-      await DBProvider.db.newClient(user['user']);
-    } else {
-      showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
-              barrierDismissible: false);
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (builder) => Login()));
-    }
-    final meteo = await consumeAPI
-        .getMeteo(latitude, longitude);
-    if (meteo['etat'] == 'found') {
-      setState(() {
-        firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
-        secondTextMeteo = (first.locality != null && first.locality != '')
-            ? "à ${first.locality} actuellement"
-            : "à ${first.administrativeArea} actuellement";
-      });
+      String finalPosition;
+      if (first.locality != null  && first.locality != '') {
+        finalPosition ='${first.locality}, ${first.isoCountryCode}';
+      } else {
+        finalPosition = '${first.administrativeArea}, ${first.country}';
+      }
+      finalPosition = finalPosition.trim();
+      final speedAccuracy = locationData != null ? locationData!.speedAccuracy ?? 0.0 : 0.0;
+      final user = await consumeAPI.updatePosition(
+          finalPosition,
+          latitude,
+          longitude,
+          speedAccuracy);
+      if (user['etat'] == 'found') {
+        await DBProvider.db.delClient();
+        await DBProvider.db.newClient(user['user']);
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+            barrierDismissible: false);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => Login()));
+      }
+      final meteo = await consumeAPI
+          .getMeteo(latitude, longitude);
+      if (meteo['etat'] == 'found') {
+        setState(() {
+          firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
+          secondTextMeteo = (first.locality != null && first.locality != '')
+              ? "à ${first.locality} actuellement"
+              : "à ${first.administrativeArea} actuellement";
+        });
+      }
+    } catch(e) {
+      print("ereeur depuis city");
+      print(e);
     }
   }
 
@@ -366,7 +372,7 @@ class _ActualiteState extends State<Actualite> {
                               height: 300.0,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 2,
+                                itemCount: 3,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
                                     return new SizedBox(width: 20.0);
@@ -382,7 +388,7 @@ class _ActualiteState extends State<Actualite> {
                               height: 300.0,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 2,
+                                itemCount: 3,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
                                     return new SizedBox(width: 20.0);

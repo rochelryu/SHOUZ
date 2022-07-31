@@ -55,20 +55,20 @@ class DealsSkeletonData {
   var categorieName;
   DealsSkeletonData(
       {required this.imageUrl,
-      this.title,
-      this.price,
-      this.numero,
-      this.autor,
-      this.describe,
-      this.numberFavorite,
-      this.lieu,
-      this.registerDate,
-      this.id,
-      this.profil,
-      this.quantity,
-      this.archive,
-        this.level,
-      this.onLine, this.authorName, this.categorieName});
+        required this.title,
+        required this.price,
+        required this.numero,
+        required this.autor,
+        required this.describe,
+        required this.numberFavorite,
+        required this.lieu,
+        required this.registerDate,
+        required this.id,
+        required this.profil,
+        required this.quantity,
+        required this.archive,
+        required this.level,
+        required this.onLine, required this.authorName, required this.categorieName});
 }
 
 int channelId() {

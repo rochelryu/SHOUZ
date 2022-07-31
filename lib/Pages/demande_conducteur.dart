@@ -837,9 +837,9 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
   }
 
   void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+    scaffoldKey.currentState?.showSnackBar(SnackBar(
       backgroundColor: colorError,
-      content: new Text(
+      content: Text(
         text,
         textAlign: TextAlign.center,
       ),

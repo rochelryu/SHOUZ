@@ -5,6 +5,7 @@ import 'package:shouz/Constant/PageIndicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/profil_shop.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -261,7 +262,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                               children: [
                                 Icon(Style.social_normal, color: colorText),
                                 SizedBox(width: 5),
-                                Text("Partager ce produit")
+                                Text("Partager cet article")
                               ],
                             ),
                             onPressed: () {
@@ -269,6 +270,29 @@ class _DetailsDealsState extends State<DetailsDeals> {
                             }),
                         width: 200,
                       ),
+                      if(widget.dealsDetailsSkeleton.level == 3) Container(
+                        width: 275,
+                        child: TextButton(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(MyFlutterAppSecond.shop, color: colorText),
+                                SizedBox(width: 5),
+                                Text("Voir la boutique du vendeur")
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (builder) => ProfilShop(
+                                          key: UniqueKey(),
+                                          comeBack: 0,
+                                          authorName: widget.dealsDetailsSkeleton.authorName,
+                                          onLine: widget.dealsDetailsSkeleton.onLine,
+                                          profil: widget.dealsDetailsSkeleton.profil,
+                                          autor: widget.dealsDetailsSkeleton.autor)));
+                            })),
                       SizedBox(height: 10.0),
                     ],
                   ),

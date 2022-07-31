@@ -96,7 +96,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("${widget.beginCity.toUpperCase()} -> ${widget.endCity.toUpperCase()}"),
+            Text("${widget.beginCity.toUpperCase()} -> ${widget.endCity.toUpperCase()}", maxLines:1, overflow: TextOverflow.ellipsis),
             Text(
                 DateTime.parse(widget.travelDate).day.toString() +
                     '/' +
@@ -179,12 +179,13 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                             Text(widget.infoAuthor['name'], style: Style.titre(14)),
                             Text("Contact : ${widget.infoAuthor['contact']}", style: Style.sousTitre(12)),
                             Row(
+                              crossAxisAlignment:CrossAxisAlignment.start,
                               children: [
                                 Icon(MyFlutterAppSecond.pin,
                                     color: Colors.white, size: 10.0),
                                 Container(
                                   height: 35,
-                                  width: 250,
+                                  width: 220,
                                   child: Text("Rencontre : ${widget.lieuRencontre}", maxLines: 2, style: Style.sousTitre(10)),
                                 )
                               ],
@@ -200,7 +201,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
               ),
             ),
             Container(
-              height: 120,
+              height: widget.infoAuthor['hobiesCovoiturage'].length % 2 == 0 ? 50.0 * (widget.infoAuthor['hobiesCovoiturage'].length / 2) : 25.0 * (widget.infoAuthor['hobiesCovoiturage'].length - 1) + (widget.infoAuthor['hobiesCovoiturage'].length == 1 ? 50.0: 25.0),
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
               child: Wrap(
@@ -212,7 +213,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                 children: reformatHobbies(),
               ),
             ),
-            myTickets.length > 0 ? componentForDisplayTicketByEvent(myTickets): SizedBox(width: 10),
+            if(myTickets.length >0) componentForDisplayTicketByEvent(myTickets),
             Padding(
               padding: EdgeInsets.only(top: 2.0,left: 10.0, bottom: 5.0),
               child: Text(widget.iAmAuthor ? "Liste des passagers" :"Veuillez choisir votre place pour le voyage", style: Style.sousTitre(12)),
@@ -227,7 +228,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                     return Container(
                       width: 300,
                       child: ListTile(
-                        title: Text('Aucun passager pour le moment', overflow: TextOverflow.ellipsis, style: Style.titre(14)),
+                        title: Text('Aucun passager pour le moment', overflow: TextOverflow.ellipsis, style: Style.titre(17)),
                       ),
                     );
                   } else {
@@ -422,11 +423,11 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
             ) : Padding(
                 padding: EdgeInsets.all(15),
                 child: Text("On ne peut plus acheter de ticket pour ce voyage", style: Style.titre(16), textAlign: TextAlign.center,),
-            ): SizedBox(width: 100,),
+            ): SizedBox(width: 100),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: widget.state == 1 ? FloatingActionButton(
         onPressed: (){
           if(choice.contains(2) && widget.state != 0) {
             final data = choice.where((element) => element == 2).toList();
@@ -458,7 +459,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
         },
         backgroundColor: colorText,
         child: Icon(choice.contains(2) && widget.state != 0 ? Icons.payment : Icons.share, color: Colors.white),
-      ),
+      ):null,
     );
   }
 

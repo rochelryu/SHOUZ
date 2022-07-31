@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +32,9 @@ import 'Provider/Notifications.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   var body = message.notification?.body == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.notification?.body;
   body = message.notification?.body == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
   createShouzNotification(message.notification!.title!, body!, message.data as Map<String, String>);
@@ -37,6 +42,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   AwesomeNotifications().initialize(
       'resource://drawable/icon_notif',
       [NotificationChannel(
@@ -52,7 +60,7 @@ void main() async {
           vibrationPattern: lowVibrationPattern
         ),
       ]);
-  await Firebase.initializeApp();
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await FirebaseMessaging.instance
@@ -110,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
   IO.Socket? socket;
   int level = 15;
   User? client;
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   @override
   void initState() {
@@ -150,6 +159,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> firebaseMessagingInOpenHandler(RemoteMessage message) async {
     // If you're going to use other Firebase services in the background, such as Firestore,
     // make sure you call `initializeApp` before using other Firebase services.
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     appState = Provider.of<AppState>(context, listen: true);
     if(message.data['room'] != null) {
       if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
@@ -199,6 +211,13 @@ class _MyHomePageState extends State<MyHomePage> {
         final User getClient = await DBProvider.db.getClient();
         if(getClient.name.trim() != data['author'].trim()) {
           appState.ackReadMessage(data['room']);
+        }
+      } else {
+        if(Platform.isAndroid){
+          AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+          if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+            appState.setNumberNotif(appState.getNumberNotif + 1);
+          }
         }
       }
     });
@@ -251,10 +270,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     socket!.on("roomCreated", (data) async {
-      appState.updateLoadingToSend(false);
-      //sample event
+        appState.updateLoadingToSend(false);
         appState.setConversation(data);
         appState.setIdOldConversation(data['_id']);
+
+    });
+    socket!.on("roomCreatedForNotification", (data) async {
+
+      if(Platform.isAndroid){
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+          appState.setNumberNotif(appState.getNumberNotif + 1);
+        }
+      }
     });
     socket!.on("typingResponse", (data) async {
       if (appState.getIdOldConversation == data['id']) {
@@ -345,6 +373,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget loadDeepLink(String categorie, String id) {
+
     switch (categorie) {
       case 'deals':
         return LoadProduct(key: UniqueKey(), productId: id);

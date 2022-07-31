@@ -1252,6 +1252,7 @@ class _ProfilState extends State<Profil> {
                                           if (index == 0) {
                                             return SizedBox(width: 35);
                                           } else {
+
                                             final item =
                                                 infoUser['myDeals'][index - 1];
                                             return new Padding(
@@ -1259,6 +1260,7 @@ class _ProfilState extends State<Profil> {
                                                   EdgeInsets.only(right: 30.0),
                                               child: InkWell(
                                                 onTap: () {
+
                                                   Navigator.of(context)
                                                       .push((MaterialPageRoute(builder: (context) {
                                                     DealsSkeletonData element = new DealsSkeletonData(
@@ -1277,7 +1279,7 @@ class _ProfilState extends State<Profil> {
                                                       describe: item['describe'],
                                                       onLine: item['onLine'],
                                                       authorName: item['authorName'],
-                                                      categorieName: item['categorieName'],
+                                                      categorieName: item['categorieName'], archive: item['archive'],
                                                     );
                                                     return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                                   })));
@@ -1315,9 +1317,9 @@ class _ProfilState extends State<Profil> {
                                                       child: Column(
                                                         children: <Widget>[
                                                           Text(item['name'],
-                                                              maxLines: 3,
+                                                              maxLines: 2,
                                                               style: Style
-                                                                  .titleDealsProduct()),
+                                                                  .titleDealsProduct(), overflow: TextOverflow.ellipsis,),
                                                           SizedBox(height: 5.0),
                                                           Text(
                                                               '${item['price'].toString()} ${newClient!.currencies}',
@@ -1360,6 +1362,7 @@ class _ProfilState extends State<Profil> {
                                                     .push((MaterialPageRoute(builder: (context) {
                                                   DealsSkeletonData element = new DealsSkeletonData(
                                                     quantity: item['quantity'],
+                                                    archive: item['archive'],
                                                     level: item['level'],
                                                     numberFavorite: item['numberFavorite'],
                                                     lieu: item['lieu'],
@@ -2020,7 +2023,7 @@ class _ProfilState extends State<Profil> {
                                                               maxLines: 3,
                                                               textAlign: TextAlign.center,
                                                               style: Style
-                                                                  .titleDealsProduct()),
+                                                                  .titleDealsProduct(), overflow: TextOverflow.ellipsis),
 
                                                         ],
                                                       ),

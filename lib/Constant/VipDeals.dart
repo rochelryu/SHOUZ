@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Pages/DetailsDeals.dart';
 
@@ -68,7 +69,7 @@ class _VipDealsState extends State<VipDeals> {
         ? "Hier à ${register.hour.toString()}h ${register.minute.toString()}"
         : afficheDate;
     return Padding(
-      padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 5.0),
+      padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 0.0, bottom: 18.0),
       child: Stack(
         children: <Widget>[
           Container(
@@ -141,8 +142,8 @@ class _VipDealsState extends State<VipDeals> {
                     children: <Widget>[
                       IconButton(
                           icon: Icon(Icons.call, color: Colors.green),
-                          onPressed: () {
-                            launch("tel:${widget.numero}");
+                          onPressed: () async {
+                            await launchUrlString("tel:${widget.numero}");
                           }),
 
                       SizedBox(width: 7.0),

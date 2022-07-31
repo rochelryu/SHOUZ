@@ -15,6 +15,7 @@ import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Constant/helper.dart';
 import 'explication_event.dart';
@@ -135,7 +136,7 @@ class _SettingState extends State<Setting> {
                           borderRadius: BorderRadius.circular(100.0)),
                       elevation: 6.0,
                       color: Colors.transparent,
-                      child: Container(
+                      child: profil["data"] != '' ? Container(
                         height: 120,
                         width: 120,
                         decoration: BoxDecoration(
@@ -143,93 +144,93 @@ class _SettingState extends State<Setting> {
                             image: DecorationImage(
                                 image: choiceType(profil["type"], profil["data"]),
                                 fit: BoxFit.cover)),
-                        child: Stack(
-                          children: <Widget>[
-                            Positioned(
-                              bottom: 8,
-                              right: 0,
-                              child: InkWell(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                      context: context,
-                                      backgroundColor: Colors.transparent,
-                                      elevation: 10.0,
-                                      builder: (builder) {
-                                        return new Container(
-                                            height: 200,
-                                            margin: EdgeInsets.symmetric(
-                                                vertical: 10, horizontal: 15),
-                                            decoration: BoxDecoration(
-                                                color: backgroundColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(7)
-                                                //borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
-                                                ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: <Widget>[
-                                                Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 15),
-                                                    child: Text(
-                                                        "Photo de profil",
-                                                        style: Style
-                                                            .titleInSegment())),
-                                                Divider(color: Colors.white12),
-                                                Expanded(
-                                                  child: Container(
-                                                    height: double.infinity,
-                                                    width: double.infinity,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: <Widget>[
-                                                        IconButton(
-                                                          onPressed: () {
-                                                            getCamera(context);
-                                                          },
-                                                          icon: Icon(
-                                                              Icons.camera_alt,
-                                                              color: colorText,
-                                                              size: 40),
-                                                          tooltip:
-                                                              "Prendre une Photo",
-                                                        ),
-                                                        SizedBox(width: 50),
-                                                        IconButton(
-                                                          onPressed: () {
-                                                            getImage(context);
-                                                          },
-                                                          icon: Icon(
-                                                              prefix1
-                                                                  .MyFlutterAppSecond
-                                                                  .attach,
-                                                              color: colorText,
-                                                              size: 40),
-                                                          tooltip:
-                                                              "Choisir une Photo",
-                                                        ),
-                                                      ],
-                                                    ),
+                        child: InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                elevation: 10.0,
+                                builder: (builder) {
+                                  return Container(
+                                      height: 200,
+                                      margin: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 15),
+                                      decoration: BoxDecoration(
+                                          color: backgroundColor,
+                                          borderRadius:
+                                          BorderRadius.circular(7)
+                                        //borderRadius: BorderRadius.only(topRight: Radius.circular(30.0), topLeft: Radius.circular(30.0))
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                        children: <Widget>[
+                                          Padding(
+                                              padding:
+                                              EdgeInsets.symmetric(
+                                                  vertical: 15),
+                                              child: Text(
+                                                  "Photo de profil",
+                                                  style: Style
+                                                      .titleInSegment())),
+                                          Divider(color: Colors.white12),
+                                          Expanded(
+                                            child: Container(
+                                              height: double.infinity,
+                                              width: double.infinity,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .center,
+                                                children: <Widget>[
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      getCamera(context);
+                                                    },
+                                                    icon: Icon(
+                                                        Icons.camera_alt,
+                                                        color: colorText,
+                                                        size: 40),
+                                                    tooltip:
+                                                    "Prendre une Photo",
                                                   ),
-                                                ),
-                                                Divider(color: Colors.white12),
-                                                TextButton(
-                                                  child: Text("Retour",
-                                                      style: Style
-                                                          .sousTitre(12)),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                )
-                                              ],
-                                            ));
-                                      });
-                                },
+                                                  SizedBox(width: 50),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      getImage(context);
+                                                    },
+                                                    icon: Icon(
+                                                        prefix1
+                                                            .MyFlutterAppSecond
+                                                            .attach,
+                                                        color: colorText,
+                                                        size: 40),
+                                                    tooltip:
+                                                    "Choisir une Photo",
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Divider(color: Colors.white12),
+                                          TextButton(
+                                            child: Text("Retour",
+                                                style: Style
+                                                    .sousTitre(12)),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          )
+                                        ],
+                                      ));
+                                });
+                          },
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned(
+                                bottom: 8,
+                                right: 0,
                                 child: Container(
                                   height: 30,
                                   width: 30,
@@ -243,11 +244,11 @@ class _SettingState extends State<Setting> {
                                         Icon(Icons.camera, color: Colors.white),
                                   ),
                                 ),
-                              ),
-                            )
-                          ],
+                              )
+                            ],
+                          ),
                         ),
-                      ),
+                      ) :Container(height: 120,width: 120,),
                     ),
                     Text(newClient['name'],
                         textAlign: TextAlign.center,
@@ -320,7 +321,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launch("https://www.shouz.network/");
+                await launchUrlString("https://www.shouz.network/");
               },
               leading:
                   Icon(Icons.help_outline, color: colorText, size: 33),
@@ -343,7 +344,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launch("https://www.shouz.network/");
+                await launchUrlString("https://www.shouz.network/");
               },
               leading: Icon(Icons.bookmark, color: colorText, size: 33),
               title: Text("A propos", style: Style.titre(14)),

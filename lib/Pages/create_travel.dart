@@ -476,7 +476,6 @@ class _CreateTravelState extends State<CreateTravel> {
   void _submit() async {
     formKey.currentState;
     setState(() => _isLoading = true);
-    print('$beginCity , $lieuRencontre , ${dateChoice.toString()} , $endCity, $price');
     if (beginCity.length > 2 &&
         lieuRencontre.length > 3 &&
         dateChoice != null &&

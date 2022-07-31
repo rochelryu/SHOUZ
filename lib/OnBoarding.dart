@@ -135,7 +135,7 @@ class _OnBoardingState extends State<OnBoarding> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Image.asset(page.imageUrl),
+                            Image.asset(page.imageUrl, height: MediaQuery.of(context).size.height * 0.5,),
                             Container(
                               height: 80.0,
                               margin: EdgeInsets.only(left: 12.0),

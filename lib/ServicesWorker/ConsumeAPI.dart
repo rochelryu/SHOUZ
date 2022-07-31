@@ -71,12 +71,14 @@ class ConsumeAPI {
   static final GET_ACTUALITE_DETAILS_URL = BASE_URL + "/actualite/getActualiteDetails";
 
   static final GET_COMMENT_ACTUALITE_URL = BASE_URL + "/client/getCommentAllInfo";
+  static final GET_OTHER_CLIENT_FOR_DISPLAY_SHOP_URL = BASE_URL + "/client/getOtherClientForDisplayShop";
   static final GET_VERIFY_ITEM_IN_FAVOR_URL = BASE_URL + "/client/verifyIfExistItemInFavor";
   static final ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL = BASE_URL + "/client/addOrRemoveItemInFavorite";
   static final SET_DEALS_URL = BASE_URL + "/products/inside";
   static final ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
   static final GET_DETAILS_URL = BASE_URL + "/products/getDetailsOfProduct";
   static final GET_DETAILS_DEALS_FOR_LINK_URL = BASE_URL + "/products/getDetailsProductForLink";
+  static final GET_SEARCH_ADVANCED_PRODUCTS_URL = BASE_URL + "/products/searchAdvancedProducts";
   static final GET_DETAILS_FOR_CHAT_URL = BASE_URL + "/products/getDetailsOfProductForChat";
   static final GET_PRODUCT_URL = BASE_URL + "/products/getProduct";
 
@@ -558,6 +560,18 @@ class ConsumeAPI {
     return res;
   }
 
+  Future<List<dynamic>> getSearchAdvancedProduct(String productName) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_SEARCH_ADVANCED_PRODUCTS_URL/${newClient.ident}?search=$productName&credentials=${newClient.recovery}');
+    return res['result'];
+  }
+
+  Future<Map<dynamic,dynamic>> getOtherClientForDisplayShop(String authorId) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_OTHER_CLIENT_FOR_DISPLAY_SHOP_URL/$authorId?idClient=${newClient.ident}&credentials=${newClient.recovery}');
+    return res['result'];
+  }
+
 
   Future<Map<dynamic,dynamic>> getDetailsDeals(String productid) async {
     final res = await _netUtil.get('$GET_DETAILS_URL/$productid');
@@ -856,6 +870,7 @@ class ConsumeAPI {
       'enventDate': enventDate,
       'videoPub': videoPub,
       'videoPubBase64': videoPubBase64,
+      'durationEventByDay': '1'
     };
 
     return _netUtil.post(SET_EVENT_URL, body: body).then((dynamic res) async {
@@ -946,7 +961,7 @@ class ConsumeAPI {
 
   Future<Map<dynamic,dynamic>> getDetailsForTravel(String idTravel) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_DETAILS_FOR_EVENT_URL/${newClient.ident}?idTravel=$idTravel&credentials=${newClient.recovery}');
+    final res = await _netUtil.get('$GET_DETAILS_FOR_TRAVEL_URL/${newClient.ident}?idTravel=$idTravel&credentials=${newClient.recovery}');
     return res;
   }
 

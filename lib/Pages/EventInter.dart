@@ -124,8 +124,8 @@ class _EventInterState extends State<EventInter> {
                             children: <Widget>[
                           new SvgPicture.asset(
                             "images/emptyevent.svg",
-                            semanticsLabel: 'Shouz Pay',
-                            height: MediaQuery.of(context).size.height * 0.39,
+                            semanticsLabel: 'Shouz event empty',
+                            height: MediaQuery.of(context).size.height * 0.35,
                           ),
                           Text(
                               "Aucun Evenement Populaires pour le moment selon vos centres d'intérêts",

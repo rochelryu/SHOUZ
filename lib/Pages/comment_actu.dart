@@ -261,7 +261,7 @@ class _CommentActuState extends State<CommentActu> {
                               action = true;
                             });
                             final etat = await new ConsumeAPI().addComment(newClient!.ident, widget.id, eCtrl.text);
-                            print(etat);
+
                             setState(() {
                               if(etat == 'found') {
                                 comment.insert(0, {'name': newClient!.name, 'content': eCtrl.text, 'profil': newClient!.images, 'id': newClient!.ident});

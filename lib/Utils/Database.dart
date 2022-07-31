@@ -88,7 +88,7 @@ class DBProvider {
   getProfil() async {
     final db = await database;
     var res = await db.query("profil");
-    print(res.length);
+
     return res[res.length - 1];
   }
 

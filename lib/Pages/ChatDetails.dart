@@ -120,7 +120,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
     final arrayOfId = room.toString().split('_');
     final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == client.ident ? arrayOfId[1] : arrayOfId[0]);
-
     setState(() {
       this.room = room.toString();
       productDetails = productInfo;
@@ -875,16 +874,19 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
             ) : Column(
               children: [
-                Material(
-                  elevation: 10,
-                  child: Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
-                            fit: BoxFit.cover
-                        )
+                Padding(
+                  padding: const EdgeInsets.only(top: 35.0),
+                  child: Material(
+                    elevation: 10,
+                    child: Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage("${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
+                              fit: BoxFit.cover
+                          )
+                      ),
                     ),
                   ),
                 ),

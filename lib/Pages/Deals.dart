@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VipDeals.dart';
+import 'package:shouz/Pages/search_advanced.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
@@ -158,7 +159,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
           }
         });
 
-    return new GestureDetector(
+    return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
@@ -221,6 +222,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                     },
                                     onSubmitted: (String text) {
                                       searchDataInContext(text);
+                                      FocusScope.of(context).requestFocus(new FocusNode());
                                     },
                                   ),
                                 ),
@@ -228,6 +230,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                   icon: Icon(Icons.search, color: Colors.white),
                                   onPressed: () {
                                     searchDataInContext(searchData);
+                                    FocusScope.of(context).requestFocus(new FocusNode());
                                   },
                                 )
                               ],
@@ -240,30 +243,30 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                       ],
                     )),
                 SizedBox(height: 5.0),
-                new Container(
-                  decoration: new BoxDecoration(color: Colors.transparent),
-                  child: new TabBar(
+                Container(
+                  decoration: BoxDecoration(color: Colors.transparent),
+                  child: TabBar(
                     controller: _controller,
                     isScrollable: true,
                     indicatorSize: TabBarIndicatorSize.label,
                     indicatorColor: colorText,
                     tabs: [
-                      new Tab(
+                      Tab(
                         //icon: const Icon(Icons.stars),
                         text: 'VIP',
                       ),
-                      new Tab(
+                      Tab(
                         //icon: const Icon(Icons.shopping_cart),
                         text: 'RECENT',
                       ),
-                      new Tab(
+                      Tab(
                         //icon: const Icon(Icons.star_half),
                         text: 'POPULAIRE',
                       ),
                     ],
                   ),
                 ),
-                new Container(
+                Container(
                   height: MediaQuery.of(context).size.height - 230,
                   child: new TabBarView(
                     physics: NeverScrollableScrollPhysics(),
@@ -304,24 +307,23 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               0.39,
                                         ),
                                         Text(
-                                            "Aucun Deals Vip pour le moment selon vos centres d'intérêts",
+                                            searchData == "" ? "Aucun Deals Vip pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
                                             textAlign: TextAlign.center,
                                             style: Style.sousTitreEvent(15)),
                                         SizedBox(height: 20),
                                         ElevatedButton(
                                           onPressed: () {
-                                            Navigator.of(context).push((MaterialPageRoute(
-                                                builder: (context) => ChoiceOtherHobie())));
+                                            if(searchData == "") {
+                                              Navigator.of(context).push((MaterialPageRoute(
+                                                  builder: (context) => ChoiceOtherHobie())));
+                                            } else {
+                                              Navigator.of(context).push((MaterialPageRoute(
+                                                  builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                            }
+
                                           },
-                                          child: Text('Ajouter Préférence'),
-                                          style: ElevatedButton.styleFrom(
-                                            onPrimary: colorPrimary,
-                                            primary: colorText,
-                                            minimumSize: Size(88, 36),
-                                            elevation: 4.0,
-                                            padding: EdgeInsets.symmetric(horizontal: 16),
-                                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                                          ),
+                                          child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                          style: raisedButtonStyle,
                                         )
                                       ]));
                             }
@@ -409,24 +411,24 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                       0.39,
                                                 ),
                                                 Text(
-                                                    "Aucun Deals Récents pour le moment selon vos centres d'intérêts",
+                                                    searchData == "" ? "Aucun Deals Récents pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
                                                     textAlign: TextAlign.center,
                                                     style: Style.sousTitreEvent(15)),
                                                 SizedBox(height: 20),
                                                 ElevatedButton(
                                                   onPressed: () {
-                                                    Navigator.of(context).push((MaterialPageRoute(
-                                                        builder: (context) => ChoiceOtherHobie())));
+                                                    if(searchData == "") {
+                                                      Navigator.of(context).push((MaterialPageRoute(
+                                                          builder: (context) => ChoiceOtherHobie())));
+                                                    } else {
+                                                      Navigator.of(context).push((MaterialPageRoute(
+                                                          builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+
+                                                    }
+
                                                   },
-                                                  child: Text('Ajouter Préférence'),
-                                                  style: ElevatedButton.styleFrom(
-                                                    onPrimary: colorPrimary,
-                                                    primary: colorText,
-                                                    minimumSize: Size(88, 36),
-                                                    elevation: 4.0,
-                                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                                                  ),
+                                                  child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                                  style: raisedButtonStyle,
                                                 )
                                               ]));
                                     }
@@ -513,24 +515,23 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                       0.39,
                                                 ),
                                                 Text(
-                                                    "Aucun Deals Populaires pour le moment selon vos centres d'intérêts",
+                                                    searchData == "" ? "Aucun Deals Populaire pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
                                                     textAlign: TextAlign.center,
                                                     style: Style.sousTitreEvent(15)),
                                                 SizedBox(height: 20),
                                                 ElevatedButton(
                                                   onPressed: () {
-                                                    Navigator.of(context).push((MaterialPageRoute(
-                                                        builder: (context) => ChoiceOtherHobie())));
+                                                    if(searchData == "") {
+                                                      Navigator.of(context).push((MaterialPageRoute(
+                                                          builder: (context) => ChoiceOtherHobie())));
+                                                    } else {
+                                                      Navigator.of(context).push((MaterialPageRoute(
+                                                          builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                                    }
+
                                                   },
-                                                  child: Text('Ajouter Préférence'),
-                                                  style: ElevatedButton.styleFrom(
-                                                    onPrimary: colorPrimary,
-                                                    primary: colorText,
-                                                    minimumSize: Size(88, 36),
-                                                    elevation: 4.0,
-                                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                                                  ),
+                                                  child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                                  style: raisedButtonStyle,
                                                 )
                                               ]));
                                     }
@@ -608,7 +609,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
 
   void searchDataInContext(String text) async {
     final List<dynamic> oldDealsNoFutur = dealsFull;
-    final newPartialDealsFull = oldDealsNoFutur[_controller.index][choiceItemSearch]['body'].where((element) => element['name'].toString().toLowerCase().indexOf(text.toLowerCase()) != -1).toList();
+    final List<dynamic> newPartialDealsFull = oldDealsNoFutur[_controller.index][choiceItemSearch]['body'].where((element) => element['name'].toString().toLowerCase().indexOf(text.toLowerCase()) != -1).toList();
     oldDealsNoFutur[_controller.index][choiceItemSearch]['body'] = newPartialDealsFull;
     setState(() {
       dealsFull = oldDealsNoFutur;

@@ -15,6 +15,7 @@ import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
@@ -297,9 +298,9 @@ class _EventDetailsState extends State<EventDetails> {
                         Text('Localisation', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
-                              await launch("https://www.google.com/maps/place/${widget.position}");
+                              await launchUrlString("https://www.google.com/maps/place/${widget.position}");
                             },
-                            child: Text("Voir Map", style: Style.titreBlue(20),))
+                            child: Text("Voir map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
                         /*Text(
                             (widget.positionRecently['longitude'] == 0)
                                 ? 'N/A'
