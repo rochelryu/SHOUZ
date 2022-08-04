@@ -53,6 +53,7 @@ class DealsSkeletonData {
   var archive;
   var level;
   var categorieName;
+  var video;
   DealsSkeletonData(
       {required this.imageUrl,
         required this.title,
@@ -68,7 +69,7 @@ class DealsSkeletonData {
         required this.quantity,
         required this.archive,
         required this.level,
-        required this.onLine, required this.authorName, required this.categorieName});
+        required this.onLine, required this.authorName, required this.categorieName, required this.video});
 }
 
 int channelId() {
@@ -1003,6 +1004,7 @@ final ButtonStyle outlineButtonStyle = OutlinedButton.styleFrom(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20)),
   ),
+
 );
 
 

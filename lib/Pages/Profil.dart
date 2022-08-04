@@ -1263,8 +1263,9 @@ class _ProfilState extends State<Profil> {
 
                                                   Navigator.of(context)
                                                       .push((MaterialPageRoute(builder: (context) {
-                                                    DealsSkeletonData element = new DealsSkeletonData(
+                                                    DealsSkeletonData element = DealsSkeletonData(
                                                       quantity: item['quantity'],
+                                                      video: item['video'],
                                                       level: item['level'],
                                                       numberFavorite: item['numberFavorite'],
                                                       lieu: item['lieu'],
@@ -1360,7 +1361,8 @@ class _ProfilState extends State<Profil> {
                                               onTap: () {
                                                 Navigator.of(context)
                                                     .push((MaterialPageRoute(builder: (context) {
-                                                  DealsSkeletonData element = new DealsSkeletonData(
+                                                  DealsSkeletonData element = DealsSkeletonData(
+                                                    video: item['quantity']['video'],
                                                     quantity: item['quantity'],
                                                     archive: item['archive'],
                                                     level: item['level'],

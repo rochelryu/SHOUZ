@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/DetailsDeals.dart';
@@ -23,9 +22,10 @@ class PopulaireDeals extends StatefulWidget {
   var authorName;
   var archive;
   var categorieName;
+  var video;
   String id;
   List<String> PersonneLike = [];
-  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName });
+  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video});
   @override
   _PopulaireDealsState createState() => _PopulaireDealsState();
 }
@@ -52,7 +52,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
                         Navigator.of(context).push((
                           MaterialPageRoute(
                               builder: (context){
-                                DealsSkeletonData item = new DealsSkeletonData(level: widget.level,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
+                                DealsSkeletonData item = DealsSkeletonData(level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
                                 return DetailsDeals(dealsDetailsSkeleton:item, comeBack: 0);
                               }
                           )

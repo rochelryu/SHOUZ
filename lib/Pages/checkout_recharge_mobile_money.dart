@@ -35,6 +35,7 @@ class _CheckoutRechargeMobileMoneyState
   bool loadConfirmation = false;
   Map<dynamic, dynamic>? info;
   TextEditingController _controller = TextEditingController();
+  TextEditingController _controllerForReceive = TextEditingController();
 
   TypePayement _character = TypePayement.wave;
 
@@ -108,7 +109,7 @@ class _CheckoutRechargeMobileMoneyState
           child: Column(
             children: <Widget>[
               Container(
-                  height: MediaQuery.of(context).size.height * 0.38,
+                  height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Column(
@@ -268,7 +269,7 @@ class _CheckoutRechargeMobileMoneyState
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 35.0),
+                padding: EdgeInsets.only(right: 20),
                 child: blockus(context,_character),
               ),
             ],
@@ -345,78 +346,103 @@ class _CheckoutRechargeMobileMoneyState
                         Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
-                          height: 45,
+                          height: 35,
                           width: double.infinity,
                           padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          decoration: BoxDecoration(
+                              color: Colors.white30,
+                              borderRadius: BorderRadius.circular(30.0)
+                          ),
+                          child: TextField(
+                            keyboardType: TextInputType.phone,
 
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.phone,
-
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Numero Tel",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (text){
-                                        setState(() {
-                                          mtnNumero = text;
-                                        });
-                                      },
-                                    ),
-                                  )),
-                              SizedBox(width: 15,),
-                              Expanded(flex: 2,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.number,
-                                      controller: _controller,
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Montant",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          final amount = int.parse(value);
-                                          if (amount >= 1000 ) {
-                                            setState(() {
-                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                            });
-                                          } else {
-                                            setState(() {
-                                              previsionMontant = "N/A";
-                                            });
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ))
-                            ],
+                            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Numero Tel (Ex: 05XXXXXXXX)",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                            ),
+                            onChanged: (text){
+                              setState(() {
+                                mtnNumero = text;
+                              });
+                            },
                           ),
                         ),
-                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                        SizedBox(height: 15),
+                        Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controller,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à envoyer",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                          _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
+
+                                        } else {
+                                          setState(() {
+                                            _controllerForReceive.text = "";
+                                          });
+                                        }
+                                      } else {
+                                        _controllerForReceive.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controllerForReceive,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à recevoir",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 ) {
+                                          if(amount % 100 == 0) {
+                                            _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                          } else {
+                                            _controller.text = "";
+                                          }
+                                        }
+                                      } else {
+                                        _controller.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            )),
                       ],
                     )
                 ),
@@ -548,45 +574,79 @@ class _CheckoutRechargeMobileMoneyState
                         Text("Faites entrer le montant de votre réchargement (Montant Min: 1000)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
-                          height: 45,
-                          width: 150,
-                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                          decoration: BoxDecoration(
-                              color: Colors.white30,
-                              borderRadius: BorderRadius.circular(30.0)
-                          ),
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            controller: _controller,
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Montant",
-                              hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                if(value.length > 3) {
-                                  final amount = int.parse(value);
-                                  if (amount >= 1000 ) {
-                                    setState(() {
-                                      previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                    });
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              height: 35,
+                              width: MediaQuery.of(context).size.width * 0.39,
+                              padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.white30,
+                                  borderRadius: BorderRadius.circular(30.0)
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                controller: _controller,
+                                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Montant à envoyer",
+                                  hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                ),
+                                onChanged: (value) {
+                                  if(value.length > 3) {
+                                    final amount = int.parse(value);
+                                    if (amount >= 1000 && amount % 100 == 0 ) {
+                                      _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
+
+                                    } else {
+                                      setState(() {
+                                        _controllerForReceive.text = "";
+                                      });
+                                    }
                                   } else {
-                                    setState(() {
-                                      previsionMontant = "N/A";
-                                    });
+                                    _controllerForReceive.text = "";
                                   }
-                                } else {
-                                  setState(() {
-                                    previsionMontant = "N/A";
-                                  });
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 35,
+                              width: MediaQuery.of(context).size.width * 0.39,
+                              padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.white30,
+                                  borderRadius: BorderRadius.circular(30.0)
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                controller: _controllerForReceive,
+                                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Montant à recevoir",
+                                  hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                ),
+                                onChanged: (value) {
+                                  if(value.length > 3) {
+                                    final amount = int.parse(value);
+                                    if (amount >= 1000 ) {
+                                      if(amount % 100 == 0) {
+                                        _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                      } else {
+                                        _controller.text = "";
+                                      }
+                                    }
+                                  } else {
+                                    _controller.text = "";
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        )),
+
                       ],
                     )
                 ),
@@ -753,79 +813,105 @@ class _CheckoutRechargeMobileMoneyState
                       children: [
                         Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
+
                         Container(
-                          height: 45,
+                          height: 35,
                           width: double.infinity,
                           padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          decoration: BoxDecoration(
+                              color: Colors.white30,
+                              borderRadius: BorderRadius.circular(30.0)
+                          ),
+                          child: TextField(
+                            keyboardType: TextInputType.phone,
 
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.phone,
-
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Numero Tel",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (text){
-                                        setState(() {
-                                          orangeNumero = text;
-                                        });
-                                      },
-                                    ),
-                                  )),
-                              SizedBox(width: 15,),
-                              Expanded(flex: 2,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.number,
-                                      controller: _controller,
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Montant",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          final amount = int.parse(value);
-                                          if (amount >= 1000 ) {
-                                            setState(() {
-                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                            });
-                                          } else {
-                                            setState(() {
-                                              previsionMontant = "N/A";
-                                            });
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ))
-                            ],
+                            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Numero Tel (Ex: 07XXXXXXXX)",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                            ),
+                            onChanged: (text){
+                              setState(() {
+                                orangeNumero = text;
+                              });
+                            },
                           ),
                         ),
-                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                        SizedBox(height: 15),
+                        Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controller,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à envoyer",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                          _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
+
+                                        } else {
+                                          setState(() {
+                                            _controllerForReceive.text = "";
+                                          });
+                                        }
+                                      } else {
+                                        _controllerForReceive.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controllerForReceive,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à recevoir",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 ) {
+                                          if(amount % 100 == 0) {
+                                            _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                          } else {
+                                            _controller.text = "";
+                                          }
+                                        }
+                                      } else {
+                                        _controller.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            )),
                       ],
                     )
                 ),
@@ -957,79 +1043,105 @@ class _CheckoutRechargeMobileMoneyState
                       children: [
                         Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
+
                         Container(
-                          height: 45,
+                          height: 35,
                           width: double.infinity,
                           padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          decoration: BoxDecoration(
+                              color: Colors.white30,
+                              borderRadius: BorderRadius.circular(30.0)
+                          ),
+                          child: TextField(
+                            keyboardType: TextInputType.phone,
 
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.phone,
-
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Numero Tel",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (text){
-                                        setState(() {
-                                          moovNumero = text;
-                                        });
-                                      },
-                                    ),
-                                  )),
-                              SizedBox(width: 15,),
-                              Expanded(flex: 2,
-                                  child: Container(
-                                    height: 45,
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 10.0, right: 3.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white30,
-                                        borderRadius: BorderRadius.circular(30.0)
-                                    ),
-                                    child: TextField(
-                                      keyboardType: TextInputType.number,
-                                      controller: _controller,
-                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Montant",
-                                        hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          final amount = int.parse(value);
-                                          if (amount >= 1000 ) {
-                                            setState(() {
-                                              previsionMontant = (amount * (1 - appState.getPercentageRecharge)).toString();
-                                            });
-                                          } else {
-                                            setState(() {
-                                              previsionMontant = "N/A";
-                                            });
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ))
-                            ],
+                            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Numero Tel (Ex: 07XXXXXXXX)",
+                              hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                            ),
+                            onChanged: (text){
+                              setState(() {
+                                moovNumero = text;
+                              });
+                            },
                           ),
                         ),
-                        Text("vous allez recevoir $previsionMontant sur votre compte SHOUZPAY", style: Style.sousTitre(9)),
+                        SizedBox(height: 15),
+                        Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controller,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à envoyer",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                          _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
+
+                                        } else {
+                                          setState(() {
+                                            _controllerForReceive.text = "";
+                                          });
+                                        }
+                                      } else {
+                                        _controllerForReceive.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  height: 35,
+                                  width: MediaQuery.of(context).size.width * 0.39,
+                                  padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(30.0)
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controllerForReceive,
+                                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Montant à recevoir",
+                                      hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                                    ),
+                                    onChanged: (value) {
+                                      if(value.length > 3) {
+                                        final amount = int.parse(value);
+                                        if (amount >= 1000 ) {
+                                          if(amount % 100 == 0) {
+                                            _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                          } else {
+                                            _controller.text = "";
+                                          }
+                                        }
+                                      } else {
+                                        _controller.text = "";
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            )),
                       ],
                     )
                 ),

@@ -601,7 +601,7 @@ class ConsumeAPI {
       int level,
       String number,
       String price,
-      String quantity) async {
+      String quantity, [String videoProduct = "", String videoProductBase64 = ""]) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
@@ -617,8 +617,8 @@ class ConsumeAPI {
       'price': price,
       'quantity': quantity,
       'level': level.toString(),
-      'videoProduct': '',
-      'videoProductBase64': '',
+      'videoProduct': videoProduct,
+      'videoProductBase64': videoProductBase64,
     };
     return _netUtil.post(SET_DEALS_URL, body: body).then((dynamic res) async {
 
@@ -851,6 +851,7 @@ class ConsumeAPI {
       int numberTicket,
       String prices,
       String email,
+      int numberOfDay,
       [String videoPub = "",
       String videoPubBase64 = '']) async {
     User newClient = await DBProvider.db.getClient();
@@ -870,7 +871,7 @@ class ConsumeAPI {
       'enventDate': enventDate,
       'videoPub': videoPub,
       'videoPubBase64': videoPubBase64,
-      'durationEventByDay': '1'
+      'durationEventByDay': numberOfDay.toString()
     };
 
     return _netUtil.post(SET_EVENT_URL, body: body).then((dynamic res) async {

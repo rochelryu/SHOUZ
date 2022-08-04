@@ -180,7 +180,6 @@ class _MyHomePageState extends State<MyHomePage> {
     socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
 
     socket!.onConnect((data) async {
-
       appState = Provider.of<AppState>(context, listen: false);
 
       appState.setSocket(socket!);

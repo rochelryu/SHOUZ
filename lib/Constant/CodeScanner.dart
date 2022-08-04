@@ -165,49 +165,100 @@ class _CodeScannerState extends State<CodeScanner> {
         setState(() {
           scanned = true;
         });
-        final infoTicketSplit = result!.code?.split('-');
-        final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketByScan(infoTicketSplit![0], infoTicketSplit[1], infoTicketSplit[2], infoTicketSplit[3], infoTicketSplit[4]): await consumeAPI.decodeTicketTravelByScan(result!.code ?? '');
-
-        if(inforDecode['etat'] == 'found') {
-          dialogCustomForValidateAction(
-              "Ticket Verifié",
-              inforDecode['result'],
-              "Continuer",
-              () {
-              setState(() {
-                scanned = false;
-                result = null;
-                });
-              },
-              context);
-
-        }
-        else if(inforDecode['etat'] =='notFound' && inforDecode['etat'] == "Vous n'êtes pas authorisé") {
+        if(result!.code?.split('-').length == 1 && widget.type == 1) {
           showDialog(
               context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+              builder: (BuildContext context) => dialogCustomForValidateAction(
+                  "Erreur",
+                  "Ce ticket n'est pas un ticket d'évènement",
+                  "Ok",
+                      () {
+                    setState(() {
+                      scanned = false;
+                      result = null;
+                    });
+                  }, context, false),
               barrierDismissible: false);
-          setState(() {
-            scanned = false;
-            result = null;
-          });
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (builder) => Login()));
         }
-        else {
-          dialogCustomForValidateAction(
-              "Erreur",
-              inforDecode['error'],
-              "Ok",
-                  () {
-                setState(() {
-                  scanned = false;
-                  result = null;
-                });
-              }, context);
+        else if(result!.code?.split('_').length != 4 && widget.type != 1) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) => dialogCustomForValidateAction(
+                  "Erreur",
+                  "Ce ticket n'est pas un ticket de voyage",
+                  "Ok",
+                      () {
+                    setState(() {
+                      scanned = false;
+                      result = null;
+                    });
+                  }, context, false),
+              barrierDismissible: false);
+        }
+        else if((result!.code?.split('-').length == 5 && widget.type == 1) || (result!.code?.split('_').length == 4 && widget.type != 1)) {
+          final infoTicketSplit = result!.code?.split('-');
+          final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketByScan(infoTicketSplit![0], infoTicketSplit[1], infoTicketSplit[2], infoTicketSplit[3], infoTicketSplit[4]): await consumeAPI.decodeTicketTravelByScan(result!.code ?? '');
+          if(inforDecode['etat'] == 'found') {
+            dialogCustomForValidateAction(
+                "Ticket Verifié",
+                inforDecode['result'],
+                "Continuer",
+                    () {
+                  setState(() {
+                    scanned = false;
+                    result = null;
+                  });
+                },
+                context);
 
+          }
+          else if(inforDecode['etat'] =='notFound' && inforDecode['etat'] == "Vous n'êtes pas authorisé") {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                barrierDismissible: false);
+            setState(() {
+              scanned = false;
+              result = null;
+            });
+            //Navigator.pushAndRemoveUntil(context, newRoute, (route) => false)
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (builder) => Login()));
+          }
+          else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => dialogCustomForValidateAction(
+                    "Erreur",
+                    inforDecode['error'],
+                    "Ok",
+                        () {
+                      setState(() {
+                        scanned = false;
+                        result = null;
+                      });
+                    }, context),
+                barrierDismissible: false);
+
+
+          }
+        } else {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) => dialogCustomForValidateAction(
+                  "Erreur",
+                  "Ce code n'est pas pris en charge par SHOUZ ",
+                  "Ok",
+                      () {
+                    setState(() {
+                      scanned = false;
+                      result = null;
+                    });
+                  }, context, false),
+              barrierDismissible: false);
         }
+
       }
 
     });

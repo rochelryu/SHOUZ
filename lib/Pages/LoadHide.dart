@@ -105,8 +105,7 @@ class _LoadTravelState extends State<LoadTravel> {
     final data = await consumeAPI.getDetailsForTravel(widget.travelId);
     if(data['etat'] == 'found') {
       final item = data['result'];
-      Navigator.of(context).push((
-          MaterialPageRoute(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
               builder: (builder)=> CovoiturageChoicePlace(
                 item['id'],
                 1,
@@ -123,8 +122,7 @@ class _LoadTravelState extends State<LoadTravel> {
                 item['authorId'] == newClient.ident,
                 item['state'],
               )
-          )
-      ));
+          ),(Route<dynamic> route) => false);
     }
   }
 
@@ -164,7 +162,7 @@ class _LoadEventState extends State<LoadEvent> {
     final data = await consumeAPI.getDetailsForEvent(widget.eventId);
     if(data['etat'] == 'found') {
       final item = data['result'];
-      Navigator.of(context).push(MaterialPageRoute(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (builder) => EventDetails(
             1,
             item['imageCover'],
@@ -186,7 +184,7 @@ class _LoadEventState extends State<LoadEvent> {
             item['authorId'] == newClient.ident,
             item['state'],
             item['favorie'],
-          )));
+          )), (Route<dynamic> route) => false);
     }
   }
 
@@ -225,7 +223,7 @@ class _LoadNewState extends State<LoadNew> {
     final data = await consumeAPI.getActualitiesDetailsById(widget.actualityId);
     if(data['etat'] == 'found') {
       final item = data['result'];
-      Navigator.of(context).push((MaterialPageRoute(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (BuildContext context) => DetailsActu(
             comeBack: 1,
               title: item['title'],
@@ -235,7 +233,7 @@ class _LoadNewState extends State<LoadNew> {
               authorProfil: item['authorProfil'],
               imageCover: item['imageCover'],
               comment: item['comment'],
-              numberVue: item['numberVue']))));
+              numberVue: item['numberVue'])),(Route<dynamic> route) => false);
     }
   }
 
@@ -282,8 +280,9 @@ class _LoadProductState extends State<LoadProduct> {
     final productInfo = await consumeAPI.getDetailsForProductLink(widget.productId);
     if(productInfo['etat'] == 'found') {
       Navigator.of(context)
-          .push((MaterialPageRoute(builder: (context) {
-        DealsSkeletonData item = new DealsSkeletonData(
+          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) {
+        DealsSkeletonData item = DealsSkeletonData(
+          video: productInfo['result']['video'],
           level: productInfo['result']['level'],
           quantity: productInfo['result']['quantity'],
           numberFavorite: productInfo['result']['numberFavorite'],
@@ -303,7 +302,7 @@ class _LoadProductState extends State<LoadProduct> {
           categorieName: productInfo['result']['categorieName'],
         );
         return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 1);
-      })));
+      }), (Route<dynamic> route) => false);
     }
   }
 

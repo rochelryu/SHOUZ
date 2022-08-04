@@ -17,3 +17,10 @@ String descriptionShouz = '''1 - Achete tout au plus bas prix possible en plus o
 ''';
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
+
+bool isNumeric(String s) {
+  if(s == null) {
+    return false;
+  }
+  return double.tryParse(s) != null;
+}

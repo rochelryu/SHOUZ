@@ -456,14 +456,14 @@ Widget dialogCustomError(String title, String message, BuildContext context) {
   );
 }
 
-Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context) {
+Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context, [bool withBackButton = true]) {
   bool isIos = Platform.isIOS;
   return isIos
       ? new CupertinoAlertDialog(
     title: Text(title),
     content: Text(message),
     actions: <Widget>[
-      CupertinoDialogAction(
+     if(withBackButton) CupertinoDialogAction(
           child: Text("Annuler", style: Style.chatOutMe(15),),
           onPressed: () {
             Navigator.of(context).pop();
@@ -483,7 +483,7 @@ Widget dialogCustomForValidateAction(String title, String message, String titleV
     shape:
     RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
     actions: <Widget>[
-      TextButton(
+      if(withBackButton) TextButton(
           child: Text("Annuler", style: Style.chatOutMe(15),),
           onPressed: () {
             Navigator.of(context).pop();

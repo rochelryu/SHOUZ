@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/DetailsDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 
 class RecentDeals extends StatefulWidget {
@@ -24,9 +23,10 @@ class RecentDeals extends StatefulWidget {
   var archive;
   var level;
   var categorieName;
+  var video;
   String id;
   List<String> PersonneLike = [];
-  RecentDeals({this.imageUrl, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName });
+  RecentDeals({this.imageUrl, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video });
   @override
   _RecentDeals createState() => _RecentDeals();
 }
@@ -51,8 +51,9 @@ class _RecentDeals extends State<RecentDeals> {
               onTap: (){
                 Navigator.of(context)
                     .push((MaterialPageRoute(builder: (context) {
-                  DealsSkeletonData item = new DealsSkeletonData(
+                  DealsSkeletonData item = DealsSkeletonData(
                     level: widget.level,
+                    video: widget.video,
                     quantity: widget.quantity,
                     numberFavorite: widget.numberFavorite,
                     lieu: widget.lieu,

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/PageIndicator.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -9,6 +10,7 @@ import 'package:shouz/Pages/profil_shop.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:video_player/video_player.dart';
 
 import '../Constant/my_flutter_app_second_icons.dart';
 import './ChatDetails.dart';
@@ -28,14 +30,51 @@ class _DetailsDealsState extends State<DetailsDeals> {
   bool isMe = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
   bool favorite = false;
+  bool isPlaying = false;
+  late VideoPlayerController _controller;
+  late Future<void> _initialiseVideoFlutter;
+
   @override
   void initState() {
     super.initState();
+    print("widget.dealsDetailsSkeleton.video ${widget.dealsDetailsSkeleton.video.length.toString()}");
+    if(widget.dealsDetailsSkeleton.video != "") {
+      _controller =  VideoPlayerController.network(
+          "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
+
+      _controller.setLooping(false);
+      _controller.setVolume(1.0);
+      setState(() {
+        _initialiseVideoFlutter = _controller.initialize();
+      });
+      _controller.addListener(checkVideo);
+    }
+
     getUser();
+  }
+
+
+  void checkVideo(){
+    if(_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0) || _controller.value.position >= _controller.value.duration) {
+      setState(() {
+        isPlaying = false;
+      });
+    }
+    else {
+      setState(() {
+        isPlaying = true;
+      });
+    }
+
   }
 
   @override
   void dispose(){
+    if(widget.dealsDetailsSkeleton.video != "") {
+      _controller.removeListener(() {});
+      _controller.dispose();
+    }
+
     super.dispose();
   }
 
@@ -94,7 +133,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
             1)
         ? "Hier ${register.hour.toString()}h${register.minute.toString()}"
         : afficheDate;
-    return new Scaffold(
+    return Scaffold(
       backgroundColor: backgroundColor,
       body: SingleChildScrollView(
         child: Column(
@@ -109,25 +148,118 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         _currentItem = value;
                       });
                     },
-                    itemCount: widget.dealsDetailsSkeleton.imageUrl.length,
-                    itemBuilder: (context, index) => InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (builder) => ViewerProduct(
-                                  index: index,
-                                  level: widget.dealsDetailsSkeleton.level,
-                                  imgUrl: widget.dealsDetailsSkeleton.imageUrl)),
+                    itemCount: widget.dealsDetailsSkeleton.video == "" ? widget.dealsDetailsSkeleton.imageUrl.length: widget.dealsDetailsSkeleton.imageUrl.length +1,
+                    itemBuilder: (context, index) {
+                      if(widget.dealsDetailsSkeleton.video != "" && index == 0) {
+                        return FutureBuilder(
+                            future: _initialiseVideoFlutter,
+                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                              switch (snapshot.connectionState) {
+                                case ConnectionState.none:
+                                  return Center(
+                                    child: Text("Vidéo non chargé",
+                                        style: Style.titreEvent(18)),
+                                  );
+                                case ConnectionState.waiting:
+                                  return Center(
+                                    child: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: Colors.white,
+                                      ),
+                                      child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
+                                    ),
+                                  );
+                                case ConnectionState.active:
+                                  return Center(
+                                    child: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: Colors.white,
+                                      ),
+                                      child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
+                                    ),
+                                  );
+                                case ConnectionState.done:
+                                  if (snapshot.hasError) {
+                                    return Column(
+                                      children: <Widget>[
+                                        Expanded(
+                                            child: Center(
+                                              child: Text("Vidéo non chargé",
+                                                  style: Style.titreEvent(18)),
+                                            )),
+                                      ],
+                                    );
+                                  }
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        child: AspectRatio(
+                                          aspectRatio: _controller.value.aspectRatio,
+                                          child: VideoPlayer(_controller),
+                                        ),
+                                      ),
+                                      Positioned(
+                                          height: 50,
+                                          bottom:50,
+                                          left:50,
+                                          right:50,
+                                          child: Container(
+                                            height: double.infinity,
+                                            padding:EdgeInsets.symmetric(horizontal: 10),
+                                            decoration: BoxDecoration(
+                                              color: backgroundColorSec.withOpacity(0.25),
+                                              borderRadius: BorderRadius.circular(30),
+
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                IconButton(onPressed: () {
+                                                  setState(() {
+                                                    _controller.value.isPlaying
+                                                        ? _controller.pause()
+                                                        : _controller.play();
+                                                  });
+                                                }, icon: Icon(_controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: _controller.value.isPlaying ? colorText: colorPrimary,)),
+                                                Expanded(
+
+                                                    child: VideoProgressIndicator(_controller, allowScrubbing: true, padding: EdgeInsets.zero, colors: VideoProgressColors(playedColor: colorText),))
+                                              ],
+                                            ),
+                                          ))
+                                    ],
+                                  );
+                              }
+                            });
+                      }
+                      else {
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (builder) => ViewerProduct(
+                                      index: widget.dealsDetailsSkeleton.video != "" ? index - 1: index,
+                                      level: widget.dealsDetailsSkeleton.level,
+                                      imgUrl: widget.dealsDetailsSkeleton.imageUrl)),
+                            );
+                          },
+                          child: Container(
+                            height: MediaQuery.of(context).size.height / 2,
+                            width: MediaQuery.of(context).size.width,
+                            child: Image.network(
+                                "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[widget.dealsDetailsSkeleton.video != "" ? _currentItem - 1 == -1 ? 0:_currentItem - 1:_currentItem]}",
+                                fit: BoxFit.cover),
+                          ),
                         );
-                      },
-                      child: Container(
-                        height: MediaQuery.of(context).size.height / 2,
-                        width: MediaQuery.of(context).size.width,
-                        child: Image.network(
-                            "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[_currentItem]}",
-                            fit: BoxFit.cover),
-                      ),
-                    ),
+                      }
+                    },
                   ),
                 ),
                 Padding(
@@ -169,7 +301,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                   child: Container(
                     width: 100.0,
                     child: PageIndicator(_currentItem,
-                        widget.dealsDetailsSkeleton.imageUrl.length),
+                        widget.dealsDetailsSkeleton.video != "" ? widget.dealsDetailsSkeleton.imageUrl.length+ 1:widget.dealsDetailsSkeleton.imageUrl.length),
                   ),
                 ),
               ],

@@ -15,6 +15,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:video_player/video_player.dart';
 
 import '../MenuDrawler.dart';
+import '../Provider/VideoCompressApi.dart';
 
 class CreateEvent extends StatefulWidget {
   static String rootName = '/createEvent';
@@ -29,7 +30,7 @@ class _CreateEventState extends State<CreateEvent> {
   late DateTime date = new DateTime.now();
   late TimeOfDay time = new TimeOfDay.now();
   final formKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
   final ConsumeAPI consumeAPI = new ConsumeAPI();
   int maxPlace = 0;
   int durationEventByDay = 1;
@@ -108,6 +109,7 @@ class _CreateEventState extends State<CreateEvent> {
       //allCategorie = data;
       maxPlace = maxPlaceData;
     });
+    addTypeTicket();
   }
 
   addTypeTicket() {
@@ -123,7 +125,7 @@ class _CreateEventState extends State<CreateEvent> {
                 borderRadius: BorderRadius.circular(50.0)),
             child: Container(
               height: 50,
-              width: MediaQuery.of(context).size.width * 0.35,
+              width: MediaQuery.of(context).size.width * 0.4,
               padding: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                   color: backgroundColorSec,
@@ -154,7 +156,7 @@ class _CreateEventState extends State<CreateEvent> {
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: "Prix",
+                    hintText: "Prix du ticket",
                     hintStyle: TextStyle(
                       color: Colors.white,
                     )),
@@ -168,7 +170,7 @@ class _CreateEventState extends State<CreateEvent> {
                 borderRadius: BorderRadius.circular(50.0)),
             child: Container(
               height: 50,
-              width: MediaQuery.of(context).size.width * 0.35,
+              width: MediaQuery.of(context).size.width * 0.4,
               padding: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                   color: backgroundColorSec,
@@ -199,7 +201,7 @@ class _CreateEventState extends State<CreateEvent> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: "Quantité",
+                    hintText: "Nbre de ticket",
                     hintStyle: TextStyle(
                       color: Colors.white,
                     )),
@@ -243,41 +245,57 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   Future getVideo() async {
-    var image = await picker.pickVideo(source: ImageSource.gallery);
-
-    if (image != null) {
+    var movie = await picker.pickVideo(source: ImageSource.gallery);
+    if (movie != null) {
       if (postVideo.length < 1) {
         setState(() {
-          _controller = VideoPlayerController.file(File(image.path));
+          _controller = VideoPlayerController.file(File(movie.path));
           _controller!
             ..initialize().then((_) {
               _controller!.setLooping(true);
-              setState(() {});
+
             });
           _controller!
             ..addListener(() {
-              setState(() {});
+
             });
           postVideo.add(_controller!);
         });
-        video = File(image.path);
-        base64Video = base64Encode(File(image.path).readAsBytesSync());
+
+        final firstMovie = File(movie.path);
+        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie, true);
+        if(videoCompressed!.filesize! / 1000000 < 10) {
+          video = File(videoCompressed.path!);
+          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+        } else {
+          setState((){
+            postVideo = [];
+          });
+          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+        }
       } else {
         setState(() {
-          _controller = VideoPlayerController.file(File(image.path));
+          _controller = VideoPlayerController.file(File(movie.path));
           _controller!
             ..initialize().then((_) {
               _controller!.setLooping(true);
-              setState(() {});
             });
           _controller!
             ..addListener(() {
-              setState(() {});
             });
           postVideo[0] = _controller!;
         });
-        video = File(image.path);
-        base64Video = base64Encode(File(image.path).readAsBytesSync());
+        final firstMovie = File(movie.path);
+        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        if(videoCompressed!.filesize! / 1000000 < 10) {
+          video = File(videoCompressed.path!);
+          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+        } else {
+          setState((){
+            postVideo = [];
+          });
+          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+        }
       }
     }
   }
@@ -515,7 +533,7 @@ class _CreateEventState extends State<CreateEvent> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Une video illustrative (Pas obligatoire)",
+                                      "Une video illustrative (Facultatif)",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
@@ -550,7 +568,7 @@ class _CreateEventState extends State<CreateEvent> {
                       }
                     }),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   height: 110,
@@ -570,13 +588,15 @@ class _CreateEventState extends State<CreateEvent> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            FloatingActionButton(
-                              child: Icon(Icons.event_available,
-                                  color: Colors.white),
-                              onPressed: () {
-                                selectDate(context);
-                              },
-                            ),
+                            ElevatedButton(onPressed: (){
+                              selectDate(context);
+                            }, child: Row(
+                              children: [
+                              Icon(Icons.event_available, color: colorPrimary, size: 13,),
+                                SizedBox(width: 2,),
+                                Text("Choisir la date", style: Style.chatIsMe(10),)
+                            ],),
+                            style: raisedButtonStyle,),
                             Card(
                               color: Colors.transparent,
                               elevation: _isNumber ? 4.0 : 0.0,
@@ -584,7 +604,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   borderRadius: BorderRadius.circular(50.0)),
                               child: Container(
                                 height: 50,
-                                width: MediaQuery.of(context).size.width / 1.6,
+                                width: MediaQuery.of(context).size.width * 0.51,
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
                                     color: backgroundColorSec,
@@ -616,13 +636,10 @@ class _CreateEventState extends State<CreateEvent> {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      prefixIcon: Icon(Icons.looks_3,
-                                          color: _isNumber
-                                              ? colorText
-                                              : Colors.grey),
-                                      hintText: "Nombre de ticket",
+                                      hintText: "Durée de l'évènement en jour",
                                       hintStyle: TextStyle(
                                         color: Colors.white,
+                                        fontSize: 12
                                       )),
                                 ),
                               ),
@@ -843,7 +860,7 @@ class _CreateEventState extends State<CreateEvent> {
                         ),
                         hideOnEmpty: true,
                         suggestionsCallback: (pattern) async {
-                          return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'', 'not', '2');
+                          return consumeAPI.getAllCategrie(pattern.length > 0 ? pattern :'', 'not', '2');
                         },
                         itemBuilder: (context, suggestion) {
                           final categorie = suggestion as Categorie;
@@ -859,7 +876,7 @@ class _CreateEventState extends State<CreateEvent> {
                         onSuggestionSelected: (suggestion) async {
                           final categorie = suggestion as Categorie;
                           eCtrl.text = categorie.name;
-                          final etat = await new ConsumeAPI()
+                          final etat = await consumeAPI
                               .verifyCategorieExist(eCtrl.text);
                           if (etat) {
                             if (allCategorie.indexOf(eCtrl.text) == -1) {
@@ -872,7 +889,7 @@ class _CreateEventState extends State<CreateEvent> {
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) =>
-                                    DialogCustomError(
+                                    dialogCustomError(
                                         'Erreur',
                                         'Categorie inexistante dans notre registre',
                                         context),
@@ -894,7 +911,7 @@ class _CreateEventState extends State<CreateEvent> {
                   padding: EdgeInsets.symmetric(vertical: 25.0),
                   child: Text(
                     "Veuillez choisir au moins une catégorie",
-                    style: Style.sousTitreEvent(15),
+                    style: Style.titleInSegmentInTypeError(),
                   ))
                   : Wrap(
                 spacing: 6.0,
@@ -996,7 +1013,7 @@ class _CreateEventState extends State<CreateEvent> {
         base64Image != '' &&
         dateChoice != null &&
         numero != null &&
-        numero! <= maxPlace  &&
+        numero! < 6  &&
         position.length > 5 &&
         _controllers.length > 0 &&
         email.indexOf('@') > 4) {
@@ -1006,10 +1023,18 @@ class _CreateEventState extends State<CreateEvent> {
           .where((element) => element != ":0")
           .toList();
       final placeTotal = array.map((e) => int.parse(e.substring(e.indexOf(':') +1))).reduce((value, element) => value + element);
-      if(numero == placeTotal){
+      final List<bool> isValidArrayForPrice = array.map((e) {
+        if(e.split(':')[0].toLowerCase().indexOf("gratuit") != -1 || int.tryParse(e.split(':')[0]) != null) {
+          return true;
+        } else {
+          return false;
+        }
+      }).toList();
+      print(isValidArrayForPrice);
+      if(placeTotal <= maxPlace && isValidArrayForPrice.indexOf(false) == -1){
         String imageCover = post[0].path.split('/').last;
         String videoPub = (video != null) ? video!.path.split('/').last : "";
-        final event = await new ConsumeAPI().setEvent(
+        final event = await consumeAPI.setEvent(
             nameProduct,
             describe,
             allCategorie,
@@ -1017,9 +1042,10 @@ class _CreateEventState extends State<CreateEvent> {
             base64Image,
             position,
             dateChoice.toString(),
-            numero!,
+            placeTotal,
             array.join(','),
             email,
+            numero!,
             videoPub,
             base64Video
 
@@ -1051,7 +1077,7 @@ class _CreateEventState extends State<CreateEvent> {
           await askedToLead(
               "Votre évènement est en ligne, vous pouvez le manager où que vous soyez",
               true, context);
-          Navigator.pushNamed(context, MenuDrawler.rootName);
+          Navigator.pushNamedAndRemoveUntil(context, MenuDrawler.rootName, (Route<dynamic> route) => false );
         }
         else {
           await askedToLead(
@@ -1061,7 +1087,7 @@ class _CreateEventState extends State<CreateEvent> {
       }else {
         setState(() => _isLoading = false);
         await askedToLead(
-            "Le nombre de ticket de tous vos types de tickets est différent du nombre total de ticket que vous avez fait rentrer dans la section [3].\nVeuillez rectifier cela pour pouvoir envoyer votre évènement",
+            "Votre nombre maximum de ticket est de ${maxPlace}.\nSi un type de ticket est gratuit ecrivez juste gratuit à la place du prix du ticket",
             false, context);
       }
     } else {
@@ -1084,7 +1110,7 @@ class _CreateEventState extends State<CreateEvent> {
     ));
   }
 
-  Widget DialogCustomError(String title, String message, BuildContext context) {
+  Widget dialogCustomError(String title, String message, BuildContext context) {
     bool isIos = Platform.isIOS;
     return isIos
         ? new CupertinoAlertDialog(
@@ -1098,14 +1124,14 @@ class _CreateEventState extends State<CreateEvent> {
             })
       ],
     )
-        : new AlertDialog(
+        : AlertDialog(
       title: Text(title),
       content: Text(message),
       elevation: 20.0,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0)),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
             child: Text("Ok"),
             onPressed: () {
               Navigator.of(context).pop();

@@ -82,7 +82,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         setState(() {
                           changeLoading = false;
                         });
-                        Navigator.pushNamed(context, MenuDrawler.rootName);
+                        Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
                       } else {
                         setState(() {
                           changeLoading = false;

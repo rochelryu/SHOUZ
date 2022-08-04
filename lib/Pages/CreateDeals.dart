@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
@@ -13,7 +15,9 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:video_player/video_player.dart';
 
+import '../Provider/VideoCompressApi.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
 
@@ -25,9 +29,15 @@ class CreateDeals extends StatefulWidget {
 
 class _CreateDealsState extends State<CreateDeals> {
   final formKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
+  final picker = ImagePicker();
+  final videoInfo = FlutterVideoInfo();
+  VideoPlayerController? _controller;
+  File? video;
   List<File> post = [];
   List<String> base64Image = [];
+  String base64Video = "";
+  List<VideoPlayerController> postVideo = [];
   List<dynamic> allCategories = [];
   String nameProduct = "";
   TextEditingController nameProductCtrl = new TextEditingController();
@@ -54,13 +64,6 @@ class _CreateDealsState extends State<CreateDeals> {
   User? user;
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
-  selectDate(BuildContext context) async {
-    User newClient = await DBProvider.db.getClient();
-    numeroCtrl.text = newClient.numero;
-    setState(() {
-      numero = newClient.numero;
-    });
-  }
 
   @override
   void initState() {
@@ -71,11 +74,12 @@ class _CreateDealsState extends State<CreateDeals> {
 
   loadCategorie() async {
     User newClient = await DBProvider.db.getClient();
-    final data = await new ConsumeAPI().getAllCategrieWithoutFilter("deal");
+    final data = await consumeAPI.getAllCategrieWithoutFilter("deal");
+    numeroCtrl.text = newClient.numero;
     setState(() {
       allCategories = data;
       user = newClient;
-
+      numero = newClient.numero;
     });
   }
 
@@ -98,6 +102,64 @@ class _CreateDealsState extends State<CreateDeals> {
             .map((image) => base64Encode(image.readAsBytesSync()))
             .toList();
       });
+    }
+  }
+
+  Future getVideo() async {
+    var movie = await picker.pickVideo(source: ImageSource.gallery);
+
+    if (movie != null) {
+      if (postVideo.length < 1) {
+        setState(() {
+          _controller = VideoPlayerController.file(File(movie.path));
+          _controller!
+            ..initialize().then((_) {
+              _controller!.setLooping(true);
+            });
+          _controller!
+            ..addListener(() {
+            });
+          postVideo.add(_controller!);
+        });
+        final firstMovie = File(movie.path);
+        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        if(videoCompressed!.filesize! / 1000000 < 10) {
+          video = File(videoCompressed.path!);
+          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+        } else {
+          setState((){
+            postVideo = [];
+          });
+          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+        }
+
+      } else {
+        setState(() {
+          _controller = VideoPlayerController.file(File(movie.path));
+          _controller!
+            ..initialize().then((_) {
+              _controller!.setLooping(true);
+
+            });
+          _controller!
+            ..addListener(() {
+
+            });
+
+          postVideo[0] = _controller!;
+        });
+        final firstMovie = File(movie.path);
+        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        if(videoCompressed!.filesize! / 1000000 < 10) {
+          video = File(videoCompressed.path!);
+          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+        } else {
+          setState((){
+            postVideo = [];
+          });
+          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+        }
+      }
     }
   }
 
@@ -309,7 +371,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: describeCtrl,
                       onChanged: (text) {
                         setState(() {
@@ -345,60 +407,7 @@ class _CreateDealsState extends State<CreateDeals> {
                   ),
                 ),
               ),
-              new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: Colors.transparent,
-                  elevation: _isCategorie ? 4.0 : 0.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0)),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: backgroundColorSec,
-                        border: Border.all(
-                            width: 1.0,
-                            color: _isCategorie
-                                ? colorText
-                                : backgroundColor),
-                        borderRadius: BorderRadius.circular(50.0)),
-                    child: allCategories.length == 0 ? LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2) :  DropdownButtonFormField<String>(
-                      hint: Text('Veuillez choisir une categorie',
-                          style: Style.sousTitre(14)),
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      isExpanded: true,
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
 
-                      onChanged: (newValue) {
-                        setState(() {
-                          _isCategorie = true;
-                          dropdownValue = newValue!;
-                          _isName = false;
-                          _isDescribe = false;
-                          _isQuantity = false;
-                          _isPrice = false;
-                          _isPosition = false;
-                          _isNumber = false;
-                          requestLoading = false;
-                          monVal = false;
-                        });
-                      },
-                      items: allCategories.map((value) {
-                        return DropdownMenuItem<String>(
-                          value: value['_id'],
-                          child: Text(value['name'],
-                              style: Style.sousTitre(15)),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ),
               Container(
                 height: 130,
                 width: double.infinity,
@@ -476,89 +485,193 @@ class _CreateDealsState extends State<CreateDeals> {
                       }
                     }),
               ),
-              new Padding(
+              Container(
+                height: 155,
+                width: double.infinity,
+                padding: EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: postVideo.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Padding(
+                          padding: EdgeInsets.only(right: 25),
+                          child: InkWell(
+                            onTap: () {
+                              getVideo();
+                            },
+                            child: DottedBorder(
+                              borderType: BorderType.RRect,
+                              radius: Radius.circular(12),
+                              padding: EdgeInsets.all(6),
+                              color: Colors.white,
+                              strokeWidth: 1,
+                              child: Container(
+                                height: 140,
+                                width: 130,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(Icons.movie_filter_outlined,
+                                        color: Colors.white, size: 30),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      "Une video illustrative (Facultatif)",
+                                      style: Style.titleInSegment(),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Padding(
+                          padding: EdgeInsets.only(right: 25),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                postVideo.removeAt(index - 1);
+                                base64Video = "";
+                              });
+                            },
+                            child: Card(
+                              elevation: 4.0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0)),
+                              child: Container(
+                                height: 140,
+                                width: 130,
+                                child: VideoPlayer(postVideo[index - 1]),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    }),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: Colors.transparent,
+                  elevation: _isCategorie ? 4.0 : 0.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0)),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                        color: backgroundColorSec,
+                        border: Border.all(
+                            width: 1.0,
+                            color: _isCategorie
+                                ? colorText
+                                : backgroundColor),
+                        borderRadius: BorderRadius.circular(50.0)),
+                    child: allCategories.length == 0 ? LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2) :  DropdownButtonFormField<String>(
+                      hint: Text('Veuillez choisir une categorie',
+                          style: Style.sousTitre(14)),
+                      value: dropdownValue,
+                      icon: Icon(Icons.arrow_downward),
+                      isExpanded: true,
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.white),
+
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isCategorie = true;
+                          dropdownValue = newValue!;
+                          _isName = false;
+                          _isDescribe = false;
+                          _isQuantity = false;
+                          _isPrice = false;
+                          _isPosition = false;
+                          _isNumber = false;
+                          requestLoading = false;
+                          monVal = false;
+                        });
+                      },
+                      items: allCategories.map((value) {
+                        return DropdownMenuItem<String>(
+                          value: value['_id'],
+                          child: Text(value['name'],
+                              style: Style.sousTitre(15)),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 120,
+                  height: 130,
                   width: double.infinity,
                   child: Column(
                     children: <Widget>[
                       Text(
-                          "Cliquez sur l'icon pour signifier que c'est le même numero que ce celui de votre inscription sinon écrivez le",
+                          "Faites entrer un numéro sur lequel on pourra vous joindre pour la recuperation de l'article",
                           style: Style.sousTitre(13)),
                       SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            FloatingActionButton(
-                              child:
-                                  Icon(Icons.smartphone, color: Colors.white),
-                              onPressed: () {
-                                selectDate(context);
-                              },
-                            ),
-                            Card(
-                              color: Colors.transparent,
-                              elevation: _isNumber ? 4.0 : 0.0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50.0)),
-                              child: Container(
-                                height: 50,
-                                width: MediaQuery.of(context).size.width / 1.6,
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: backgroundColorSec,
-                                    border: Border.all(
-                                        width: 1.0,
-                                        color: _isNumber
-                                            ? colorText
-                                            : backgroundColor),
-                                    borderRadius: BorderRadius.circular(50.0)),
-                                child: new TextField(
-                                  controller: numeroCtrl,
-                                  onChanged: (text) {
-                                    setState(() {
-                                      _isNumber = true;
-                                      _isName = false;
-                                      _isDescribe = false;
-                                      _isQuantity = false;
-                                      _isPrice = false;
-                                      _isPosition = false;
-                                      requestLoading = false;
-                                      _isCategorie = false;
-                                      monVal = false;
-                                      numero = text.toString();
-                                    });
-                                  },
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w300),
-                                  cursorColor: colorText,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      prefixIcon: Icon(Icons.looks_5,
-                                          color: _isNumber
-                                              ? colorText
-                                              : Colors.grey),
-                                      hintText: "Numero de telephone",
-                                      hintStyle: TextStyle(
-                                        color: Colors.white,
-                                      )),
-                                ),
-                              ),
-                            ),
-                          ],
+                      Card(
+                        color: Colors.transparent,
+                        elevation: _isNumber ? 4.0 : 0.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0)),
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: backgroundColorSec,
+                              border: Border.all(
+                                  width: 1.0,
+                                  color: _isNumber
+                                      ? colorText
+                                      : backgroundColor),
+                              borderRadius: BorderRadius.circular(50.0)),
+                          child: new TextField(
+                            controller: numeroCtrl,
+                            onChanged: (text) {
+                              setState(() {
+                                _isNumber = true;
+                                _isName = false;
+                                _isDescribe = false;
+                                _isQuantity = false;
+                                _isPrice = false;
+                                _isPosition = false;
+                                requestLoading = false;
+                                _isCategorie = false;
+                                monVal = false;
+                                numero = text.toString();
+                              });
+                            },
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300),
+                            cursorColor: colorText,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                border: InputBorder.none,
+                                prefixIcon: Icon(Icons.looks_5,
+                                    color: _isNumber
+                                        ? colorText
+                                        : Colors.grey),
+                                hintText: "Numero de telephone",
+                                hintStyle: TextStyle(
+                                  color: Colors.white,
+                                )),
+                          ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -708,7 +821,6 @@ class _CreateDealsState extends State<CreateDeals> {
   }
 
   void _submit() async {
-    final form = formKey.currentState;
     setState(() => requestLoading = true);
     if (nameProduct.length > 4 &&
         describe.length > 20 &&
@@ -719,8 +831,10 @@ class _CreateDealsState extends State<CreateDeals> {
         price.length > 2) {
       List<String> imageListTitle =
           post.map((image) => image.path.split('/').last).toList();
+
       String imageTitle = imageListTitle.join(',');
       String imagesBuffers = base64Image.join(',');
+      String videoPub = (video != null) ? video!.path.split('/').last : "";
       int level = monVal ? 3 : 1;
       final product = await consumeAPI.setProductDeals(
           nameProduct,
@@ -732,12 +846,14 @@ class _CreateDealsState extends State<CreateDeals> {
           level,
           numero,
           price,
-          quantity);
+          quantity, videoPub, base64Video);
       setState(() => requestLoading = false);
       if (product == 'found') {
         dropdownValue = null;
         post.clear();
+        postVideo.clear();
         base64Image.clear();
+        base64Video = "";
         nameProductCtrl.clear();
         describeCtrl.clear();
         positionCtrl.clear();
@@ -777,9 +893,9 @@ class _CreateDealsState extends State<CreateDeals> {
   }
 
   void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(new SnackBar(
+    scaffoldKey.currentState?.showSnackBar(SnackBar(
       backgroundColor: colorError,
-      content: new Text(
+      content: Text(
         text,
         textAlign: TextAlign.center,
       ),

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -25,10 +24,11 @@ class SearchAdvancedDeals extends StatefulWidget {
   var authorName;
   var archive;
   var categorieName;
+  var video;
   String id;
   bool displayProfilAuthor;
   List<String> PersonneLike = [];
-  SearchAdvancedDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor });
+  SearchAdvancedDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video});
   @override
   _SearchAdvancedDealsState createState() => _SearchAdvancedDealsState();
 }
@@ -66,8 +66,9 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   onTap: () {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
-                      DealsSkeletonData item = new DealsSkeletonData(
+                      DealsSkeletonData item = DealsSkeletonData(
                         level: widget.level,
+                        video: widget.video,
                         quantity: widget.quantity,
                         numberFavorite: widget.numberFavorite,
                         lieu: widget.lieu,
@@ -134,8 +135,9 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                 onTap: () {
                   Navigator.of(context)
                       .push((MaterialPageRoute(builder: (context) {
-                    DealsSkeletonData item = new DealsSkeletonData(
+                    DealsSkeletonData item = DealsSkeletonData(
                       level: widget.level,
+                      video: widget.video,
                       quantity: widget.quantity,
                       numberFavorite: widget.numberFavorite,
                       lieu: widget.lieu,
@@ -305,8 +307,9 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   onTap: () {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
-                      DealsSkeletonData item = new DealsSkeletonData(
+                      DealsSkeletonData item = DealsSkeletonData(
                         level: widget.level,
+                        video: widget.video,
                         quantity: widget.quantity,
                         numberFavorite: widget.numberFavorite,
                         lieu: widget.lieu,
@@ -346,8 +349,9 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                 onTap: () {
                   Navigator.of(context)
                       .push((MaterialPageRoute(builder: (context) {
-                    DealsSkeletonData item = new DealsSkeletonData(
+                    DealsSkeletonData item = DealsSkeletonData(
                       level: widget.level,
+                      video: widget.video,
                       quantity: widget.quantity,
                       numberFavorite: widget.numberFavorite,
                       lieu: widget.lieu,

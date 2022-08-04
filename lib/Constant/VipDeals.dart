@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Pages/DetailsDeals.dart';
@@ -26,6 +24,7 @@ class VipDeals extends StatefulWidget {
   var archive;
   var level;
   var categorieName;
+  var video;
   String id;
   List<String> personneLike = [];
   VipDeals(
@@ -45,7 +44,7 @@ class VipDeals extends StatefulWidget {
       this.registerDate,
       this.quantity,
       this.archive,
-      this.authorName, this.categorieName});
+      this.authorName, this.categorieName, this.video});
   @override
   _VipDealsState createState() => _VipDealsState();
 }
@@ -185,7 +184,7 @@ class _VipDealsState extends State<VipDeals> {
                   onTap: () {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
-                      DealsSkeletonData item = new DealsSkeletonData(
+                      DealsSkeletonData item = DealsSkeletonData(
                           level: widget.level,
                           quantity: widget.quantity,
                           numberFavorite: widget.numberFavorite,
@@ -202,7 +201,8 @@ class _VipDealsState extends State<VipDeals> {
                           onLine: widget.onLine,
                           authorName: widget.authorName,
                           archive: widget.archive,
-                          categorieName: widget.categorieName,
+                        categorieName: widget.categorieName,
+                        video: widget.video,
                       );
                       return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                     })));

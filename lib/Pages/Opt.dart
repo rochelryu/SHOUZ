@@ -64,11 +64,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         ),
         onTap: () {
           Navigator.pop(context);
-          // if(){
-          //   exit(0);
-          // } else {
-          //   Navigator.pop(context);
-          // }
         },
       ),
     );
@@ -319,7 +314,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                                             'Nous sommes heureux de vous revoir ${newClient!.name}',
                                             context),
                                     barrierDismissible: false);
-                                Navigator.pushNamed(context, MenuDrawler.rootName);
+                                Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
                               } else {
                                 showDialog(
                                     context: context,

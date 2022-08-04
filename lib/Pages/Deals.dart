@@ -340,6 +340,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           level: populaireActu[0]
                                           [choiceItemSearch]['body']
                                           [index]['level'],
+                                          video: populaireActu[0]
+                                          [choiceItemSearch]['body']
+                                          [index]['video'],
                                           imageUrl: populaireActu[0]
                                           [choiceItemSearch]['body']
                                           [index]['images'],
@@ -448,6 +451,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 level: populaireActu[1]
                                                 [choiceItemSearch]['body']
                                                 [index]['level'],
+                                                video: populaireActu[1]
+                                                [choiceItemSearch]['body']
+                                                [index]['video'],
                                                 imageUrl: populaireActu[1]
                                                 [choiceItemSearch]['body']
                                                 [index]['images'],
@@ -551,6 +557,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 level: populaireActu[2]
                                                 [choiceItemSearch]['body']
                                                 [index]['level'],
+                                                video: populaireActu[2]
+                                                [choiceItemSearch]['body']
+                                                [index]['video'],
                                                 imageUrl: populaireActu[2]
                                                 [choiceItemSearch]['body']
                                                 [index]['images'],
@@ -591,7 +600,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
             Positioned(
               bottom: 16.0,
               right: 16.0,
-              child: _controller.index == 1 ? FloatingActionButton(
+              child: FloatingActionButton(
                 elevation: 20.0,
                 onPressed: () {
                   Navigator.of(context).push(
@@ -600,7 +609,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 },
                 backgroundColor: colorText,
                 child: Icon(Icons.add, color: Colors.white, size: 22.0),
-              ): SizedBox(width: 1),
+              ),
             )
           ],
         ),

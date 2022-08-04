@@ -46,7 +46,7 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
         setState(() {
           subscribeCallback = event;
           isFinishLoad = event['etat'] == 'found' ? 1:2;
-          size = 209;
+          size = 190;
           sizeReverse = 150;
         });
       }

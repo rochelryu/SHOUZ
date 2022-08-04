@@ -225,8 +225,9 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                                 onTap: () {
                                   Navigator.of(context)
                                       .push((MaterialPageRoute(builder: (context) {
-                                    DealsSkeletonData element = new DealsSkeletonData(
+                                    DealsSkeletonData element = DealsSkeletonData(
                                       quantity: item['quantity'],
+                                      video: item['video'],
                                       archive: item['archive'],
                                       level: item['level'],
                                       numberFavorite: item['numberFavorite'],

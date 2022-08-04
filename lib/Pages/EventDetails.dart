@@ -608,6 +608,7 @@ class _ViewerEventState extends State<ViewerEvent> {
     super.initState();
     _controller = VideoPlayerController.network(
         "${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
+    print("${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
 
     _controller.setLooping(true);
     _controller.setVolume(1.0);
