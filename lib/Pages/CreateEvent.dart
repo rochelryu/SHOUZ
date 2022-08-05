@@ -592,9 +592,9 @@ class _CreateEventState extends State<CreateEvent> {
                               selectDate(context);
                             }, child: Row(
                               children: [
-                              Icon(Icons.event_available, color: colorPrimary, size: 13,),
+                              Icon(Icons.event_available, color: colorPrimary, size: 14,),
                                 SizedBox(width: 2,),
-                                Text("Choisir la date", style: Style.chatIsMe(10),)
+                                Text("Date du debut", style: Style.chatIsMe(15)),
                             ],),
                             style: raisedButtonStyle,),
                             Card(
