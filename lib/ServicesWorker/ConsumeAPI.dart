@@ -179,12 +179,12 @@ class ConsumeAPI {
 
   }
 
-  Future<List<dynamic>> getAllCategrieWithoutFilter(
+  Future<Map<dynamic, dynamic>> getAllCategrieWithoutFilter(
       [String category = "all"]) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
         '$ALL_CATEGIRES_WITHOUT_FILTER_URL/${newClient.ident}?categorie=$category');
-    return res['result'];
+    return res;
   }
 
   Future<int> getMaxPlaceForCreateEvent() async {
@@ -848,6 +848,7 @@ class ConsumeAPI {
       String imageCoverBase64,
       String position,
       String enventDate,
+      String eventExpireDate,
       int numberTicket,
       String prices,
       String email,
@@ -869,6 +870,7 @@ class ConsumeAPI {
       'categorie': categorie.join(','),
       'prices': prices,
       'enventDate': enventDate,
+      'eventExpireDate': eventExpireDate,
       'videoPub': videoPub,
       'videoPubBase64': videoPubBase64,
       'durationEventByDay': numberOfDay.toString()

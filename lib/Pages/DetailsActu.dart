@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/PageIndicatorSecond.dart';
@@ -7,6 +8,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
 import 'comment_actu.dart';
 
@@ -38,8 +40,7 @@ class DetailsActu extends StatefulWidget {
 
 class _DetailsActuState extends State<DetailsActu> {
   int _currentItem = 0;
-  bool lastPage = false;
-  bool favorite = false;
+  bool lastPage = false, favorite = false, error = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   late PageController _controller;
@@ -60,12 +61,19 @@ class _DetailsActuState extends State<DetailsActu> {
   }
 
   LoadInfo() async {
-    User newClient = await DBProvider.db.getClient();
-    final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
-    await consumeAPI.addView(newClient.ident, widget.id);
-    setState(() {
-      favorite = result;
-    });
+
+    try {
+      User newClient = await DBProvider.db.getClient();
+      final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
+      await consumeAPI.addView(newClient.ident, widget.id);
+      setState(() {
+        favorite = result;
+      });
+    } catch(e) {
+      setState(() {
+        error = true;
+      });
+    }
 
   }
 
@@ -95,12 +103,8 @@ class _DetailsActuState extends State<DetailsActu> {
                   width: MediaQuery.of(context).size.width,
                   child: Stack(
                     children: <Widget>[
-                      Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        child:
-                            Image.network(widget.imageCover, fit: BoxFit.cover),
-                      ),
+                      buildImageInCachedNetworkWithSizeManual(widget.imageCover,double.infinity, double.infinity,BoxFit.cover),
+
                       Positioned(
                           bottom: 0,
                           left: 0,
@@ -170,7 +174,7 @@ class _DetailsActuState extends State<DetailsActu> {
           Positioned(
             right: 30.0,
             bottom: 30.0,
-            child: lastPage
+            child: lastPage && !error
                 ? FloatingActionButton(
                     backgroundColor: colorText,
                     child: Icon(
@@ -272,7 +276,13 @@ class _DetailsActuState extends State<DetailsActu> {
                 borderRadius: BorderRadius.circular(5.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5.0),
-                  child: Image.network(page['inImage']),
+                  child: CachedNetworkImage(
+                    imageUrl: page['inImage'],
+                    progressIndicatorBuilder: (context, url, downloadProgress) =>
+                        Center(
+                            child: CircularProgressIndicator(value: downloadProgress.progress)),
+                    errorWidget: (context, url, error) => notSignal(),
+                  ),
                 ),
               ),
               SizedBox(height: 18.0),
@@ -312,16 +322,9 @@ class _DetailsActuState extends State<DetailsActu> {
 
         break;
       case 'only_picture':
-        return new Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: NetworkImage(page['inImage']), fit: BoxFit.cover)),
-        );
-        break;
+        return buildImageInCachedNetworkWithSizeManual(page['inImage'], MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,BoxFit.cover);
       default:
-        return new Column(
+        return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

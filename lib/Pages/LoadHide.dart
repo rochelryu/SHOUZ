@@ -50,13 +50,21 @@ class _LoadChatState extends State<LoadChat> {
   }
 
   Future loadInfo() async {
+    User user = await DBProvider.db.getClient();
+    final appState = Provider.of<AppState>(context, listen: false);
+    try {
+      appState.setJoinConnected(user.ident);
+    } catch (e) {
+      print(e);
+    }
     final arrayRoom = widget.room.split('_');
     final data = await consumeAPI.getDetailsDealsForChat(arrayRoom);
     if(data['etat'] == 'found') {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
               builder: (builder) => ChatDetails(
+                  newClient: user,
                   comeBack: 1,
                   room: widget.room,
                   productId: arrayRoom[2],
@@ -64,7 +72,7 @@ class _LoadChatState extends State<LoadChat> {
                   onLine: data['result']['onLine'],
                   profil: data['result']['images'],
                   //authorId prend la valeur de idOtherUser
-                  authorId: arrayRoom[0])));
+                  authorId: arrayRoom[0])), (Route<dynamic> route) => false);
     }
   }
 

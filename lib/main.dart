@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +20,7 @@ import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uni_links/uni_links.dart';
 import 'package:shouz/Constant/widget_common.dart';
-
+import 'package:intl/date_symbol_data_local.dart';
 import './MenuDrawler.dart';
 import './OnBoarding.dart';
 import './Pages/ChoiceHobie.dart';
@@ -30,14 +33,14 @@ import 'Provider/AppState.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   var body = message.notification?.body == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.notification?.body;
   body = message.notification?.body == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
-  createShouzNotification(message.notification!.title!, body!, message.data as Map<String, String>);
+  Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
+  createShouzNotification(message.notification!.title!, body!, data);
 }
 
 void main() async {
@@ -45,6 +48,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   AwesomeNotifications().initialize(
       'resource://drawable/icon_notif',
       [NotificationChannel(
@@ -60,13 +64,23 @@ void main() async {
           vibrationPattern: lowVibrationPattern
         ),
       ]);
-
+  Intl.defaultLocale = 'fr_FR';
+  initializeDateFormatting();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await FirebaseMessaging.instance
       .setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
+    sound: true,
+  );
+  final _messaging = FirebaseMessaging.instance;
+
+  // 3. On iOS, this helps to take the user permissions
+  NotificationSettings settings = await _messaging.requestPermission(
+    alert: true,
+    badge: true,
+    provisional: false,
     sound: true,
   );
   SystemChrome.setPreferredOrientations([
@@ -162,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    appState = Provider.of<AppState>(context, listen: true);
+    appState = Provider.of<AppState>(context, listen: false);
     if(message.data['room'] != null) {
       if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
         appState.setNumberNotif(appState.getNumberNotif + 1);
@@ -230,9 +244,11 @@ class _MyHomePageState extends State<MyHomePage> {
     socket!.on("receivedConversation", (data) async {
       //sample event
       if (data['etat'] == 'found') {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         appState.setConversation(data['result']);
         appState.setIdOldConversation(data['result']['_id']);
         appState.ackReadMessage(data['result']['room']);
+        await prefs.setString(data['result']['room'], jsonEncode(data['result']));
         if(client == null) {
           final User getClient = await DBProvider.db.getClient();
           setState(() {

@@ -37,6 +37,7 @@ class _CreateDealsState extends State<CreateDeals> {
   List<File> post = [];
   List<String> base64Image = [];
   String base64Video = "";
+  int priceVip = 0;
   List<VideoPlayerController> postVideo = [];
   List<dynamic> allCategories = [];
   String nameProduct = "";
@@ -77,7 +78,8 @@ class _CreateDealsState extends State<CreateDeals> {
     final data = await consumeAPI.getAllCategrieWithoutFilter("deal");
     numeroCtrl.text = newClient.numero;
     setState(() {
-      allCategories = data;
+      allCategories = data['result']["categories"];
+      priceVip = data['result']["AMOUNT_FOR_PAY_VIP_DEALS"];
       user = newClient;
       numero = newClient.numero;
     });
@@ -736,7 +738,7 @@ class _CreateDealsState extends State<CreateDeals> {
                         value: monVal,
                         checkColor: Colors.white,
                         onChanged: (value) {
-                          if(user!.wallet > 1000) {
+                          if(user!.wallet >= priceVip) {
                             setState(() {
                               monVal = value!;
                             });
@@ -758,7 +760,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
                         },
                       ),
-                      Text('Booster ce deal en VIP (1000 Frs)',
+                      Text('Booster ce deal en VIP (${priceVip.toString()} ${user?.currencies})',
                           style: Style.warning(11)),
                     ],
                   ),

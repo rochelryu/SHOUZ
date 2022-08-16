@@ -30,11 +30,27 @@ class _ExplainEventState extends State<ExplainEvent> {
   List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/none.jpg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpg', 'title': 'GOLD'},{'img': 'images/platine.jpg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
   bool isFinishLoad = false;
   User? newClient;
+  late NavigatorState _navigator;
+  CarouselController carouselController = CarouselController();
 
+  @override
   void initState() {
     super.initState();
     LoadInfo();
   }
+
+  @override
+  void didChangeDependencies() {
+    _navigator = Navigator.of(context);
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    carouselController.stopAutoPlay();
+    super.dispose();
+  }
+
 
   LoadInfo() async {
     User user = await DBProvider.db.getClient();
@@ -92,6 +108,7 @@ class _ExplainEventState extends State<ExplainEvent> {
               Container(
                 height: 200,
                 child: CarouselSlider(
+                  carouselController: carouselController,
                   options: CarouselOptions(
                     aspectRatio: 16 / 9,
                     viewportFraction: 0.8,
@@ -221,7 +238,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                       onPressed: () {
                         Navigator.pop(context);
                         Timer(const Duration(milliseconds: 1000), () {
-                          Navigator.of(context).push(MaterialPageRoute(
+                          _navigator.push(MaterialPageRoute(
                               builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
                         });
                       }),
@@ -294,12 +311,19 @@ class _ExplainEventState extends State<ExplainEvent> {
                     },
                     title: titleOfPackage(element['title']),
                     subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
                             "${element['describe']}. \nMax place : ${element['maxPlace'].toString()}",
                             style: Style.sousTitre(13)),
-                        Text("${element['priceLocalCurrencies'].toString()} ${newClient!.currencies}",
-                            style: Style.priceDealsProduct())
+                        Container(
+                          height: 30,
+                          width: double.infinity,
+                          child: Center(
+                          child: Text("${element['priceLocalCurrencies'].toString()} ${newClient!.currencies}",
+                              style: Style.priceDealsProduct()),
+                          ),
+                        )
                       ],
                     ),
                     selected: true,

@@ -47,7 +47,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
   int numberConnected = 0;
 
-  String _token = '';
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   ConsumeAPI consumeAPI = new ConsumeAPI();
@@ -62,7 +61,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
-
 
   }
 
@@ -90,6 +88,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
           final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
           if(infoSaveToken['etat'] == "found") {
             await prefs.setString('tokenNotification', fcmToken.trim());
+            print("fcmToken.trim()   ${fcmToken.trim()}");
           }
         }
 

@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/widget_common.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -168,75 +170,80 @@ class _VipDealsState extends State<VipDeals> {
                   topLeft: Radius.circular(10.0),
                   topRight: Radius.circular(10.0),
                   bottomRight: Radius.circular(10.0)),
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
-                      bottomRight: Radius.circular(10.0)),
-                  image: DecorationImage(
-                      image: NetworkImage(
-                          "${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}"),
-                      fit: BoxFit.cover),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context)
-                        .push((MaterialPageRoute(builder: (context) {
-                      DealsSkeletonData item = DealsSkeletonData(
-                          level: widget.level,
-                          quantity: widget.quantity,
-                          numberFavorite: widget.numberFavorite,
-                          lieu: widget.lieu,
-                          id: widget.id,
-                          registerDate: widget.registerDate,
-                          profil: widget.profil,
-                          imageUrl: widget.imageUrl,
-                          title: widget.title,
-                          price: widget.price,
-                          autor: widget.autor,
-                          numero: widget.numero,
-                          describe: widget.describe,
-                          onLine: widget.onLine,
-                          authorName: widget.authorName,
-                          archive: widget.archive,
-                        categorieName: widget.categorieName,
-                        video: widget.video,
-                      );
-                      return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
-                    })));
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.all(10.0),
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 2.0,
-                                  color: widget.onLine
-                                      ? Colors.green[300]!
-                                      : Colors.yellow[300]!),
-                              borderRadius: BorderRadius.circular(50.0),
-                              image: DecorationImage(
-                                  image: NetworkImage(
-                                      "${ConsumeAPI.AssetProfilServer}${widget.profil}"),
-                                  fit: BoxFit.cover),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
+              child: CachedNetworkImage(
+                imageUrl: "${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}",
+                imageBuilder: (context, imageProvider) => Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.0),
+                        topRight: Radius.circular(10.0),
+                        bottomRight: Radius.circular(10.0)),
+                    image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover),
                   ),
-                ),
-              ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context)
+                          .push((MaterialPageRoute(builder: (context) {
+                        DealsSkeletonData item = DealsSkeletonData(
+                            level: widget.level,
+                            quantity: widget.quantity,
+                            numberFavorite: widget.numberFavorite,
+                            lieu: widget.lieu,
+                            id: widget.id,
+                            registerDate: widget.registerDate,
+                            profil: widget.profil,
+                            imageUrl: widget.imageUrl,
+                            title: widget.title,
+                            price: widget.price,
+                            autor: widget.autor,
+                            numero: widget.numero,
+                            describe: widget.describe,
+                            onLine: widget.onLine,
+                            authorName: widget.authorName,
+                            archive: widget.archive,
+                          categorieName: widget.categorieName,
+                          video: widget.video,
+                        );
+                        return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
+                      })));
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.all(10.0),
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 2.0,
+                                    color: widget.onLine
+                                        ? Colors.green[300]!
+                                        : Colors.yellow[300]!),
+                                borderRadius: BorderRadius.circular(50.0),
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        "${ConsumeAPI.AssetProfilServer}${widget.profil}"),
+                                    fit: BoxFit.cover),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),),
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    Center(
+                        child: CircularProgressIndicator(value: downloadProgress.progress)),
+                errorWidget: (context, url, error) => notSignal(),
+              )
             ),
           )
         ],

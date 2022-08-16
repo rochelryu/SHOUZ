@@ -4,10 +4,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shouz/Constant/Style.dart';
 
 import '../Constant/PageIndicator.dart';
-import 'demande_conducteur.dart';
+import '../Constant/widget_common.dart';
+//import 'demande_conducteur.dart';
 
 class ExplicationTravel extends StatefulWidget {
-  int typeRedirect;//0 if for Navigator.pop, 1 for Navigator.push in choicePackage
+  int typeRedirect;
   ExplicationTravel({required this.typeRedirect, required Key key});
 
   @override
@@ -129,7 +130,12 @@ class _ExplicationTravelState extends State<ExplicationTravel> {
                   if(widget.typeRedirect == 0) {
                     Navigator.pop(context);
                   } else if(widget.typeRedirect == 1 ) {
-                    Navigator.pushNamed(context, DemandeConducteur.rootName);
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            dialogCustomError('Indisponible', "Nous sommes en procédure judiciaire pour l'établissement de ce service.\nBientôt disponible", context),
+                        barrierDismissible: false);
+                    //Navigator.pushNamed(context, DemandeConducteur.rootName);
                   }
                 },
               )

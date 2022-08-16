@@ -4,6 +4,7 @@ import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/widget_common.dart';
 import 'Login.dart';
 import 'choice_categorie_scan.dart';
 import 'choice_method_payement.dart';
@@ -148,7 +149,11 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            print('modifier');
+            showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    dialogCustomError('Indisponible', "Nous sommes en procédure judiciaire pour l'établissement de ce service.\nBientôt disponible", context),
+                barrierDismissible: false);
           },
         );
         break;
@@ -282,7 +287,12 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            Navigator.pushNamed(context, DemandeConducteur.rootName);
+            //Navigator.pushNamed(context, DemandeConducteur.rootName);
+            showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    dialogCustomError('Indisponible', "Nous sommes en procédure judiciaire pour l'établissement de ce service.\nBientôt disponible", context),
+                barrierDismissible: false);
           },
         );
         break;

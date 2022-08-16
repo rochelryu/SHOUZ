@@ -22,6 +22,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
   List<dynamic> choice = [];
   bool changeLoading = false;
   String value = "";
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
@@ -76,7 +77,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                         changeLoading = true;
                       });
                       /*final profils = await DBProvider.db.getProfil();*/
-                      final updateHobbies = await new ConsumeAPI()
+                      final updateHobbies = await consumeAPI
                           .updateHobie(choice);
                       if (updateHobbies['etat'] == 'found') {
                         await DBProvider.db.delClient();
@@ -172,7 +173,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           ),
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
-                            return new ConsumeAPI().getAllCategrie(pattern.length > 0 ? pattern :'');
+                            return consumeAPI.getAllCategrie(pattern.length > 0 ? pattern :'');
                           },
                           itemBuilder: (context, suggestion) {
                             final categorie = suggestion as Categorie;
@@ -188,7 +189,7 @@ class _ChoiceOtherHobieState extends State<ChoiceOtherHobie> {
                           onSuggestionSelected: (suggestion) async {
                             final categorie = suggestion as Categorie;
                             eCtrl.text = categorie.name;
-                            final etat = await new ConsumeAPI()
+                            final etat = await consumeAPI
                                 .verifyCategorieExist(eCtrl.text);
                             if (etat) {
                               if (choice.indexOf(eCtrl.text) == -1) {

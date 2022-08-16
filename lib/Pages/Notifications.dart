@@ -9,8 +9,10 @@ import 'package:skeleton_text/skeleton_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import '../MenuDrawler.dart';
+import '../Models/User.dart';
 import '../Provider/AppState.dart';
 import '../Provider/Notifications.dart';
+import '../Utils/Database.dart';
 import 'ChatDetails.dart';
 import 'LoadHide.dart';
 import 'Login.dart';
@@ -30,6 +32,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   int numberNotifDeals = 0, numberNotifEvent = 0, numberNotifCovoiturage = 0, numberNotifShouzPay = 0;
 
   late Future<Map<dynamic, dynamic>> notificationsFull;
+  User? newClient;
 
 
   @override
@@ -42,8 +45,11 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
 
 
   Future getInfo() async {
+    User user = await DBProvider.db.getClient();
     try {
-
+      setState(() {
+        newClient = user;
+      });
       final getAllNumberNotifByCategorie = await consumeAPI.getAllNumberNotifByCategorie();
       if(getAllNumberNotifByCategorie['etat'] != 'found') {
         showDialog(
@@ -81,7 +87,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
         ),
         backgroundColor: backgroundColor,
         title: Text('Notifications'),
-        bottom: new TabBar(
+        bottom: TabBar(
           controller: _controller,
           unselectedLabelColor: Color(0xdd3c5b6d),
           labelColor: colorText,
@@ -1274,6 +1280,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     context,
                     MaterialPageRoute(
                         builder: (builder) => ChatDetails(
+                            newClient:newClient!,
                             comeBack: 0,
                             room: atMoment[index]['room'],
                             productId: atMoment[index]['productId'],

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Utils/Database.dart';
@@ -11,7 +13,7 @@ class AppState with ChangeNotifier {
   String idVoyage = '';
   int maxPlace = 0;
   double percentageRecharge = 0.0;
-  int indexBottomBar = 0;
+  int indexBottomBar = new Random().nextInt(3);
   String idOldConversation = '';
   String priceVoyageTotal = '';
   String forfaitEventEnum = "NOT FORFAIT";

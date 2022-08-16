@@ -233,11 +233,11 @@ class _ActualiteState extends State<Actualite> {
 
       final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
       final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
+
       final addresses =
       await geocoding.placemarkFromCoordinates(latitude!, longitude!);
       geocoding.Placemark first = addresses.first;
-
-      String finalPosition;
+      String finalPosition = '';
       if (first.locality != null  && first.locality != '') {
         finalPosition ='${first.locality}, ${first.isoCountryCode}';
       } else {
@@ -319,7 +319,7 @@ class _ActualiteState extends State<Actualite> {
                 value['imageCover'])
             .propotypingScrol(context))
         .toList();
-    return new Container(
+    return Container(
       height: 310,
       width: MediaQuery.of(context).size.width * 0.6,
       child: Column(
@@ -358,7 +358,7 @@ class _ActualiteState extends State<Actualite> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
             child: Container(
-              child: new Column(
+              child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),
                   FutureBuilder(

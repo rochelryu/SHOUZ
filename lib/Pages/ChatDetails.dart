@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -17,7 +19,6 @@ import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:provider/provider.dart';
-import 'package:shouz/Utils/Database.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:record/record.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -32,17 +33,18 @@ class ChatDetails extends StatefulWidget {
   var profil;
   var room;
   int comeBack;
+  User newClient;
   @override
-  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId, this.room, required this.comeBack});
+  ChatDetails({this.name, this.onLine, this.profil, this.authorId, this.productId, this.room, required this.comeBack, required this.newClient});
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
 class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStateMixin {
-  User? newClient;
   TextEditingController eCtrl = TextEditingController();
   ScrollController _scrollController = ScrollController();
   late TabController _tabController;
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  var scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   File? _image;
   final picker = ImagePicker();
   ConsumeAPI consumeAPI = new ConsumeAPI();
@@ -88,7 +90,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     _tabController = TabController(length: 2, vsync: this);
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
-
   }
 
   @override
@@ -113,19 +114,32 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     setState(() {
       onLine = widget.onLine;
     });
-    final client = await DBProvider.db.getClient();
 
-    final room = widget.room == '' ? "${widget.authorId}_${client.ident}_${widget.productId}": widget.room;
-    appState.getConversation(room);
-    final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
-    final arrayOfId = room.toString().split('_');
-    final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == client.ident ? arrayOfId[1] : arrayOfId[0]);
-    setState(() {
-      this.room = room.toString();
-      productDetails = productInfo;
-      newClient = client;
-      onLine = infoOnLine;
-    });
+    final room = widget.room == '' ? "${widget.authorId}_${widget.newClient.ident}_${widget.productId}": widget.room;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final converse = prefs.getString(room);
+
+    if(converse != null) {
+      final conversation = jsonDecode(converse);
+      appState.setConversation(conversation);
+      appState.setIdOldConversation(conversation['_id']);
+    }
+    try {
+      appState.getConversation(room);
+      final productInfo = await consumeAPI.getDetailsDeals(room.toString().split('_')[2]);
+      final arrayOfId = room.toString().split('_');
+      final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == widget.newClient.ident ? arrayOfId[1] : arrayOfId[0]);
+      setState(() {
+        this.room = room.toString();
+        productDetails = productInfo;
+        onLine = infoOnLine;
+      });
+    } catch (e) {
+      _showSnackBar("Aucune connexion internet");
+
+    }
+
   }
 
   inWrite(bool etat, String id, String identUser) async {
@@ -144,7 +158,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 int.parse(value['date'].substring(5, 7)),
                 int.parse(value['date'].substring(8, 10))))
             .inDays;
-        bool isMe = (newClient!.ident == value['ident']) ? true : false;
+        bool isMe = (widget.newClient.ident == value['ident']) ? true : false;
         if (date == 1) {
           if (!again) {
             tabs.add(Text("Hier",
@@ -242,7 +256,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         ),
       );
     }
-    if(conversation['levelDelivery'] == 3 && newClient != null && room.split('_')[1] == newClient!.ident) {
+    if(conversation['levelDelivery'] == 3  && room.split('_')[1] == widget.newClient.ident) {
       tabs.add(
         Container(
           height: 120,
@@ -544,7 +558,8 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context);
     final conversation = appState.getConversationGetter;
-    Timer(
+
+    if (_scrollController.hasClients) Timer(
         Duration(seconds: 1),
             () => _scrollController
             .jumpTo(_scrollController.position.maxScrollExtent));
@@ -566,7 +581,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(onPressed: (){
-
               if(widget.comeBack == 0) {
                 appState.setConversation({});
                 appState.setIdOldConversation('');
@@ -619,19 +633,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         ),
         centerTitle: false,
       ),
-      body: newClient == null ? Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage('images/backgoundChat.png'),
-              fit: BoxFit.cover
-          )
-        ),
-        child: Center(
-          child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
-        ),
-      ) : Container(
+      body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
@@ -752,10 +754,10 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 setState(() {
                                   message = text;
                                   if (message.length == 1) {
-                                    inWrite(true, room, newClient!.ident);
+                                    inWrite(true, room, widget.newClient.ident);
                                     // appState.setTyping(true, widget.authorId);
                                   } else if (message.length == 0) {
-                                    inWrite(false, room, newClient!.ident);
+                                    inWrite(false, room, widget.newClient.ident);
                                     // appState.setTyping(false, widget.authorId);
                                   }
                                 });
@@ -798,16 +800,16 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                       String imageCover =
                                           imm.path.split('/').last;
                                       appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+                                          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
                                           base64: base64Image,
                                           imageName: imageCover,
                                           content: message);
-                                      inWrite(false, room, newClient!.ident);
+                                      inWrite(false, room, widget.newClient.ident);
                                     } else {
                                       appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+                                          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
                                           content: message);
-                                      inWrite(false, room, newClient!.ident);
+                                      inWrite(false, room, widget.newClient.ident);
                                     }
                                     // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
                                     Timer(
@@ -827,13 +829,13 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                           imageName: imageCover,
                                           content: message,
                                           id: appState.getIdOldConversation);
-                                      inWrite(false, room, newClient!.ident);
+                                      inWrite(false, room, widget.newClient.ident);
                                     } else {
                                       appState.sendChatMessage(
                                           destinate: room,
                                           content: message,
                                           id: appState.getIdOldConversation);
-                                      inWrite(false, room, newClient!.ident);
+                                      inWrite(false, room, widget.newClient.ident);
                                     }
                                     // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
                                   }
@@ -900,11 +902,11 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     indicatorColor: colorText,
                     tabs: [
                       new Tab(
-                        text: (newClient != null && room.split('_')[0] == newClient!.ident) ? 'Moi ':'Vendeur',
+                        text: (room.split('_')[0] == widget.newClient.ident) ? 'Moi ':'Vendeur',
                       ),
                       new Tab(
                         //icon: const Icon(Icons.shopping_cart),
-                        text: (newClient != null && room.split('_')[1] == newClient!.ident) ? 'Moi': 'Acheteur',
+                        text: (room.split('_')[1] == widget.newClient.ident) ? 'Moi': 'Acheteur',
                       ),
 
                     ],
@@ -951,9 +953,9 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 Container(
                                   width: double.infinity,
                                   height: 170,
-                                  child: propositionAuteur(conversation['etatCommunication'], (newClient != null && room.split('_')[0] == newClient!.ident), conversation['priceFinal'], conversation['quantityProduct']),
+                                  child: propositionAuteur(conversation['etatCommunication'], (room.split('_')[0] == widget.newClient.ident), conversation['priceFinal'], conversation['quantityProduct']),
                                 ),
-                                if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && newClient != null && room.split('_')[0] == newClient!.ident) ElevatedButton(
+                                if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && room.split('_')[0] == widget.newClient.ident) ElevatedButton(
                               onPressed: () {
                                 if(int.parse(quantity) <= productDetails!['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
                                   appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation );
@@ -1000,7 +1002,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   0.39,
                             ),
                             Text(
-                                (newClient != null && room.split('_')[0] == newClient!.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
+                                (room.split('_')[0] == widget.newClient.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
                                 textAlign: TextAlign.center,
                                 style: Style.sousTitreEvent(15)),
                           ],
@@ -1026,19 +1028,19 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   List<Widget> reformatText(conversation) {
     if(conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users') {
       return [
-        Text((newClient != null && room.split('_')[0] == newClient!.ident) ? "Vous n'avez pas encore fait de proposition" : "Le vendeur n'a pas encore fait de proposition concernant votre deals",
+        Text((room.split('_')[0] == widget.newClient.ident) ? "Vous n'avez pas encore fait de proposition" : "Le vendeur n'a pas encore fait de proposition concernant votre deals",
             textAlign: TextAlign.center,
             style: Style.sousTitreEvent(15))
       ];
     } else if(conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller Purpose price final at buyer') {
-      if(newClient != null && room.split('_')[0] == newClient!.ident) {
+      if(room.split('_')[0] == widget.newClient.ident) {
         return [Text("En attente de reponse de l'acheteur", textAlign: TextAlign.center,style: Style.sousTitreEvent(15))];
       } else {
         return [
           ElevatedButton(
             onPressed: () {
                 final priceFinal = conversation['priceFinal'] != null ? conversation['priceFinal'] : 0;
-                if(newClient != null && newClient!.wallet >= priceFinal) {
+                if(widget.newClient.wallet >= priceFinal) {
                   appState.agreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
                   Navigator.pop(context);
                 } else {
@@ -1187,7 +1189,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     final base64Audio = base64Encode(File(path).readAsBytesSync());
     if(appState.getConversationGetter['_id'] == null) {
       appState.createChatMessage(
-          destinate: "${widget.authorId}_${newClient!.ident}_${widget.productId}",
+          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
           base64: base64Audio,
           imageName: audioName,
           content: message);
@@ -1212,6 +1214,21 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         opacity = opacity == 0.0 ? 1.0: 0.0;
       });
     });
+  }
+
+  void _showSnackBar(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: colorError,
+      content: Text(
+        text,
+        textAlign: TextAlign.center,
+      ),
+      action: SnackBarAction(
+          label: 'Ok',
+          onPressed: () {
+
+          }),
+    ));
   }
 }
 
@@ -1306,9 +1323,15 @@ class _BubbleState extends State<Bubble> {
                               topLeft: Radius.circular(20),
                               bottomRight: Radius.circular(20),
                       ),
-                      child: widget.image.indexOf('.m4a') == -1 ? Image.network(
-                          "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}"): LoadAudioAsset(url: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}", isMe: widget.isMe, key: UniqueKey(),),
+                      child: widget.image.indexOf('.m4a') == -1 ? CachedNetworkImage(
+                        imageUrl: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}",
+                        progressIndicatorBuilder: (context, url, downloadProgress) =>
+                            Center(
+                                child: CircularProgressIndicator(value: downloadProgress.progress)),
+                        errorWidget: (context, url, error) => notSignal(),
+                      ): LoadAudioAsset(url: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}", isMe: widget.isMe, key: UniqueKey(),),
                     ),
+
                     if(widget.message != '') Container(
                       child: Text(
                         widget.message,

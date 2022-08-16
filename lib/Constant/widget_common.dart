@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -595,9 +596,14 @@ Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitl
                             ),
                             child: Hero(
                               tag: tickets[index]['_id'],
-                              child: Image.network(
-                                  "${ConsumeAPI.AssetBuyEventServer}${tickets[index]['idEvent']}/${tickets[index]['nameImage']}",
-                                  fit: BoxFit.cover),
+                              child: CachedNetworkImage(
+                                imageUrl: "${ConsumeAPI.AssetBuyEventServer}${tickets[index]['idEvent']}/${tickets[index]['nameImage']}",
+                                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                    Center(
+                                        child: CircularProgressIndicator(value: downloadProgress.progress)),
+                                errorWidget: (context, url, error) => notSignal(),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -654,5 +660,51 @@ Widget isErrorLoadInfoBecauseNewPermissionAccording(BuildContext context, String
               style: Style.sousTitreEvent(15)),
 
         ]),
+  );
+}
+
+Widget notSignal() {
+  return Center(
+    child: Icon(Icons.signal_cellular_connected_no_internet_4_bar_rounded, color: colorText,),
+  );
+}
+
+CachedNetworkImage buildImageInCachedNetworkWithSizeManual(String urlImage, double width, double height, BoxFit fit ) {
+  return CachedNetworkImage(
+    imageUrl: urlImage,
+    imageBuilder: (context, imageProvider) =>
+        Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
+              fit: fit,
+            ),
+          ),
+        ),
+    progressIndicatorBuilder: (context, url, downloadProgress) =>
+        Center(
+            child: CircularProgressIndicator(value: downloadProgress.progress)),
+    errorWidget: (context, url, error) => notSignal(),
+  );
+}
+
+CachedNetworkImage buildImageInCachedNetworkSimpleWithSizeAuto(String urlImage,BoxFit fit) {
+  return CachedNetworkImage(
+    imageUrl: urlImage,
+    imageBuilder: (context, imageProvider) =>
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
+              fit: fit,
+            ),
+          ),
+        ),
+    progressIndicatorBuilder: (context, url, downloadProgress) =>
+        Center(
+            child: CircularProgressIndicator(value: downloadProgress.progress)),
+    errorWidget: (context, url, error) => notSignal(),
   );
 }

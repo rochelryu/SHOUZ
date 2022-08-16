@@ -198,18 +198,22 @@ class _CodeScannerState extends State<CodeScanner> {
         else if((result!.code?.split('-').length == 5 && widget.type == 1) || (result!.code?.split('_').length == 4 && widget.type != 1)) {
           final infoTicketSplit = result!.code?.split('-');
           final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketByScan(infoTicketSplit![0], infoTicketSplit[1], infoTicketSplit[2], infoTicketSplit[3], infoTicketSplit[4]): await consumeAPI.decodeTicketTravelByScan(result!.code ?? '');
+
           if(inforDecode['etat'] == 'found') {
-            dialogCustomForValidateAction(
-                "Ticket Verifié",
-                inforDecode['result'],
-                "Continuer",
-                    () {
-                  setState(() {
-                    scanned = false;
-                    result = null;
-                  });
-                },
-                context);
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => dialogCustomForValidateAction(
+                    "Ticket Verifié",
+                    inforDecode['result'],
+                    "Continuer",
+                        () {
+                      setState(() {
+                        scanned = false;
+                        result = null;
+                      });
+                    },
+                    context),
+                barrierDismissible: false);
 
           }
           else if(inforDecode['etat'] =='notFound' && inforDecode['etat'] == "Vous n'êtes pas authorisé") {

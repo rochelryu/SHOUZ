@@ -689,7 +689,7 @@ class _CheckoutRechargeMobileMoneyState
                                     borderRadius: BorderRadius.circular(30.0)
                                 ),
                                 child: TextField(
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -710,7 +710,7 @@ class _CheckoutRechargeMobileMoneyState
                         loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
                             style: raisedButtonStyleWave,
                             onPressed: () async {
-                              if(waveNumero.trim().length == 10) {
+                              if(waveNumero.trim().length > 5) {
                                 setState(() {
                                   loadConfirmation = true;
                                 });
@@ -734,7 +734,7 @@ class _CheckoutRechargeMobileMoneyState
                                 }
                               } else {
                                 Fluttertoast.showToast(
-                                    msg: 'Numero Wave incorrect, veuillez bien verifier',
+                                    msg: 'Code de ref incorrect, veuillez bien verifier',
                                     toastLength: Toast.LENGTH_LONG,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 1,

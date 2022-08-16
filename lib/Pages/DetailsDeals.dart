@@ -33,11 +33,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
   bool isPlaying = false;
   late VideoPlayerController _controller;
   late Future<void> _initialiseVideoFlutter;
+  User? newClient;
 
   @override
   void initState() {
     super.initState();
-    print("widget.dealsDetailsSkeleton.video ${widget.dealsDetailsSkeleton.video.length.toString()}");
     if(widget.dealsDetailsSkeleton.video != "") {
       _controller =  VideoPlayerController.network(
           "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
@@ -79,10 +79,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
   }
 
   getUser() async {
-    User newClient = await DBProvider.db.getClient();
+    User user = await DBProvider.db.getClient();
     setState(() {
-      id = newClient.ident;
+      id = user.ident;
       isMe = (widget.dealsDetailsSkeleton.autor != id) ? false : true;
+      newClient = user;
     });
     final result = await consumeAPI.verifyIfExistItemInFavor(widget.dealsDetailsSkeleton.id, 1);
     setState(() {
@@ -201,9 +202,19 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                       Container(
                                         width: double.infinity,
                                         height: double.infinity,
-                                        child: AspectRatio(
-                                          aspectRatio: _controller.value.aspectRatio,
-                                          child: VideoPlayer(_controller),
+                                        child: GestureDetector(
+                                          onTap: (){
+                                            print("tapp");
+                                            setState(() {
+                                              _controller.value.isPlaying
+                                                  ? _controller.pause()
+                                                  : _controller.play();
+                                            });
+                                          },
+                                          child: AspectRatio(
+                                            aspectRatio: _controller.value.aspectRatio,
+                                            child: VideoPlayer(_controller),
+                                          ),
                                         ),
                                       ),
                                       Positioned(
@@ -253,9 +264,12 @@ class _DetailsDealsState extends State<DetailsDeals> {
                           child: Container(
                             height: MediaQuery.of(context).size.height / 2,
                             width: MediaQuery.of(context).size.width,
-                            child: Image.network(
-                                "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[widget.dealsDetailsSkeleton.video != "" ? _currentItem - 1 == -1 ? 0:_currentItem - 1:_currentItem]}",
-                                fit: BoxFit.cover),
+                            child: buildImageInCachedNetworkWithSizeManual(
+                              "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[widget.dealsDetailsSkeleton.video != "" ? _currentItem - 1 == -1 ? 0:_currentItem - 1:_currentItem]}",
+                              double.infinity,
+                              double.infinity,
+                              BoxFit.cover
+                            ),
                           ),
                         );
                       }
@@ -494,6 +508,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         context,
                         MaterialPageRoute(
                             builder: (builder) => ChatDetails(
+                              newClient: newClient!,
                                 comeBack: 0,
                                 room: '',
                                 productId: widget.dealsDetailsSkeleton.id,
@@ -589,9 +604,9 @@ class _ViewerProductState extends State<ViewerProduct> {
         controller:controller,
         itemBuilder: (context, index) {
           return Center(
-            child: Image.network(
+            child: buildImageInCachedNetworkSimpleWithSizeAuto(
                 "${ConsumeAPI.AssetProductServer}${widget.imgUrl[index]}",
-                fit: BoxFit.contain),
+                BoxFit.contain),
           );
         }
       ),

@@ -1,9 +1,6 @@
-
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-
-import '../Provider/Notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 String reformatTimerForDisplayOnChrono(int time) {
   final minute = (time / 60).floor();
@@ -18,9 +15,36 @@ String descriptionShouz = '''1 - Achete tout au plus bas prix possible en plus o
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
 
-bool isNumeric(String s) {
-  if(s == null) {
-    return false;
-  }
-  return double.tryParse(s) != null;
+String formatedDateForLocal(DateTime date) {
+  initializeDateFormatting();
+  var formatDate = DateFormat("yyyy-MM-dd' à 'HH:mm");
+  return formatDate.format(date);
+}
+
+int daysBetween(DateTime from, DateTime to) {
+  from = DateTime(from.year, from.month, from.day, from.hour, from.minute);
+  to = DateTime(to.year, to.month, to.day, to.hour, to.minute);
+  final diff = to.difference(from).inHours / 24;
+  print(from.toString());
+  print(to.toString());
+
+  print(diff);
+  return diff.ceil();
+}
+
+
+//CLASS
+
+class SalesData {
+  SalesData(this.year, this.sales);
+  final DateTime year;
+  final List<double> sales;
+}
+
+class ChartDataForDonut {
+  ChartDataForDonut(this.x, this.y, this.color);
+
+  final String x;
+  final double y;
+  final Color color;
 }

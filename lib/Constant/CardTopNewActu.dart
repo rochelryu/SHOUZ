@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
+import 'package:shouz/Constant/widget_common.dart';
 
 import '../Pages/DetailsActu.dart';
 
@@ -60,13 +62,23 @@ class CardTopNewActu {
                   elevation: 4.0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0)),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      image: DecorationImage(
-                          image: NetworkImage(this.image), fit: BoxFit.cover),
-                    ),
+                  child: CachedNetworkImage(
+                    imageUrl: this.image,
+                    imageBuilder: (context, imageProvider) =>
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                    progressIndicatorBuilder: (context, url, downloadProgress) =>
+                        Center(
+                            child: CircularProgressIndicator(value: downloadProgress.progress)),
+                    errorWidget: (context, url, error) => notSignal(),
                   ),
                 ),
               ),
@@ -138,55 +150,141 @@ class CardTopNewActu {
     }
     if (parseContent.length >= 2) {
       List<Widget> listPicturePreview = [
-        ClipRRect(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
-          child: Image.network(imageCover,
-              fit: BoxFit.cover, width: width, height: 250),
+        CachedNetworkImage(
+          imageUrl: imageCover,
+          imageBuilder: (context, imageProvider) =>
+              Container(
+                width: width,
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              Center(
+                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+          errorWidget: (context, url, error) => notSignal(),
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            ClipRRect(
-              borderRadius: BorderRadius.only(topRight: Radius.circular(5.0)),
-              child: Image.network(parseContent[0],
-                  fit: BoxFit.cover, width: width, height: 120),
+            CachedNetworkImage(
+              imageUrl: parseContent[0],
+              imageBuilder: (context, imageProvider) =>
+                  Container(
+                    width: width,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(topRight: Radius.circular(5.0)),
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  Center(
+                      child: CircularProgressIndicator(value: downloadProgress.progress)),
+              errorWidget: (context, url, error) => notSignal(),
             ),
             SizedBox(height: 10.0),
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.only(bottomRight: Radius.circular(5.0)),
-              child: Image.network(parseContent[1],
-                  fit: BoxFit.cover, width: width, height: 120),
+            CachedNetworkImage(
+              imageUrl: parseContent[1],
+              imageBuilder: (context, imageProvider) =>
+                  Container(
+                    width: width,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(bottomRight: Radius.circular(5.0)),
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  Center(
+                      child: CircularProgressIndicator(value: downloadProgress.progress)),
+              errorWidget: (context, url, error) => notSignal(),
             ),
+
           ],
         )
       ];
       return listPicturePreview;
     } else if (parseContent.length == 1) {
       List<Widget> listPicturePreview = [
-        ClipRRect(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
-          child: Image.network(imageCover,
-              fit: BoxFit.cover, width: width, height: 250),
+        CachedNetworkImage(
+          imageUrl: imageCover,
+          imageBuilder: (context, imageProvider) =>
+              Container(
+                width: width,
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              Center(
+                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+          errorWidget: (context, url, error) => notSignal(),
         ),
-        ClipRRect(
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(5.0),
-              bottomRight: Radius.circular(5.0)),
-          child: Image.network(parseContent[0],
-              fit: BoxFit.cover, width: width, height: 250),
-        )
+        CachedNetworkImage(
+          imageUrl: parseContent[0],
+          imageBuilder: (context, imageProvider) =>
+              Container(
+                width: width,
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(5.0),
+                      bottomRight: Radius.circular(5.0)),
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              Center(
+                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+          errorWidget: (context, url, error) => notSignal(),
+        ),
       ];
       return listPicturePreview;
     } else {
       List<Widget> listPicturePreview = [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(5.0),
-          child: Image.network(imageCover, fit: BoxFit.cover, width: width*2, height: 250),
-        )
+        CachedNetworkImage(
+          imageUrl: imageCover,
+          imageBuilder: (context, imageProvider) =>
+              Container(
+                width: width*2,
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              Center(
+                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+          errorWidget: (context, url, error) => notSignal(),
+        ),
       ];
       return listPicturePreview;
     }

@@ -14,6 +14,7 @@ import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:video_player/video_player.dart';
 
+import '../Constant/helper.dart';
 import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 
@@ -27,13 +28,16 @@ class _CreateEventState extends State<CreateEvent> {
   VideoPlayerController? _controller;
   final picker = ImagePicker();
   DateTime? dateChoice;
+  DateTime? dateChoiceEnd;
   late DateTime date = new DateTime.now();
+  late DateTime dateEnd = new DateTime.now();
   late TimeOfDay time = new TimeOfDay.now();
+  late TimeOfDay timeEnd = new TimeOfDay.now();
   final formKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
   final ConsumeAPI consumeAPI = new ConsumeAPI();
+  int durrationEvent = 0;
   int maxPlace = 0;
-  int durationEventByDay = 1;
   List<File> post = [];
   File? video;
   String base64Image = "";
@@ -57,10 +61,7 @@ class _CreateEventState extends State<CreateEvent> {
   bool _isPrice = false;
   bool onClickOfAddPrice = false;
   bool _isPosition = false;
-  bool _isNumber = false;
   bool _isQuantity = false;
-  int? numero;
-  TextEditingController numeroCtrl = new TextEditingController();
   bool _isLoading = false;
   bool monVal = false;
   List<List<TextEditingController>> _controllers = [];
@@ -68,29 +69,46 @@ class _CreateEventState extends State<CreateEvent> {
 
 
 
-  Future<Null> selectDate(BuildContext context) async {
+  Future<Null> selectDate(BuildContext context, bool begin) async {
+    final initialDate = begin ? date: dateEnd;
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: date,
+        initialDate: initialDate,
         firstDate: new DateTime(new DateTime.now().year),
         lastDate: new DateTime(new DateTime.now().year + 2));
-    if (picked != null && picked != date) {
+
+    if (picked != null) {
       setState(() {
-        date = picked;
+        if(begin){
+          date = picked;
+        } else {
+          dateEnd = picked;
+        }
+
       });
-      selectTime(context);
+      selectTime(context, begin);
     }
   }
 
-  Future<Null> selectTime(BuildContext context) async {
+  Future<Null> selectTime(BuildContext context, bool begin) async {
+    final initialTime = begin ? time: timeEnd;
     final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: time);
+        await showTimePicker(context: context, initialTime: initialTime);
 
-    if (picked != null && picked != time) {
+    if (picked != null) {
       setState(() {
-        time = picked;
-        dateChoice = new DateTime(
-            date.year, date.month, date.day, time.hour, time.minute);
+        if(begin){
+          time = picked;
+          dateChoice = DateTime(
+              date.year, date.month, date.day, time.hour, time.minute);
+        } else {
+          timeEnd = picked;
+          dateChoiceEnd = DateTime(
+              dateEnd.year, dateEnd.month, dateEnd.day, timeEnd.hour, timeEnd.minute);
+        }
+        if(dateChoice != null && dateChoiceEnd != null) {
+          durrationEvent = daysBetween(dateChoice!, dateChoiceEnd!);
+        }
       });
     }
   }
@@ -148,7 +166,6 @@ class _CreateEventState extends State<CreateEvent> {
                     _isEmail = false;
                     _isPrice = false;
                     _isPosition = false;
-                    _isNumber = false;
                     _isLoading = false;
                     monVal = false;
                   });
@@ -193,7 +210,6 @@ class _CreateEventState extends State<CreateEvent> {
                     _isEmail = false;
                     _isPrice = false;
                     _isPosition = false;
-                    _isNumber = false;
                     _isLoading = false;
                     monVal = false;
                   });
@@ -355,7 +371,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isEmail = false;
                           _isPrice = false;
                           _isPosition = false;
-                          _isNumber = false;
                           _isLoading = false;
                           monVal = false;
                           nameProduct = text;
@@ -406,7 +421,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isDescribe = true;
                           _isPrice = false;
                           _isPosition = false;
-                          _isNumber = false;
                           _isLoading = false;
                           monVal = false;
                           describe = text;
@@ -571,79 +585,41 @@ class _CreateEventState extends State<CreateEvent> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 110,
                   width: double.infinity,
                   child: Column(
                     children: <Widget>[
-                      Text(
-                          (dateChoice != null)
-                              ? dateChoice!.toLocal().toString().substring(
-                                  0, dateChoice!.toLocal().toString().length - 7)
-                              : "Cliquez sur l'icone du calendrier pour choisir la date de cet evenement",
+                      if(dateChoice == null && dateChoiceEnd == null) Text("Cliquez sur les bouttons ci-dessous pour marquer les dates de l'évènement",
                           style: Style.sousTitre(13)),
-                      SizedBox(height: 10),
+                      if(dateChoice != null || dateChoiceEnd != null) Text("${(dateChoice != null) ? formatedDateForLocal(dateChoice!) : ' '} - ${(dateChoiceEnd != null) ? formatedDateForLocal(dateChoiceEnd!) : ' '}",
+                          style: Style.sousTitre(13)),
+                      SizedBox(height: 5),
+                      if(durrationEvent > 0) Text("L'évènement sera en ${durrationEvent.toString()} jour${durrationEvent > 1 ? 's':''} donc décodable ${durrationEvent > 1 ? durrationEvent:'une'} fois",
+                          style: Style.sousTitre(13, colorError), textAlign: TextAlign.center,),
+                      SizedBox(height: 5),
                       Container(
                         height: 60,
                         width: double.infinity,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: <Widget>[
                             ElevatedButton(onPressed: (){
-                              selectDate(context);
+                              selectDate(context, true);
                             }, child: Row(
                               children: [
                               Icon(Icons.event_available, color: colorPrimary, size: 14,),
                                 SizedBox(width: 2,),
-                                Text("Date du debut", style: Style.chatIsMe(15)),
+                                Text("Date debut", style: Style.chatIsMe(15)),
                             ],),
                             style: raisedButtonStyle,),
-                            Card(
-                              color: Colors.transparent,
-                              elevation: _isNumber ? 4.0 : 0.0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50.0)),
-                              child: Container(
-                                height: 50,
-                                width: MediaQuery.of(context).size.width * 0.51,
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: backgroundColorSec,
-                                    border: Border.all(
-                                        width: 1.0,
-                                        color: _isNumber
-                                            ? colorText
-                                            : backgroundColor),
-                                    borderRadius: BorderRadius.circular(50.0)),
-                                child: TextField(
-                                  controller: numeroCtrl,
-                                  onChanged: (text) {
-                                    setState(() {
-                                      _isNumber = true;
-                                      _isName = false;
-                                      _isEmail = false;
-                                      _isDescribe = false;
-                                      _isPrice = false;
-                                      _isPosition = false;
-                                      _isLoading = false;
-                                      monVal = false;
-                                      numero = int.parse(text);
-                                    });
-                                  },
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w300),
-                                  cursorColor: colorText,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: "Durée de l'évènement en jour",
-                                      hintStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12
-                                      )),
-                                ),
-                              ),
-                            ),
+                            ElevatedButton(onPressed: (){
+                              selectDate(context, false);
+                            }, child: Row(
+                              children: [
+                                Icon(Icons.event_available, color: colorPrimary, size: 14,),
+                                SizedBox(width: 2,),
+                                Text("Date Fin", style: Style.chatIsMe(15)),
+                              ],),
+                              style: raisedButtonStyle,),
                           ],
                         ),
                       )
@@ -676,7 +652,6 @@ class _CreateEventState extends State<CreateEvent> {
                         setState(() {
                           _isPosition = true;
                           _isName = false;
-                          _isNumber = false;
                           _isEmail = false;
                           _isDescribe = false;
                           _isPrice = false;
@@ -712,57 +687,6 @@ class _CreateEventState extends State<CreateEvent> {
                     style: Style.sousTitre(13)),
               ),
               ..._listView(),
-              /*new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: Colors.transparent,
-                  elevation: _isPrice ? 4.0 : 0.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0)),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: backgroundColorSec,
-                        border: Border.all(
-                            width: 1.0,
-                            color: _isPrice
-                                ? colorText
-                                : backgroundColor),
-                        borderRadius: BorderRadius.circular(50.0)),
-                    child: TextField(
-                      controller: priceCtrl,
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w300),
-                      cursorColor: colorText,
-                      onChanged: (text) {
-                        setState(() {
-                          _isPrice = true;
-                          _isName = false;
-                          _isEmail = false;
-                          _isDescribe = false;
-                          _isPosition = false;
-                          _isNumber = false;
-                          _isLoading = false;
-                          monVal = false;
-                          price = text;
-                        });
-                      },
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          prefixIcon: Icon(Icons.looks_5,
-                              color:
-                                  _isPrice ? colorText : Colors.grey),
-                          hintText: "(Ex: 2000:45, 5000:30) ou Gratuit",
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                          )),
-                    ),
-                  ),
-                ),
-              ),*/
               OutlinedButton(
                 style: outlineButtonStyle,
                   onPressed: addTypeTicket, child: Row(
@@ -803,7 +727,6 @@ class _CreateEventState extends State<CreateEvent> {
                           _isEmail = true;
                           _isDescribe = false;
                           _isPosition = false;
-                          _isNumber = false;
                           _isLoading = false;
                           monVal = false;
                           email = text;
@@ -1012,8 +935,8 @@ class _CreateEventState extends State<CreateEvent> {
         allCategorie.length > 0 &&
         base64Image != '' &&
         dateChoice != null &&
-        numero != null &&
-        numero! < 6  &&
+        dateChoiceEnd != null &&
+        durrationEvent < 6  &&
         position.length > 5 &&
         _controllers.length > 0 &&
         email.indexOf('@') > 4) {
@@ -1042,13 +965,13 @@ class _CreateEventState extends State<CreateEvent> {
             base64Image,
             position,
             dateChoice.toString(),
+            dateChoiceEnd.toString(),
             placeTotal,
             array.join(','),
             email,
-            numero!,
+            durrationEvent,
             videoPub,
             base64Video
-
         );
         setState(() => _isLoading = false);
         if (event['etat'] == 'found') {
@@ -1064,7 +987,6 @@ class _CreateEventState extends State<CreateEvent> {
             describeCtrl.clear();
             positionCtrl.clear();
             priceCtrl.clear();
-            numeroCtrl.clear();
             base64Image = '';
             base64Video = '';
             nameProduct = "";
@@ -1072,7 +994,6 @@ class _CreateEventState extends State<CreateEvent> {
             position = "";
             price = "";
             email = '';
-            numero = null;
           });
           await askedToLead(
               "Votre évènement est en ligne, vous pouvez le manager où que vous soyez",
@@ -1087,7 +1008,7 @@ class _CreateEventState extends State<CreateEvent> {
       }else {
         setState(() => _isLoading = false);
         await askedToLead(
-            "Votre nombre maximum de ticket est de ${maxPlace}.\nSi un type de ticket est gratuit ecrivez juste gratuit à la place du prix du ticket",
+            "Votre nombre maximum de ticket est de $maxPlace.\nSi un type de ticket est gratuit ecrivez juste gratuit à la place du prix du ticket",
             false, context);
       }
     } else {

@@ -22,9 +22,9 @@ final Color colorTextShadow = Color(0xFF2979FF);
 final Color colorError = Color(0xFFB71C1C);
 final Color colorWarning = Color(0xFFDEB31C);
 final Color colorSuccess = Color(0xFF4CAF50);
-final Color colorPrimary = Colors.white;
-final Color colorSecondary = Colors.grey;
-final Color colorWelcome = Colors.white70;
+const Color colorPrimary = Colors.white;
+const Color colorSecondary = Colors.grey;
+const Color colorWelcome = Colors.white70;
 final Color secondColor =
     (!primaryTheme) ? Color(0xFFFFFFFF) : Color(0xFFFFFFFF);
 final transitionMedium = new Duration(milliseconds: 400);
@@ -394,11 +394,11 @@ class Style {
         letterSpacing: 1.2);
   }
 
-  static dynamic sousTitre(double size) {
+  static dynamic sousTitre(double size, [Color color = colorSecondary]) {
     return TextStyle(
       fontSize: size,
       fontFamily: "LexendExa",
-      color: colorSecondary,
+      color: color,
     );
   }
 
@@ -1037,7 +1037,9 @@ Future<Null> askedToLead(String message, bool success, BuildContext context) asy
             )
           ],
         );
-      });
+      },
+    barrierDismissible: false
+  );
 }
 
 Future<Null> modalForExplain(String assetLink, String text, BuildContext context) async {

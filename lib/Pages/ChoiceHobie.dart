@@ -148,6 +148,9 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         padding: EdgeInsets.only(left: 10.0),
                         width: MediaQuery.of(context).size.width,
                         child: TypeAheadField(
+                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                            color: backgroundColor
+                          ),
                           hideSuggestionsOnKeyboardHide: false,
                           textFieldConfiguration: TextFieldConfiguration(
                             //autofautofocusocus: true,

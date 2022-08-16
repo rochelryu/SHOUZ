@@ -68,7 +68,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
         ),
       ),
       backgroundColor: backgroundColor,
-      body: new GestureDetector(
+      body: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },

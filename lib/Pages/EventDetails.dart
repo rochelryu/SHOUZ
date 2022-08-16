@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,10 +12,10 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Pages/add_decodeur.dart';
 import 'package:shouz/Pages/choice_method_payement.dart';
 import 'package:shouz/Pages/result_buy_event.dart';
+import 'package:shouz/Pages/stats_event.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -135,12 +136,15 @@ class _EventDetailsState extends State<EventDetails> {
                   child: ClipShadowPath(
                       clipper: CircularClipper(),
                       shadow: Shadow(blurRadius: 20.0),
-                      child: Image(
+                      child: CachedNetworkImage(
+                        imageUrl: "${ConsumeAPI.AssetEventServer}${widget.imageUrl}",
+                        progressIndicatorBuilder: (context, url, downloadProgress) =>
+                            Center(
+                                child: CircularProgressIndicator(value: downloadProgress.progress)),
+                        errorWidget: (context, url, error) => notSignal(),
+                        fit: BoxFit.cover,
                         height: 400,
                         width: double.infinity,
-                        image: NetworkImage(
-                            "${ConsumeAPI.AssetEventServer}${widget.imageUrl}"),
-                        fit: BoxFit.cover,
                       )),
                 ),
               ),
@@ -323,7 +327,7 @@ class _EventDetailsState extends State<EventDetails> {
               ],
             ),
           ),
-          widget.allTicket.length > 0 ? componentForDisplayTicketByEvent(widget.allTicket, widget.title, widget.enventDate, user) : SizedBox(width: 10),
+          if (widget.allTicket.length > 0) componentForDisplayTicketByEvent(widget.allTicket, widget.title, widget.enventDate, user),
           Row(
             children: <Widget>[
               SizedBox(
@@ -425,22 +429,7 @@ class _EventDetailsState extends State<EventDetails> {
                   ],
                 ),
               ),
-              widget.isMeAuthor ? Container(
-                height: 30,
-                padding: EdgeInsets.only(left: 5),
-                margin: EdgeInsets.only(left: 5),
-                decoration: BoxDecoration(
-
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-
-                    Text("Cumul Gain: ${widget.cumulGain.toString()}", style: Style.sousTitre(15),)
-                  ],
-                )
-              ) :
-              Container(
+              if(!widget.isMeAuthor) Container(
                 height: 40,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -452,7 +441,7 @@ class _EventDetailsState extends State<EventDetails> {
                         var normal = (place > 0) ? place - 1 : 0;
                         setState(() {
                           placeTotal =
-                              (place != 0) ? placeTotal + 1 : placeTotal;
+                          (place != 0) ? placeTotal + 1 : placeTotal;
                           place = normal;
                           priceItem = (choice == "GRATUIT")
                               ? 0
@@ -478,7 +467,7 @@ class _EventDetailsState extends State<EventDetails> {
                         setState(() {
                           place = normal;
                           placeTotal =
-                              (placeTotal > 0) ? placeTotal - 1 : placeTotal;
+                          (placeTotal > 0) ? placeTotal - 1 : placeTotal;
                           priceItem = (choice == "GRATUIT")
                               ? 0
                               : normal * int.parse(choice);
@@ -491,6 +480,19 @@ class _EventDetailsState extends State<EventDetails> {
               SizedBox(height: 20),
             ],
           ),
+          if(widget.isMeAuthor) Container(
+              padding: EdgeInsets.only(left: 5),
+              margin: EdgeInsets.only(left: 5),
+              decoration: BoxDecoration(
+
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Cumul Gain: ${widget.cumulGain.toString()} ${user.currencies}", style: Style.sousTitre(17),),
+                ],
+              )
+          ),
           Container(
             margin: EdgeInsets.all(10),
             height: 60,
@@ -500,12 +502,7 @@ class _EventDetailsState extends State<EventDetails> {
             decoration: BoxDecoration(
                 color: backgroundColorSec,
                 borderRadius: BorderRadius.circular(30)),
-            child: widget.isMeAuthor ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                reformatStateAuthor(state),
-              ],
-            ) : Row(
+            child: widget.isMeAuthor ? reformatStateAuthor(state) : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
@@ -550,7 +547,7 @@ class _EventDetailsState extends State<EventDetails> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Gain pas encore retirable', style: Style.titre(10),),
+
           ElevatedButton(onPressed: (){
             Navigator.of(context)
                 .push((MaterialPageRoute(builder: (context) {
@@ -559,10 +556,53 @@ class _EventDetailsState extends State<EventDetails> {
                   eventId: widget.id);
             })));
           }, style: raisedButtonStyle,
-            child: Text('Attribuer décodeur'),)
+            child: Text('Attribuer décodeur'),),
+          ElevatedButton(onPressed: (){
+            Navigator.of(context)
+                .push((MaterialPageRoute(builder: (context) {
+              return StatsEvent(
+                  key: UniqueKey(),
+                  imageUrl: widget.imageUrl,
+                  title: widget.title,
+                  eventId: widget.id);
+            })));
+          }, style: raisedButtonStyle,
+            child: Text('Statistiques'),),
         ],
       );
     } else if (state == 2) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+          ElevatedButton(
+            style: raisedButtonStyleSuccess,
+            child: Text("Recuperer Gain", style: Style.titre(18)),
+            onPressed: () async {
+              final data = await consumeAPI.recupCumul(widget.id);
+              if(data['etat'] == 'found') {
+                setState(() {
+                  state = 3;
+                });
+                _displaySnackBar(context, "🥳 Gain récupéré avec succès");
+              } else {
+                _displaySnackBar(context, data['error']);
+              }
+            },
+          ),
+          ElevatedButton(onPressed: (){
+            Navigator.of(context)
+                .push((MaterialPageRoute(builder: (context) {
+              return StatsEvent(
+                  key: UniqueKey(),
+                  imageUrl: widget.imageUrl,
+                  title: widget.title,
+                  eventId: widget.id);
+            })));
+          }, style: raisedButtonStyle,
+            child: Text('Statistiques'),),
+        ],
+      );
       return ElevatedButton(
         style: raisedButtonStyleSuccess,
         child: Text("Recuperer Gain", style: Style.titre(18)),
@@ -608,7 +648,6 @@ class _ViewerEventState extends State<ViewerEvent> {
     super.initState();
     _controller = VideoPlayerController.network(
         "${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
-    print("${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
 
     _controller.setLooping(true);
     _controller.setVolume(1.0);

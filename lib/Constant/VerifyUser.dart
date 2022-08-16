@@ -20,6 +20,7 @@ class _VerifyUserState extends State<VerifyUser> {
   String message = '';
   String passwordSave = '';
   String pin = '';
+  int numberAttempFailed = 0;
 
   Future getNewPin() async {
     try {
@@ -300,6 +301,7 @@ class _VerifyUserState extends State<VerifyUser> {
                                   password = '';
                                   message = "Mot de passe incorrect";
                                   isError = true;
+                                  numberAttempFailed += 1;
                                 });
                               }
                             }

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shouz/Pages/share_ticket.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 import '../Constant/Style.dart';
+import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
 import '../Models/User.dart';
 
@@ -61,11 +63,16 @@ class TicketDetail extends StatelessWidget {
                       width: 200,
                       child: Hero(
                         tag: ticketId,
-                        child: Image(
+                        child: CachedNetworkImage(
+                          imageUrl: "${ConsumeAPI.AssetBuyEventServer}$eventId/$ticketImg",
+                          progressIndicatorBuilder: (context, url, downloadProgress) =>
+                              Center(
+                                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+                          errorWidget: (context, url, error) => notSignal(),
+                          fit: BoxFit.cover,
                           height: 400,
                           width: double.infinity,
-                          image:  NetworkImage("${ConsumeAPI.AssetBuyEventServer}$eventId/$ticketImg"),
-                      ),
+                        )
                     )),
                     SizedBox(height: 15),
                     Padding(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -87,30 +88,33 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     verifyIfUserHaveReadModalExplain();
   }
 
-  loadProduct() async {
-    final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
-    setState(() {
-      dealsFull = data;
-    });
-    new Timer(const Duration(seconds: 1), changeMenuOptionButton);
-    setState(() {
-      loadMinim = false;
-      loadingFull = false;
-    });
-  }
-
-  Future loadProductForFuture() async {
-    setState(() {
-      loadingFull = true;
-    });
-    final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
-    setState(() {
-      dealsFull = data;
-    });
-    new Timer(const Duration(seconds: 1), changeMenuOptionButton);
-    setState(() {
-      loadingFull = false;
-    });
+  Future loadProduct() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
+      setState(() {
+        dealsFull = data;
+      });
+      Timer(const Duration(seconds: 1), changeMenuOptionButton);
+      setState(() {
+        loadMinim = false;
+        loadingFull = false;
+      });
+      await prefs.setString('dealsFull', jsonEncode(data));
+    }catch (e) {
+      final dealsFullString = prefs.getString("dealsFull");
+      if(dealsFullString != null) {
+        setState(() {
+          dealsFull = jsonDecode(dealsFullString) as List<dynamic>;
+        });
+        Timer(const Duration(seconds: 1), changeMenuOptionButton);
+      }
+      setState(() {
+        isError = true;
+        loadingFull = false;
+      });
+      await askedToLead(dealsFull.length > 0 ? "Aucune connection internet, donc nous vous affichons quelques articles en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
+    }
   }
 
   verifyIfUserHaveReadModalExplain() async {
@@ -121,7 +125,6 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       await prefs.setBool('readDealsModalExplain', true);
     }
   }
-
   changeMenuOptionButton() async {
     pref.clear();
     var deals = dealsFull;
@@ -137,6 +140,11 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         pref.add(item);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -268,15 +276,64 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 ),
                 Container(
                   height: MediaQuery.of(context).size.height - 230,
-                  child: new TabBarView(
+                  child: TabBarView(
                     physics: NeverScrollableScrollPhysics(),
                     controller: _controller,
                     children: <Widget>[
                       RefreshIndicator(
                         key: _refreshIndicatorKeyVip,
-                        onRefresh: loadProductForFuture,
+                        onRefresh: loadProduct,
                         child: LayoutBuilder( builder: (context,contraints) {
                           if(loadingFull){
+                            if(dealsFull.length > 0 && dealsFull[0][choiceItemSearch]['body'].length > 0) {
+                              var populaireActu = dealsFull;
+                              return Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: ListView.builder(
+                                      controller: _scrollControllerVip,
+                                      itemCount: populaireActu[0]
+                                      [choiceItemSearch]['body']
+                                          .length,
+                                      itemBuilder: (context, index) {
+                                        return VipDeals(
+                                            level: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['level'],
+                                            video: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['video'],
+                                            imageUrl: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['images'],
+                                            archive: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['archive'],
+                                            title: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['name'],
+                                            favorite: false,
+                                            price: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['price'].toString() + ' XOF',
+                                            numero: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['numero'],
+                                            autor: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['author'],
+                                            authorName: populaireActu[0][choiceItemSearch]['body'][index]['authorName'],
+                                            id: populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['_id'],
+                                            profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
+                                            categorieName: populaireActu[0][choiceItemSearch]['body'][index]['categorieName'],
+                                            onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
+                                            describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
+                                            numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
+                                            lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
+                                            registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
+                                            quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
+                                      },
+                                    ),
+                                  )
+                                ],
+                              );
+                            }
                             return Column(children: <Widget>[
                                   Expanded(
                                     child: ListView.builder(
@@ -287,7 +344,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                     ),
                                   )
                             ]);
-                          } else if(!loadingFull && isError) {
+                          } else if(!loadingFull && isError && dealsFull.length == 0) {
                               return isErrorSubscribe(context);
                           } else {
                             var populaireActu = dealsFull;
@@ -381,9 +438,60 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyRecent,
-                          onRefresh: loadProductForFuture,
+                          onRefresh: loadProduct,
                           child: LayoutBuilder( builder: (context,contraints) {
                             if(loadingFull){
+                              if(dealsFull.length > 0 && dealsFull[1][choiceItemSearch]['body'].length > 0) {
+                                var populaireActu = dealsFull;
+                                return Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: MasonryGridView.count(
+                                        controller: _scrollControllerRecent,
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10,
+                                        padding: EdgeInsets.all(10.0),
+                                        itemCount: populaireActu[1]
+                                        [choiceItemSearch]['body']
+                                            .length,
+                                        itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                            level: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['level'],
+                                            video: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['video'],
+                                            imageUrl: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['images'],
+                                            archive: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['archive'],
+                                            title: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['name'],
+                                            favorite: false,
+                                            price: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['price'].toString()+ ' XOF',
+                                            numero: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['numero'],
+                                            autor: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['author'],
+                                            authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
+                                            categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
+                                            id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
+                                            profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
+                                            onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
+                                            describe: populaireActu[1][choiceItemSearch]['body'][index]['describe'],
+                                            numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
+                                            lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
+                                            registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
+                                            quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
+
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
                               return Column(children: <Widget>[
                                 Expanded(
                                   child: ListView.builder(
@@ -394,7 +502,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                   ),
                                 )
                               ]);
-                            } else if(!loadingFull && isError) {
+                            } else if(!loadingFull && isError && dealsFull.length == 0) {
                               return isErrorSubscribe(context);
                             } else {
                               var populaireActu = dealsFull;
@@ -488,9 +596,60 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyPopular,
-                          onRefresh: loadProductForFuture,
+                          onRefresh: loadProduct,
                           child: LayoutBuilder( builder: (context,contraints) {
                             if(loadingFull){
+                              if(dealsFull.length > 0 && dealsFull[2][choiceItemSearch]['body'].length > 0) {
+                                var populaireActu = dealsFull;
+                                return Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: MasonryGridView.count(
+                                        controller: _scrollControllerPopulaire,
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10,
+                                        padding: EdgeInsets.all(10.0),
+                                        itemCount: populaireActu[2]
+                                        [choiceItemSearch]['body']
+                                            .length,
+                                        itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                            level: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['level'],
+                                            video: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['video'],
+                                            imageUrl: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['images'],
+                                            archive: populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['archive'],
+                                            title: populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['name'],
+                                            favorite: false,
+                                            price: populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['price'].toString()+ ' XOF',
+                                            numero: populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['numero'],
+                                            autor: populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['author'],
+                                            authorName: populaireActu[2][choiceItemSearch]['body'][index]['authorName'],
+                                            categorieName: populaireActu[2][choiceItemSearch]['body'][index]['categorieName'],
+                                            id: populaireActu[2][choiceItemSearch]['body'][index]['_id'],
+                                            profil: populaireActu[2][choiceItemSearch]['body'][index]['profil'],
+                                            onLine: populaireActu[2][choiceItemSearch]['body'][index]['onLine'],
+                                            describe: populaireActu[2][choiceItemSearch]['body'][index]['describe'],
+                                            numberFavorite: populaireActu[2][choiceItemSearch]['body'][index]['numberFavorite'],
+                                            lieu: populaireActu[2][choiceItemSearch]['body'][index]['lieu'],
+                                            registerDate: populaireActu[2][choiceItemSearch]['body'][index]['registerDate'],
+                                            quantity: populaireActu[2][choiceItemSearch]['body'][index]['quantity']),
+
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
                               return Column(children: <Widget>[
                                 Expanded(
                                   child: ListView.builder(
@@ -501,7 +660,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                   ),
                                 )
                               ]);
-                            } else if(!loadingFull && isError) {
+                            } else if(!loadingFull && isError && dealsFull.length == 0) {
                               return isErrorSubscribe(context);
                             } else {
                               var populaireActu = dealsFull;
