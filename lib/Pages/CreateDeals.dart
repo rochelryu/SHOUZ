@@ -5,11 +5,13 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_video_info/flutter_video_info.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/helper.dart';
+import 'package:shouz/Constant/helper.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -29,9 +31,8 @@ class CreateDeals extends StatefulWidget {
 
 class _CreateDealsState extends State<CreateDeals> {
   final formKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
-  final videoInfo = FlutterVideoInfo();
   VideoPlayerController? _controller;
   File? video;
   List<File> post = [];
@@ -132,7 +133,7 @@ class _CreateDealsState extends State<CreateDeals> {
           setState((){
             postVideo = [];
           });
-          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+          showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
         }
 
       } else {
@@ -159,7 +160,7 @@ class _CreateDealsState extends State<CreateDeals> {
           setState((){
             postVideo = [];
           });
-          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+          showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourde, veuillez choisir une autre si possible");
         }
       }
     }
@@ -890,22 +891,7 @@ class _CreateDealsState extends State<CreateDeals> {
       }
     } else {
       setState(() => requestLoading = false);
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer");
+      showSnackBar(context, "Remplissez correctement les champs avant d'envoyer");
     }
-  }
-
-  void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(SnackBar(
-      backgroundColor: colorError,
-      content: Text(
-        text,
-        textAlign: TextAlign.center,
-      ),
-      action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-
-          }),
-    ));
   }
 }

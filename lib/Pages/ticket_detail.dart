@@ -56,7 +56,7 @@ class TicketDetail extends StatelessWidget {
                     ),
                     Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text("${placeTotal.toString()} Ticket${placeTotal > 1 ? 'S': ''} de ${typeTicket.toUpperCase() == 'GRATUIT' ? 'type': '' } $typeTicket ${typeTicket.toUpperCase() == 'GRATUIT' ? '': user.currencies }\npris le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}", style: Style.chatOutMe(14), textAlign: TextAlign.center),
+                        child: Text("${placeTotal.toString()} Ticket${placeTotal > 1 ? 's': ''} de ${typeTicket.toUpperCase() == 'GRATUIT' ? 'type': '' } $typeTicket ${typeTicket.toUpperCase() == 'GRATUIT' ? '': user.currencies }\npris le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}", style: Style.chatOutMe(14), textAlign: TextAlign.center),
                     ),
                     Container(
                       height: 200,
@@ -76,7 +76,7 @@ class TicketDetail extends StatelessWidget {
                     )),
                     SizedBox(height: 15),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 60),
+                      padding: EdgeInsets.symmetric(horizontal: 40),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -97,7 +97,7 @@ class TicketDetail extends StatelessWidget {
                       ),
                     ),
                     placeTotal < 3 ? Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 60),
+                      padding: EdgeInsets.symmetric(horizontal: 40),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           primary: colorError,
@@ -108,7 +108,7 @@ class TicketDetail extends StatelessWidget {
                           final shareTicket = await consumeAPI.dropEventTicket(ticketId);
                           if(shareTicket['etat'] == 'found') {
                             await askedToLead(
-                                "Ticket Annulé votre compte vient de recevoir 95% du montant total du ticket",
+                                "Ticket Annulé votre compte vient de recevoir 90% du montant total du ticket",
                                 true, context);
                               Timer(Duration(seconds: 3), () {
                                 Navigator.pushNamed(context, MenuDrawler.rootName);

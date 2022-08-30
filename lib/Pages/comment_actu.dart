@@ -56,10 +56,9 @@ class _CommentActuState extends State<CommentActu> {
           Positioned(
             top: 0,
             left: 0,
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.31,
             right: 0,
             child: Container(
-              color: colorText,
               width: double.infinity,
               height: double.infinity,
               child: Stack(
@@ -74,7 +73,7 @@ class _CommentActuState extends State<CommentActu> {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      height: MediaQuery.of(context).size.height * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.31,
                       child: Container(
                         padding: EdgeInsets.all(30.0),
                         decoration: BoxDecoration(
@@ -89,7 +88,7 @@ class _CommentActuState extends State<CommentActu> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            Text(widget.title, style: Style.titre(22.0), overflow: TextOverflow.ellipsis, maxLines: 6,),
+                            Text(widget.title, style: Style.titre(22.0), overflow: TextOverflow.ellipsis, maxLines: 5,),
 
                           ],
                         ),

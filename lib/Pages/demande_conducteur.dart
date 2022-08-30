@@ -11,6 +11,8 @@ import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/helper.dart';
+
 class DemandeConducteur extends StatefulWidget {
   static String rootName = '/DemandeConducteur';
   @override
@@ -832,21 +834,8 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
       }
     } else {
       setState(() => _isLoading = false);
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer");
+      showSnackBar(context, "Remplissez correctement les champs avant d'envoyer");
     }
   }
 
-  void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(SnackBar(
-      backgroundColor: colorError,
-      content: Text(
-        text,
-        textAlign: TextAlign.center,
-      ),
-      action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-          }),
-    ));
-  }
 }

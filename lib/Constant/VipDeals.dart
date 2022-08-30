@@ -73,90 +73,118 @@ class _VipDealsState extends State<VipDeals> {
       padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 0.0, bottom: 18.0),
       child: Stack(
         children: <Widget>[
-          Container(
-            height: 200,
-            width: MediaQuery.of(context).size.width / 2,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [backgroundColor, tint],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    bottomLeft: Radius.circular(10.0))),
-            margin: EdgeInsets.only(top: 45.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                    padding: EdgeInsets.only(left: 15.0, top: 8.0),
-                    child:
-                        Text(widget.title, style: Style.titleDealsProduct())),
-                Padding(
+          InkWell(
+            onTap: () {
+              Navigator.of(context)
+                  .push((MaterialPageRoute(builder: (context) {
+                DealsSkeletonData item = DealsSkeletonData(
+                  level: widget.level,
+                  quantity: widget.quantity,
+                  numberFavorite: widget.numberFavorite,
+                  lieu: widget.lieu,
+                  id: widget.id,
+                  registerDate: widget.registerDate,
+                  profil: widget.profil,
+                  imageUrl: widget.imageUrl,
+                  title: widget.title,
+                  price: widget.price,
+                  autor: widget.autor,
+                  numero: widget.numero,
+                  describe: widget.describe,
+                  onLine: widget.onLine,
+                  authorName: widget.authorName,
+                  archive: widget.archive,
+                  categorieName: widget.categorieName,
+                  video: widget.video,
+                );
+                return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
+              })));
+            },
+            child: Container(
+              height: 200,
+              width: MediaQuery.of(context).size.width / 2,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [backgroundColor, tint],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      bottomLeft: Radius.circular(10.0))),
+              margin: EdgeInsets.only(top: 45.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.only(left: 15.0, top: 8.0),
+                      child:
+                          Text(widget.title, style: Style.titleDealsProduct())),
+                  Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(widget.numberFavorite.toString(),
+                              style: Style.numberOfLike()),
+                          SizedBox(width: 5.0),
+                          Icon(
+                            Icons.favorite,
+                            color: Colors.redAccent,
+                            size: 17.0,
+                          )
+                        ],
+                      )),
+                  Padding(
                     padding: EdgeInsets.only(left: 15.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(widget.numberFavorite.toString(),
-                            style: Style.numberOfLike()),
-                        SizedBox(width: 5.0),
-                        Icon(
-                          Icons.favorite,
-                          color: Colors.redAccent,
-                          size: 17.0,
-                        )
+                        Text("${widget.price.toString()}",
+                            style: Style.priceDealsProduct()),
+                        SizedBox(width: 15.0),
                       ],
-                    )),
-                Padding(
-                  padding: EdgeInsets.only(left: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text("${widget.price.toString()}",
-                          style: Style.priceDealsProduct()),
-                      SizedBox(width: 15.0),
-                    ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(afficheDate, style: Style.numberOfLike()),
-                    ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(afficheDate, style: Style.numberOfLike()),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius:
-                          BorderRadius.only(bottomLeft: Radius.circular(10.0))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      IconButton(
-                          icon: Icon(Icons.call, color: Colors.green),
-                          onPressed: () async {
-                            await launchUrlString("tel:${widget.numero}");
-                          }),
+                  Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius:
+                            BorderRadius.only(bottomLeft: Radius.circular(10.0))),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        IconButton(
+                            icon: Icon(Icons.call, color: Colors.green),
+                            onPressed: () async {
+                              await launchUrlString("tel:${widget.numero}");
+                            }),
 
-                      SizedBox(width: 7.0),
-                      IconButton(
-                          icon: Icon(Style.social_normal, color: tint),
-                          onPressed: () {
-                            Share.share("${ConsumeAPI.ProductLink}${widget.id}");
-                          }),
-                    ],
-                  ),
-                )
-              ],
+                        SizedBox(width: 7.0),
+                        IconButton(
+                            icon: Icon(Style.social_normal, color: tint),
+                            onPressed: () {
+                              Share.share("${ConsumeAPI.ProductLink}${widget.id}");
+                            }),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           Positioned(

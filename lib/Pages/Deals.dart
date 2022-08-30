@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -374,8 +375,21 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               Navigator.of(context).push((MaterialPageRoute(
                                                   builder: (context) => ChoiceOtherHobie())));
                                             } else {
-                                              Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                              if(!isError) {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                    msg: 'Aucune connexion internet, désolé',
+                                                    toastLength: Toast.LENGTH_LONG,
+                                                    gravity: ToastGravity.CENTER,
+                                                    timeInSecForIosWeb: 1,
+                                                    backgroundColor: colorError,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0
+                                                );
+                                              }
+
                                             }
 
                                           },

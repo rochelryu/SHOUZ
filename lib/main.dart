@@ -4,14 +4,18 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'Constant/helper.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-//import 'package:huawei_push/huawei_push.dart' as huawei;
+import 'package:huawei_push/huawei_push.dart' as huawei;
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/route.dart';
@@ -34,9 +38,6 @@ import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   var body = message.notification?.body == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.notification?.body;
   body = message.notification?.body == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
   Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
@@ -44,7 +45,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -133,11 +135,31 @@ class _MyHomePageState extends State<MyHomePage> {
   int level = 15;
   User? client;
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+
+  void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
+    // Called when a data message is received
+    String? data = remoteMessage.data;
+    final notification = remoteMessage.notification;
+    print("notification");
+    print(notification);
+    print("data");
+    print(data);
+    String result = await huawei.Push.turnOnPush();
+  }
+
+  void _onHmsMessageReceiveError(Object error) {
+    print("error");
+    print(error);
+    // Called when an error occurs while receiving the data message
+  }
 
   @override
   void initState() {
     super.initState();
     //configOneSignal();
+    FlutterNativeSplash.remove();
+    initMessageStream();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if(!isAllowed) {
         showDialog(
@@ -158,10 +180,38 @@ class _MyHomePageState extends State<MyHomePage> {
         onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
-    listenFirebase();
+
 
     getNewLevel();
     initializeSocket();
+  }
+
+  Future<void> initMessageStream() async {
+    if (!mounted) {
+      return;
+    } else {
+      if(Platform.isAndroid){
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+          User user = await DBProvider.db.getClient();
+          setState(() {
+            client = user;
+          });
+          if(user.numero != "null") {
+            print(user.ident);
+            getTokenForNotificationProvider();
+          }
+          huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
+        } else {
+          listenFirebase();
+        }
+      }
+      else {
+        listenFirebase();
+      }
+
+    }
+
   }
 
   void listenFirebase() async {
@@ -170,12 +220,62 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void configOneSignal() async {
+    if(Platform.isAndroid){
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+        OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+        OneSignal.shared.setAppId(oneSignalAppId);
+        OneSignal.shared
+            .promptUserForPushNotificationPermission()
+            .then((accepted) {
+              print('"donc result accepted');
+              print(accepted);
+        });
+        User user = await DBProvider.db.getClient();
+        setState(() {
+          client = user;
+        });
+        if(user.numero != "null") {
+          print(user.ident);
+          OneSignal.shared.setExternalUserId(user.ident);
+        }
+
+        OneSignal.shared.setNotificationWillShowInForegroundHandler((OSNotificationReceivedEvent event) {
+          // Will be called whenever a notification is received in foreground
+          // Display Notification, pass null param for not displaying the notification
+          print(event.notification);
+          print(event.notification.additionalData);
+          event.complete(event.notification);
+        });
+
+        OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+          // Will be called whenever a notification is opened/button pressed.
+        });
+
+        OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
+          // Will be called whenever the permission changes
+          // (ie. user taps Allow on the permission prompt in iOS)
+        });
+
+        OneSignal.shared.setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+          // Will be called whenever the subscription changes
+          // (ie. user gets registered with OneSignal and gets a user ID)
+        });
+
+        OneSignal.shared.setEmailSubscriptionObserver((OSEmailSubscriptionStateChanges emailChanges) {
+          // Will be called whenever then user's email subscription changes
+          // (ie. OneSignal.setEmail(email) is called and the user gets registered
+        });
+      }
+    }
+
+  }
+
+
   Future<void> firebaseMessagingInOpenHandler(RemoteMessage message) async {
-    // If you're going to use other Firebase services in the background, such as Firestore,
-    // make sure you call `initializeApp` before using other Firebase services.
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+
     appState = Provider.of<AppState>(context, listen: false);
     if(message.data['room'] != null) {
       if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
@@ -315,7 +415,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future getNewLevel() async {
     try {
-
       int levelLocal = await getLevel();
       setState(() {
         level = levelLocal;

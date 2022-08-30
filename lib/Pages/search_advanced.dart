@@ -131,7 +131,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                       child: ListView.builder(
                                 itemCount: 2,
                                 itemBuilder: (context, index) {
-                                  return loadDataSkeletonOfDeals(context);
+                                  return loadDataSkeletonOfEvent(context, 175);
                                 }
                              ),
                     )
@@ -155,6 +155,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                     return SearchAdvancedDeals(
                         displayProfilAuthor: true,
                         level: dealsFull[index]['level'],
+                        video: dealsFull[index]['video'],
                         imageUrl: dealsFull[index]['images'],
                         archive: dealsFull[index]['archive'],
                         title: dealsFull[index]['name'],

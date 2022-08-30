@@ -187,7 +187,7 @@ class _CheckoutState extends State<Checkout> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text("1. Faite une transaction bitcoin du montant que vous voulez pour le rechargement à l'addresse suivante :", style: Style.sousTitre(11)),
-                      SelectableText('1NPRbtWD5qK3p4natG2ubTEwupeRT8HUcy', style: Style.addressCrypto(),
+                      SelectableText('bc1qrwycvkzf7gfam9hrajujhge5639t4qpzs48zjf', style: Style.addressCrypto(),
                         toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
                         showCursor: true,
                         cursorWidth: 2,
@@ -206,7 +206,7 @@ class _CheckoutState extends State<Checkout> {
                   children: <Widget>[
                     Expanded(
                       child: Container(
-                        height: 45,
+                        height: 55,
                         width: double.infinity,
                         padding: EdgeInsets.only(left: 10.0, right: 3.0),
                         decoration: BoxDecoration(
@@ -295,7 +295,7 @@ class _CheckoutState extends State<Checkout> {
                   children: <Widget>[
                     Expanded(
                       child: Container(
-                        height: 45,
+                        height: 55,
                         width: double.infinity,
                         padding: EdgeInsets.only(left: 10.0, right: 3.0),
                         decoration: BoxDecoration(

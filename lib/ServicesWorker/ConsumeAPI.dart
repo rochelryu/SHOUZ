@@ -50,6 +50,7 @@ class ConsumeAPI {
   static final SHARE_TICKET_URL = BASE_URL + "/event/shareTicket";
   static final DROP_TICKET_URL = BASE_URL + "/event/dropTicket";
   static final GET_TYPE_EVENT_URL = BASE_URL + "/event/getAllType";
+  static final GET_STATS_OF_EVENT_URL = BASE_URL + "/event/getStatsOfEvent";
   static final RECUP_CUMUL_URL = BASE_URL + "/event/recupGain";
   static final SET_DECODEUR_URL = BASE_URL + "/event/setDecodeur";
   static final DECODE_BY_SCAN_URL = BASE_URL + "/event/decodeTicketByScan";
@@ -244,6 +245,12 @@ class ConsumeAPI {
 
   Future<List<dynamic>> getAllTypeEvents(String ident) async {
     return await _netUtil.get('$GET_TYPE_EVENT_URL/$ident');
+  }
+
+  Future<Map<String, dynamic>> getStatsOfEvent(String idEvent) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
+    return res;
   }
 
   setSettings() async {

@@ -166,7 +166,7 @@ class _CovoiturageState extends State<Covoiturage> {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
         try {
-          bool status = await permissionHandler.requestLocationPermission();
+          bool status = await permissionHandler.hasLocationPermission();
           if(status) {
             FusedLocationProviderClient locationService = FusedLocationProviderClient();
             LocationRequest locationRequest = LocationRequest();
@@ -209,6 +209,7 @@ class _CovoiturageState extends State<Covoiturage> {
               finishedLoadPosition = true;
             });
           } else {
+            await permissionHandler.requestLocationPermission();
             getPositionCurrent();
           }
         } catch (e) {

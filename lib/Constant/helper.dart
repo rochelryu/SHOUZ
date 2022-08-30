@@ -1,6 +1,33 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:huawei_push/huawei_push.dart' as huawei;
+import '../ServicesWorker/ConsumeAPI.dart';
+import 'Style.dart';
+
+DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+ConsumeAPI consumeAPI = new ConsumeAPI();
+
+void showSnackBar(BuildContext context, String text) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    backgroundColor: colorError,
+    content: Text(
+      text,
+      textAlign: TextAlign.center,
+    ),
+    action: SnackBarAction(
+        label: 'Ok',
+        onPressed: () {
+        }),
+  ));
+}
 
 String reformatTimerForDisplayOnChrono(int time) {
   final minute = (time / 60).floor();
@@ -17,7 +44,13 @@ String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
 
 String formatedDateForLocal(DateTime date) {
   initializeDateFormatting();
-  var formatDate = DateFormat("yyyy-MM-dd' à 'HH:mm");
+  var formatDate = DateFormat("dd-MM-yyyy' à 'HH:mm");
+  return formatDate.format(date);
+}
+
+String formatedDateForLocalWithoutTime(DateTime date) {
+  initializeDateFormatting();
+  var formatDate = DateFormat("dd MMM yyyy");
   return formatDate.format(date);
 }
 
@@ -32,19 +65,90 @@ int daysBetween(DateTime from, DateTime to) {
   return diff.ceil();
 }
 
+Future getTokenForNotificationProvider() async {
+
+
+  if(Platform.isAndroid){
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+      String _token = '';
+      String result = await huawei.Push.getId() ?? "";
+      final token = huawei.Push.getToken("");
+      //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
+      huawei.Push.getTokenStream.listen((String event) {
+        _token = event;
+      }, onError: (dynamic error) {
+        print("TokenErrorEvent: ");
+        print(error.message);
+      });
+      print("_token");
+      print(_token);
+      print("result");
+      print(result);
+    } else {
+      final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+      final prefs = await SharedPreferences.getInstance();
+      final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+      if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
+        final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+        if(infoSaveToken['etat'] == "found") {
+          await prefs.setString('tokenNotification', fcmToken.trim());
+          print("fcmToken.trim()   ${fcmToken.trim()}");
+        }
+      }
+
+    }
+  } else {
+    final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+    final prefs = await SharedPreferences.getInstance();
+    final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+    if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
+      final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+      if(infoSaveToken['etat'] == "found") {
+        await prefs.setString('tokenNotification', fcmToken.trim());
+      }
+    }
+
+  }
+}
+
 
 //CLASS
 
-class SalesData {
-  SalesData(this.year, this.sales);
-  final DateTime year;
-  final List<double> sales;
+class ChartDataLine {
+  ChartDataLine(String date, List<dynamic> dataWithoutFilter) {
+    final dateSplit = date.split('-');
+    this.dateTime = DateTime(int.parse(dateSplit[0]),int.parse(dateSplit[1]),int.parse(dateSplit[2]));
+    this.data = dataWithoutFilter.map((item) => item['count'] as int).toList();
+
+  }
+  late DateTime dateTime;
+  late List<int> data;
 }
 
-class ChartDataForDonut {
-  ChartDataForDonut(this.x, this.y, this.color);
+class PieSeriesData {
+  PieSeriesData(this.x, this.y, this.color);
 
   final String x;
-  final double y;
+  final int y;
   final Color color;
+}
+
+class TableDataStats {
+  TableDataStats(String name, String images, String typeTicket, int priceTicket, int placeTotal, String registerDate) {
+
+    this.registerDate = formatedDateForLocal(DateTime.parse(registerDate));
+    this.name = name.trim();
+    this.typeTicket = typeTicket.trim();
+    this.placeTotal = placeTotal;
+    this.priceTicket = priceTicket;
+    this.images = "${ConsumeAPI.AssetProfilServer}$images";
+  }
+  late String name;
+  late String images;
+  late String typeTicket;
+  late int placeTotal;
+  late int priceTicket;
+  late String registerDate;
 }

@@ -376,10 +376,10 @@ Widget loadDataSkeletonOfDeals (BuildContext context) {
     ),
   );
 }
-Widget loadDataSkeletonOfEvent (BuildContext context) {
+Widget loadDataSkeletonOfEvent (BuildContext context, [double height = 235]) {
   return Container(
     width: MediaQuery.of(context).size.width,
-    height: 235,
+    height: height,
     margin: EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
         color: tint,
@@ -392,7 +392,7 @@ Widget loadDataSkeletonOfEvent (BuildContext context) {
     child: Stack(
       children: <Widget>[
         Container(
-          height: 235,
+          height: height,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   colors: [backgroundColor, tint],
@@ -402,7 +402,7 @@ Widget loadDataSkeletonOfEvent (BuildContext context) {
         ),
         SkeletonAnimation(
           child: Container(
-            height: 235,
+            height: height,
             width: double.infinity,
 
           ),
@@ -650,7 +650,7 @@ Widget isErrorLoadInfoBecauseNewPermissionAccording(BuildContext context, String
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           new SvgPicture.asset(
-            "images/wait vehicule second.svg",
+            "images/wait_vehicule_second.svg",
             semanticsLabel: 'Not Permission',
             height: MediaQuery.of(context).size.height * 0.39,
           ),

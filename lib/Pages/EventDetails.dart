@@ -84,6 +84,7 @@ class _EventDetailsState extends State<EventDetails> {
   String choice = '';
   bool favorite = false;
   bool gratuitPass = false;
+  bool loadForRecupGain = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
   late User user = new User('', '');
   late DateTime eventDate;
@@ -238,7 +239,7 @@ class _EventDetailsState extends State<EventDetails> {
             ],
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Column(
               children: <Widget>[
                 Container(
@@ -299,12 +300,12 @@ class _EventDetailsState extends State<EventDetails> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
-                        Text('Localisation', style: Style.sousTitre(15)),
+                        Text('Lieu', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
                               await launchUrlString("https://www.google.com/maps/place/${widget.position}");
                             },
-                            child: Text("Voir map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
+                            child: Text("Map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
                         /*Text(
                             (widget.positionRecently['longitude'] == 0)
                                 ? 'N/A'
@@ -344,20 +345,25 @@ class _EventDetailsState extends State<EventDetails> {
               scrollDirection: Axis.horizontal,
               itemCount: checkPros.length,
               itemBuilder: (context, i) {
-                return new InkWell(
+                return InkWell(
                   onTap: () {
                     var newTable = [];
-                    widget.prixTicket.forEach((value) {
-                      newTable.add({"choice": 0, "price": value["price"]});
-                    });
-                    newTable[i]["choice"] = 1;
-                    setState(() {
-                      checkPros = newTable;
-                      choice = newTable[i]["price"].toString();
-                      priceItem = (choice == "GRATUIT")
-                          ? priceItem
-                          : newTable[i]["price"] * place;
-                    });
+                    if(int.parse(checkPlacePros[i]) >= place && int.parse(checkPlacePros[i]) > 0){
+                      widget.prixTicket.forEach((value) {
+                        newTable.add({"choice": 0, "price": value["price"]});
+                      });
+                      newTable[i]["choice"] = 1;
+                      setState(() {
+                        checkPros = newTable;
+                        choice = newTable[i]["price"].toString();
+                        priceItem = (choice == "GRATUIT")
+                            ? priceItem
+                            : newTable[i]["price"] * place;
+                      });
+                    } else {
+                      _displaySnackBar(context, "Pas assez de tickets disponible pour cette categorie");
+                    }
+
                   },
                   child: Card(
                     elevation: 4.0,
@@ -439,14 +445,20 @@ class _EventDetailsState extends State<EventDetails> {
                           color: colorText),
                       onPressed: () {
                         var normal = (place > 0) ? place - 1 : 0;
-                        setState(() {
-                          placeTotal =
-                          (place != 0) ? placeTotal + 1 : placeTotal;
-                          place = normal;
-                          priceItem = (choice == "GRATUIT")
-                              ? 0
-                              : normal * int.parse(choice);
-                        });
+
+                        if(choice.length > 1) {
+                          setState(() {
+                            placeTotal =
+                            (place != 0) ? placeTotal + 1 : placeTotal;
+                            place = normal;
+                            priceItem = (choice == "GRATUIT")
+                                ? 0
+                                : normal * int.parse(choice);
+                          });
+                        }
+                        else {
+                        _displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
+                        }
                       },
                     ),
                     Text(place.toString(), style: Style.titre(29)),
@@ -455,6 +467,10 @@ class _EventDetailsState extends State<EventDetails> {
                       onPressed: () {
                         var normal = 0;
 
+                        var totalTicket = 0;
+                        for (var ticket in widget.allTicket) {
+                          totalTicket += ticket['placeTotal'] as int;
+                        }
                         if(placeTotal > place) {
                           normal = (placeTotal > place) ? place + 1 : placeTotal;
                         } else {
@@ -464,14 +480,21 @@ class _EventDetailsState extends State<EventDetails> {
                             normal = place;
                           }
                         }
-                        setState(() {
-                          place = normal;
-                          placeTotal =
-                          (placeTotal > 0) ? placeTotal - 1 : placeTotal;
-                          priceItem = (choice == "GRATUIT")
-                              ? 0
-                              : normal * int.parse(choice);
-                        });
+                        if(totalTicket + normal <= 5 && choice.length > 1) {
+                          setState(() {
+                            place = normal;
+                            placeTotal =
+                            (placeTotal > 0) ? placeTotal - 1 : placeTotal;
+                            priceItem = (choice == "GRATUIT")
+                                ? 0
+                                : normal * int.parse(choice);
+                          });
+                        } else if(choice.length <= 1 && totalTicket + normal <= 5) {
+                          _displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
+                        } else {
+                          _displaySnackBar(context, 'Le nombre de place maximum pour une personne est 5');
+                        }
+
                       },
                     )
                   ],
@@ -577,16 +600,24 @@ class _EventDetailsState extends State<EventDetails> {
 
           ElevatedButton(
             style: raisedButtonStyleSuccess,
-            child: Text("Recuperer Gain", style: Style.titre(18)),
+            child: loadForRecupGain ? CircularProgressIndicator(color: colorPrimary,) : Text("Recuperer Gain", style: Style.titre(18)),
             onPressed: () async {
-              final data = await consumeAPI.recupCumul(widget.id);
-              if(data['etat'] == 'found') {
+              if(!loadForRecupGain) {
                 setState(() {
-                  state = 3;
+                  loadForRecupGain = true;
                 });
-                _displaySnackBar(context, "🥳 Gain récupéré avec succès");
-              } else {
-                _displaySnackBar(context, data['error']);
+                final data = await consumeAPI.recupCumul(widget.id);
+                setState(() {
+                  loadForRecupGain = false;
+                });
+                if(data['etat'] == 'found') {
+                  setState(() {
+                    this.state = 3;
+                  });
+                  _displaySnackBar(context, "🥳 Gain récupéré avec succès");
+                } else {
+                  _displaySnackBar(context, data['error']);
+                }
               }
             },
           ),
@@ -603,23 +634,24 @@ class _EventDetailsState extends State<EventDetails> {
             child: Text('Statistiques'),),
         ],
       );
-      return ElevatedButton(
-        style: raisedButtonStyleSuccess,
-        child: Text("Recuperer Gain", style: Style.titre(18)),
-        onPressed: () async {
-          final data = await consumeAPI.recupCumul(widget.id);
-          if(data['etat'] == 'found') {
-            setState(() {
-              state = 3;
-            });
-            _displaySnackBar(context, "🥳 Gain récupéré avec succès");
-          } else {
-            _displaySnackBar(context, data['error']);
-          }
-        },
-      );
     } else {
-      return Text('Gain plus retirable', style: Style.titleDealsProduct(),);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Gain déjà rétiré', style: Style.titleDealsProduct(),),
+          ElevatedButton(onPressed: (){
+            Navigator.of(context)
+                .push((MaterialPageRoute(builder: (context) {
+              return StatsEvent(
+                  key: UniqueKey(),
+                  imageUrl: widget.imageUrl,
+                  title: widget.title,
+                  eventId: widget.id);
+            })));
+          }, style: raisedButtonStyle,
+            child: Text('Statistiques'),),
+        ],
+      );
     }
   }
 
@@ -643,6 +675,7 @@ class ViewerEvent extends StatefulWidget {
 class _ViewerEventState extends State<ViewerEvent> {
   late VideoPlayerController _controller;
   late Future<void> _initialiseVideoFlutter;
+
   @override
   void initState() {
     super.initState();

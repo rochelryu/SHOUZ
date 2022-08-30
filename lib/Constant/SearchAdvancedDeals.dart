@@ -162,12 +162,12 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                        padding: EdgeInsets.only(left: 15.0, top: 8.0),
+                        padding: EdgeInsets.only(left: 5.0, top: 8.0),
                         child:
                         Text(widget.title, style: Style.titleDealsProduct())),
                     SizedBox(height: 15),
                     Padding(
-                      padding: EdgeInsets.only(left: 15.0),
+                      padding: EdgeInsets.only(left: 5.0),
                       child: Text("${widget.price.toString()}",
                           style: Style.priceDealsProduct()),
                     ),
@@ -186,7 +186,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Container(
-                                      margin: EdgeInsets.only(left: 15.0),
+                                      margin: EdgeInsets.only(left: 5.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +196,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                                       ),
                                     ),
                                     Container(
-                                        padding: EdgeInsets.only(left: 15.0),
+                                        padding: EdgeInsets.only(left: 5.0),
                                         width: 60,
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
@@ -376,12 +376,12 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                        padding: EdgeInsets.only(left: 15.0, top: 8.0),
+                        padding: EdgeInsets.only(left: 5.0, top: 8.0),
                         child:
                         Text(widget.title, style: Style.titleDealsProduct())),
                     SizedBox(height: 15),
                     Padding(
-                      padding: EdgeInsets.only(left: 15.0),
+                      padding: EdgeInsets.only(left: 5.0),
                       child: Text("${widget.price.toString()}",
                           style: Style.priceDealsProduct()),
                     ),
@@ -400,7 +400,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Container(
-                                  margin: EdgeInsets.only(left: 15.0),
+                                  margin: EdgeInsets.only(left: 5.0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +410,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                                   ),
                                 ),
                                 Container(
-                                    padding: EdgeInsets.only(left: 15.0),
+                                    padding: EdgeInsets.only(left: 5.0),
                                     width: 60,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,

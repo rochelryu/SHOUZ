@@ -292,7 +292,6 @@ class _CheckoutRechargeMobileMoneyState
               currentStep: indexStepper,
               onStepCancel: () {
                 if(indexStepper > 0) {
-
                   setState(() {
                     indexStepper -= 1;
                   });
@@ -327,14 +326,16 @@ class _CheckoutRechargeMobileMoneyState
               controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
                 return Row(
                   children: [
+                    if(indexStepper > 0 && indexStepper <= 1) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+                    SizedBox(width: 15),
                     if(indexStepper <= 1) ElevatedButton(
                         style: raisedButtonStyleMtnMoney,
                         onPressed: controlsDetails.onStepContinue,
                         child: Text('Suivant')),
-                    SizedBox(width: 15),
-                    if(indexStepper > 0) TextButton(
-                        onPressed: controlsDetails.onStepCancel,
-                        child: Text('Précédent', style: Style.warning(13),)),
+
+
                   ],
                 );
               },
@@ -447,28 +448,20 @@ class _CheckoutRechargeMobileMoneyState
                     )
                 ),
                 Step(
-                  title: Text("Passé à l'action", style: Style.titre(13)),
-                  content: Column(
-                    children: [
-                      Text("Faites la transaction Mtn Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
-                      SizedBox(height: 5),
-                      SelectableText(info == null ? '' : '${info!['mtn']}', style: Style.mobileMoneyMtn(),
-                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-                        showCursor: true,
-                        cursorWidth: 2,
-                        cursorColor: Colors.white,
-                        cursorRadius: const Radius.circular(5),
+                    title: Text("Confirmation", style: Style.titre(13)),
+                    content: Column(
+                      children: [
+                        Text("Le $mtnNumero sera débité de ${_controller.text} ${newClient?.currencies} pour recevoir ${_controllerForReceive.text} ${newClient?.currencies} sur votre compte SHOUZPAY.\nSi vous êtes d'accord cliquez sur 'suivant'", style: Style.sousTitre(15)),
+                        SizedBox(height: 10),
 
-                      )
-                    ],
-                  ),
+                      ],
+                    )
                 ),
                 Step(
-                  title: Text("Confirmation", style: Style.titre(13)),
+                  title: Text("Dernière étape", style: Style.titre(13)),
                   content: Column(
                     children: [
-                      Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
-                      SizedBox(height: 10),
+
                       loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
                           style: raisedButtonStyleMtnMoney,
                           onPressed: () async {
@@ -505,7 +498,7 @@ class _CheckoutRechargeMobileMoneyState
                               );
                             }
                           },
-                          child: Text('Oui, je confirme')),
+                          child: Text('Payer maintenant')),
                       SizedBox(height: 10),
                     ],
                   )

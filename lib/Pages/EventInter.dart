@@ -92,7 +92,7 @@ class _EventInterState extends State<EventInter> {
         isError = true;
         loadingFull = false;
       });
-      await askedToLead(eventFull != null ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
+      await askedToLead(eventFull != null && eventFull?["listEventsWithFilter"].length > 0 ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
     }
   }
 

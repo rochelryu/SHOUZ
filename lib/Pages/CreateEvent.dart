@@ -287,7 +287,7 @@ class _CreateEventState extends State<CreateEvent> {
           setState((){
             postVideo = [];
           });
-          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+          showSnackBar(context,"Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
         }
       } else {
         setState(() {
@@ -310,7 +310,7 @@ class _CreateEventState extends State<CreateEvent> {
           setState((){
             postVideo = [];
           });
-          _showSnackBar("Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+          showSnackBar(context,"Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
         }
       }
     }
@@ -1013,22 +1013,8 @@ class _CreateEventState extends State<CreateEvent> {
       }
     } else {
       setState(() => _isLoading = false);
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer (NB: Max Place ${maxPlace.toString()})");
+      showSnackBar(context,"Remplissez correctement les champs avant d'envoyer (NB: Max Place ${maxPlace.toString()})");
     }
-  }
-
-  void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(SnackBar(
-      backgroundColor: colorError,
-      content: new Text(
-        text,
-        textAlign: TextAlign.center,
-      ),
-      action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-          }),
-    ));
   }
 
   Widget dialogCustomError(String title, String message, BuildContext context) {

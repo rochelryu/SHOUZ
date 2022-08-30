@@ -150,7 +150,7 @@ var pageExplicationTravelList = [
       imageUrl: "images/voyage.png",
       body: "4- Le prix du ticket est donné par le conducteur. lors de l'achat des tickets le conducteur ne reçoit pas immédiatement l'argent. s'est après avoir decoder le ticket du passager à l'arrivée que le conducteur reçoit ainsi l'argent du ticket. Il reçoit 90% de la vente du ticket et SHOUZ reçoit les 10% restant.\nPar contre si lors de son voyage l'administration SHOUZ l'appelle pour récupérer un colis dans sa ville de départ pour remettre à une tierce personne sur son trajet, le conducteur bénéficiera d'un avantage commission ce qui lui permettra de gagner 95% au lieu de 90% sur chaque ticket."),
   PageExplicationModel(
-      imageUrl: "images/wait vehicule.svg",
+      imageUrl: "images/wait_vehicule.svg",
       body: "5- En résumé, le principe est simple, pour devenir conducteur et gagner 90% ou 95% de chaque ticket vendu vous devez faire une demande conductrice.\nPour pouvoir acheter une place pour un voyage il faut que votre compte soit authentifié et pour cela vous deviez envoyer des informations vous concernant à l'administration SHOUZ. "),
   PageExplicationModel(
       imageUrl: "images/notime.svg",
@@ -164,6 +164,7 @@ List<List<Color>> gradient = [
   [Color(0xFF9708CC), Color(0xFF43CBFF)],
   [backgroundColorSec, backgroundColor],
 ];
+List<Color> colorsForStats = [Color(0xFF33691E), Color(0xFFE2859F),Color(0xFFFFCDD2), Color(0xFFFCCF31), Color(0xFFFF1744), Color(0xFF9708CC), Color(0xFF736EFE)];
 
 class PageModel {
   var imageUrl;
@@ -496,7 +497,7 @@ class Style {
         );
   }
 
-  static dynamic simpleTextOnBoard([double size = 17.0]) {
+  static TextStyle simpleTextOnBoard([double size = 17.0]) {
     return TextStyle(
       fontSize: size,
       fontFamily: "Montserrat-Light",

@@ -710,7 +710,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   MainAxisAlignment.center,
                                   children: <Widget>[
                                     new SvgPicture.asset(
-                                      "images/event search.svg",
+                                      "images/event_search.svg",
                                       semanticsLabel: 'NotNotificationEvent',
                                       height:
                                       MediaQuery.of(context).size.height *
@@ -969,7 +969,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   MainAxisAlignment.center,
                                   children: <Widget>[
                                     new SvgPicture.asset(
-                                      "images/wait vehicule second.svg",
+                                      "images/wait_vehicule_second.svg",
                                       semanticsLabel: 'NotNotificationTravel',
                                       height:
                                       MediaQuery.of(context).size.height *
@@ -1496,7 +1496,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (builder) => LoadEvent(key: UniqueKey(), eventId: atMoment[index]['_id'])));
+                            builder: (builder) => LoadEvent(key: UniqueKey(), eventId: atMoment[index]['idEvent'])));
                   }
                 },
               child: Container(

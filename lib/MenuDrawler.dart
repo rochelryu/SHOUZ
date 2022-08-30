@@ -21,6 +21,7 @@ import './Pages/Notifications.dart';
 import './Pages/Profil.dart';
 import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
+import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 
 class MenuDrawler extends StatefulWidget {
@@ -47,10 +48,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
   int numberConnected = 0;
 
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-  ConsumeAPI consumeAPI = new ConsumeAPI();
-
   @override
   void initState() {
     super.initState();
@@ -72,40 +69,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     });
   }
 
-  Future getTokenForNotificationProvider() async {
 
-
-    if(Platform.isAndroid){
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
-        //print("huawei");
-      } else {
-        final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-        final prefs = await SharedPreferences.getInstance();
-        final String tokenNotification = prefs.getString('tokenNotification') ?? "";
-        if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
-          final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
-          if(infoSaveToken['etat'] == "found") {
-            await prefs.setString('tokenNotification', fcmToken.trim());
-            print("fcmToken.trim()   ${fcmToken.trim()}");
-          }
-        }
-
-      }
-    } else {
-      final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-      final prefs = await SharedPreferences.getInstance();
-      final String tokenNotification = prefs.getString('tokenNotification') ?? "";
-      if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
-        final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
-        if(infoSaveToken['etat'] == "found") {
-          await prefs.setString('tokenNotification', fcmToken.trim());
-        }
-      }
-
-    }
-  }
 
   @override
   void dispose() {

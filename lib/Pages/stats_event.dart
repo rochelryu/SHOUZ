@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../Constant/Style.dart';
 import '../Constant/helper.dart';
+import '../Constant/widget_common.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 
 class StatsEvent extends StatefulWidget {
@@ -16,18 +18,73 @@ class StatsEvent extends StatefulWidget {
 }
 
 class _StatsEventState extends State<StatsEvent> {
-  final List<SalesData> chartData = [
-    SalesData(DateTime(2010), [35,54]),
-    SalesData(DateTime(2011), [28,15]),
-    SalesData(DateTime(2012), [30, 28]),
-    SalesData(DateTime(2013), [32,40]),
-    SalesData(DateTime(2014), [40,34])
-  ];
+  bool isLoading = true, error = false;
+  ConsumeAPI consumeAPI = new ConsumeAPI();
+  List<dynamic> itemTypeTicketForFrequence = [];
+  List<ChartDataLine> chartDataLines = [];
+  DateTime registerDateOfEvent = DateTime.now();
+  DateTime eventExpireDate = DateTime.now();
+  List<PieSeriesData> pieSeriesData = [];
+  List<dynamic> tableDataStats = [];
+  int totalTicketBuy = 0, totalTicketDecode = 0, cumulGain = 0;
+  static const double dataPagerHeight = 60;
 
-  final data = [
-    ChartDataForDonut('Ticket 4000', 12, colorText),
-    ChartDataForDonut('Ticket 10000', 3, colorError),
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    getInfo();
+  }
+
+  Future getInfo() async {
+    try {
+      final data = await consumeAPI.getStatsOfEvent(widget.eventId);
+      if(data['etat'] == "found") {
+        final frequenceBuyTicketWithFilter = data['result']['frequenceBuyTicketWithFilter'] as List<dynamic>;
+        if(frequenceBuyTicketWithFilter.length > 0) {
+          setState(() {
+            for(int index = 0; index < data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'].length; index++) {
+              final pieElementData = data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'][index];
+              pieSeriesData.add(PieSeriesData(pieElementData['title'], pieElementData['value'], colorsForStats[index == 0 ? colorsForStats.length -1: index - 1]));
+            }
+            tableDataStats = data['result']['listAllBuyer'].map((value) {
+              print(value);
+              return TableDataStats(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['placeTotal'], value['registerDate']);
+            }).toList();
+            registerDateOfEvent = DateTime.parse(data['result']['registerDate']);
+            eventExpireDate = DateTime.parse(data['result']['eventExpireDate']);
+            totalTicketBuy = data['result']['totalTicketBuy'];
+            cumulGain = data['result']['cumulGain'];
+            totalTicketDecode = data['result']['totalTicketDecode'];
+            itemTypeTicketForFrequence = frequenceBuyTicketWithFilter[0]['data'];
+            chartDataLines = frequenceBuyTicketWithFilter.map((item) => ChartDataLine(item['date'], item['data'])).toList();
+          });
+        }
+        setState(() {
+          error = false;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          error = true;
+          isLoading = false;
+        });
+      }
+
+
+    } catch (e) {
+      print(e);
+      setState(() {
+        error = true;
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
 
   @override
@@ -79,152 +136,249 @@ class _StatsEventState extends State<StatsEvent> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Material(
-              elevation: 5,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                color: backgroundColor,
-                child: Column(
-                  children: [
-                    Container(
-                      height: 40,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: LayoutBuilder(
+          builder: (context,contraints) {
+            if(isLoading) {
+              return SizedBox(
+                height: 700,
+                width: MediaQuery.of(context).size.width,
+                child: Center(child: Container(
+                  height: 200,
+                  width: 200,
+                  child: LoadingIndicator(indicatorType: Indicator.audioEqualizer,colors: [colorText, backgroundColorSec, colorPrimary], strokeWidth: 2),
+                ),),
+              );
+            } else if(!isLoading && error) {
+              print(isLoading);
+              print(error);
+              return isErrorSubscribe(context);
+            }
+            else {
+              return Column(
+                children: [
+                  Material(
+                    elevation: 5,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      color: backgroundColor,
+                      child: Column(
                         children: [
-                          Text("Vue d'ensemble", style: Style.titleDealsProduct(),),
-                          Text("31 juil. 2022 - 7 août 2022", style: Style.titleDealsProduct(10),),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    Container(
-                      height: 60,
-                      width: double.infinity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(child: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          Container(
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("534",style: Style.titre(18.0)),
-                                Text(
-                                  "Tickets vendus",
-                                  style: Style.sousTitre(12.0),
-                                )
+                                Text("Vue d'ensemble", style: Style.titleDealsProduct(),),
+                                Text("${formatedDateForLocalWithoutTime(registerDateOfEvent)} - ${formatedDateForLocalWithoutTime(eventExpireDate)}", style: Style.titleDealsProduct(10),),
                               ],
                             ),
-                          ),),
-                          Expanded(child: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                          SizedBox(height: 15),
+                          Container(
+                            height: 60,
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("95000",style: Style.titre(18.0)),
-                                Text(
-                                  "Gains",
-                                  style: Style.sousTitre(12.0),
-                                )
-                              ],
-                            ),
-                          ),),
+                                Expanded(child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(totalTicketDecode.toString(),style: Style.titre(18.0)),
+                                      Text(
+                                        "Tickets décodés",
+                                        style: Style.sousTitre(11.0),
+                                      )
+                                    ],
+                                  ),
+                                ),),
+                                Expanded(child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(totalTicketBuy.toString(),style: Style.titre(18.0)),
+                                      Text(
+                                        "Tickets vendus",
+                                        style: Style.sousTitre(11.0),
+                                      )
+                                    ],
+                                  ),
+                                ),),
+                                Expanded(child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(cumulGain.toString(),style: Style.titre(18.0)),
+                                      Text(
+                                        "Gains",
+                                        style: Style.sousTitre(12.0),
+                                      )
+                                    ],
+                                  ),
+                                ),),
 
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Material(
-              elevation: 5,
-              child: Container(
-                width: double.infinity,
-                color: backgroundColor,
-                height: 400,
-                padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Fréquence d'Achat", style: Style.titleDealsProduct(),),
-                    SizedBox(height: 10,),
-                    Expanded(
-                        child: SfCartesianChart(
-                            primaryXAxis: DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift,
-                                interval: 2,
-                                majorGridLines: const MajorGridLines(width: 0)),
-                            plotAreaBorderWidth: 0,
-                            primaryYAxis: NumericAxis(
-                                labelFormat: '{value}',
-                                axisLine: const AxisLine(width: 0),
-                                majorTickLines: const MajorTickLines(color: Colors.transparent)),
-                            tooltipBehavior: TooltipBehavior(enable: true),
-                            series: <ChartSeries>[
-                              // Renders line chart
-                              LineSeries<SalesData, DateTime>(
-                                  animationDuration: 2500,
-                                  color: colorText,
-                                  dataSource: chartData,
-                                  name: "Ticket 4000",
-                                  width: 2,
-                                  markerSettings: const MarkerSettings(isVisible: true),
-                                  xValueMapper: (SalesData sales, _) => sales.year,
-                                  yValueMapper: (SalesData sales, _) => sales.sales[0]
-                              ),
-                              LineSeries<SalesData, DateTime>(
-                                  animationDuration: 4500,
-                                  color: colorError,
-                                  dataSource: chartData,
-                                  name: "Ticket 10000",
-                                  width: 2,
-                                  markerSettings: const MarkerSettings(isVisible: true),
-                                  xValueMapper: (SalesData sales, _) => sales.year,
-                                  yValueMapper: (SalesData sales, _) => sales.sales[1],
-                                  pointColorMapper: (SalesData sales, _) => colorError.withOpacity(0.5),
-                                  dataLabelMapper: (SalesData sales, _) => "${sales.sales[1]} Ticket de 10000",
-                              ),
-                            ]
-                        )
-                    )
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Material(
-              elevation: 5,
-              child: Container(
-                width: double.infinity,
-                color: backgroundColor,
-                height: 350,
-                padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Pourcentage cumulé", style: Style.titleDealsProduct(),),
-                    SizedBox(height: 10,),
-                    Expanded(
-                        child: SfCircularChart(
-                            series: <CircularSeries>[
-                              // Render pie chart
-                              PieSeries<ChartDataForDonut, String>(
-                                  dataSource: data,
-                                  pointColorMapper:(ChartDataForDonut data, _) => data.color,
-                                  xValueMapper: (ChartDataForDonut data, _) => data.x,
-                                  yValueMapper: (ChartDataForDonut data, _) => data.y
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 5,
+                    child: Container(
+                      width: double.infinity,
+                      color: backgroundColor,
+                      height: 400,
+                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Fréquence d'Achat", style: Style.titleDealsProduct(),),
+                          SizedBox(height: 10,),
+                          Expanded(
+                              child: SfCartesianChart(
+                                  primaryXAxis: DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift,
+                                      interval: 2,
+                                      majorGridLines: const MajorGridLines(width: 0)),
+                                  plotAreaBorderWidth: 0,
+                                  primaryYAxis: NumericAxis(
+                                      labelFormat: '{value}',
+                                      axisLine: const AxisLine(width: 0),
+                                      majorTickLines: const MajorTickLines(color: Colors.transparent)),
+                                  tooltipBehavior: TooltipBehavior(enable: true),
+                                  series: lineChartArray()
                               )
-                            ]
-                        )
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 5,
+                    child: Container(
+                      width: double.infinity,
+                      color: backgroundColor,
+                      height: 350,
+                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Pourcentage cumulé", style: Style.titleDealsProduct(),),
+                          SizedBox(height: 10,),
+                          Expanded(
+                              child: SfCircularChart(
+                                  onTooltipRender: (TooltipArgs args) {
+                                    args.text = args.dataPoints![args.pointIndex!.toInt()].x.toString() +
+                                        ' : ' +
+                                        args.dataPoints![args.pointIndex!.toInt()].y;
+                                  },
+                                  tooltipBehavior: TooltipBehavior(enable: true),
+                                  series: <CircularSeries>[
+                                    // Render pie chart
+                                    PieSeries<PieSeriesData, String>(
+                                        explode: true,
+                                        explodeIndex: 0,
+                                        explodeOffset: '15%',
+                                        dataSource: pieSeriesData,
+                                        pointColorMapper:(PieSeriesData data, _) => data.color,
+                                        xValueMapper: (PieSeriesData data, _) => data.x,
+                                        yValueMapper: (PieSeriesData data, _) => data.y,
+                                        dataLabelMapper: (PieSeriesData data, _) => data.x.replaceAll("Tickets ", "").replaceAll("Ticket(s) ", ""),
+                                        startAngle: 90,
+                                        endAngle: 90,
+                                        dataLabelSettings: DataLabelSettings(isVisible: true,labelPosition: ChartDataLabelPosition.outside, textStyle: Style.simpleTextOnBoard(12))
+                                    )
+                                  ]
+                              )
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 5,
+                    child: Container(
+                      width: double.infinity,
+                      color: backgroundColor,
+                      height: 550,
+                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Liste acheteur", style: Style.titleDealsProduct(),),
+                          SizedBox(height: 10,),
+                          Container(
+                            height: 500,
+                            width: double.infinity,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                DataTable(
+                                  columns: [
+                                    DataColumn(label: Text("Profil", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Nom & Prénom", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Payé", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Ticket(s)", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Type", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Date achat", style: Style.titre(15),)),
+                                  ],
+                                  rows: getRows(tableDataStats),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
         ),
       ),
     );
   }
+
+  List<ChartSeries> lineChartArray() {
+    List<ChartSeries> data = [];
+    for(int index = 0; index < itemTypeTicketForFrequence.length; index++) {
+      data.add(LineSeries<ChartDataLine, DateTime>(
+          animationDuration: 2500,
+          color: colorsForStats[index],
+          dataSource: chartDataLines,
+          name: "Ticket ${itemTypeTicketForFrequence[index]['typeTicket']}",
+          width: 2,
+          markerSettings: const MarkerSettings(isVisible: true),
+          xValueMapper: (ChartDataLine item, _) => item.dateTime,
+          yValueMapper: (ChartDataLine item, _) => item.data[index],
+      ));
+    }
+    return data;
+  }
+
+  List<DataRow> getRows(List<dynamic> data) => data.map((tableData) {
+    return DataRow(cells: [
+      DataCell(Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: NetworkImage(tableData.images),
+            fit: BoxFit.cover
+          )
+        ),
+      )),
+      DataCell(Text(tableData.name, style: Style.sousTitre(12),)),
+      DataCell(Text(tableData.priceTicket.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text(tableData.placeTotal.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text("Ticket ${tableData.typeTicket}", style: Style.sousTitre(12),)),
+      DataCell(Text(tableData.registerDate, style: Style.sousTitre(12),)),
+    ]);
+  }).toList();
 }

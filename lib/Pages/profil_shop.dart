@@ -169,6 +169,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                               return SearchAdvancedDeals(
                                   displayProfilAuthor: false,
                                   level: dealsFull["arrayProductAvailable"][index]['level'],
+                                  video: dealsFull["arrayProductAvailable"][index]['video'],
                                   imageUrl: dealsFull["arrayProductAvailable"][index]['images'],
                                   archive: dealsFull["arrayProductAvailable"][index]['archive'],
                                   title: dealsFull["arrayProductAvailable"][index]['name'],

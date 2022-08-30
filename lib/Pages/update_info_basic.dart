@@ -13,6 +13,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import '../Constant/helper.dart';
 import 'Login.dart';
 class UpdateInfoBasic extends StatefulWidget {
   static String rootName = '/updateInfoBasic';
@@ -312,7 +313,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
       }
     } else {
       setState(() => _isLoading = false);
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer");
+      showSnackBar(context, "Remplissez correctement les champs avant d'envoyer");
     }
   }
 
@@ -347,22 +348,8 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
             false, context);
       }
     } else {
-      _showSnackBar("Remplissez correctement les champs avant d'envoyer");
+      showSnackBar(context,"Remplissez correctement les champs avant d'envoyer");
     }
-  }
-
-  void _showSnackBar(String text) {
-    scaffoldKey.currentState?.showSnackBar(new SnackBar(
-      backgroundColor: colorError,
-      content: new Text(
-        text,
-        textAlign: TextAlign.center,
-      ),
-      action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-          }),
-    ));
   }
 
   Widget displaySectionPiece(BuildContext context, int displayAttributePieceParams) {

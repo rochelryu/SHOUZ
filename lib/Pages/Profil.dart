@@ -826,6 +826,7 @@ class _ProfilState extends State<Profil> {
                                                     Center(
                                                         child: CircularProgressIndicator(value: downloadProgress.progress)),
                                                 errorWidget: (context, url, error) => notSignal(),
+                                                fit: BoxFit.cover,
                                               )
                                             ),
                                           ),
@@ -928,6 +929,7 @@ class _ProfilState extends State<Profil> {
                                                   Center(
                                                       child: CircularProgressIndicator(value: downloadProgress.progress)),
                                               errorWidget: (context, url, error) => notSignal(),
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),

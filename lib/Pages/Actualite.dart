@@ -51,7 +51,7 @@ class _ActualiteState extends State<Actualite> {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
         try {
-          bool status = await permissionHandler.requestLocationPermission();
+          bool status = await permissionHandler.hasLocationPermission();
           if(status) {
             FusedLocationProviderClient locationService = FusedLocationProviderClient();
             LocationRequest locationRequest = LocationRequest();
@@ -84,6 +84,7 @@ class _ActualiteState extends State<Actualite> {
               );
             });
           } else {
+            await permissionHandler.requestLocationPermission();
             getPositionCurrent();
           }
         } catch (e) {
@@ -428,7 +429,7 @@ class _ActualiteState extends State<Actualite> {
                                       ),
                                     ),
                                     new SvgPicture.asset(
-                                      "images/not actu.svg",
+                                      "images/not_actu.svg",
                                       semanticsLabel: 'Shouz Pay',
                                       height: MediaQuery.of(context).size.height * 0.39,
                                     ),
