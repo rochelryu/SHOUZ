@@ -48,9 +48,6 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
   @override
   Widget build(BuildContext context) {
 
-
-    //print(' $subscribeIt ${appState.getForfaitEventEnum}');
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -111,9 +108,9 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
                 textAlign: TextAlign.center,
                 style: Style.sousTitreEvent(15)),
             SizedBox(height: 35),
-            RaisedButton(
+            ElevatedButton(
                 child: Icon(Icons.block, color: Colors.white),
-                color: colorError,
+                style: raisedButtonStyleError,
                 onPressed: () async {
                   etat == 'notFound' ? Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => Login())) : Navigator.pushNamed(context,  MenuDrawler.rootName);

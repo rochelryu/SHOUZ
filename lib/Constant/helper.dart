@@ -1,19 +1,17 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Style.dart';
-
-DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
+import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 ConsumeAPI consumeAPI = new ConsumeAPI();
+
+const maxAmountOnAccount = 2000000;
 
 void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -54,6 +52,14 @@ String formatedDateForLocalWithoutTime(DateTime date) {
   return formatDate.format(date);
 }
 
+String mapForDevice(String position) {
+  if(Platform.isAndroid) {
+    return "https://www.google.com/maps/place/${position.replaceAll(" ", "")}";
+  } else {
+    return "https://maps.apple.com/?address=${position.replaceAll(" ", "")}";
+  }
+}
+
 int daysBetween(DateTime from, DateTime to) {
   from = DateTime(from.year, from.month, from.day, from.hour, from.minute);
   to = DateTime(to.year, to.month, to.day, to.hour, to.minute);
@@ -64,14 +70,20 @@ int daysBetween(DateTime from, DateTime to) {
   print(diff);
   return diff.ceil();
 }
+Future<bool> isGms() async {
+  return await FlutterHmsGmsAvailability.isGmsAvailable;
+}
+
+Future<bool> isHms() async {
+  return await FlutterHmsGmsAvailability.isHmsAvailable;
+}
 
 Future getTokenForNotificationProvider() async {
 
 
   if(Platform.isAndroid){
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-    if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+    if(await isHms()) {
+      huawei.Push.enableLogger();
       String _token = '';
       String result = await huawei.Push.getId() ?? "";
       final token = huawei.Push.getToken("");
@@ -86,6 +98,12 @@ Future getTokenForNotificationProvider() async {
       print(_token);
       print("result");
       print(result);
+
+
+      huawei.Push.getToken("");
+
+      //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
+
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
       final prefs = await SharedPreferences.getInstance();
@@ -94,7 +112,6 @@ Future getTokenForNotificationProvider() async {
         final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
         if(infoSaveToken['etat'] == "found") {
           await prefs.setString('tokenNotification', fcmToken.trim());
-          print("fcmToken.trim()   ${fcmToken.trim()}");
         }
       }
 
@@ -149,6 +166,24 @@ class TableDataStats {
   late String images;
   late String typeTicket;
   late int placeTotal;
+  late int priceTicket;
+  late String registerDate;
+}
+
+class TableDataStatsForRemoved {
+  TableDataStatsForRemoved(String name, String images, String typeTicket, int priceTicket, int commission, String registerDate) {
+
+    this.registerDate = formatedDateForLocal(DateTime.parse(registerDate));
+    this.name = name.trim();
+    this.typeTicket = typeTicket.trim();
+    this.commission = commission;
+    this.priceTicket = priceTicket;
+    this.images = "${ConsumeAPI.AssetProfilServer}$images";
+  }
+  late String name;
+  late String images;
+  late String typeTicket;
+  late int commission;
   late int priceTicket;
   late String registerDate;
 }

@@ -290,7 +290,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                           setState(() {
                             loadRequest = true;
                           });
-                          final verify = await consumeAPI.verifyTwilio(beta.join(""));
+                          final verify = await consumeAPI.verifyOtp(beta.join(""));
                           setState(() {
                             loadRequest = false;
                           });

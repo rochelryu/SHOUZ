@@ -35,14 +35,14 @@ dependencies:
   location: ^4.4.0
   huawei_location: ^6.0.0+303
   latlong2: ^0.8.1
-  flutter_map: ^2.2.0
+  flutter_map: ^3.0.0
   loading_indicator: ^3.1.0
   geocoding: ^2.0.5
   fluttertoast: ^8.0.9
-  share_plus: ^4.0.10+1
+  share_plus: ^4.1.0
   uni_links: ^0.5.1
   path_provider: ^2.0.11
-  flutter_svg: ^1.1.4
+  flutter_svg: ^1.1.5
   dotted_border: ^2.0.0+2
   image_picker: ^0.8.5+3
   awesome_notifications: ^0.7.0-beta.6
@@ -50,7 +50,7 @@ dependencies:
   video_player: ^2.4.7
   http: ^0.13.5
   sqflite: ^2.0.3+1
-  flutter_typeahead: ^4.0.0
+  flutter_typeahead: ^4.1.0
   skeleton_text: ^3.0.0
   file_picker: ^5.0.1
   provider: ^6.0.3
@@ -62,16 +62,18 @@ dependencies:
   permission_handler: ^10.0.0
   device_info_plus: ^4.1.2
   record: ^4.4.0
-  firebase_messaging: ^12.0.3
-  firebase_core: ^1.21.0
+  firebase_messaging: ^13.0.1
+  firebase_core: ^1.22.0
   onesignal_flutter: ^3.4.1
   huawei_push: ^6.5.0+300
   animated_text_kit: ^4.2.2
   video_compress: ^3.1.1
   intl: ^0.17.0
-  syncfusion_flutter_charts: ^20.2.45
-  cached_network_image: ^3.2.1
-  flutter_native_splash: ^2.2.8
+  syncfusion_flutter_charts: ^20.2.49
+  cached_network_image: ^3.2.2
+  flutter_native_splash: ^2.2.9
+  badges: ^2.0.3
+  flutter_hms_gms_availability: ^2.0.0
 
 
 dev_dependencies:

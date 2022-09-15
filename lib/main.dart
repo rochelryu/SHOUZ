@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -38,11 +37,17 @@ import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
-  var body = message.notification?.body == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.notification?.body;
-  body = message.notification?.body == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  var body = message.data['bodyNotif'].toString().trim() == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.data['bodyNotif'].toString().trim();
+  body = message.data['bodyNotif'].toString().trim() == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
   Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
-  createShouzNotification(message.notification!.title!, body!, data);
+  createShouzNotification(message.data['titreNotif'].toString().trim(), body, data);
 }
+
+
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +55,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   AwesomeNotifications().initialize(
       'resource://drawable/icon_notif',
@@ -68,7 +74,7 @@ void main() async {
       ]);
   Intl.defaultLocale = 'fr_FR';
   initializeDateFormatting();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
 
   await FirebaseMessaging.instance
       .setForegroundNotificationPresentationOptions(
@@ -100,7 +106,7 @@ class MyApp extends StatelessWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AppState>(
+    return ChangeNotifierProvider<AppState?>(
       create: (_) => AppState(),
       lazy: false,
       child: MaterialApp(
@@ -134,22 +140,18 @@ class _MyHomePageState extends State<MyHomePage> {
   IO.Socket? socket;
   int level = 15;
   User? client;
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
     // Called when a data message is received
     String? data = remoteMessage.data;
     final notification = remoteMessage.notification;
-    print("notification");
-    print(notification);
-    print("data");
     print(data);
-    String result = await huawei.Push.turnOnPush();
+    print(notification);
+    //String result = await huawei.Push.turnOnPush();
   }
 
   void _onHmsMessageReceiveError(Object error) {
-    print("error");
     print(error);
     // Called when an error occurs while receiving the data message
   }
@@ -191,16 +193,15 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     } else {
       if(Platform.isAndroid){
-        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+        if(await isHms()) {
           User user = await DBProvider.db.getClient();
           setState(() {
             client = user;
           });
           if(user.numero != "null") {
-            print(user.ident);
             getTokenForNotificationProvider();
           }
+          await huawei.Push.registerBackgroundMessageHandler(_onHmsMessageReceived);
           huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
         } else {
           listenFirebase();
@@ -215,6 +216,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void listenFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
     FirebaseMessaging.onMessage.listen((message) {
       firebaseMessagingInOpenHandler(message);
     });
@@ -222,31 +227,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void configOneSignal() async {
     if(Platform.isAndroid){
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+      if(await isHms()) {
         OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
         OneSignal.shared.setAppId(oneSignalAppId);
         OneSignal.shared
             .promptUserForPushNotificationPermission()
             .then((accepted) {
-              print('"donc result accepted');
-              print(accepted);
         });
         User user = await DBProvider.db.getClient();
         setState(() {
           client = user;
         });
         if(user.numero != "null") {
-          print(user.ident);
           OneSignal.shared.setExternalUserId(user.ident);
         }
 
         OneSignal.shared.setNotificationWillShowInForegroundHandler((OSNotificationReceivedEvent event) {
           // Will be called whenever a notification is received in foreground
           // Display Notification, pass null param for not displaying the notification
-          print(event.notification);
-          print(event.notification.additionalData);
           event.complete(event.notification);
         });
 
@@ -275,17 +274,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Future<void> firebaseMessagingInOpenHandler(RemoteMessage message) async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    if(mounted) {
+      appState = Provider.of<AppState>(context, listen: false);
 
-    appState = Provider.of<AppState>(context, listen: false);
-    if(message.data['room'] != null) {
-      if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
+      if(message.data['room'] != null) {
+        if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
+          appState.setNumberNotif(appState.getNumberNotif + 1);
+          _firebaseMessagingBackgroundHandler(message);
+        }
+      } else {
         appState.setNumberNotif(appState.getNumberNotif + 1);
-        await _firebaseMessagingBackgroundHandler(message);
+        _firebaseMessagingBackgroundHandler(message);
       }
-    } else {
-      appState.setNumberNotif(appState.getNumberNotif + 1);
-      await _firebaseMessagingBackgroundHandler(message);
     }
+
+
   }
 
 
@@ -294,13 +300,15 @@ class _MyHomePageState extends State<MyHomePage> {
     socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
 
     socket!.onConnect((data) async {
-      appState = Provider.of<AppState>(context, listen: false);
+      if(mounted) {
+        appState = Provider.of<AppState>(context, listen: false);
+        appState.setSocket(socket!);
 
-      appState.setSocket(socket!);
 
-      final User getClient = await DBProvider.db.getClient();
-      if(getClient.ident != "") {
-        appState.setJoinConnected(getClient.ident);
+        final User getClient = await DBProvider.db.getClient();
+        if(getClient.ident != "") {
+          appState.setJoinConnected(getClient.ident);
+        }
       }
     });
     socket!.on("reponseChangeProfil", (data) async {
@@ -318,6 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
     socket!.on("MsToClient", (data) async {
+
       appState.updateLoadingToSend(false);
       if (appState.getIdOldConversation == data['_id']) {
         appState.setConversation(data);
@@ -326,9 +335,9 @@ class _MyHomePageState extends State<MyHomePage> {
           appState.ackReadMessage(data['room']);
         }
       } else {
+        // ici c'est incrémenté les notif uniquement quand c'est huawei car il ne reçoit pas les notif incrémenté de firebase
         if(Platform.isAndroid){
-          AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-          if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+          if(await isHms()) {
             appState.setNumberNotif(appState.getNumberNotif + 1);
           }
         }
@@ -336,6 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     socket!.on("ackReadMessageComeBack", (data) async {
+
       if (appState.getIdOldConversation == data['_id']) {
         appState.setConversation(data);
       }
@@ -343,6 +353,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     socket!.on("receivedConversation", (data) async {
       //sample event
+
       if (data['etat'] == 'found') {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         appState.setConversation(data['result']);
@@ -393,19 +404,20 @@ class _MyHomePageState extends State<MyHomePage> {
     socket!.on("roomCreatedForNotification", (data) async {
 
       if(Platform.isAndroid){
-        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+        if(await isHms()) {
           appState.setNumberNotif(appState.getNumberNotif + 1);
         }
       }
     });
     socket!.on("typingResponse", (data) async {
+
       if (appState.getIdOldConversation == data['id']) {
         appState.updateTyping(data['typing'] as bool);
       }
     });
 
     socket!.on('disconnect', (_) {
+
       appState.deleteSocket();
     });
 

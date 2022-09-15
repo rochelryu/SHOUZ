@@ -94,10 +94,10 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
   @override
   dispose() {
+    _scrollController.dispose();
     _timer?.cancel();
     _ampTimer?.cancel();
     _audioRecorder.dispose();
-    //File(_current!.path ?? '').delete();
     super.dispose();
   }
 
@@ -256,7 +256,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         ),
       );
     }
-    if(conversation['levelDelivery'] == 3  && room.split('_')[1] == widget.newClient.ident) {
+    if(conversation['levelDelivery'] == 3  && room != '' && room.split('_')[1] == widget.newClient.ident) {
       tabs.add(
         Container(
           height: 120,
@@ -314,7 +314,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         )
       );
     }
-    if(productDetails != null && productDetails!['result']['quantity']>0 && conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' && conversation['levelDelivery'] >= 5 && conversation['levelDelivery'] < 7) {
+    if(productDetails != null && productDetails!['result']['quantity']>0 && conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' && conversation['levelDelivery'] >= 5 && conversation['levelDelivery'] < 7 && room != '' && room.split('_')[1] == widget.newClient.ident) {
       tabs.add(
           Container(
             height: 140,
@@ -344,6 +344,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           )
       );
     }
+
     if(productDetails != null && conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final' &&  conversation['levelDelivery'] == 7) {
       tabs.add(
           Container(
@@ -495,7 +496,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Prix Proposé', style: Style.chatIsMe(15)),
-                Text(priceFinal!.toString() + ' Fcfa', style: Style.titleNews()),
+                Text(priceFinal!.toString(), style: Style.titleNews()),
               ],
             ),
           ),
@@ -525,8 +526,8 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Prix Total Proposé', style: Style.chatIsMe(15)),
-                        Text(priceFinal!.toString() + ' Fcfa', style: Style.titleNews()),
+                        Text('Prix Total Proposé', style: Style.chatIsMe(13)),
+                        Text(priceFinal!.toString(), style: Style.titleNews()),
                       ],
                     ),
                   ),
@@ -536,7 +537,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Qte Proposé', style: Style.chatIsMe(15)),
+                        Text('Qte Proposé', style: Style.chatIsMe(13)),
                         Text(qte!.toString(), style: Style.titleNews()),
                       ],
                     ),
@@ -558,16 +559,24 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context);
     final conversation = appState.getConversationGetter;
-
     if (_scrollController.hasClients) Timer(
         Duration(seconds: 1),
             () => _scrollController
             .jumpTo(_scrollController.position.maxScrollExtent));
 
-    return new Scaffold(
+    return Scaffold(
       key: scaffoldKey,
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        leading: IconButton(onPressed: (){
+          appState.setConversation({});
+          appState.setIdOldConversation('');
+          if(widget.comeBack == 0) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushNamed(context, MenuDrawler.rootName);
+          }
+        }, icon: Icon(Icons.arrow_back)),
         actions: [
           IconButton(
             icon: Icon(Icons.book_outlined),
@@ -580,15 +589,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            IconButton(onPressed: (){
-              if(widget.comeBack == 0) {
-                appState.setConversation({});
-                appState.setIdOldConversation('');
-                Navigator.pop(context);
-              } else {
-                Navigator.pushNamed(context, MenuDrawler.rootName);
-              }
-            }, icon: Icon(Icons.arrow_back)),
             Container(
               height: 40,
               width: 40,
@@ -767,9 +767,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                           if(isListeen) IconButton(
                             icon: Icon(Icons.delete_sharp, color: backgroundColorSec),
                             onPressed: () {
-                              setState(() {
-                                isListeen = false;
-                              });
+                              _removeRecord();
                             },
                           ),
                           if (appState.getLoadingToSend) LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2)
@@ -928,7 +926,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text('Prix Initial', style: Style.chatIsMe(15)),
-                                      Text(productDetails!['result']['price'].toString() + ' Fcfa', style: Style.titleNews()),
+                                      Text(productDetails!['result']['price'].toString(), style: Style.titleNews()),
                                     ],
                                   ),
                                 ),
@@ -1002,7 +1000,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   0.39,
                             ),
                             Text(
-                                (room.split('_')[0] == widget.newClient.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur ça proposition 🤝",
+                                (room.split('_')[0] == widget.newClient.ident) ? "L'acheteur a accepté votre proposition 🤝" :"Vous vous êtes entendu avec le vendeur sur sa proposition 🤝",
                                 textAlign: TextAlign.center,
                                 style: Style.sousTitreEvent(15)),
                           ],
@@ -1202,6 +1200,15 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           id: appState.getIdOldConversation);
     }
 
+  }
+
+  Future<void> _removeRecord() async {
+    _timer?.cancel();
+    _ampTimer?.cancel();
+    final path = await _audioRecorder.stop();
+    setState(() {
+      isListeen = false;
+    });
   }
 
   void _startTimer() {
@@ -1420,15 +1427,21 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
       duration: Duration(milliseconds: 300)
     );
     audioPlayer.setSourceUrl(widget.url);
+    audioPlayer.stop();
     audioPlayer.onDurationChanged.listen((d) {
-      setState(() {
-        _duration = d;
-      });
+      if(mounted) {
+        setState(() {
+          _duration = d;
+        });
+      }
     });
     audioPlayer.onPositionChanged.listen((p) {
-      setState(() {
-        _position = p;
-      });
+      if(mounted) {
+        setState(() {
+          _position = p;
+        });
+      }
+
     });
 
     audioPlayer.onPlayerComplete.listen((event) {
@@ -1451,8 +1464,8 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 45,
-      width: MediaQuery.of(context).size.width*0.95,
+      height: 35,
+      width: MediaQuery.of(context).size.width,
       child: Row(
         children: [
           GestureDetector (
@@ -1472,7 +1485,7 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
               icon: AnimatedIcons.play_pause,
               progress: controller,
               color: widget.isMe ? Colors.white: colorText,
-              size: 40,
+              size: 30,
             ),
           ),
           SizedBox(width: 2),
@@ -1480,10 +1493,10 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
             child: Row(
               children: [
                 SizedBox(
-                  width: 50,
+                  width: 45,
                   child: Text(_position.toString().substring(2).split('.')[0], style: widget.isMe
-                      ? Style.chatIsMe(15)
-                      : Style.chatOutMe(15.0)),
+                      ? Style.chatIsMe(13.0)
+                      : Style.chatOutMe(13.0)),
                 ),
                 Expanded(child: Slider(
                   inactiveColor: widget.isMe ? Colors.white.withOpacity(0.4) : colorText.withOpacity(0.4),
@@ -1498,11 +1511,12 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
                     });
                   },
                 )),
+
                 SizedBox(
                   width: 50,
                   child: Text(_duration.toString().substring(2).split('.')[0], style: widget.isMe
-                      ? Style.chatIsMe(15)
-                      : Style.chatOutMe(15.0), textAlign: TextAlign.start),
+                      ? Style.chatIsMe(13.0)
+                      : Style.chatOutMe(13.0), textAlign: TextAlign.start),
                 )
               ],
             ),

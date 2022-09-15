@@ -7,6 +7,7 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
+import '../Constant/helper.dart';
 import '../Models/User.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import '../Utils/Database.dart';
@@ -30,14 +31,16 @@ class _CheckoutRechargeMobileMoneyState
   String mtnNumero = '';
   String moovNumero = '';
   String waveNumero = '';
+  String otp = '';
   String previsionMontant = 'N/A';
   int indexStepper = 0;
   bool loadConfirmation = false;
   Map<dynamic, dynamic>? info;
   TextEditingController _controller = TextEditingController();
   TextEditingController _controllerForReceive = TextEditingController();
+  TextEditingController _controllerOtp = TextEditingController();
 
-  TypePayement _character = TypePayement.wave;
+  TypePayement _character = TypePayement.orange;
 
   User? newClient;
 
@@ -118,10 +121,10 @@ class _CheckoutRechargeMobileMoneyState
                       Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.wave; indexStepper = 0; });
+                          setState(() { _character = TypePayement.orange; indexStepper = 0; });
                         },
                         child: Card(
-                          elevation: (_character == TypePayement.wave) ? 15.0:1.0,
+                          elevation: (_character == TypePayement.orange) ? 15.0:1.0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(0.0)
                           ),
@@ -134,18 +137,18 @@ class _CheckoutRechargeMobileMoneyState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Radio(
-                                  activeColor: Colors.blue,
-                                  value: TypePayement.wave,
+                                  activeColor: Colors.deepOrangeAccent,
+                                  value: TypePayement.orange,
                                   groupValue: _character,
                                   onChanged: (value) {
                                     setState(() { _character = value as TypePayement; });
                                   },
                                 ),
-                                Text("Wave", style: Style.titre(18)),
+                                Text("Orange Money", style: Style.titre(18)),
                                 Container(
-                                  height: 40,
-                                  width: 40,
-                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
                                 )
 
                               ],
@@ -192,43 +195,6 @@ class _CheckoutRechargeMobileMoneyState
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.orange; indexStepper = 0; });
-                        },
-                        child: Card(
-                          elevation: (_character == TypePayement.orange) ? 15.0:1.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0.0)
-                          ),
-                          color: backgroundColorSec,
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.only(right: 20, left: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Radio(
-                                  activeColor: Colors.deepOrangeAccent,
-                                  value: TypePayement.orange,
-                                  groupValue: _character,
-                                  onChanged: (value) {
-                                    setState(() { _character = value as TypePayement; });
-                                  },
-                                ),
-                                Text("Orange Money", style: Style.titre(18)),
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
-                                )
-
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
                           setState(() { _character = TypePayement.moov; indexStepper = 0; });
                         },
                         child: Card(
@@ -264,6 +230,43 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                         ),
                       ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.wave; indexStepper = 0; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.wave) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.blue,
+                                  value: TypePayement.wave,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("Wave", style: Style.titre(18)),
+                                Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                )
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   )
               ),
@@ -283,7 +286,6 @@ class _CheckoutRechargeMobileMoneyState
 
   Widget blockus(BuildContext context,TypePayement type){
     switch(type){
-
       case TypePayement.mtn:
         return SingleChildScrollView(
           padding: EdgeInsets.all(0),
@@ -301,9 +303,22 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(mtnNumero.trim().length == 10 && _controller.text.length > 3) {
-                      setState(() {
-                        indexStepper += 1;
-                      });
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+
                     } else {
                       Fluttertoast.showToast(
                           msg: 'Numero Mtn incorrect ou le montant est insufisant',
@@ -326,14 +341,16 @@ class _CheckoutRechargeMobileMoneyState
               controlsBuilder: (BuildContext context, ControlsDetails controlsDetails){
                 return Row(
                   children: [
-                    if(indexStepper > 0 && indexStepper <= 1) TextButton(
-                        onPressed: controlsDetails.onStepCancel,
-                        child: Text('Précédent', style: Style.warning(13),)),
-                    SizedBox(width: 15),
                     if(indexStepper <= 1) ElevatedButton(
                         style: raisedButtonStyleMtnMoney,
                         onPressed: controlsDetails.onStepContinue,
                         child: Text('Suivant')),
+                    SizedBox(width: 15),
+                    if(indexStepper > 0) TextButton(
+                        onPressed: controlsDetails.onStepCancel,
+                        child: Text('Précédent', style: Style.warning(13),)),
+
+
 
 
                   ],
@@ -356,9 +373,10 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                           child: TextField(
                             keyboardType: TextInputType.phone,
-
+                            maxLength: 10,
                             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                             decoration: InputDecoration(
+                              counterText: '',
                               border: InputBorder.none,
                               hintText: "Numero Tel (Ex: 05XXXXXXXX)",
                               hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
@@ -384,7 +402,7 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controller,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
@@ -418,7 +436,7 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controllerForReceive,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
@@ -429,7 +447,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 ) {
+                                        if (amount >= 1000) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
                                           } else {
@@ -461,7 +479,7 @@ class _CheckoutRechargeMobileMoneyState
                   title: Text("Dernière étape", style: Style.titre(13)),
                   content: Column(
                     children: [
-
+                      Text("Préparez-vous à faire entrer votre code Mtn Money sur le téléphone qui detient ce numero ${moovNumero.trim()}", style: Style.sousTitre(15)),
                       loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
                           style: raisedButtonStyleMtnMoney,
                           onPressed: () async {
@@ -479,7 +497,7 @@ class _CheckoutRechargeMobileMoneyState
                                 _controller.clear();
                                 Navigator.pushNamed(context, MenuDrawler.rootName);
                               } else if(rechargeCrypto['etat'] == 'inWait') {
-                                final titleAlert = "Nous analysons cette transaction au près de MTN, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                 await askedToLead(titleAlert, true, context);
                                 _controller.clear();
                                 Navigator.pushNamed(context, Notifications.rootName);
@@ -498,7 +516,7 @@ class _CheckoutRechargeMobileMoneyState
                               );
                             }
                           },
-                          child: Text('Payer maintenant')),
+                          child: Text('Oui, je suis prêt')),
                       SizedBox(height: 10),
                     ],
                   )
@@ -579,7 +597,7 @@ class _CheckoutRechargeMobileMoneyState
                                   borderRadius: BorderRadius.circular(30.0)
                               ),
                               child: TextField(
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.phone,
                                 controller: _controller,
                                 style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                 decoration: InputDecoration(
@@ -613,7 +631,7 @@ class _CheckoutRechargeMobileMoneyState
                                   borderRadius: BorderRadius.circular(30.0)
                               ),
                               child: TextField(
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.phone,
                                 controller: _controllerForReceive,
                                 style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                 decoration: InputDecoration(
@@ -647,7 +665,7 @@ class _CheckoutRechargeMobileMoneyState
                   title: Text("Passé à l'action", style: Style.titre(13)),
                   content: Column(
                     children: [
-                      Text("Faites la transaction Wave de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      Text("Faites la transaction Wave de ${_controller.text} au numero suivante :", style: Style.sousTitre(13)),
                       SizedBox(height: 5),
                       SelectableText(info == null ? '' : '${info!['wave']}', style: Style.mobileMoneyWave(),
                         toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
@@ -664,7 +682,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Confirmation", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Après la transaction, vous avez reçu un message de confirmation envoie Wave.\nÀ la dernière ligne du message se trouve le code de référence de la transaction.\nCopié le et venez le coller ici 👇", style: Style.sousTitre(10)),
+                        Text("Après la transaction, vous avez reçu un message de confirmation envoyé par Wave.\nÀ la dernière ligne du message se trouve le code de référence de la transaction.\nCopié le et venez le coller ici 👇", style: Style.sousTitre(10)),
                         SizedBox(height: 5,),
                         Container(
                           height: 45,
@@ -763,9 +781,21 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(orangeNumero.trim().length == 10 && _controller.text.length > 3) {
-                      setState(() {
-                        indexStepper += 1;
-                      });
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
                     } else {
                       Fluttertoast.showToast(
                           msg: 'Numero Orange incorrect ou le montant est insufisant',
@@ -778,9 +808,21 @@ class _CheckoutRechargeMobileMoneyState
                       );
                     }
                   } else {
-                    setState(() {
-                      indexStepper += 1;
-                    });
+                    if(otp.length == 4) {
+                      setState(() {
+                        indexStepper += 1;
+                      });
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: "Le code temporaire (code d'autorisation) doit être forcement de 4 chiffres",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 5,
+                          backgroundColor: colorError,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
+                    }
                   }
 
                 }
@@ -806,7 +848,6 @@ class _CheckoutRechargeMobileMoneyState
                       children: [
                         Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
-
                         Container(
                           height: 35,
                           width: double.infinity,
@@ -817,9 +858,10 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                           child: TextField(
                             keyboardType: TextInputType.phone,
-
+                            maxLength: 10,
                             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                             decoration: InputDecoration(
+                              counterText: '',
                               border: InputBorder.none,
                               hintText: "Numero Tel (Ex: 07XXXXXXXX)",
                               hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
@@ -845,7 +887,7 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controller,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
@@ -879,7 +921,7 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controllerForReceive,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
@@ -912,15 +954,41 @@ class _CheckoutRechargeMobileMoneyState
                   title: Text("Passé à l'action", style: Style.titre(13)),
                   content: Column(
                     children: [
-                      Text("Faites la transaction Orange Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      Text("Composez le #144*82#, Orange vous démandera de faire entrer votre code et vous donnera un code temporaire.\nFaites entrez ce code temporaire de 4 chiffres dans le champ ci-dessous", style: Style.sousTitre(11)),
                       SizedBox(height: 5),
-                      SelectableText(info == null ? '' : '${info!['orange']}', style: Style.mobileMoneyOrange(),
-                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-                        showCursor: true,
-                        cursorWidth: 2,
-                        cursorColor: Colors.white,
-                        cursorRadius: const Radius.circular(5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
 
+                          Container(
+                            height: 35,
+                            width: MediaQuery.of(context).size.width * 0.49,
+                            padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                            decoration: BoxDecoration(
+                                color: Colors.white30,
+                                borderRadius: BorderRadius.circular(30.0)
+                            ),
+                            child: TextField(
+                              maxLength: 4,
+                              keyboardType: TextInputType.phone,
+                              controller: _controllerOtp,
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
+                              decoration: InputDecoration(
+                                counterText: '',
+                                border: InputBorder.none,
+                                hintText: "Code d'autorisation",
+                                hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
+                              ),
+                              onChanged: (value) {
+                                if(value.length < 5) {
+                                  setState(() {
+                                    otp = value;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       )
                     ],
                   ),
@@ -929,7 +997,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Confirmation", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
+                        Text("Le $orangeNumero sera débité de ${_controller.text} ${newClient?.currencies} pour recevoir ${_controllerForReceive.text} ${newClient?.currencies} sur votre compte SHOUZPAY.\nVous Confirmez cela ?", style: Style.sousTitre(10)),
                         SizedBox(height: 10),
                         loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
                             style: raisedButtonStyleOrangeMoney,
@@ -938,13 +1006,12 @@ class _CheckoutRechargeMobileMoneyState
                                 setState(() {
                                   loadConfirmation = true;
                                 });
-                                final rechargeCrypto = await consumeAPI.rechargeMobileMoney('orange', orangeNumero.trim(), _controller.text);
+                                final rechargeCrypto = await consumeAPI.rechargeMobileMoney('orange', orangeNumero.trim(), _controller.text, _controllerOtp.text);
                                 setState(() {
                                   loadConfirmation = false;
                                 });
                                 if(rechargeCrypto['etat'] == 'found') {
-                                  final titleAlert = "Votre compte vient d'être rechargé avec succès";
-                                  await askedToLead(titleAlert, true, context);
+                                  await askedToLead(rechargeCrypto['result']['content'], true, context);
                                   _controller.clear();
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
@@ -993,9 +1060,21 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(moovNumero.trim().length == 10 && _controller.text.length > 3) {
-                      setState(() {
-                        indexStepper += 1;
-                      });
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
                     } else {
                       Fluttertoast.showToast(
                           msg: 'Numero Moov incorrect ou le montant est insufisant',
@@ -1047,11 +1126,12 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                           child: TextField(
                             keyboardType: TextInputType.phone,
-
+                            maxLength: 10,
                             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                             decoration: InputDecoration(
+                              counterText: '',
                               border: InputBorder.none,
-                              hintText: "Numero Tel (Ex: 07XXXXXXXX)",
+                              hintText: "Numero Tel (Ex: 01XXXXXXXX)",
                               hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                             ),
                             onChanged: (text){
@@ -1075,12 +1155,12 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controller,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: "Montant à envoyer",
+                                      hintText: "Code d'autorisation",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
@@ -1098,6 +1178,7 @@ class _CheckoutRechargeMobileMoneyState
                                         _controllerForReceive.text = "";
                                       }
                                     },
+
                                   ),
                                 ),
                                 Container(
@@ -1109,7 +1190,7 @@ class _CheckoutRechargeMobileMoneyState
                                       borderRadius: BorderRadius.circular(30.0)
                                   ),
                                   child: TextField(
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.phone,
                                     controller: _controllerForReceive,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
@@ -1139,27 +1220,19 @@ class _CheckoutRechargeMobileMoneyState
                     )
                 ),
                 Step(
-                  title: Text("Passé à l'action", style: Style.titre(13)),
+                  title: Text("Confirmation", style: Style.titre(13)),
                   content: Column(
                     children: [
-                      Text("Faites la transaction Moov Money de ${_controller.text} au numero suivante :", style: Style.sousTitre(11)),
+                      Text("Le $moovNumero sera débité de ${_controller.text} ${newClient?.currencies} pour recevoir ${_controllerForReceive.text} ${newClient?.currencies} sur votre compte SHOUZPAY.\nSi vous êtes d'accord cliquez sur 'suivant'", style: Style.sousTitre(11)),
                       SizedBox(height: 5),
-                      SelectableText(info == null ? '' : '${info!['moov']}', style: Style.mobileMoneyMoov(),
-                        toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
-                        showCursor: true,
-                        cursorWidth: 2,
-                        cursorColor: Colors.white,
-                        cursorRadius: const Radius.circular(5),
-
-                      )
                     ],
                   ),
                 ),
                 Step(
-                    title: Text("Confirmation", style: Style.titre(13)),
+                    title: Text("Dernière étape", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Avez-vous fait la transaction du montant au numero qui vous a été donné ?", style: Style.sousTitre(10)),
+                        Text("Préparez vous à faire entrer votre code Moov Money sur le téléphone qui detient ce numero ${moovNumero.trim()}", style: Style.sousTitre(15)),
                         SizedBox(height: 10),
                         loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
                             style: raisedButtonStyleMoovMoney,
@@ -1178,7 +1251,7 @@ class _CheckoutRechargeMobileMoneyState
                                   _controller.clear();
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
-                                  final titleAlert = "Nous analysons cette transaction au près de Moov, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
                                   Navigator.pushNamed(context, Notifications.rootName);
@@ -1197,7 +1270,7 @@ class _CheckoutRechargeMobileMoneyState
                                 );
                               }
                             },
-                            child: Text('Oui, je confirme')),
+                            child: Text('Oui, je suis prêt')),
                         SizedBox(height: 10),
                       ],
                     )

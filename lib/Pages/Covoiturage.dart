@@ -163,8 +163,7 @@ class _CovoiturageState extends State<Covoiturage> {
   getPositionCurrent() async {
 
     if(Platform.isAndroid){
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+      if(await isHms()) {
         try {
           bool status = await permissionHandler.hasLocationPermission();
           if(status) {
@@ -688,13 +687,13 @@ class _CovoiturageState extends State<Covoiturage> {
       fit: StackFit.expand,
       children: <Widget>[
         new FlutterMap(
-            options: new MapOptions(
+            options: MapOptions(
               center: LatLng(latitude, longitude),
               minZoom: 4.0,
               zoom: 7.0,
             ),
-            layers: [
-              new TileLayerOptions(
+          children: [
+              new TileLayer(
                 urlTemplate:
                 "https://api.mapbox.com/styles/v1/rochelryu/ck1piq46n2i5y1cpdlmq6e8e2/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
                 additionalOptions: {
@@ -703,7 +702,7 @@ class _CovoiturageState extends State<Covoiturage> {
                 },
 
               ),
-              new MarkerLayerOptions(markers: [
+              new MarkerLayer(markers: [
                 new Marker(
                     width: 45.0,
                     height: 45.0,
@@ -713,7 +712,7 @@ class _CovoiturageState extends State<Covoiturage> {
                     ))
               ]),
 
-              new PolylineLayerOptions(
+              new PolylineLayer(
                   polylines: [
                     new Polyline(
                         points: global,

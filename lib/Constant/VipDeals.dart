@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Pages/DetailsDeals.dart';
@@ -73,7 +74,7 @@ class _VipDealsState extends State<VipDeals> {
       padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 0.0, bottom: 18.0),
       child: Stack(
         children: <Widget>[
-          InkWell(
+          GestureDetector(
             onTap: () {
               Navigator.of(context)
                   .push((MaterialPageRoute(builder: (context) {
@@ -171,7 +172,7 @@ class _VipDealsState extends State<VipDeals> {
                         IconButton(
                             icon: Icon(Icons.call, color: Colors.green),
                             onPressed: () async {
-                              await launchUrlString("tel:${widget.numero}");
+                              await launchUrl(Uri(scheme: 'tel', path: widget.numero));
                             }),
 
                         SizedBox(width: 7.0),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:location/location.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -23,7 +24,6 @@ class _OnBoardingState extends State<OnBoarding> {
   bool lastPage = false;
   late Location location;
   late PermissionStatus _permissionGranted;
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   PermissionHandler permissionHandler = PermissionHandler();
 
   @override
@@ -59,10 +59,8 @@ class _OnBoardingState extends State<OnBoarding> {
                 if(_counter == 4) {
                   lastPage = false;
                   if(Platform.isAndroid) {
-                    AndroidDeviceInfo androidInfo = await deviceInfo
-                        .androidInfo;
-                    if (androidInfo.brand!.indexOf('HUAWEI') != -1 ||
-                        androidInfo.brand!.indexOf('HONOR') != -1) {
+
+                    if (await isHms()) {
                       bool status = await permissionHandler.requestLocationPermission();
 
                       if(!status) {

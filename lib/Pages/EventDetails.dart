@@ -16,11 +16,12 @@ import 'package:shouz/Pages/stats_event.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import '../Constant/Style.dart';
+import '../Constant/helper.dart';
 import '../Models/User.dart';
 
 class EventDetails extends StatefulWidget {
@@ -303,7 +304,7 @@ class _EventDetailsState extends State<EventDetails> {
                         Text('Lieu', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
-                              await launchUrlString("https://www.google.com/maps/place/${widget.position}");
+                              await launchUrl(Uri.parse(mapForDevice(widget.position)));
                             },
                             child: Text("Map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
                         /*Text(

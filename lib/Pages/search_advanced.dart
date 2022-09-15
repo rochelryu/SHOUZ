@@ -82,31 +82,31 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                       )
                     ]),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(left: 17.0),
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width / 1.55,
-                      color: Colors.transparent,
-                      child: TextField(
-                        controller: searchCtrl,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300),
-                        cursorColor: colorText,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                            hintText: "Entrer ce que vous chercher",
-                            hintStyle: TextStyle(color: colorPrimary),
-                            labelStyle: TextStyle(
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(left: 17.0),
+                        height: MediaQuery.of(context).size.height,
+                        color: Colors.transparent,
+                        child: TextField(
+                          controller: searchCtrl,
+                          style: TextStyle(
                               color: Colors.white,
-                            )),
+                              fontWeight: FontWeight.w300),
+                          cursorColor: colorText,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                              hintText: "Entrer ce que vous chercher",
+                              hintStyle: TextStyle(color: colorPrimary),
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              )),
 
-                        onSubmitted: (String text) async {
-                          FocusScope.of(context).requestFocus(new FocusNode());
-                          await loadProduct();
-                        },
+                          onSubmitted: (String text) async {
+                            FocusScope.of(context).requestFocus(new FocusNode());
+                            await loadProduct();
+                          },
+                        ),
                       ),
                     ),
                     IconButton(
@@ -129,7 +129,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                   children: <Widget>[
                     Expanded(
                       child: ListView.builder(
-                                itemCount: 2,
+                                itemCount: 5,
                                 itemBuilder: (context, index) {
                                   return loadDataSkeletonOfEvent(context, 175);
                                 }

@@ -17,7 +17,7 @@ class ConsumeAPI {
   static final UPDATEPOSITION_URL = BASE_URL + "/client/updateCurentPosition";
   static final UPDATE_RECOVERY_URL = BASE_URL + "/client/updateRecovery";
   static final UPDATE_TOKEN_VERIFICATION_URL = BASE_URL + "/client/updateTokenVerification";
-  static final VERIFY_TWILIO_URL = BASE_URL + "/client/verifyTwilio";
+  static final VERIFY_OTP_URL = BASE_URL + "/client/verifyOtp";
   static final VERIFY_ONLINE_CLIENT_URL = BASE_URL + "/client/verifyOnline";
   static final RESEND_RECOVERY_URL = BASE_URL + "/client/resendRecovery";
   static final SETTINGS_URL = BASE_URL + "/client/settings";
@@ -82,6 +82,7 @@ class ConsumeAPI {
   static final GET_SEARCH_ADVANCED_PRODUCTS_URL = BASE_URL + "/products/searchAdvancedProducts";
   static final GET_DETAILS_FOR_CHAT_URL = BASE_URL + "/products/getDetailsOfProductForChat";
   static final GET_PRODUCT_URL = BASE_URL + "/products/getProduct";
+  static final GET_ALL_COMMANDES_PRODUCT_URL = BASE_URL + "/products/getAllCommandesProduct";
 
 
 
@@ -273,6 +274,7 @@ class ConsumeAPI {
     return _netUtil.post(DEMANDERETRAIT_URL, body: body).then((dynamic res) async {
       if (res['etat'] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+        await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
       }
       return res;
     });
@@ -291,9 +293,9 @@ class ConsumeAPI {
     });
   }
 
-  rechargeMobileMoney(String endpoint, String numero,String amount) async {
+  rechargeMobileMoney(String endpoint, String numero,String amount, [String otp = '']) async {
     User newClient = await DBProvider.db.getClient();
-    final body = {'id': newClient.ident, 'credentials': newClient.recovery, 'endpoint': endpoint, 'numero': numero, 'amountInLocalCurrency': amount};
+    final body = endpoint == "orange" ? {'id': newClient.ident, 'credentials': newClient.recovery, 'endpoint': endpoint, 'numero': numero, 'amountInLocalCurrency': amount, 'otp': otp} : {'id': newClient.ident, 'credentials': newClient.recovery, 'endpoint': endpoint, 'numero': numero, 'amountInLocalCurrency': amount};
 
     return _netUtil.post(RECHARGE_BYMOBILEMONEY_URL, body: body).then((dynamic res) async {
       if (res['etat'] == 'found') {
@@ -314,6 +316,15 @@ class ConsumeAPI {
     return _netUtil.post(RESPONSE_FINAL_DEALS_URL, body: body).then((dynamic res) async {
       return res;
     });
+  }
+
+
+  // Commandes for Deals product
+  Future<List<dynamic>> getAllCommandeProduct(String productId) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_ALL_COMMANDES_PRODUCT_URL/${newClient.ident}?credentials=${newClient.recovery}&idProduct=$productId');
+    return res['result'];
   }
 
 
@@ -679,7 +690,7 @@ class ConsumeAPI {
   }
 
 
-  verifyTwilio(String code) async {
+  verifyOtp(String code) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
@@ -688,7 +699,7 @@ class ConsumeAPI {
 
     };
 
-    return _netUtil.post(VERIFY_TWILIO_URL, body: body).then((dynamic res) async {
+    return _netUtil.post(VERIFY_OTP_URL, body: body).then((dynamic res) async {
       return res;
     });
   }

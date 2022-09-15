@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>app.shouz.network</string>
+		<string>applinks:app.shouz.network</string>
 	</array>
 </dict>
 </plist>

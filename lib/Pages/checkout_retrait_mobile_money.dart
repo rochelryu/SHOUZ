@@ -32,7 +32,7 @@ class _CheckoutRetraitMobileMoneyState
   bool loadConfirmation = false;
   TextEditingController _controller = TextEditingController();
   User? newClient;
-  TypePayement _character = TypePayement.wave;
+  TypePayement _character = TypePayement.orange;
 
 
   void initState() {
@@ -83,10 +83,10 @@ class _CheckoutRetraitMobileMoneyState
 
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.wave; });
+                          setState(() { _character = TypePayement.orange; });
                         },
                         child: Card(
-                          elevation: (_character == TypePayement.wave) ? 15.0:1.0,
+                          elevation: (_character == TypePayement.orange) ? 15.0:1.0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(0.0)
                           ),
@@ -99,18 +99,18 @@ class _CheckoutRetraitMobileMoneyState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Radio(
-                                  activeColor: Colors.blue,
-                                  value: TypePayement.wave,
+                                  activeColor: Colors.deepOrangeAccent,
+                                  value: TypePayement.orange,
                                   groupValue: _character,
                                   onChanged: (value) {
                                     setState(() { _character = value as TypePayement; });
                                   },
                                 ),
-                                Text("Wave", style: Style.titre(18)),
+                                Text("Orange Money", style: Style.titre(18)),
                                 Container(
-                                  height: 40,
-                                  width: 40,
-                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
                                 )
 
                               ],
@@ -157,43 +157,6 @@ class _CheckoutRetraitMobileMoneyState
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() { _character = TypePayement.orange; });
-                        },
-                        child: Card(
-                          elevation: (_character == TypePayement.orange) ? 15.0:1.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0.0)
-                          ),
-                          color: backgroundColorSec,
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.only(right: 20, left: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Radio(
-                                  activeColor: Colors.deepOrangeAccent,
-                                  value: TypePayement.orange,
-                                  groupValue: _character,
-                                  onChanged: (value) {
-                                    setState(() { _character = value as TypePayement; });
-                                  },
-                                ),
-                                Text("Orange Money", style: Style.titre(18)),
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
-                                )
-
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
                           setState(() { _character = TypePayement.moov; });
                         },
                         child: Card(
@@ -229,6 +192,43 @@ class _CheckoutRetraitMobileMoneyState
                           ),
                         ),
                       ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() { _character = TypePayement.wave; });
+                        },
+                        child: Card(
+                          elevation: (_character == TypePayement.wave) ? 15.0:1.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0)
+                          ),
+                          color: backgroundColorSec,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            padding: EdgeInsets.only(right: 20, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Radio(
+                                  activeColor: Colors.blue,
+                                  value: TypePayement.wave,
+                                  groupValue: _character,
+                                  onChanged: (value) {
+                                    setState(() { _character = value as TypePayement; });
+                                  },
+                                ),
+                                Text("Wave", style: Style.titre(18)),
+                                Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                )
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   )
               ),
@@ -253,7 +253,7 @@ class _CheckoutRetraitMobileMoneyState
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text("1. Faites entrer votre numero de telephone Mtn qui doit recevoir la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Mtn qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -274,10 +274,11 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
-
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
+                            counterText: '',
                             border: InputBorder.none,
                             hintText: "Numero Tel",
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
@@ -300,7 +301,7 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.phone,
                           controller: _controller,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
@@ -314,6 +315,9 @@ class _CheckoutRetraitMobileMoneyState
                 ],
               ),
             ),
+            SizedBox(height: 5),
+            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMtnMoney,
                 onPressed: () async {
@@ -323,11 +327,14 @@ class _CheckoutRetraitMobileMoneyState
                     });
                     final demandeRetrait = await consumeAPI.demandeRetrait('mtn', mtnNumero.trim(), _controller.text);
                     if(demandeRetrait['etat'] == 'found') {
-                      final titleAlert = "Super! votre demande est en cours de traitement";
+                      final titleAlert = demandeRetrait['result']['content'];
                       await askedToLead(titleAlert, true, context);
                     } else if( demandeRetrait['etat'] == "badLevel") {
-                      final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
+                      final titleAlert = "Vous avez rechargé votre compte il y a moins d'une heure, c'est une heure après un rechargement qu'il peut y avoir un possible retrait";
                       await askedToLead(titleAlert, false, context);
+                    } else if( demandeRetrait['etat'] == "inWait") {
+                      final titleAlert = "Votre demande est en cours de traitement, vous allez la recevoir dans les plus brefs délais";
+                      await askedToLead(titleAlert, true, context);
                     } else {
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
@@ -358,7 +365,7 @@ class _CheckoutRetraitMobileMoneyState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
 
-            Text("1. Faites entrer votre numero de telephone Wave qui doit recevoir la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Wave qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -379,10 +386,11 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
-
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
+                            counterText: '',
                             border: InputBorder.none,
                             hintText: "Numero Tel",
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
@@ -405,7 +413,7 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.phone,
                           controller: _controller,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
@@ -419,21 +427,26 @@ class _CheckoutRetraitMobileMoneyState
                 ],
               ),
             ),
-            SizedBox(height: 15,),
+            SizedBox(height: 5),
+            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleWave,
                 onPressed: () async {
-                  if(waveNumero.trim().length == 10 && int.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
+                  if(waveNumero.trim().length == 10 && double.parse(_controller.text) >= 1000 && int.parse(_controller.text) % 100 == 0 && double.parse(_controller.text) <= newClient!.wallet) {
                     setState(() {
                       loadConfirmation = true;
                     });
                     final demandeRetrait = await consumeAPI.demandeRetrait('wave', waveNumero.trim(), _controller.text);
                     if(demandeRetrait['etat'] == 'found') {
-                      final titleAlert = "Super! votre demande est en cours de traitement";
+                      final titleAlert = demandeRetrait['result']['content'];
                       await askedToLead(titleAlert, true, context);
                     } else if( demandeRetrait['etat'] == "badLevel") {
-                      final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
+                      final titleAlert = "Vous avez rechargé votre compte il y a moins d'une heure, c'est une heure après un rechargement qu'il peut y avoir un possible retrait";
                       await askedToLead(titleAlert, false, context);
+                    } else if( demandeRetrait['etat'] == "inWait") {
+                      final titleAlert = "Votre demande est en cours de traitement, vous allez la recevoir dans les plus brefs délais";
+                      await askedToLead(titleAlert, true, context);
                     } else {
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
@@ -462,7 +475,7 @@ class _CheckoutRetraitMobileMoneyState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
 
-            Text("1. Faites entrer votre numero de telephone Orange qui doit recevoir la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Orange qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -483,10 +496,11 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
-
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
+                            counterText: '',
                             border: InputBorder.none,
                             hintText: "Numero Tel",
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
@@ -509,7 +523,7 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.phone,
                           controller: _controller,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
@@ -522,7 +536,9 @@ class _CheckoutRetraitMobileMoneyState
                 ],
               ),
             ),
-            SizedBox(height: 15,),
+            SizedBox(height: 5),
+            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleOrangeMoney,
                 onPressed: () async {
@@ -532,11 +548,14 @@ class _CheckoutRetraitMobileMoneyState
                     });
                     final demandeRetrait = await consumeAPI.demandeRetrait('orange', orangeNumero.trim(), _controller.text);
                     if(demandeRetrait['etat'] == 'found') {
-                      final titleAlert = "Super! votre demande est en cours de traitement";
+                      final titleAlert = demandeRetrait['result']['content'];
                       await askedToLead(titleAlert, true, context);
                     } else if( demandeRetrait['etat'] == "badLevel") {
-                      final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
+                      final titleAlert = "Vous avez rechargé votre compte il y a moins d'une heure, c'est une heure après un rechargement qu'il peut y avoir un possible retrait";
                       await askedToLead(titleAlert, false, context);
+                    } else if( demandeRetrait['etat'] == "inWait") {
+                      final titleAlert = "Votre demande est en cours de traitement, vous allez la recevoir dans les plus brefs délais";
+                      await askedToLead(titleAlert, true, context);
                     } else {
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
@@ -564,8 +583,7 @@ class _CheckoutRetraitMobileMoneyState
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-
-            Text("1. Faites entrer votre numero de telephone Moov qui doit recevoir la transaction puis le montant de votre transaction (Montant Min: 2000)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Moov qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -586,10 +604,11 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
-
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
+                            counterText: '',
                             border: InputBorder.none,
                             hintText: "Numero Tel",
                             hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
@@ -612,7 +631,7 @@ class _CheckoutRetraitMobileMoneyState
                             borderRadius: BorderRadius.circular(30.0)
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.phone,
                           controller: _controller,
                           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
                           decoration: InputDecoration(
@@ -625,7 +644,9 @@ class _CheckoutRetraitMobileMoneyState
                 ],
               ),
             ),
-            SizedBox(height: 15,),
+            SizedBox(height: 5),
+            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMoovMoney,
                 onPressed: () async {
@@ -635,11 +656,14 @@ class _CheckoutRetraitMobileMoneyState
                     });
                     final demandeRetrait = await consumeAPI.demandeRetrait('moov', moovNumero.trim(), _controller.text);
                     if(demandeRetrait['etat'] == 'found') {
-                      final titleAlert = "Super! votre demande est en cours de traitement";
+                      final titleAlert = demandeRetrait['result']['content'];
                       await askedToLead(titleAlert, true, context);
                     } else if( demandeRetrait['etat'] == "badLevel") {
-                      final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
+                      final titleAlert = "Vous avez rechargé votre compte il y a moins d'une heure, c'est une heure après un rechargement qu'il peut y avoir un possible retrait";
                       await askedToLead(titleAlert, false, context);
+                    } else if( demandeRetrait['etat'] == "inWait") {
+                      final titleAlert = "Votre demande est en cours de traitement, vous allez la recevoir dans les plus brefs délais";
+                      await askedToLead(titleAlert, true, context);
                     } else {
                       await askedToLead(demandeRetrait['error'], false, context);
                     }

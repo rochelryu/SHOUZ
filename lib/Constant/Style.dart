@@ -497,13 +497,12 @@ class Style {
         );
   }
 
-  static TextStyle simpleTextOnBoard([double size = 17.0]) {
+  static TextStyle simpleTextOnBoard([double size = 17.0, Color color = colorSecondary]) {
     return TextStyle(
       fontSize: size,
       fontFamily: "Montserrat-Light",
-      color: colorSecondary,
+      color: color,
       letterSpacing: 1.1,
-      //fontWeight: FontWeight.w600,
     );
   }
 
@@ -734,6 +733,15 @@ class Style {
     );
   }
 
+  static dynamic simpleTextInContainer([Color color = colorPrimary]) {
+    return TextStyle(
+      fontFamily: "Montserrat-Light",
+      color: color,
+      fontSize: 11,
+      letterSpacing: 1.1,
+    );
+  }
+
   static dynamic enterChoiceHobieInSecondaryOption(size) {
     return TextStyle(
       fontSize: size,
@@ -871,7 +879,7 @@ String dateFormatForTimesAgo(dynamic registerDate) {
           1)
       ? "Aujourd'hui"
       : afficheDate;
-  return afficheDate;
+  return afficheDate.replaceAll('-', '/');
 }
 
 // Animation
@@ -930,8 +938,8 @@ double getProportionateScreenWidth(double inputWidth) {
 
 // Style boutton in flutter
 final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
-  onPrimary: Colors.white,
-  primary: colorText,
+  foregroundColor: Colors.white,
+  backgroundColor: colorText,
   minimumSize: const Size(88, 36),
   padding: const EdgeInsets.symmetric(horizontal: 16),
   shape: const RoundedRectangleBorder(
@@ -941,8 +949,8 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
 
 
 final ButtonStyle raisedButtonStyleError = ElevatedButton.styleFrom(
-  onPrimary: Colors.white,
-  primary: colorError,
+  foregroundColor: Colors.white,
+  backgroundColor: colorError,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -951,8 +959,8 @@ final ButtonStyle raisedButtonStyleError = ElevatedButton.styleFrom(
 );
 
 final ButtonStyle raisedButtonStyleSuccess = ElevatedButton.styleFrom(
-  onPrimary: Colors.white,
-  primary: colorSuccess,
+  foregroundColor: Colors.white,
+  backgroundColor: colorSuccess,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -961,8 +969,8 @@ final ButtonStyle raisedButtonStyleSuccess = ElevatedButton.styleFrom(
 );
 
 final ButtonStyle raisedButtonStyleMtnMoney = ElevatedButton.styleFrom(
-  onPrimary: Colors.black,
-  primary: Colors.yellowAccent,
+  foregroundColor: Colors.black,
+  backgroundColor: Colors.yellowAccent,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -971,8 +979,7 @@ final ButtonStyle raisedButtonStyleMtnMoney = ElevatedButton.styleFrom(
 );
 
 final ButtonStyle raisedButtonStyleOrangeMoney = ElevatedButton.styleFrom(
-  onPrimary: Colors.black,
-  primary: Colors.deepOrangeAccent,
+  foregroundColor: Colors.black, backgroundColor: Colors.deepOrangeAccent,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -980,8 +987,8 @@ final ButtonStyle raisedButtonStyleOrangeMoney = ElevatedButton.styleFrom(
   ),
 );
 final ButtonStyle raisedButtonStyleWave = ElevatedButton.styleFrom(
-  onPrimary: Colors.white,
-  primary: Colors.blue,
+  foregroundColor: Colors.white,
+  backgroundColor: Colors.blue,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -989,8 +996,7 @@ final ButtonStyle raisedButtonStyleWave = ElevatedButton.styleFrom(
   ),
 );
 final ButtonStyle raisedButtonStyleMoovMoney = ElevatedButton.styleFrom(
-  onPrimary: Colors.white,
-  primary: Colors.blueAccent,
+  foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
@@ -999,8 +1005,7 @@ final ButtonStyle raisedButtonStyleMoovMoney = ElevatedButton.styleFrom(
 );
 
 final ButtonStyle outlineButtonStyle = OutlinedButton.styleFrom(
-  primary: colorText,
-  minimumSize: Size(88, 36),
+  foregroundColor: colorText, minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20)),

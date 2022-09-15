@@ -15,11 +15,12 @@ import 'package:video_player/video_player.dart';
 import '../Constant/my_flutter_app_second_icons.dart';
 import './ChatDetails.dart';
 import 'Login.dart';
+import 'list_commande.dart';
 
 class DetailsDeals extends StatefulWidget {
-  int comeBack;
+  final int comeBack;
   final DealsSkeletonData dealsDetailsSkeleton;
-  DetailsDeals({required this.dealsDetailsSkeleton, required this.comeBack});
+  const DetailsDeals({required this.dealsDetailsSkeleton, required this.comeBack});
   @override
   _DetailsDealsState createState() => _DetailsDealsState();
 }
@@ -204,7 +205,6 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                         height: double.infinity,
                                         child: GestureDetector(
                                           onTap: (){
-                                            print("tapp");
                                             setState(() {
                                               _controller.value.isPlaying
                                                   ? _controller.pause()
@@ -477,15 +477,36 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       style: TextStyle(color: Colors.white, fontSize: 13.5)),
                 ],
               ),
-              if (isMe && widget.dealsDetailsSkeleton.quantity > 0) Container(
+              if (isMe) Container(
                 height: double.infinity,
-                width: 120,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     //ICI SE TROUVERA L'icon pour la modification de l'article plutard pour le moment c'est l'archivage seul qui est disponible
+                    ElevatedButton(
+                      style: raisedButtonStyle,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(MyFlutterAppSecond.shop,
+                              size: 17,
+                              color: colorPrimary),
+                          SizedBox(width: 5),
+                          Text("Commandes", style: Style.titre(13)),
+                        ],
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (builder) => ListCommande(
+                                  key: UniqueKey(),
+                                  productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
+                                )));
+                      },
+                    ),
 
-                    IconButton(
+                   if(widget.dealsDetailsSkeleton.quantity > 0) IconButton(
                       icon: Icon(Icons.delete_sharp, color: colorText, size: 30,),
                       onPressed: (){
                         showDialog(
@@ -516,6 +537,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                 onLine: widget.dealsDetailsSkeleton.onLine,
                                 profil: widget.dealsDetailsSkeleton.profil,
                                 authorId: widget.dealsDetailsSkeleton.autor)));
+
                   } else {
                     showDialog(
                         context: context,
@@ -531,51 +553,14 @@ class _DetailsDealsState extends State<DetailsDeals> {
       ),
     );
   }
-
-  List<Widget> Accumulation(List<String> otherClient) {
-    List<Widget> entass = [];
-
-    for (var i = 0; i < otherClient.length; i++) {
-      if (i > 2) {
-        var item = Container(
-          margin: EdgeInsets.only(right: 10.0),
-          height: 50,
-          width: 50,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50.0),
-              color: backgroundColorSec),
-          child: Center(
-            child: Text((otherClient.length - i).toString(),
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20)),
-          ),
-        );
-        entass.add(item);
-        break;
-      } else {
-        var item = Container(
-          height: 50,
-          width: 50,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50.0),
-              image: DecorationImage(
-                  image: AssetImage(otherClient[i]), fit: BoxFit.cover)),
-        );
-        entass.add(item);
-      }
-    }
-    return entass;
-  }
 }
 
 class ViewerProduct extends StatefulWidget {
-  int level;
+  final int level;
   final int index;
   final List<dynamic> imgUrl;
 
-  ViewerProduct({required this.index, required this.imgUrl, required this.level});
+  const ViewerProduct({required this.index, required this.imgUrl, required this.level});
   @override
   _ViewerProductState createState() => _ViewerProductState();
 }

@@ -26,9 +26,8 @@ class _StatsEventState extends State<StatsEvent> {
   DateTime eventExpireDate = DateTime.now();
   List<PieSeriesData> pieSeriesData = [];
   List<dynamic> tableDataStats = [];
+  List<dynamic> tableDataStatsForRemoved = [];
   int totalTicketBuy = 0, totalTicketDecode = 0, cumulGain = 0;
-  static const double dataPagerHeight = 60;
-
 
   @override
   void initState() {
@@ -48,8 +47,10 @@ class _StatsEventState extends State<StatsEvent> {
               pieSeriesData.add(PieSeriesData(pieElementData['title'], pieElementData['value'], colorsForStats[index == 0 ? colorsForStats.length -1: index - 1]));
             }
             tableDataStats = data['result']['listAllBuyer'].map((value) {
-              print(value);
               return TableDataStats(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['placeTotal'], value['registerDate']);
+            }).toList();
+            tableDataStatsForRemoved = data['result']['listAllRemover'].map((value) {
+              return TableDataStatsForRemoved(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['commission'], value['registerDate']);
             }).toList();
             registerDateOfEvent = DateTime.parse(data['result']['registerDate']);
             eventExpireDate = DateTime.parse(data['result']['eventExpireDate']);
@@ -149,8 +150,6 @@ class _StatsEventState extends State<StatsEvent> {
                 ),),
               );
             } else if(!isLoading && error) {
-              print(isLoading);
-              print(error);
               return isErrorSubscribe(context);
             }
             else {
@@ -273,7 +272,7 @@ class _StatsEventState extends State<StatsEvent> {
                                   onTooltipRender: (TooltipArgs args) {
                                     args.text = args.dataPoints![args.pointIndex!.toInt()].x.toString() +
                                         ' : ' +
-                                        args.dataPoints![args.pointIndex!.toInt()].y;
+                                        args.dataPoints![args.pointIndex!.toInt()].y.toString();
                                   },
                                   tooltipBehavior: TooltipBehavior(enable: true),
                                   series: <CircularSeries>[
@@ -304,15 +303,14 @@ class _StatsEventState extends State<StatsEvent> {
                     child: Container(
                       width: double.infinity,
                       color: backgroundColor,
-                      height: 550,
                       padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Liste acheteur", style: Style.titleDealsProduct(),),
+                          Text("Liste de tickets Achetés", style: Style.titleDealsProduct(),),
                           SizedBox(height: 10,),
-                          Container(
-                            height: 500,
+                          if(tableDataStats.isNotEmpty) Container(
+                            height: 150,
                             width: double.infinity,
                             child: ListView(
                               scrollDirection: Axis.horizontal,
@@ -326,7 +324,44 @@ class _StatsEventState extends State<StatsEvent> {
                                     DataColumn(label: Text("Type", style: Style.titre(15),)),
                                     DataColumn(label: Text("Date achat", style: Style.titre(15),)),
                                   ],
-                                  rows: getRows(tableDataStats),
+                                  rows: getRowsForBuyer(tableDataStats),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 5,
+                    child: Container(
+                      width: double.infinity,
+                      color: backgroundColor,
+                      height: tableDataStatsForRemoved.isNotEmpty ? 550: 50,
+                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Liste Ticket annulé", style: Style.titleDealsProduct(),),
+                          SizedBox(height: 10),
+                          if(tableDataStatsForRemoved.isNotEmpty) Container(
+                            height: 500,
+                            width: double.infinity,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                DataTable(
+                                  columns: [
+                                    DataColumn(label: Text("Profil", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Nom & Prénom", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Ticket Annulé", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Commission", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Type", style: Style.titre(15),)),
+                                    DataColumn(label: Text("Date achat", style: Style.titre(15),)),
+                                  ],
+                                  rows: getRowsForRemoved(tableDataStatsForRemoved),
                                 )
                               ],
                             ),
@@ -361,7 +396,7 @@ class _StatsEventState extends State<StatsEvent> {
     return data;
   }
 
-  List<DataRow> getRows(List<dynamic> data) => data.map((tableData) {
+  List<DataRow> getRowsForBuyer(List<dynamic> data) => data.map((tableData) {
     return DataRow(cells: [
       DataCell(Container(
         height: 40,
@@ -379,6 +414,27 @@ class _StatsEventState extends State<StatsEvent> {
       DataCell(Text(tableData.placeTotal.toString(), style: Style.priceDealsProduct(),)),
       DataCell(Text("Ticket ${tableData.typeTicket}", style: Style.sousTitre(12),)),
       DataCell(Text(tableData.registerDate, style: Style.sousTitre(12),)),
+    ]);
+  }).toList();
+
+  List<DataRow> getRowsForRemoved(List<dynamic> data) => data.map((tableDataStatsForRemoved) {
+    return DataRow(cells: [
+      DataCell(Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+                image: NetworkImage(tableDataStatsForRemoved.images),
+                fit: BoxFit.cover
+            )
+        ),
+      )),
+      DataCell(Text(tableDataStatsForRemoved.name, style: Style.sousTitre(12),)),
+      DataCell(Text(tableDataStatsForRemoved.priceTicket.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text(tableDataStatsForRemoved.comission.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text("Ticket ${tableDataStatsForRemoved.typeTicket}", style: Style.sousTitre(12),)),
+      DataCell(Text(tableDataStatsForRemoved.registerDate, style: Style.sousTitre(12),)),
     ]);
   }).toList();
 }

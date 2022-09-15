@@ -114,7 +114,6 @@ class _EventInterState extends State<EventInter> {
                   child: ListView.builder(
                       itemCount: event['listEventsWithFilter'].length,
                       itemBuilder: (context, index) {
-
                         return InkWell(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(

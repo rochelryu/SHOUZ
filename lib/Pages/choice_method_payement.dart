@@ -106,7 +106,7 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                   children: [
                     Card(
                       color: Colors.white,
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: () {
                           appState.setPercentageRecharge(info!['PERCENTAGE_SHOUZPAY_CRYPTO']);
                           Navigator.of(context).push(MaterialPageRoute(
@@ -140,7 +140,7 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                     ),
                     Card(
                       color: Colors.white,
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: () {
                           appState.setPercentageRecharge(info!['PERCENTAGE_SHOUZPAY_MOBILE_MONEY']);
                           Navigator.of(context).push(MaterialPageRoute(

@@ -36,6 +36,7 @@ class AppState with ChangeNotifier {
       "room": id,
       "identUser": identUser,
     };
+
     _socket!.emit("typing", [jsonData]);
   }
 
@@ -115,6 +116,7 @@ class AppState with ChangeNotifier {
 
   setJoinConnected(String id) {
     //if(_socket )
+
     _socket!.emit("joinConnected", [id]);
     _socket!.emit("loadNotif", [id]);
     //notifyListeners();
@@ -232,7 +234,6 @@ class AppState with ChangeNotifier {
       "base64": base64,
       "image": imageName
     };
-
       _socket!.emit("createRoom", [jsonData]);
       notifyListeners();
   }

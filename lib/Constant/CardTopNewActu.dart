@@ -102,16 +102,20 @@ class CardTopNewActu {
                             width: 65,
                             height: 65,
                             image: NetworkImage(this.authorProfil),
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ))),
                           SizedBox(width: 5.0),
-                          Text(
-                            this.authorName,
-                            style: prefix0.Style.titleInSegment(),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.37,
+                            child: Text(
+                              this.authorName,
+                              style: prefix0.Style.titleInSegment(),
+                            ),
                           ),
                         ],
                       ),
                     ),
+
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,11 +1,9 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/ChoiceOtherHobie.dart';
@@ -174,28 +172,14 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     Navigator.of(context).push((MaterialPageRoute(
                         builder: (context) => Notifications())));
                   },
-                  leading: Stack(children: <Widget>[
-                    Icon(Icons.notifications, color: Colors.white),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: numberNotif != 0
-                          ? Container(
-                              width: 17,
-                              height: 17,
-                              decoration: BoxDecoration(
-                                color: colorText,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                  child: Text(
-                                numberNotif.toString(),
-                                style: TextStyle(color: Colors.white),
-                              )),
-                            )
-                          : Container(),
-                    ),
-                  ]),
+                  leading: Badge(
+                    badgeColor: colorText,
+                    badgeContent: Text(
+                      numberNotif.toString(),
+                      style: TextStyle(color: Colors.white),),
+                    showBadge: numberNotif != 0,
+                    child: Icon(Icons.notifications, color: Colors.white),
+                  ),
                   title: Text("Notifications",
                       style: Style.menuStyleItem(16.0)),
                 ),
@@ -254,38 +238,26 @@ class _MenuDrawlerState extends State<MenuDrawler>
           appBar: AppBar(
             elevation: 0.0,
             backgroundColor: backgroundColor,
-            leading: Stack(children: <Widget>[
-              IconButton(
-                icon: Icon(Style.menu, color: Colors.white),
-                onPressed: () {
-                  FocusScope.of(context).requestFocus(new FocusNode());
-                  setState(() {
-                    showBadge = !showBadge;
-                    if (isCollasped) {
-                      _controller.reverse();
-                    } else {
-                      _controller.forward();
-                    }
-                    isCollasped = !isCollasped;
-                  });
-                },
-              ),
-              if (showBadge && numberNotif != 0) Positioned(
-                top: 2,
-                right: 2,
-                child:Container(
-                        width: 17,
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color: colorText,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(numberNotif.toString()),
-                        ),
-                      ),
-              ),
-            ]),
+            leading: InkWell(
+              child: Badge(
+                  position: BadgePosition(top: 0, end: 0),
+                  badgeColor: colorText,
+                  badgeContent: Text(numberNotif.toString(),style: TextStyle(color: Colors.white),),
+                  showBadge: showBadge && numberNotif != 0,
+                  child: Icon(Style.menu, color: Colors.white)),
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+                setState(() {
+                  showBadge = !showBadge;
+                  if (isCollasped) {
+                    _controller.reverse();
+                  } else {
+                    _controller.forward();
+                  }
+                  isCollasped = !isCollasped;
+                });
+              },
+            ),
             title: Text(titleDomain[appState.getIndexBottomBar]),
             centerTitle: true,
           ),
@@ -303,24 +275,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   //animationCurve: Curves.linearToEaseOut,
                   animationDuration: Duration(milliseconds: 700),
                   items: <Widget>[
-                    /*
-              Badge(
-                badgeContent: Text('3'),
-                child: Icon(Icons.fiber_new, size: 30, color: (appState.getIndexBottomBar == 0)? Colors.white : Colors.grey),
-              ),
-              Badge(
-                badgeContent: Text('3'),
-                child: Icon(Icons.store_mall_directory, size: 30, color: (appState.getIndexBottomBar == 1)? Colors.white : Colors.grey),
-              ),
-              Badge(
-                badgeContent: Text('3'),
-                child: Icon(Icons.event_available, size: 30, color: (appState.getIndexBottomBar == 2)? Colors.white : Colors.grey),
-              ),
-              Badge(
-                badgeContent: Text('3'),
-                child: Icon(Icons.directions_car, size: 30, color: (appState.getIndexBottomBar == 3)? Colors.white : Colors.grey),
-              ),
-               */
                     Icon(prefix1.MyFlutterAppSecond.newspaper,
                         size: 30,
                         color: (appState.getIndexBottomBar == 0) ? tint : Colors.white),

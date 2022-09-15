@@ -953,7 +953,6 @@ class _CreateEventState extends State<CreateEvent> {
           return false;
         }
       }).toList();
-      print(isValidArrayForPrice);
       if(placeTotal <= maxPlace && isValidArrayForPrice.indexOf(false) == -1){
         String imageCover = post[0].path.split('/').last;
         String videoPub = (video != null) ? video!.path.split('/').last : "";

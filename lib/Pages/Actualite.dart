@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
@@ -40,7 +39,6 @@ class _ActualiteState extends State<Actualite> {
   PermissionHandler permissionHandler = PermissionHandler();
   User? newClient;
 
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   ConsumeAPI consumeAPI = ConsumeAPI();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
@@ -48,8 +46,7 @@ class _ActualiteState extends State<Actualite> {
 
   getPositionCurrent() async {
     if(Platform.isAndroid){
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      if(androidInfo.brand!.indexOf('HUAWEI') != - 1 || androidInfo.brand!.indexOf('HONOR') != - 1) {
+      if(await isHms()) {
         try {
           bool status = await permissionHandler.hasLocationPermission();
           if(status) {
@@ -266,12 +263,14 @@ class _ActualiteState extends State<Actualite> {
       final meteo = await consumeAPI
           .getMeteo(latitude, longitude);
       if (meteo['etat'] == 'found') {
-        setState(() {
-          firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
-          secondTextMeteo = (first.locality != null && first.locality != '')
-              ? "à ${first.locality} actuellement"
-              : "à ${first.administrativeArea} actuellement";
-        });
+        if(mounted){
+          setState(() {
+            firstTextMeteo = "Il fait ${meteo['result'].toString()}ºC";
+            secondTextMeteo = (first.locality != null && first.locality != '')
+                ? "à ${first.locality} actuellement"
+                : "à ${first.administrativeArea} actuellement";
+          });
+        }
       }
     } catch(e) {
       print("ereeur depuis city");
@@ -445,8 +444,7 @@ class _ActualiteState extends State<Actualite> {
                                       },
                                       child: Text('Ajouter Préférence'),
                                       style: ElevatedButton.styleFrom(
-                                        onPrimary: colorPrimary,
-                                        primary: colorText,
+                                        foregroundColor: colorPrimary, backgroundColor: colorText,
                                         minimumSize: Size(88, 36),
                                         elevation: 4.0,
                                         padding: EdgeInsets.symmetric(horizontal: 16),

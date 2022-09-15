@@ -321,7 +321,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrlString("https://www.shouz.network/");
+                await launchUrl(Uri.parse("https://www.shouz.network/"));
               },
               leading:
                   Icon(Icons.help_outline, color: colorText, size: 33),
@@ -344,12 +344,23 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrlString("https://www.shouz.network/");
+                await launchUrl(Uri.parse("https://www.shouz.network/"));
               },
               leading: Icon(Icons.bookmark, color: colorText, size: 33),
               title: Text("A propos", style: Style.titre(14)),
               subtitle: Text(
                 "Info sur l'application, CLUB12",
+                style: Style.sousTitre(12),
+              ),
+            ),
+            ListTile(
+              onTap: () async {
+                await launchUrl(Uri.parse("https://t.me/+wQ-tSmeUX6Q0ODg8"));
+              },
+              leading: Icon(Icons.support_agent, color: colorText, size: 33),
+              title: Text("Communauté & Support", style: Style.titre(14)),
+              subtitle: Text(
+                "Réjoignez la communauté Telegram",
                 style: Style.sousTitre(12),
               ),
             ),

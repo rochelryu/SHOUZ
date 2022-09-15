@@ -12,7 +12,6 @@ import '../Pages/create_travel.dart';
 
 Future<void> createShouzNotification(String title, String body, Map<String, String> payload) async {
   var random = Random();
-  print(payload);
   await AwesomeNotifications().createNotification(
       content: NotificationContent(
           id: random.nextInt(225),
@@ -57,8 +56,6 @@ class NotificationController {
     // Your code goes here
 
     // Navigate into pages, avoiding to open the notification details page over another details page already opened
-    print("utilisateur  à tapé");
-    print(notification.payload);
     AwesomeNotifications().getGlobalBadgeCounter()
         .then((value) => AwesomeNotifications().setGlobalBadgeCounter(value - 1));
     if(notification.channelKey == channelKey && notification.payload!['room'] != null) {
