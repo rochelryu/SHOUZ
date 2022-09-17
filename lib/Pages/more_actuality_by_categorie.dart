@@ -4,9 +4,11 @@ import 'package:shouz/Constant/CardTopNewActu.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/widget_common.dart';
+
 class MoreActualityByCategorie extends StatefulWidget {
-  String categorieName;
-  String categorieId;
+  final String categorieName;
+  final String categorieId;
   MoreActualityByCategorie({required Key key, required this.categorieId, required this.categorieName}) : super(key: key);
 
   @override
@@ -16,10 +18,11 @@ class MoreActualityByCategorie extends StatefulWidget {
 
 class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
   int limit = 15;
+  double sizedBox = 0.0;
   int numberScrollEnd = 1;
   List<dynamic> actualitiesFull = [];
   ScrollController _scrollController = new ScrollController();
-  bool loadingFull = true, loadMinim =false;
+  bool loadingFull = true, loadMinim =false, isEnd = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
@@ -31,7 +34,6 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
         await LoadInfo();
       }
     });
-
   }
 
   @override
@@ -48,15 +50,26 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
         loadingFull = false;
       });
     } else {
-      setState(() {
-        loadMinim = true;
-        numberScrollEnd++;
-      });
-      final data = await consumeAPI.getActualitiesByCategorieId(widget.categorieId, limit*numberScrollEnd);
-      setState(() {
-        actualitiesFull = data;
-        loadMinim = false;
-      });
+      if(!isEnd) {
+        setState(() {
+          loadMinim = true;
+          numberScrollEnd++;
+        });
+        final data = await consumeAPI.getActualitiesByCategorieId(widget.categorieId, limit*numberScrollEnd);
+        if(actualitiesFull.length != data.length) {
+          setState(() {
+            actualitiesFull = data;
+            loadMinim = false;
+          });
+        } else {
+          setState(() {
+            isEnd = true;
+            sizedBox = 25.0;
+          });
+          displaySnackBar(context, "Nous n'avons plus d'article pour la categorie ${widget.categorieName}");
+        }
+      }
+
     }
   }
 
@@ -79,7 +92,7 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
               child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
             ));
           } else {
-            return  Stack(
+            return Stack(
               children: [
                 ListView.separated(
                     controller: _scrollController,
@@ -89,6 +102,24 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
                     },
                     itemBuilder: (context, index) {
                       final value = actualitiesFull[index];
+                      if(index == actualitiesFull.length - 1) {
+                        return Container(
+                          height: 300,
+                          margin: EdgeInsets.only(bottom: sizedBox),
+                          child: CardTopNewActu(
+                              value['title'],
+                              value['_id'],
+                              value['imageCover'],
+                              value['numberVue'],
+                              value['registerDate'],
+                              value['autherName'],
+                              value['authorProfil'],
+                              value['content'],
+                              value['comment'],
+                              value['imageCover'])
+                              .propotypingScrol(context),
+                        );
+                      }
                       return Container(
                         height: 300,
                         child: CardTopNewActu(
@@ -106,7 +137,7 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
                       );
                     }
                 ),
-                if(loadMinim)...[
+                if(loadMinim && !isEnd)...[
                   Positioned(
                       bottom: 0,
                       left: 0,

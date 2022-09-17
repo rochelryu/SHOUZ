@@ -85,7 +85,7 @@ void main() async {
   final _messaging = FirebaseMessaging.instance;
 
   // 3. On iOS, this helps to take the user permissions
-  NotificationSettings settings = await _messaging.requestPermission(
+  await _messaging.requestPermission(
     alert: true,
     badge: true,
     provisional: false,

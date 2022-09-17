@@ -115,7 +115,7 @@ class ConsumeAPI {
   static final NewsLink = BASE_URL + "/app/new/";
   //static final _API_KEY = "somerandomkey";
 
-  ConsumeAPI() {}
+  ConsumeAPI();
   // For signin
   signin(String numero, String prefix) {
     return _netUtil.post(SIGIN_URL,

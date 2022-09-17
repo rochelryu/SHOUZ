@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -14,7 +15,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import './CreateDeals.dart';
-import 'ChoiceOtherHobie.dart';
+import 'choice_other_hobie_second.dart';
 
 class Deals extends StatefulWidget {
   @override
@@ -40,7 +41,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyVip = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyRecent = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyPopular = new GlobalKey<RefreshIndicatorState>();
-  bool loadingFull = true, loadMinim =false, isError = false;
+  bool loadingFull = true, loadMinim =false, isError = false, isEnd = false;
 
 
   @override
@@ -373,7 +374,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           onPressed: () {
                                             if(searchData == "") {
                                               Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => ChoiceOtherHobie())));
+                                                  builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
                                             } else {
                                               if(!isError) {
                                                 Navigator.of(context).push((MaterialPageRoute(
@@ -458,53 +459,53 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                               if(dealsFull.length > 0 && dealsFull[1][choiceItemSearch]['body'].length > 0) {
                                 var populaireActu = dealsFull;
                                 return Column(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: MasonryGridView.count(
-                                        controller: _scrollControllerRecent,
-                                        crossAxisCount: 2,
-                                        mainAxisSpacing: 10,
-                                        crossAxisSpacing: 10,
-                                        padding: EdgeInsets.all(10.0),
-                                        itemCount: populaireActu[1]
-                                        [choiceItemSearch]['body']
-                                            .length,
-                                        itemBuilder: (BuildContext context, int index) => PopulaireDeals(
-                                            level: populaireActu[1]
-                                            [choiceItemSearch]['body']
-                                            [index]['level'],
-                                            video: populaireActu[1]
-                                            [choiceItemSearch]['body']
-                                            [index]['video'],
-                                            imageUrl: populaireActu[1]
-                                            [choiceItemSearch]['body']
-                                            [index]['images'],
-                                            archive: populaireActu[1][choiceItemSearch]
-                                            ['body'][index]['archive'],
-                                            title: populaireActu[1][choiceItemSearch]
-                                            ['body'][index]['name'],
-                                            favorite: false,
-                                            price: populaireActu[1][choiceItemSearch]
-                                            ['body'][index]['price'].toString()+ ' XOF',
-                                            numero: populaireActu[1][choiceItemSearch]
-                                            ['body'][index]['numero'],
-                                            autor: populaireActu[1][choiceItemSearch]
-                                            ['body'][index]['author'],
-                                            authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
-                                            categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
-                                            id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
-                                            profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
-                                            onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
-                                            describe: populaireActu[1][choiceItemSearch]['body'][index]['describe'],
-                                            numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
-                                            lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
-                                            registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
-                                            quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
+                                children: <Widget>[
+                                  Expanded(
+                                    child: MasonryGridView.count(
+                                      controller: _scrollControllerRecent,
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      padding: EdgeInsets.all(10.0),
+                                      itemCount: populaireActu[1]
+                                      [choiceItemSearch]['body']
+                                          .length,
+                                      itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                          level: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['level'],
+                                          video: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['video'],
+                                          imageUrl: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['images'],
+                                          archive: populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['archive'],
+                                          title: populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['name'],
+                                          favorite: false,
+                                          price: populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['price'].toString()+ ' XOF',
+                                          numero: populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['numero'],
+                                          autor: populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['author'],
+                                          authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
+                                          categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
+                                          id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
+                                          profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
+                                          onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
+                                          describe: populaireActu[1][choiceItemSearch]['body'][index]['describe'],
+                                          numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
+                                          lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
+                                          registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
+                                          quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
 
-                                      ),
                                     ),
-                                  ],
-                                );
+                                  ),
+                                ],
+                                  );
                               }
                               return Column(children: <Widget>[
                                 Expanded(
@@ -544,7 +545,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                   onPressed: () {
                                                     if(searchData == "") {
                                                       Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => ChoiceOtherHobie())));
+                                                          builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
                                                     } else {
                                                       Navigator.of(context).push((MaterialPageRoute(
                                                           builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
@@ -702,7 +703,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                   onPressed: () {
                                                     if(searchData == "") {
                                                       Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => ChoiceOtherHobie())));
+                                                          builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
                                                     } else {
                                                       Navigator.of(context).push((MaterialPageRoute(
                                                           builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
@@ -783,7 +784,23 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 backgroundColor: colorText,
                 child: Icon(Icons.add, color: Colors.white, size: 22.0),
               ),
-            )
+            ),
+            if(loadMinim) Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 80,
+                child: Center(
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white,
+                    ),
+                    child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
+                  ),
+                ))
           ],
         ),
     );

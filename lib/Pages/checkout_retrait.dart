@@ -424,7 +424,6 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           height: 50,
           width: 50,
         );
-        break;
     }
   }
 }

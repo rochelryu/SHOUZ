@@ -294,7 +294,6 @@ class _DetailsActuState extends State<DetailsActu> {
                 ),
               ),
             ]);
-        break;
       case 'subtitle_text':
         return new Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +319,6 @@ class _DetailsActuState extends State<DetailsActu> {
               ),
             ]);
 
-        break;
       case 'only_picture':
         return buildImageInCachedNetworkWithSizeManual(page['inImage'], MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,BoxFit.cover);
       default:

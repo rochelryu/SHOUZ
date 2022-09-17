@@ -19,9 +19,9 @@ class AddDecodeur extends StatefulWidget {
 }
 
 class _AddDecodeurState extends State<AddDecodeur> {
-  TextEditingController eCtrl = new TextEditingController();
+  TextEditingController eCtrl = TextEditingController();
   String value = "";
-  ConsumeAPI consumeAPI = new ConsumeAPI();
+  ConsumeAPI consumeAPI = ConsumeAPI();
   List<dynamic> decodeur = [];
   bool loadingForCliqueSendTicket = false;
 
@@ -70,7 +70,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
       backgroundColor: backgroundColor,
       body: GestureDetector(
         onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
+          FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

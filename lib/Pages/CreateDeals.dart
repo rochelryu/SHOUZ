@@ -10,8 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/helper.dart';
-import 'package:shouz/Constant/helper.dart';
-import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';

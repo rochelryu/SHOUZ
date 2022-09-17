@@ -15,7 +15,6 @@ import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Constant/helper.dart';
 import 'explication_event.dart';

@@ -78,6 +78,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
   - Flutter (1.0.0)
+  - flutter_hms_gms_availability (0.0.1):
+    - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
   - flutter_native_splash (0.0.1):
@@ -173,6 +175,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_hms_gms_availability (from `.symlinks/plugins/flutter_hms_gms_availability/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
@@ -228,6 +231,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_hms_gms_availability:
+    :path: ".symlinks/plugins/flutter_hms_gms_availability/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_native_splash:
@@ -281,6 +286,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 41f811b530c41dd90973d0174381cdb3fcb5e839
   FirebaseMessaging: 732623518591384f61c287e3d8f65294beb7ffb3
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_hms_gms_availability: babc50b18670e99780270bc18d9b17d0a07cd77e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   fluttertoast: 16fbe6039d06a763f3533670197d01fc73459037

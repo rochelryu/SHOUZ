@@ -53,8 +53,8 @@ class Language {
 }
 
 class _CovoiturageState extends State<Covoiturage> {
-  final TextEditingController eCtrl = new TextEditingController();
-  final TextEditingController eCtrl2 = new TextEditingController();
+  final TextEditingController eCtrl = TextEditingController();
+  final TextEditingController eCtrl2 = TextEditingController();
   User? newClient;
   bool ori = false;
   bool finishedLoadPosition = false;
@@ -69,7 +69,7 @@ class _CovoiturageState extends State<Covoiturage> {
   late Stream<LocationData> stream;
   late bool _serviceEnabled;
   late Future<Map<String, dynamic>> covoiturage;
-  ConsumeAPI consumeAPI = new ConsumeAPI();
+  ConsumeAPI consumeAPI = ConsumeAPI();
   PermissionHandler permissionHandler = PermissionHandler();
   FusedLocationProviderClient locationService = FusedLocationProviderClient();
   LocationRequest locationRequest = LocationRequest();
@@ -85,7 +85,7 @@ class _CovoiturageState extends State<Covoiturage> {
   @override
   void initState() {
     super.initState();
-    location = new Location();
+    location = Location();
     internetCheck();
     getExplainCovoiturageMethod();
     verifyIfUserHaveReadModalExplain();
@@ -601,7 +601,7 @@ class _CovoiturageState extends State<Covoiturage> {
       geocoding.Location address = addresses.first;
       if(global.length > 1){
         setState(() {
-          global[1] = new LatLng(address.latitude, address.longitude);
+          global[1] = LatLng(address.latitude, address.longitude);
           load2 = false;
           eCtrl.text = origine;
         });
@@ -610,7 +610,7 @@ class _CovoiturageState extends State<Covoiturage> {
       }
       else{
         setState(() {
-          global.add(new LatLng(address.latitude, address.longitude));
+          global.add(LatLng(address.latitude, address.longitude));
           load2 = false;
           eCtrl.text = origine;
         });
@@ -628,7 +628,7 @@ class _CovoiturageState extends State<Covoiturage> {
       geocoding.Location address = addresses.first;
       if(global.length > 0){
         setState(() {
-          global[0] = new LatLng(address.latitude, address.longitude);
+          global[0] = LatLng(address.latitude, address.longitude);
           eCtrl2.text = destination;
           load1 = false;
           ori = true;
@@ -639,7 +639,7 @@ class _CovoiturageState extends State<Covoiturage> {
       }
       else{
         setState(() {
-          global.add(new LatLng(address.latitude, address.longitude));
+          global.add(LatLng(address.latitude, address.longitude));
           eCtrl2.text = destination;
           load1 = false;
           ori = true;
@@ -650,13 +650,18 @@ class _CovoiturageState extends State<Covoiturage> {
 
     @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return  Scaffold(
       backgroundColor: backgroundColor,
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          !finishedLoadPosition ? Center(child: LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2)): mapping(context,locationData!.latitude ?? defaultLatitude,locationData!.longitude ?? defaultLongitude),
-        ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            !finishedLoadPosition ? Center(child: LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2)): mapping(context,locationData!.latitude ?? defaultLatitude,locationData!.longitude ?? defaultLongitude),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
@@ -683,17 +688,18 @@ class _CovoiturageState extends State<Covoiturage> {
   }
 
   mapping(BuildContext context, double latitude, double longitude){
-    return new Stack(
+    return Stack(
       fit: StackFit.expand,
       children: <Widget>[
-        new FlutterMap(
+         FlutterMap(
             options: MapOptions(
               center: LatLng(latitude, longitude),
-              minZoom: 4.0,
-              zoom: 7.0,
+              minZoom: 7.0,
+              zoom: 17.0,
+              maxZoom: 18.0
             ),
           children: [
-              new TileLayer(
+              TileLayer(
                 urlTemplate:
                 "https://api.mapbox.com/styles/v1/rochelryu/ck1piq46n2i5y1cpdlmq6e8e2/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
                 additionalOptions: {
@@ -702,19 +708,19 @@ class _CovoiturageState extends State<Covoiturage> {
                 },
 
               ),
-              new MarkerLayer(markers: [
-                new Marker(
+              MarkerLayer(markers: [
+                Marker(
                     width: 45.0,
                     height: 45.0,
                     point: LatLng(latitude, longitude),
-                    builder: (context) => new Container(
+                    builder: (context) => Container(
                       child: Icon(Icons.location_on, color: colorText, size: 18.0),
                     ))
               ]),
 
-              new PolylineLayer(
+              PolylineLayer(
                   polylines: [
-                    new Polyline(
+                    Polyline(
                         points: global,
                         strokeWidth: 5.0,
                         isDotted: true,
@@ -747,7 +753,7 @@ class _CovoiturageState extends State<Covoiturage> {
                         backgroundColor: Colors.transparent,
                         elevation: 10.0,
                         builder: (builder){
-                          return new Container(
+                          return Container(
                             height: 360,
                             decoration: BoxDecoration(
                                 color: backgroundColor,
@@ -781,7 +787,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                           return Column(
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: <Widget>[
-                                                new SvgPicture.asset(
+                                                SvgPicture.asset(
                                                   "images/notdepart.svg",
                                                   semanticsLabel: 'NotTravel',
                                                   height: MediaQuery.of(context).size.height * 0.3,
@@ -803,7 +809,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                               String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 1) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
                                               afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
                                               afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
-                                              return new Padding(
+                                              return Padding(
                                                 padding: EdgeInsets.only(left: 20.0, top: 40.0,bottom: 10.0),
                                                 child: InkWell(
                                                   onTap: (){

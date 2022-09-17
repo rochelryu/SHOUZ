@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -8,23 +5,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
-import 'package:shouz/Constant/widget_common.dart';
 
+import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
 
-class ChoiceHobie extends StatefulWidget {
-  static String rootName = '/choiceHobie';
+class ChoiceOtherHobieSecond extends StatefulWidget {
+  const ChoiceOtherHobieSecond({required Key key}) : super(key: key);
+
   @override
-  _ChoiceHobieState createState() => _ChoiceHobieState();
+  _ChoiceOtherHobieSecondState createState() =>
+      _ChoiceOtherHobieSecondState();
 }
 
-class _ChoiceHobieState extends State<ChoiceHobie> {
-  List<String> choice = [];
+class _ChoiceOtherHobieSecondState extends State<ChoiceOtherHobieSecond> {
+  List<dynamic> choice = [];
   List<dynamic> allCategorie = [];
   bool changeLoading = false;
   String value = "";
   ConsumeAPI consumeAPI = new ConsumeAPI();
-  String? base64Image;
 
   @override
   void initState() {
@@ -34,21 +32,27 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     verifyIfUserHaveReadModalExplain();
   }
 
-  loadPreference() async {
-    final allCategorie = await consumeAPI.getAllCategrie("");
-    setState(() {
-      this.allCategorie = allCategorie;
-    });
-  }
-
   verifyIfUserHaveReadModalExplain() async {
-
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
       await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
+  }
+
+  loadPreference() async {
+    List<String> myPref = [];
+    final allCategorie = await consumeAPI.getAllCategrie("");
+    for (var categorie in allCategorie) {
+      if(categorie.isHobie) {
+        myPref.add(categorie.name.toString());
+      }
+    }
+    setState(() {
+      this.choice = myPref;
+      this.allCategorie = allCategorie;
+    });
   }
 
   @override
@@ -61,30 +65,34 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
             Container(
               height: 30,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  if (choice.length > 4 ) InkWell(
+                  IconButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    highlightColor: Colors.black,
+                    icon: Icon(Icons.clear, color: colorPrimary, size: 22.0),
+                  ),
+                  choice.length > 4 ?
+                  InkWell(
                     onTap: () async {
                       if (choice.length > 4) {
                         setState(() {
                           changeLoading = true;
                         });
                         choice.sort((a, b) => a.toString().compareTo(b.toString()));
-                        final profils = await DBProvider.db.getProfil();
-                        base64Image = profils['base'] != "" ? base64Encode(File(profils['base']).readAsBytesSync()): "";
-                        final signinUser = await consumeAPI
-                            .signinSecondStep(
-                            profils['name'], base64Image, choice);
-                        if (signinUser['etat'] == 'found') {
+                        final updateHobbies = await consumeAPI
+                            .updateHobie(choice);
+                        if (updateHobbies['etat'] == 'found') {
                           await DBProvider.db.delClient();
-                          await DBProvider.db.newClient(signinUser['user']);
-                          await DBProvider.db.delProfil();
-                          setLevel(5);
+                          await DBProvider.db.newClient(updateHobbies['user']);
                           setState(() {
                             changeLoading = false;
                           });
-                          Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+                          Navigator.of(context).push((MaterialPageRoute(
+                              builder: (context) => MenuDrawler())));
                         } else {
                           setState(() {
                             changeLoading = false;
@@ -123,7 +131,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         ],
                       ),
                     ),
-                  ),
+                  ): SizedBox(width: 10),
 
                 ],
               ),
@@ -158,7 +166,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
-                                width: MediaQuery.of(context).size.width*0.6,
+                                width: MediaQuery.of(context).size.width*0.53,
                                 child: Text(categorie.name, style: Style.sousTitre(13, colorPrimary), maxLines: 2, overflow: TextOverflow.ellipsis,)),
 
                           ],

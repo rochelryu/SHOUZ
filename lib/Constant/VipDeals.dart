@@ -5,7 +5,6 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Pages/DetailsDeals.dart';
 

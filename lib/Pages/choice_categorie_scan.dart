@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shouz/Constant/CodeScanner.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/event_decode.dart';
-import 'package:shouz/Pages/travel_decode.dart';
 
 class ChoiceCategorieScan extends StatelessWidget {
   @override

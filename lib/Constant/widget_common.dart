@@ -708,3 +708,12 @@ CachedNetworkImage buildImageInCachedNetworkSimpleWithSizeAuto(String urlImage,B
     errorWidget: (context, url, error) => notSignal(),
   );
 }
+
+ displaySnackBar(BuildContext context, String text) {
+  final snackBar = SnackBar(
+      content: Text(
+        text,
+        textAlign: TextAlign.center,
+      ));
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}

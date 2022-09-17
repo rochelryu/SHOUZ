@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/Pages/ChoiceOtherHobie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
@@ -20,6 +19,7 @@ import './Pages/Profil.dart';
 import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
+import 'Pages/choice_other_hobie_second.dart';
 import 'Provider/AppState.dart';
 
 class MenuDrawler extends StatefulWidget {
@@ -159,7 +159,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   contentPadding: EdgeInsets.all(0.0),
                   onTap: () {
                     Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => ChoiceOtherHobie())));
+                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
                   },
                   leading: Icon(Icons.favorite, color: Colors.white),
                   title: Text("Préférences",

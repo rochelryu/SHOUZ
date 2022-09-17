@@ -17,7 +17,7 @@ class Checkout extends StatefulWidget {
 
 class _CheckoutState extends State<Checkout> {
   late AppState appState;
-  ConsumeAPI consumeAPI = new ConsumeAPI();
+  ConsumeAPI consumeAPI = ConsumeAPI();
   String txHashBtc = '';
   String txHashEth = '';
   bool verifyUser = false;
@@ -355,7 +355,6 @@ class _CheckoutState extends State<Checkout> {
           height: 50,
           width: 50,
         );
-        break;
     }
   }
 }

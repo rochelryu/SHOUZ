@@ -837,6 +837,7 @@ resetAllData() async {
 }
 
 String dateFormatForTimesAgo(dynamic registerDate) {
+
   String afficheDate = (DateTime.now()
               .difference(DateTime(
                   int.parse(registerDate.substring(0, 4)),

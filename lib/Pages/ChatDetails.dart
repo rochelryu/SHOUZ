@@ -47,7 +47,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   var scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   File? _image;
   final picker = ImagePicker();
-  ConsumeAPI consumeAPI = new ConsumeAPI();
+  ConsumeAPI consumeAPI = ConsumeAPI();
   Map<dynamic, dynamic>? productDetails;
 
   String price = "";
@@ -195,7 +195,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
               registerDate: value['date']
                   .substring(0, 16)
                   .toString()
-                  .replaceAll(new RegExp('T'), ' à '),
+                  .replaceAll(RegExp('T'), ' à '),
               idDocument: conversation['_id'],
               image: value['image']));
         }
@@ -282,7 +282,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                             "Un problème est survenue veuillez attendre quelque instant avant de relancer ou contacter le support technique", false, context);
                       }
                     },
-                    child: new Text(
+                    child: Text(
                       "Oui",
                       style: Style.sousTitreEvent(15),
                     ),
@@ -301,7 +301,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                         await askedToLead("Un problème est survenue veuillez attendre quelque instant avant de relancer ou contacter le support technique", false, context);
                       }
                     },
-                    child: new Text(
+                    child: Text(
                       "Non, je veux mon argent",
                       style: Style.sousTitreEvent(15),
                     ),
@@ -332,7 +332,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                         id: appState.getIdOldConversation
                         );
                   },
-                  child: new Text(
+                  child: Text(
                     "Oui, je suis intéressé.",
                     style: Style.sousTitreEvent(15),
                   ),
@@ -373,7 +373,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Prix Total Proposé', style: Style.chatIsMe(13)),
-                    new Padding(
+                    Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           height: 60,
@@ -396,7 +396,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                             width: 1.0,
                                             color: colorText),
                                         borderRadius: BorderRadius.circular(50.0)),
-                                    child: new TextField(
+                                    child: TextField(
                                       controller: priceCtrl,
                                       style: TextStyle(
                                           color: Colors.white,
@@ -428,7 +428,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('Qte Proposée', style: Style.chatIsMe(13)),
-                    new Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         height: 60,
@@ -451,7 +451,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                         width: 1.0,
                                         color: colorText),
                                     borderRadius: BorderRadius.circular(50.0)),
-                                child: new TextField(
+                                child: TextField(
                                   controller: quantityCtrl,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -809,7 +809,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                           content: message);
                                       inWrite(false, room, widget.newClient.ident);
                                     }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
+                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (DateTime.now().hour).toString() +":"+(DateTime.now().minute).toString(), image: imm));
                                     Timer(
                                         Duration(milliseconds: 10),
                                             () => _scrollController.jumpTo(
@@ -835,7 +835,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                           id: appState.getIdOldConversation);
                                       inWrite(false, room, widget.newClient.ident);
                                     }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (new DateTime.now().hour).toString() +":"+(new DateTime.now().minute).toString(), image: imm));
+                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (DateTime.now().hour).toString() +":"+(DateTime.now().minute).toString(), image: imm));
                                   }
                                   message = '';
                                 });
@@ -893,16 +893,16 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 Container(
                   width: double.infinity,
                   height: 30,
-                  child: new TabBar(
+                  child: TabBar(
                     controller: _tabController,
                     unselectedLabelColor: Color(0xdd3c5b6d),
                     labelColor: colorText,
                     indicatorColor: colorText,
                     tabs: [
-                      new Tab(
+                      Tab(
                         text: (room.split('_')[0] == widget.newClient.ident) ? 'Moi ':'Vendeur',
                       ),
-                      new Tab(
+                      Tab(
                         //icon: const Icon(Icons.shopping_cart),
                         text: (room.split('_')[1] == widget.newClient.ident) ? 'Moi': 'Acheteur',
                       ),
@@ -911,7 +911,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                   ),
                 ),
                 Expanded(
-                  child: new TabBarView(
+                  child: TabBarView(
                       controller: _tabController,
                       children: <Widget>[
                         SingleChildScrollView(
@@ -979,7 +979,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                   );
                                 }
                               },
-                              child: new Text(
+                              child: Text(
                                 "Envoyer la proposition",
                                 style: Style.sousTitreEvent(15),
                               ),
@@ -992,7 +992,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                         if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Seller and Buyer validate price final') Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            new SvgPicture.asset(
+                            SvgPicture.asset(
                               "images/deals_validate.svg",
                               semanticsLabel: 'deals_validate',
                               height:
@@ -1060,7 +1060,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
 
             },
-            child: new Text(
+            child: Text(
               "Je suis d'accord",
               style: Style.sousTitreEvent(15),
             ),
@@ -1082,7 +1082,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     fontSize: 16.0
                 );
             },
-            child: new Text(
+            child: Text(
               "Non, Je ne suis pas d'accord",
               style: Style.sousTitreEvent(15),
             ),
@@ -1205,7 +1205,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   Future<void> _removeRecord() async {
     _timer?.cancel();
     _ampTimer?.cancel();
-    final path = await _audioRecorder.stop();
+    await _audioRecorder.stop();
     setState(() {
       isListeen = false;
     });
@@ -1391,8 +1391,8 @@ class LoadAudioAsset extends StatefulWidget {
 class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProviderStateMixin {
   late AnimationController controller;
   bool isListenSound = false, firstListeen = true;
-  Duration _duration = new Duration();
-  Duration _position = new Duration();
+  Duration _duration = Duration();
+  Duration _position = Duration();
   AudioPlayer audioPlayer = AudioPlayer();
 
   Future play() async {
@@ -1448,7 +1448,7 @@ class _LoadAudioAssetState extends State<LoadAudioAsset> with SingleTickerProvid
       setState(() {
         isListenSound = false;
         firstListeen = true;
-        _position = new Duration(milliseconds: 0);
+        _position = Duration(milliseconds: 0);
       });
       controller.reverse();
     });

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:location/location.dart';

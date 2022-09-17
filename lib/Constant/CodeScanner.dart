@@ -10,7 +10,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 
 class CodeScanner extends StatefulWidget {
-  int type;
+  final int type;
   CodeScanner({required Key key, required this.type }) : super(key: key);
 
   @override

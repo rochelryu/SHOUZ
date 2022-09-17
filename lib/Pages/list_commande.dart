@@ -112,8 +112,7 @@ class _ListCommandeState extends State<ListCommande> {
                             },
                             child: Text('Rendre cet article VIP à 1000 ${user?.currencies}'),
                             style: ElevatedButton.styleFrom(
-                              onPrimary: colorPrimary,
-                              primary: colorText,
+                              foregroundColor: colorPrimary, backgroundColor: colorText,
                               minimumSize: Size(88, 36),
                               elevation: 4.0,
                               padding: EdgeInsets.symmetric(horizontal: 16),

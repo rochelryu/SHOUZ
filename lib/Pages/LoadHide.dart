@@ -27,7 +27,7 @@ class LoadHide extends StatelessWidget {
 }
 
 class LoadChat extends StatefulWidget {
-  String room;
+  final String room;
   LoadChat({required Key key, required this.room}) : super(key: key);
 
   @override
@@ -87,7 +87,7 @@ class _LoadChatState extends State<LoadChat> {
 }
 
 class LoadTravel extends StatefulWidget {
-  String travelId;
+  final String travelId;
   LoadTravel({required Key key, required this.travelId}) : super(key: key);
 
   @override
@@ -145,7 +145,7 @@ class _LoadTravelState extends State<LoadTravel> {
 }
 
 class LoadEvent extends StatefulWidget {
-  String eventId;
+  final String eventId;
   LoadEvent({required Key key, required this.eventId}) : super(key: key);
 
   @override
@@ -207,7 +207,7 @@ class _LoadEventState extends State<LoadEvent> {
 }
 
 class LoadNew extends StatefulWidget {
-  String actualityId;
+  final String actualityId;
   LoadNew({required Key key, required this.actualityId}) : super(key: key);
 
   @override
@@ -256,7 +256,7 @@ class _LoadNewState extends State<LoadNew> {
 }
 
 class LoadProduct extends StatefulWidget {
-  String productId;
+  final String productId;
   LoadProduct({required Key key, required this.productId}) : super(key: key);
 
   @override

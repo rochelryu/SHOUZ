@@ -13,10 +13,10 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import '../Models/User.dart';
 import '../Utils/Database.dart';
 import './EventDetails.dart';
-import 'ChoiceOtherHobie.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
 import 'ExplainEvent.dart';
+import 'choice_other_hobie_second.dart';
 
 class EventInter extends StatefulWidget {
   @override
@@ -324,12 +324,11 @@ class _EventInterState extends State<EventInter> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push((MaterialPageRoute(
-                              builder: (context) => ChoiceOtherHobie())));
+                              builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
                         },
                         child: Text('Ajouter Préférence'),
                         style: ElevatedButton.styleFrom(
-                          onPrimary: colorPrimary,
-                          primary: colorText,
+                          foregroundColor: colorPrimary, backgroundColor: colorText,
                           minimumSize: Size(88, 36),
                           elevation: 4.0,
                           padding: EdgeInsets.symmetric(horizontal: 16),

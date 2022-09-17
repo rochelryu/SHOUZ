@@ -86,19 +86,13 @@ Future getTokenForNotificationProvider() async {
       huawei.Push.enableLogger();
       String _token = '';
       String result = await huawei.Push.getId() ?? "";
-      final token = huawei.Push.getToken("");
+      huawei.Push.getToken("");
       //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
       huawei.Push.getTokenStream.listen((String event) {
         _token = event;
       }, onError: (dynamic error) {
-        print("TokenErrorEvent: ");
         print(error.message);
       });
-      print("_token");
-      print(_token);
-      print("result");
-      print(result);
-
 
       huawei.Push.getToken("");
 

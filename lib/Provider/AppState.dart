@@ -27,7 +27,7 @@ class AppState with ChangeNotifier {
   bool typing = false;
   bool loadingToSend = false;
   dynamic conversation = {};
-  AppState() {}
+  AppState();
 
   setTyping(bool typing, String id, String identUser) {
     final jsonData = {

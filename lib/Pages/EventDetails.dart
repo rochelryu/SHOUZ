@@ -20,7 +20,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
-import '../Constant/Style.dart';
 import '../Constant/helper.dart';
 import '../Models/User.dart';
 
@@ -362,7 +361,7 @@ class _EventDetailsState extends State<EventDetails> {
                             : newTable[i]["price"] * place;
                       });
                     } else {
-                      _displaySnackBar(context, "Pas assez de tickets disponible pour cette categorie");
+                      displaySnackBar(context, "Pas assez de tickets disponible pour cette categorie");
                     }
 
                   },
@@ -458,7 +457,7 @@ class _EventDetailsState extends State<EventDetails> {
                           });
                         }
                         else {
-                        _displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
+                        displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
                         }
                       },
                     ),
@@ -491,9 +490,9 @@ class _EventDetailsState extends State<EventDetails> {
                                 : normal * int.parse(choice);
                           });
                         } else if(choice.length <= 1 && totalTicket + normal <= 5) {
-                          _displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
+                          displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
                         } else {
-                          _displaySnackBar(context, 'Le nombre de place maximum pour une personne est 5');
+                          displaySnackBar(context, 'Le nombre de place maximum pour une personne est 5');
                         }
 
                       },
@@ -547,13 +546,13 @@ class _EventDetailsState extends State<EventDetails> {
                           builder: (builder) => VerifyUser(
                             redirect: ResultBuyEvent.rootName, key: UniqueKey(),)));
                     } else if(priceItem > user.wallet) {
-                      _displaySnackBar(context, 'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
+                      displaySnackBar(context, 'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
                       Timer(Duration(seconds: 3), () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
                       });
                     } else{
-                      _displaySnackBar(context, 'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',);
+                      displaySnackBar(context, 'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',);
                     }
 
                   },
@@ -615,9 +614,9 @@ class _EventDetailsState extends State<EventDetails> {
                   setState(() {
                     this.state = 3;
                   });
-                  _displaySnackBar(context, "🥳 Gain récupéré avec succès");
+                  displaySnackBar(context, "🥳 Gain récupéré avec succès");
                 } else {
-                  _displaySnackBar(context, data['error']);
+                  displaySnackBar(context, data['error']);
                 }
               }
             },
@@ -656,14 +655,7 @@ class _EventDetailsState extends State<EventDetails> {
     }
   }
 
-  _displaySnackBar(BuildContext context, String text) {
-    final snackBar = SnackBar(
-        content: Text(
-      text,
-      textAlign: TextAlign.center,
-    ));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
+
 }
 
 class ViewerEvent extends StatefulWidget {

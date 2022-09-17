@@ -26,7 +26,7 @@ class CheckoutRechargeMobileMoney extends StatefulWidget {
 class _CheckoutRechargeMobileMoneyState
     extends State<CheckoutRechargeMobileMoney> {
   late AppState appState;
-  ConsumeAPI consumeAPI = new ConsumeAPI();
+  ConsumeAPI consumeAPI = ConsumeAPI();
   String orangeNumero = '';
   String mtnNumero = '';
   String moovNumero = '';

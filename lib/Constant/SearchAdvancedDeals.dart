@@ -4,7 +4,6 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/DetailsDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 
 class SearchAdvancedDeals extends StatefulWidget {

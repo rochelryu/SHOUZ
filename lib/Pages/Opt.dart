@@ -532,7 +532,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 class OtpTimer extends StatelessWidget {
   final AnimationController controller;
-  double fontSize;
+  final double fontSize;
   Color timeColor = Colors.black;
 
   OtpTimer(this.controller, this.fontSize, this.timeColor);

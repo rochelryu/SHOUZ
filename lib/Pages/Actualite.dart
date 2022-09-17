@@ -320,7 +320,7 @@ class _ActualiteState extends State<Actualite> {
             .propotypingScrol(context))
         .toList();
     return Container(
-      height: 310,
+      height: 330,
       width: MediaQuery.of(context).size.width * 0.6,
       child: Column(
         children: <Widget>[
@@ -329,7 +329,10 @@ class _ActualiteState extends State<Actualite> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(categorieName, style: Style.titre(20.0)),
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Text(categorieName, style: Style.titre(20.0), maxLines: 2, overflow: TextOverflow.ellipsis,)
+                ),
                 TextButton(onPressed: (){
                   Navigator.push(
                       context,
@@ -375,7 +378,7 @@ class _ActualiteState extends State<Actualite> {
                                 itemCount: 3,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
-                                    return new SizedBox(width: 20.0);
+                                    return SizedBox(width: 20.0);
                                   } else {
                                     return loadDataSkeletonOfActuality(context);
                                   }
@@ -391,7 +394,7 @@ class _ActualiteState extends State<Actualite> {
                                 itemCount: 3,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
-                                    return new SizedBox(width: 20.0);
+                                    return SizedBox(width: 20.0);
                                   } else {
                                     return loadDataSkeletonOfActuality(context);
                                   }
@@ -408,7 +411,7 @@ class _ActualiteState extends State<Actualite> {
                               return Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(
                                           left: 15.0,
                                           right: 15.0,
@@ -427,7 +430,7 @@ class _ActualiteState extends State<Actualite> {
                                         ],
                                       ),
                                     ),
-                                    new SvgPicture.asset(
+                                    SvgPicture.asset(
                                       "images/not_actu.svg",
                                       semanticsLabel: 'Shouz Pay',
                                       height: MediaQuery.of(context).size.height * 0.39,
@@ -464,7 +467,7 @@ class _ActualiteState extends State<Actualite> {
                                       actualiteOther['otherActualite'].length + 2,
                                       itemBuilder: (context, index) {
                                         if (index == 0) {
-                                          return new Padding(
+                                          return Padding(
                                             padding: EdgeInsets.only(
                                                 left: 15.0,
                                                 right: 15.0,
@@ -499,7 +502,7 @@ class _ActualiteState extends State<Actualite> {
                                       }),
                                 ));
 
-                          // return new CardTopNewActu()
+                          // return CardTopNewActu()
                         }
                       }),
                 ],

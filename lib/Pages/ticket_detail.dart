@@ -100,8 +100,7 @@ class TicketDetail extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 40),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          primary: colorError,
-                          shape: RoundedRectangleBorder(
+                          foregroundColor: colorError, shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(38.0)),
                         ),
                         onPressed: () async {

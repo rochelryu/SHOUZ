@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -72,14 +71,13 @@ class _CreateProfil extends State<CreateProfil> {
             setState(() {
               heigth = 0;
             });
-            final name = await DBProvider.db.updateName(value);
+            await DBProvider.db.updateName(value);
             if (tmpFile == null) {
               final fileName = profil["data"];
-              final profils = await DBProvider.db.newProfil(fileName, '');
+              await DBProvider.db.newProfil(fileName, '');
             } else {
               final fileName = tmpFile?.path.split('/').last;
-              final profils =
-                  await DBProvider.db.newProfil(fileName!, imagePath!);
+              await DBProvider.db.newProfil(fileName!, imagePath!);
             }
             prefix0.setLevel(4);
             Navigator.of(context)
