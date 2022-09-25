@@ -587,7 +587,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         ],
         backgroundColor: backgroundColor,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Container(
               height: 40,
@@ -604,31 +603,34 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     fit: BoxFit.cover),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(widget.name.toString().split('_')[0],
-                  maxLines: 2, style: Style.titleInSegment(12.0), overflow: TextOverflow.ellipsis),
-                Text(onLine ? "En ligne" : "",
-                    style: Style.sousTitre(10)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(width: 3),
-                    appState.getTyping
-                        ? Container(
-                      height: 6,
-                      width: 25,
-                      padding: EdgeInsets.only(top: 2),
-                      child: LoadingIndicator(indicatorType: Indicator.ballPulse,colors: [colorSecondary], strokeWidth: 1),
-                    )
-                        : SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(widget.name.toString().split('_')[0],
+                    maxLines: 1, style: Style.titleInSegment(12.0), overflow: TextOverflow.ellipsis),
+                  Text(onLine ? "En ligne" : "",
+                      style: Style.sousTitre(10)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(width: 3),
+                      appState.getTyping
+                          ? Container(
+                        height: 6,
+                        width: 25,
+                        padding: EdgeInsets.only(top: 2),
+                        child: LoadingIndicator(indicatorType: Indicator.ballPulse,colors: [colorSecondary], strokeWidth: 1),
+                      )
+                          : SizedBox(width: 8),
 
-                  ],
-                )
-              ],
-            )
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(width: 10,),
           ],
         ),
         centerTitle: false,

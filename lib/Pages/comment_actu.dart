@@ -20,6 +20,7 @@ class CommentActu extends StatefulWidget {
 
 class _CommentActuState extends State<CommentActu> {
   TextEditingController eCtrl = new TextEditingController();
+  ConsumeAPI consumeAPI = new ConsumeAPI();
   User? newClient;
   String id = '';
   int type = 0;
@@ -39,7 +40,7 @@ class _CommentActuState extends State<CommentActu> {
       newClient = user;
       id = newClient!.ident;
     });
-    final result = await new ConsumeAPI().getCommentActualite(widget.id);
+    final result = await consumeAPI.getCommentActualite(widget.id);
     setState(() {
       comment = result;
       loadisDone = true;
@@ -183,7 +184,7 @@ class _CommentActuState extends State<CommentActu> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           SizedBox(height: 30),
-                          new Image.asset('images/actu.png'),
+                          Image.asset('images/actu.png'),
                           Text(
                               "Aucun commentaire pour cette actualité pour le moment",
                               textAlign: TextAlign.center,
@@ -259,7 +260,7 @@ class _CommentActuState extends State<CommentActu> {
                             setState(() {
                               action = true;
                             });
-                            final etat = await new ConsumeAPI().addComment(newClient!.ident, widget.id, eCtrl.text);
+                            final etat = await consumeAPI.addComment(newClient!.ident, widget.id, eCtrl.text);
 
                             setState(() {
                               if(etat == 'found') {
@@ -273,7 +274,7 @@ class _CommentActuState extends State<CommentActu> {
                               }
                             });
 
-                            new Timer(const Duration(seconds: 5), () {
+                            Timer(const Duration(seconds: 5), () {
                               setState(() {
                                 type = 0;
                               });

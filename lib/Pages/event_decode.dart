@@ -248,7 +248,7 @@ class _EventDecodeState extends State<EventDecode> {
                             mainAxisAlignment:
                             MainAxisAlignment.center,
                             children: <Widget>[
-                              new SvgPicture.asset(
+                              SvgPicture.asset(
                                 "images/surveillance.svg",
                                 semanticsLabel: 'NotNotificationDeals',
                                 height:
@@ -279,7 +279,7 @@ class _EventDecodeState extends State<EventDecode> {
   Widget displayEvent(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
-      item = new ListView.builder(
+      item = ListView.builder(
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
@@ -364,7 +364,7 @@ class _EventDecodeState extends State<EventDecode> {
             );
           });
     }
-    else item = new SizedBox(height: 10.0);
+    else item = const SizedBox(height: 10.0);
 
     return item;
   }

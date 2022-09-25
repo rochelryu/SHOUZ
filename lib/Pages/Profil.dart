@@ -73,11 +73,11 @@ class _ProfilState extends State<Profil> {
         backgroundColor: backgroundColor,
         body: DefaultTabController(
           length: 4,
-          child: new NestedScrollView(
+          child: NestedScrollView(
             scrollDirection: Axis.vertical,
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return <Widget>[
-                new SliverAppBar(
+                SliverAppBar(
                   floating: true,
                   elevation: 10.0,
                   leading: SizedBox(width: 6),
@@ -177,7 +177,7 @@ class _ProfilState extends State<Profil> {
                 ),
               ];
             },
-            body: new TabBarView(
+            body: TabBarView(
               children: <Widget>[
                 LayoutBuilder( builder: (context,contraints) {
                     if(loadingFull){
@@ -200,7 +200,7 @@ class _ProfilState extends State<Profil> {
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  new SvgPicture.asset(
+                                  SvgPicture.asset(
                                     "images/empty.svg",
                                     semanticsLabel: 'Shouz Pay',
                                     height: MediaQuery.of(context).size.height *
@@ -506,7 +506,7 @@ class _ProfilState extends State<Profil> {
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                new SvgPicture.asset(
+                                SvgPicture.asset(
                                   "images/empty.svg",
                                   semanticsLabel: 'Shouz Pay',
                                   height: MediaQuery.of(context).size.height *
@@ -545,7 +545,7 @@ class _ProfilState extends State<Profil> {
 
                                 final item =
                                 infoUser['myDeals'][index - 1];
-                                return new Padding(
+                                return Padding(
                                   padding:
                                   EdgeInsets.only(right: 30.0),
                                   child: InkWell(
@@ -649,7 +649,7 @@ class _ProfilState extends State<Profil> {
                               infoUser['favoriteDeals'].length,
                               itemBuilder: (context, index) {
                                 final item = infoUser['favoriteDeals'][index];
-                                return new InkWell(
+                                return InkWell(
                                   onTap: () {
                                     Navigator.of(context)
                                         .push((MaterialPageRoute(builder: (context) {
@@ -692,7 +692,7 @@ class _ProfilState extends State<Profil> {
                                 mainAxisAlignment:
                                 MainAxisAlignment.center,
                                 children: <Widget>[
-                                  new SvgPicture.asset(
+                                  SvgPicture.asset(
                                     "images/empty.svg",
                                     semanticsLabel: 'Shouz Pay',
                                     height: MediaQuery.of(context)
@@ -731,7 +731,7 @@ class _ProfilState extends State<Profil> {
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                new SvgPicture.asset(
+                                SvgPicture.asset(
                                   "images/emptyevent.svg",
                                   semanticsLabel: 'Empty Event',
                                   height: MediaQuery.of(context).size.height *
@@ -769,7 +769,7 @@ class _ProfilState extends State<Profil> {
                               } else {
                                 final item =
                                 infoUser['myEvents'][index - 1];
-                                return new Padding(
+                                return Padding(
                                   padding:
                                   EdgeInsets.only(right: 30.0),
                                   child: InkWell(
@@ -1038,7 +1038,7 @@ class _ProfilState extends State<Profil> {
                                 mainAxisAlignment:
                                 MainAxisAlignment.center,
                                 children: <Widget>[
-                                  new SvgPicture.asset(
+                                  SvgPicture.asset(
                                     "images/emptyevent.svg",
                                     semanticsLabel: 'emptyevent',
                                     height: MediaQuery.of(context)
@@ -1077,7 +1077,7 @@ class _ProfilState extends State<Profil> {
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                new SvgPicture.asset(
+                                SvgPicture.asset(
                                   "images/notdepart.svg",
                                   semanticsLabel: 'Not Voyage',
                                   height: MediaQuery.of(context).size.height *
@@ -1114,7 +1114,7 @@ class _ProfilState extends State<Profil> {
                                 return SizedBox(width: 35);
                               } else {
                                 final item = infoUser['myTravels'][index - 1];
-                                return new Padding(
+                                return Padding(
                                   padding:
                                   EdgeInsets.only(right: 30.0),
                                   child: InkWell(
@@ -1220,7 +1220,7 @@ class _ProfilState extends State<Profil> {
                               infoUser['buyTravel'].length,
                               itemBuilder: (context, index) {
                                 final item = infoUser['buyTravel'][index];
-                                return new InkWell(
+                                return InkWell(
                                   onTap: () {
                                     Navigator.of(context).push((
                                         MaterialPageRoute(
@@ -1315,7 +1315,7 @@ class _ProfilState extends State<Profil> {
                                 mainAxisAlignment:
                                 MainAxisAlignment.center,
                                 children: <Widget>[
-                                  new SvgPicture.asset(
+                                  SvgPicture.asset(
                                     "images/notdepart.svg",
                                     semanticsLabel: 'Shouz Pay',
                                     height: MediaQuery.of(context)

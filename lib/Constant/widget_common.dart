@@ -430,7 +430,7 @@ OutlineInputBorder outlineInputBorder() {
 Widget dialogCustomError(String title, String message, BuildContext context) {
   bool isIos = Platform.isIOS;
   return isIos
-      ? new CupertinoAlertDialog(
+      ? CupertinoAlertDialog(
     title: Text(title),
     content: Text(message),
     actions: <Widget>[
@@ -441,7 +441,7 @@ Widget dialogCustomError(String title, String message, BuildContext context) {
           })
     ],
   )
-      : new AlertDialog(
+      : AlertDialog(
     title: Text(title),
     content: Text(message),
     elevation: 20.0,
@@ -457,15 +457,15 @@ Widget dialogCustomError(String title, String message, BuildContext context) {
   );
 }
 
-Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context, [bool withBackButton = true]) {
+Widget dialogCustomForValidateAction(String title, String message, String titleValidateMessage, callback, BuildContext context, [bool withBackButton = true, String titleBackButton = "Annuler"]) {
   bool isIos = Platform.isIOS;
   return isIos
-      ? new CupertinoAlertDialog(
+      ? CupertinoAlertDialog(
     title: Text(title),
     content: Text(message),
     actions: <Widget>[
      if(withBackButton) CupertinoDialogAction(
-          child: Text("Annuler", style: Style.chatOutMe(15),),
+          child: Text(titleBackButton, style: Style.chatOutMe(15),),
           onPressed: () {
             Navigator.of(context).pop();
           }),
@@ -477,7 +477,7 @@ Widget dialogCustomForValidateAction(String title, String message, String titleV
           }),
     ],
   )
-      : new AlertDialog(
+      : AlertDialog(
     title: Text(title),
     content: Text(message),
     elevation: 20.0,
@@ -485,7 +485,7 @@ Widget dialogCustomForValidateAction(String title, String message, String titleV
     RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
     actions: <Widget>[
       if(withBackButton) TextButton(
-          child: Text("Annuler", style: Style.chatOutMe(15),),
+          child: Text(titleBackButton, style: Style.chatOutMe(15),),
           onPressed: () {
             Navigator.of(context).pop();
           }),
@@ -502,7 +502,7 @@ Widget dialogCustomForValidateAction(String title, String message, String titleV
 Widget dialogCustomForValidatePermissionNotification(String title, String message, String titleValidateMessage, callback, BuildContext context) {
   bool isIos = Platform.isIOS;
   return isIos
-      ? new CupertinoAlertDialog(
+      ? CupertinoAlertDialog(
     title: Text(title),
     content: Text(message),
     actions: <Widget>[
@@ -519,7 +519,7 @@ Widget dialogCustomForValidatePermissionNotification(String title, String messag
           }),
     ],
   )
-      : new AlertDialog(
+      : AlertDialog(
     title: Text(title),
     content: Text(message),
     elevation: 20.0,
@@ -649,7 +649,7 @@ Widget isErrorLoadInfoBecauseNewPermissionAccording(BuildContext context, String
     child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new SvgPicture.asset(
+          SvgPicture.asset(
             "images/wait_vehicule_second.svg",
             semanticsLabel: 'Not Permission',
             height: MediaQuery.of(context).size.height * 0.39,

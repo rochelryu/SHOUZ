@@ -125,11 +125,11 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
         style: raisedButtonStyle,
       ),
     );
-    var loginForm = new Column(
+    var loginForm = Column(
       children: <Widget>[
-        new Form(
+       Form(
           key: formKey,
-          child: new Column(
+          child: Column(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -151,7 +151,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: nameCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -197,7 +197,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: emailCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -225,7 +225,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
+        _isLoading ? const CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
@@ -298,7 +298,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
         showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
@@ -338,7 +338,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
         showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
@@ -502,7 +502,7 @@ class _UpdateInfoBasicState extends State<UpdateInfoBasic> {
                     }
                   }),
             ),
-            _isLoadingSecond ? new CircularProgressIndicator() :ElevatedButton(onPressed: _submitSecond, child: Text('ENVOYER'), style: raisedButtonStyle,)
+            _isLoadingSecond ? const CircularProgressIndicator() :ElevatedButton(onPressed: _submitSecond, child: Text('ENVOYER'), style: raisedButtonStyle,)
           ],
         ),
       );

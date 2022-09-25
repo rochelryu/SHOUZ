@@ -140,8 +140,8 @@ class _ChoiceOtherHobieSecondState extends State<ChoiceOtherHobieSecond> {
               padding:
               EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
               child: Text(
-                "Qu'est-ce que vous aimez en terme d'actualité, deals et évènement ?",
-                /*textAlign: TextAlign.justify,*/ style:
+                "Qu'est-ce que vous aimez en terme d'actualité, deals et évènement ?\n(au moins 5 centres d'intérêts avant de continuer)",
+                style:
               Style.enterChoiceHobie(17.0),
               ),
             ),

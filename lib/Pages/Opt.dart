@@ -53,12 +53,12 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Appbar"
   get _getAppbar {
-    return new AppBar(
+    return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0.0,
-      leading: new InkWell(
+      leading: InkWell(
         borderRadius: BorderRadius.circular(30.0),
-        child: new Icon(
+        child: Icon(
           Icons.arrow_back,
           color: Colors.white,
         ),
@@ -71,10 +71,10 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Return "Verification Code" label
   get _getVerificationCodeLabel {
-    return new Text(
+    return Text(
       "Verification Code",
       textAlign: TextAlign.center,
-      style: new TextStyle(
+      style: TextStyle(
           fontSize: 28.0,
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -84,12 +84,12 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Return "Email" label
   get _getEmailLabel {
-    return new Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 25),
-      child: new Text(
+      child: Text(
         "Veuillez entrer le code de confirmation qui a été envoyé au ${newClient == null ? '': newClient!.numero}",
         textAlign: TextAlign.center,
-        style: new TextStyle(
+        style: TextStyle(
             fontSize: 16.0,
             color: Colors.grey,
             fontWeight: FontWeight.w600,
@@ -100,7 +100,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Return "OTP" input field
   get _getInputField {
-    return new Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         _otpTextField(_firstDigit),
@@ -115,7 +115,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "OTP" input part
   get _getInputPart {
-    return new Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _getVerificationCodeLabel,
@@ -131,13 +131,13 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   get _getTimerText {
     return Container(
       height: 32,
-      child: new Offstage(
+      child: Offstage(
         offstage: !_hideResendButton,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new Icon(Icons.access_time, color: Colors.white),
-            new SizedBox(
+            Icon(Icons.access_time, color: Colors.white),
+            SizedBox(
               width: 5.0,
             ),
             OtpTimer(_controller, 15.0, Colors.white)
@@ -149,16 +149,15 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Resend" button
   get _getResendButton {
-    return new ElevatedButton(
+    return ElevatedButton(
       style: raisedButtonStyle,
-      child: new Container(
+      child: Container(
         height: 42,
         width: 150,
         alignment: Alignment.center,
-        child: new Text(
+        child: Text(
           "Renvoyer le code",
-          style:
-              new TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       onPressed: () async {
@@ -185,7 +184,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
           showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
           Navigator.of(context).push(MaterialPageRoute(
               builder: (builder) => Login()));
@@ -197,12 +196,12 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Otp" keyboard
   get _getOtpKeyboard {
-    return new Container(
+    return Container(
         height: _screenSize.width - 80,
-        child: new Column(
+        child: Column(
           children: <Widget>[
-            new Expanded(
-              child: new Row(
+            Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _otpKeyboardInputButton(
@@ -223,8 +222,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            new Expanded(
-              child: new Row(
+            Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _otpKeyboardInputButton(
@@ -245,8 +244,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            new Expanded(
-              child: new Row(
+            Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _otpKeyboardInputButton(
@@ -267,8 +266,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            new Expanded(
-              child: new Row(
+            Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _otpKeyboardActionButton(
@@ -318,7 +317,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                               } else {
                                 showDialog(
                                     context: context,
-                                    builder: (BuildContext context) => dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                                    builder: (BuildContext context) => dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
                                     barrierDismissible: false);
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (builder) => Login()));
@@ -346,7 +345,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                         _setCurrentDigit(0);
                       }),
                   _otpKeyboardActionButton(
-                      label: new Icon(
+                      label: Icon(
                         Icons.backspace,
                         color: Colors.white,
                       ),
@@ -424,13 +423,13 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Otp custom text field"
   Widget _otpTextField(int? digit) {
-    return new Container(
+    return Container(
       width: 25.0,
       height: 45.0,
       alignment: Alignment.center,
-      child: new Text(
+      child: Text(
         digit != null ? digit.toString() : "",
-        style: new TextStyle(
+        style: TextStyle(
           fontSize: 30.0,
           color: Colors.white,
         ),
@@ -447,21 +446,21 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Otp keyboard input Button"
   Widget _otpKeyboardInputButton({required String label, required VoidCallback onPressed}) {
-    return new Material(
+    return Material(
       color: Colors.transparent,
-      child: new InkWell(
+      child: InkWell(
         onTap: onPressed,
-        borderRadius: new BorderRadius.circular(40.0),
-        child: new Container(
+        borderRadius: BorderRadius.circular(40.0),
+        child: Container(
           height: 80.0,
           width: 80.0,
-          decoration: new BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
           ),
-          child: new Center(
-            child: new Text(
+          child: Center(
+            child: Text(
               label,
-              style: new TextStyle(
+              style: TextStyle(
                 fontSize: 30.0,
                 color: Colors.white,
               ),
@@ -474,7 +473,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
 // Returns "Otp keyboard action Button"
   _otpKeyboardActionButton({required Widget label, required VoidCallback onPressed}) {
-    return new InkWell(
+    return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(40.0),
       child: Container(

@@ -55,7 +55,7 @@ class _EventInterState extends State<EventInter> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readEventModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/Events.gif", "1 - Acheteur: Participe à des évènements en achetant des tickets, tu as la possibilité de partager tes tickets à tes amis ou de demander un rembourssement en cas d'indisponibilité de ta part.\n2 - Promotteur: Crée tes propres évènements et vend tes tickets, nous nous occupons de la sécurité des achats et de la vérification des tickets.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await modalForExplain("images/Events.gif", "1 - Acheteur: Participe à des évènements en achetant des tickets, tu as la possibilité de partager tes tickets à tes amis ou de demander un rembourssement en cas d'indisponibilité de ta part.\n2 - Promotteur: Crée tes propres évènements et vend tes tickets, nous nous occupons de la sécurité des achats et de la vérification des tickets.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readEventModalExplain', true);
     }
   }
@@ -311,7 +311,7 @@ class _EventInterState extends State<EventInter> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      new SvgPicture.asset(
+                      SvgPicture.asset(
                         "images/emptyevent.svg",
                         semanticsLabel: 'Shouz event empty',
                         height: MediaQuery.of(context).size.height * 0.35,

@@ -262,7 +262,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                   itemCount: widget.infoAuthor['placeTotalVehicule'] + 2,
                   itemBuilder: (context, index){
                     if(index == 0){
-                      return new Container(
+                      return Container(
                         height: double.infinity,
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
@@ -293,7 +293,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                       );
                     }
                     else if(index == 1 || (index == 4 && (widget.infoAuthor['placeTotalVehicule'] - 1) % 3 != 0)){
-                      return new Container(
+                      return Container(
                         height: double.infinity,
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -303,13 +303,13 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                     }
                     else{
                       return (choice[index - 2] == 0 || choice[index - 2] == 2) ?
-                      new InkWell(
+                      InkWell(
                         onTap: (){
                           setState(() {
                             choice[index - 2] = (choice[index - 2] == 0) ? 2 : 0;
                           });
                         },
-                        child: new Container(
+                        child: Container(
                           height: double.infinity,
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -339,7 +339,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                             ],
                           ),
                         ),
-                      ): new Container(
+                      ): Container(
                         height: double.infinity,
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
@@ -394,7 +394,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                         showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (builder) => Login()));
@@ -522,7 +522,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
                           child: InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                                return new TicketTravelDetails(tickets[index]['imageTicket'], networkImageWithConsumeApi, substile);
+                                return TicketTravelDetails(tickets[index]['imageTicket'], networkImageWithConsumeApi, substile);
                               }));
                             },
                             child: Container(

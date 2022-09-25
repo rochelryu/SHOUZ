@@ -200,7 +200,66 @@ class _OnBoardingState extends State<OnBoarding> {
                         Navigator.push(context, ScaleRoute(widget: Login()));
                       },
                     )
-            )
+            ),
+            if(!lastPage) Positioned(
+                right: 30.0,
+                bottom: 20.0,
+                child: TextButton(
+                  onPressed: () async {
+                    if(Platform.isAndroid) {
+
+                      if (await isHms()) {
+                        bool status = await permissionHandler.requestLocationPermission();
+
+                        if(!status) {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  dialogCustomForValidatePermissionNotification(
+                                      'Autorisation de localisation',
+                                      "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
+                                      "D'accord",
+                                          () async => await permissionHandler.requestLocationPermission(),
+                                      context),
+                              barrierDismissible: false
+                          );
+                        }
+                      } else {
+                          _permissionGranted = await location.hasPermission();
+                          if (_permissionGranted == PermissionStatus.denied) {
+                          showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                          dialogCustomForValidatePermissionNotification(
+                          'Permission de Localisation importante',
+                          "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                          "D'accord",
+                          () async => await location.requestPermission(),
+                          context),
+                          barrierDismissible: false);
+                          }
+                      }
+                    } else {
+                        _permissionGranted = await location.hasPermission();
+                        if (_permissionGranted == PermissionStatus.denied) {
+                      showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                      dialogCustomForValidatePermissionNotification(
+                      'Permission de Localisation importante',
+                      "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                      "D'accord",
+                      () async => await location.requestPermission(),
+                      context),
+                      barrierDismissible: false);
+                      }
+                    }
+                    Navigator.push(context, ScaleRoute(widget: Login()));
+
+                  },
+                  child: Text("TOUT IGNORER", style: Style.skipedMessage(13, colorError),),
+                )
+            ),
           ],
         ),
       ),

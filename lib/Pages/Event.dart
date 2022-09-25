@@ -29,25 +29,25 @@ class _EventState extends State<Event> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       backgroundColor: backgroundColor,
 
-      body: new Column(
+      body: Column(
         children: <Widget>[
-          new Padding(
+         Padding(
             padding: const EdgeInsets.only(bottom: 5.0),
-            child: new Container(
+            child: Container(
               width: 255,
-              decoration: new BoxDecoration(
-                  border: new Border.all(color: colorText),
+              decoration: BoxDecoration(
+                  border: Border.all(color: colorText),
                 borderRadius: BorderRadius.circular(30.0)
               ),
-              child: new Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   // Sign In Button
-                  new GestureDetector(
+                  GestureDetector(
                     onTap: (){
                       _tabController.animateTo(0);
                       setState(() {
@@ -62,11 +62,11 @@ class _EventState extends State<Event> with SingleTickerProviderStateMixin {
                       width: 125,
                       height: 40,
                       child: Center(
-                        child: new Text("Evènements", style: Style.titleInSegment()),
+                        child: Text("Evènements", style: Style.titleInSegment()),
                       ),
                     ),
                   ),
-                  new GestureDetector(
+                  GestureDetector(
                     onTap: (){
                       _tabController.animateTo(1);
                       setState(() {
@@ -81,7 +81,7 @@ class _EventState extends State<Event> with SingleTickerProviderStateMixin {
                       width: 125,
                       height: 40,
                       child: Center(
-                        child: new Text("Publicité", style: Style.titleInSegment()),
+                        child: Text("Publicité", style: Style.titleInSegment()),
                       ),
                     ),
                   ),
@@ -90,8 +90,8 @@ class _EventState extends State<Event> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-          new Expanded(
-            child: new TabBarView(
+          Expanded(
+            child: TabBarView(
                 controller: _tabController,
                 // Restrict scroll by user
                 physics: const NeverScrollableScrollPhysics(),

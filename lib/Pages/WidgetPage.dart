@@ -17,6 +17,7 @@ class WidgetPage extends StatefulWidget {
 
 class _WidgetPageState extends State<WidgetPage> {
   List commande = [];
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
@@ -26,13 +27,13 @@ class _WidgetPageState extends State<WidgetPage> {
   }
 
   loadInfo() async {
-    final info = await new ConsumeAPI().setSettings();
+    final info = await consumeAPI.setSettings();
     if (info['etat'] == 'found') {
       setState(() {
         commande = [
           {
-                  "icon": "Verification tickets",
-                  "desc": "Decoder le code réçu par vos invités"
+                  "icon": "Vérification tickets",
+                  "desc": "Décrypter le code reçu par vos invités"
                 }
              ,
           /*{

@@ -322,19 +322,19 @@ class _CreateEventState extends State<CreateEvent> {
   Widget build(BuildContext context) {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
-      child: new Text(
+      child: Text(
         "Enregistrer cet évenement",
         style: Style.sousTitreEvent(15),
       ),
       style: raisedButtonStyle,
     );
-    var loginForm = new Column(
+    var loginForm = Column(
       children: <Widget>[
-        new Form(
+        Form(
           key: formKey,
-          child: new Column(
+          child: Column(
             children: <Widget>[
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -388,7 +388,7 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -627,7 +627,7 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -680,7 +680,7 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                     "Si l'entrée est gratuite, écrivez gratuit à la place du prix",
@@ -840,7 +840,7 @@ class _CreateEventState extends State<CreateEvent> {
                 spacing: 6.0,
                 children: <Widget>[
                   MasonryGridView.count(
-                    physics: new BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     mainAxisSpacing: 0,
@@ -876,7 +876,7 @@ class _CreateEventState extends State<CreateEvent> {
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
+        _isLoading ? const CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
@@ -1019,7 +1019,7 @@ class _CreateEventState extends State<CreateEvent> {
   Widget dialogCustomError(String title, String message, BuildContext context) {
     bool isIos = Platform.isIOS;
     return isIos
-        ? new CupertinoAlertDialog(
+        ? CupertinoAlertDialog(
       title: Text(title),
       content: Text(message),
       actions: <Widget>[

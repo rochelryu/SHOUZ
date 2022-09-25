@@ -7,8 +7,8 @@ class SlideRightRoute extends PageRouteBuilder {
         return widget;
       },
       transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-        return new SlideTransition(
-          position: new Tween<Offset>(
+        return SlideTransition(
+          position: Tween<Offset>(
             begin: const Offset(-1.0, 0.0),
             end: Offset.zero,
           ).animate(animation),
@@ -27,8 +27,8 @@ class ScaleRoute extends PageRouteBuilder {
         return widget;
       },
       transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-        return new ScaleTransition(
-          scale: new Tween<double>(
+        return ScaleTransition(
+          scale: Tween<double>(
             begin: 0.0,
             end: 1.0,
           ).animate(

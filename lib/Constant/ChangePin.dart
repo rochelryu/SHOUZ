@@ -20,6 +20,7 @@ class _ChangePinState extends State<ChangePin> {
   String message = '';
   String passwordSave = '';
   String pin = '';
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   Future getNewPin() async {
     try {
@@ -282,8 +283,7 @@ class _ChangePinState extends State<ChangePin> {
                           } else {
                             if (password != pin) {
                               setPin(password);
-                              await new ConsumeAPI()
-                                  .changePin(pin: password);
+                              await consumeAPI.changePin(pin: password);
                               await DBProvider.db.getClient();
                               Navigator.pop(context);
                             } else {

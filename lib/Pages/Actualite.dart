@@ -221,7 +221,7 @@ class _ActualiteState extends State<Actualite> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readActualityModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/news.gif", "Nous vous informons le plus tôt possible de ce qui se passe ici et ailleurs. Notre équipe s'occupe de démêler les fakes news afin de vous envoyer que ce qui est vrai, nous vous proposons même des appels d'offre & offres d'emploi.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await modalForExplain("images/news.gif", "Nous vous informons le plus tôt possible de ce qui se passe ici et ailleurs. Notre équipe s'occupe de démêler les fakes news afin de vous envoyer que ce qui est vrai, nous vous proposons même des appels d'offre & offres d'emploi.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readActualityModalExplain', true);
     }
   }
@@ -255,7 +255,7 @@ class _ActualiteState extends State<Actualite> {
         showDialog(
             context: context,
             builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
             barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));

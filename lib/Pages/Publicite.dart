@@ -60,7 +60,7 @@ class CardScrollWidget extends StatelessWidget {
   CardScrollWidget(this.currentPage);
   @override
   Widget build(BuildContext context) {
-    return new AspectRatio(
+    return AspectRatio(
       aspectRatio: widgetAspectRatio,
       child: LayoutBuilder(
         builder: (context, contraints){
@@ -135,7 +135,7 @@ class CardScrollWidget extends StatelessWidget {
 
             cardList.add(cardItem);
           }
-          return new Stack(
+          return Stack(
             children: cardList,
           );
         }),

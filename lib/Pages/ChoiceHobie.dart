@@ -46,7 +46,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offre et offres d'emploi uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
+      await modalForExplain("images/preferences.gif", "Les préférences sont les points-clés de SHOUZ. Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offres et offres d'emplois uniquement en fonction de vos préférences.\nCherchez vos préférences et sélectionnez les pour continuer. Shouz a besoin au moins de 5 de vos préférences afin de pouvoir fonctionner normalement. Vous pouvez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
   }
@@ -132,7 +132,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
               padding:
               EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
               child: Text(
-                "Qu'est-ce que vous aimez en terme d'actualité, deals et évènement ?",
+                "Qu'est-ce que vous aimez en terme d'actualité, deals et évènement ?\nChoisissez au moins 5 centres d'intérêt avant de pouvoir continuer.",
                 /*textAlign: TextAlign.justify,*/ style:
               Style.enterChoiceHobie(17.0),
               ),

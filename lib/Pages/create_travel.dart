@@ -86,18 +86,18 @@ class _CreateTravelState extends State<CreateTravel> {
       padding: EdgeInsets.only(top: 15),
       child: ElevatedButton(
         onPressed: _submit,
-        child: new Text(
+        child: Text(
           "Enregistrer ce voyage",
           style: Style.sousTitreEvent(15),
         ),
         style: raisedButtonStyle,
       ),
     );
-    var loginForm = new Column(
+    var loginForm = Column(
       children: <Widget>[
-        new Form(
+        Form(
           key: formKey,
-          child: new Column(
+          child: Column(
             children: <Widget>[
 
 
@@ -133,7 +133,7 @@ class _CreateTravelState extends State<CreateTravel> {
                                   ? colorText
                                   : backgroundColor),
                           borderRadius: BorderRadius.circular(50.0)),
-                      child: new TextField(
+                      child: TextField(
                         controller: beginCityCtrl,
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.w300),
@@ -183,7 +183,7 @@ class _CreateTravelState extends State<CreateTravel> {
                   width: 20,
                   color: Colors.cyan,
                 ),
-                startChild: new Padding(
+                startChild: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     height: 130,
@@ -229,7 +229,7 @@ class _CreateTravelState extends State<CreateTravel> {
                                                 ? colorText
                                                 : backgroundColor),
                                         borderRadius: BorderRadius.circular(50.0)),
-                                    child: new TextField(
+                                    child: TextField(
                                       controller: priceCtrl,
                                       style: TextStyle(
                                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -276,7 +276,7 @@ class _CreateTravelState extends State<CreateTravel> {
                   width: 20,
                   color: Colors.deepOrange,
                 ),
-                startChild: new Padding(
+                startChild: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     height: 150,
@@ -312,7 +312,7 @@ class _CreateTravelState extends State<CreateTravel> {
                                                 ? colorText
                                                 : backgroundColor),
                                         borderRadius: BorderRadius.circular(50.0)),
-                                    child: new TextField(
+                                    child: TextField(
                                       controller: lieuRencontreCtrl,
                                       style: TextStyle(
                                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -366,7 +366,7 @@ class _CreateTravelState extends State<CreateTravel> {
                   width: 20,
                   color: Colors.red,
                 ),
-                endChild: new Padding(
+                endChild: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
                     color: Colors.transparent,
@@ -385,7 +385,7 @@ class _CreateTravelState extends State<CreateTravel> {
                                   ? colorText
                                   : backgroundColor),
                           borderRadius: BorderRadius.circular(50.0)),
-                      child: new TextField(
+                      child: TextField(
                         controller: endCityCtrl,
                         onChanged: (text) {
                           setState(() {
@@ -425,7 +425,7 @@ class _CreateTravelState extends State<CreateTravel> {
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
+        _isLoading ? const CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
@@ -512,9 +512,9 @@ class _CreateTravelState extends State<CreateTravel> {
   }
 
   void _showSnackBar(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: colorError,
-      content: new Text(
+      content: Text(
         text,
         textAlign: TextAlign.center,
       ),

@@ -48,9 +48,9 @@ class _ShareTicketState extends State<ShareTicket> {
         ),
       ),
       backgroundColor: backgroundColor,
-      body: new GestureDetector(
+      body: GestureDetector(
         onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
+          FocusScope.of(context).requestFocus(FocusNode());
         },
         child: ListView(
           children: <Widget>[

@@ -30,6 +30,7 @@ class _SettingState extends State<Setting> {
   final picker = ImagePicker();
   bool createPass = true;
   String pin = '';
+  ConsumeAPI consumeAPI = new ConsumeAPI();
   Map<String, dynamic> newClient = {
     'name': '',
     'level': '',
@@ -59,7 +60,7 @@ class _SettingState extends State<Setting> {
   }
 
   loadInfo() async {
-    final info = await new ConsumeAPI().setSettings();
+    final info = await consumeAPI.setSettings();
     if (info['etat'] == 'found') {
       setState(() {
         newClient = info['result'];
@@ -77,8 +78,7 @@ class _SettingState extends State<Setting> {
       setState(() {
         profil = {"type": 2, "data": File(image.path)};
       });
-      await new ConsumeAPI()
-          .changeProfilPicture(imageName: imageCover, base64: base64Image);
+      await consumeAPI.changeProfilPicture(imageName: imageCover, base64: base64Image);
       Navigator.pop(context);
     }
   }
@@ -235,7 +235,7 @@ class _SettingState extends State<Setting> {
                                   width: 30,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(50),
-                                      color: new Color.fromRGBO(2, 136, 209,
+                                      color: const Color.fromRGBO(2, 136, 209,
                                           0.5) // Specifies the background color and the opacity
                                       ),
                                   child: Center(

@@ -74,7 +74,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         await loadProduct();
       }
     });
-    _controller = new TabController(length: 3, vsync: this)
+    _controller = TabController(length: 3, vsync: this)
       ..addListener(() {
         if (_controller.indexIsChanging) {
           searchCtrl.clear();
@@ -123,7 +123,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readDealsModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/ecommerce.gif", "1 - Acheteur: Achète tout ce qui t'intérèsse en discutant avec le vendeur afin de diminuer le prix et s'assurer de la qualité, en plus on te livre, c’est satisfait ou remboursé immédiatement et intégralement.\n2 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenue vous pouvez allez complêter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await modalForExplain("images/ecommerce.gif", "1 - Acheteur: Achète tout ce qui t'intérèsse en discutant avec le vendeur afin de diminuer le prix et s'assurer de la qualité, en plus on te livre, c’est satisfait ou remboursé immédiatement et intégralement.\n2 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readDealsModalExplain', true);
     }
   }
@@ -131,7 +131,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     pref.clear();
     var deals = dealsFull;
     for (var i = 0; i < deals[choiceSearch].length; i++) {
-      final item = new PopupMenuItem<String>(
+      final item = PopupMenuItem<String>(
         child: Text(
           deals[choiceSearch][i]['name'].toString(),
           style: TextStyle(color: backgroundColorSec),
@@ -153,7 +153,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     // Timer(Duration(milliseconds: 1000), () => _scrollController.jumpTo(_scrollController.position.maxScrollExtent));
 
-    final buttonFilter = new PopupMenuButton(
+    final buttonFilter = PopupMenuButton(
         key: _menuKey,
         icon: Icon(Icons.filter_list, color: Colors.white),
         itemBuilder: (_) => pref,
@@ -171,7 +171,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
 
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Stack(
           children: <Widget>[
@@ -205,7 +205,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                   height: MediaQuery.of(context).size.height,
                                   width: MediaQuery.of(context).size.width / 1.55,
                                   color: Colors.transparent,
-                                  child: new TextField(
+                                  child: TextField(
                                     controller: searchCtrl,
                                     style: TextStyle(
                                         color: Colors.white,
@@ -232,7 +232,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                     },
                                     onSubmitted: (String text) {
                                       searchDataInContext(text);
-                                      FocusScope.of(context).requestFocus(new FocusNode());
+                                      FocusScope.of(context).requestFocus(FocusNode());
                                     },
                                   ),
                                 ),
@@ -240,7 +240,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                   icon: Icon(Icons.search, color: Colors.white),
                                   onPressed: () {
                                     searchDataInContext(searchData);
-                                    FocusScope.of(context).requestFocus(new FocusNode());
+                                    FocusScope.of(context).requestFocus(FocusNode());
                                   },
                                 )
                               ],
@@ -402,7 +402,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                             return Column(
                               children: <Widget>[
                                 Expanded(
-                                  child: new ListView.builder(
+                                  child: ListView.builder(
                                     controller: _scrollControllerVip,
                                     itemCount: populaireActu[0]
                                     [choiceItemSearch]['body']
@@ -529,7 +529,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               mainAxisAlignment:
                                               MainAxisAlignment.center,
                                               children: <Widget>[
-                                                new SvgPicture.asset(
+                                                SvgPicture.asset(
                                                   "images/empty.svg",
                                                   semanticsLabel: 'Shouz Pay',
                                                   height:
@@ -687,7 +687,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               mainAxisAlignment:
                                               MainAxisAlignment.center,
                                               children: <Widget>[
-                                                new SvgPicture.asset(
+                                                SvgPicture.asset(
                                                   "images/empty.svg",
                                                   semanticsLabel: 'Shouz Pay',
                                                   height:

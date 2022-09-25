@@ -155,7 +155,7 @@ class _DetailsActuState extends State<DetailsActu> {
                           delta = _controller.page! - double.parse(index.toString());
                           y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
                         }
-                        return new SingleChildScrollView(
+                        return SingleChildScrollView(
                           padding: EdgeInsets.only(
                             top: 43,
                             bottom: 100,
@@ -191,12 +191,12 @@ class _DetailsActuState extends State<DetailsActu> {
           )
         ],
       ),
-      bottomNavigationBar: new Material(
+      bottomNavigationBar: Material(
         color: backgroundColor,
         elevation: 15.0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: new Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
@@ -252,7 +252,7 @@ class _DetailsActuState extends State<DetailsActu> {
   Widget choiceDisposition(page, double y) {
     switch (page['isContentType']) {
       case 'only_text':
-        return new Column(
+        return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -266,7 +266,7 @@ class _DetailsActuState extends State<DetailsActu> {
               ),
             ]);
       case 'picture_text':
-        return new Column(
+        return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -295,7 +295,7 @@ class _DetailsActuState extends State<DetailsActu> {
               ),
             ]);
       case 'subtitle_text':
-        return new Column(
+        return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

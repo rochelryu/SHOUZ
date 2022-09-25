@@ -103,7 +103,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                               )),
 
                           onSubmitted: (String text) async {
-                            FocusScope.of(context).requestFocus(new FocusNode());
+                            FocusScope.of(context).requestFocus(FocusNode());
                             await loadProduct();
                           },
                         ),
@@ -112,7 +112,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                     IconButton(
                       icon: Icon(Icons.search, color: Colors.white),
                       onPressed: () async {
-                        FocusScope.of(context).requestFocus(new FocusNode());
+                        FocusScope.of(context).requestFocus(FocusNode());
                         await loadProduct();
                       },
                     )

@@ -38,7 +38,7 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
         showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
@@ -71,7 +71,7 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
       child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new SvgPicture.asset(
+            SvgPicture.asset(
               "images/notconnection.svg",
               semanticsLabel: 'Not Connection',
               height: MediaQuery.of(context).size.height * 0.39,

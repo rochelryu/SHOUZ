@@ -55,7 +55,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
         showDialog(
             context: context,
             builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
             barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
@@ -93,7 +93,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           labelColor: colorText,
           indicatorColor: colorText,
           tabs: [
-            new Tab(
+            Tab(
               child: Stack(
                 children: [
                   Center(
@@ -121,7 +121,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                 ],
               ),
             ),
-            new Tab(
+            Tab(
               //icon: const Icon(Icons.shopping_cart),
               child: Stack(
                 children: [
@@ -150,7 +150,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                 ],
               ),
             ),
-            new Tab(
+            Tab(
               //icon: const Icon(Icons.shopping_cart),
               child: Stack(
                 children: [
@@ -179,7 +179,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                 ],
               ),
             ),
-            new Tab(
+            Tab(
               //icon: const Icon(Icons.shopping_cart),
               child: Stack(
                 children: [
@@ -213,7 +213,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
       ),
       body:Container(
         height: MediaQuery.of(context).size.height,
-        child: new TabBarView(
+        child: TabBarView(
           controller: _controller,
           children: <Widget>[
             FutureBuilder(
@@ -450,7 +450,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   mainAxisAlignment:
                                   MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new SvgPicture.asset(
+                                    SvgPicture.asset(
                                       "images/not_notification.svg",
                                       semanticsLabel: 'NotNotificationDeals',
                                       height:
@@ -709,7 +709,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   mainAxisAlignment:
                                   MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new SvgPicture.asset(
+                                    SvgPicture.asset(
                                       "images/event_search.svg",
                                       semanticsLabel: 'NotNotificationEvent',
                                       height:
@@ -968,7 +968,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   mainAxisAlignment:
                                   MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new SvgPicture.asset(
+                                    SvgPicture.asset(
                                       "images/wait_vehicule_second.svg",
                                       semanticsLabel: 'NotNotificationTravel',
                                       height:
@@ -1227,7 +1227,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                                   mainAxisAlignment:
                                   MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new SvgPicture.asset(
+                                    SvgPicture.asset(
                                       "images/recherche.svg",
                                       semanticsLabel: 'NotNotificationTransaction',
                                       height:
@@ -1336,7 +1336,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
             );
           });
     }
-    else item = new SizedBox(height: 10.0);
+    else item = const SizedBox(height: 10.0);
 
     return item;
   }
@@ -1344,7 +1344,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   Widget displayNotifTravels(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
-      item = new ListView.builder(
+      item = ListView.builder(
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
@@ -1402,7 +1402,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
             );
           });
     }
-    else item = new SizedBox(height: 10.0);
+    else item = SizedBox(height: 10.0);
 
     return item;
   }
@@ -1410,7 +1410,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   Widget displayNotifTransactions(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
-      item = new ListView.builder(
+      item = ListView.builder(
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
@@ -1464,7 +1464,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
             );
           });
     }
-    else item = new SizedBox(height: 10.0);
+    else item = const SizedBox(height: 10.0);
 
     return item;
   }
@@ -1474,7 +1474,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   Widget displayNotifEvents(List<dynamic> atMoment){
     var item;
     if(atMoment.length != 0){
-      item = new ListView.builder(
+      item = ListView.builder(
           shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
@@ -1535,7 +1535,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
             );
           });
     }
-    else item = new SizedBox(height: 10.0);
+    else item = const SizedBox(height: 10.0);
 
     return item;
   }

@@ -192,15 +192,15 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
   Widget build(BuildContext context) {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
-      child: new Text(
+      child: Text(
         "Soumettre",
         style: Style.sousTitreEvent(15),
       ),
       style: raisedButtonStyle,
     );
-    var loginForm = new Column(
+    var loginForm = Column(
       children: <Widget>[
-        new Form(
+        Form(
           key: formKey,
           child: Column(
             children: <Widget>[
@@ -229,7 +229,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: describeCtrl,
                       onChanged: (text) {
                         setState(() {
@@ -681,7 +681,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
                       }
                     }),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   height: 130,
@@ -714,7 +714,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
                                             ? colorText
                                             : backgroundColor),
                                     borderRadius: BorderRadius.circular(50.0)),
-                                child: new TextField(
+                                child: TextField(
                                   controller: numeroCtrl,
                                   onChanged: (text) {
                                     setState(() {
@@ -749,7 +749,7 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
+        _isLoading ? const CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );

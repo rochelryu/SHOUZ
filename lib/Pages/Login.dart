@@ -26,7 +26,7 @@ class _LoginState extends State<Login> {
       backgroundColor: backgroundColor,
       body: GestureDetector(
           onTap: (){
-            FocusScope.of(context).requestFocus(new FocusNode());
+            FocusScope.of(context).requestFocus(FocusNode());
           },
           child: SingleChildScrollView(
           child: Column(
@@ -56,7 +56,7 @@ class _LoginState extends State<Login> {
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12.0),
-                      child: Text("Vous devez vous enregistrer par votre numero, un code de confirmation vous sera envoyé pour confirmer votre identité", style: Style.titre(13.0), textAlign: TextAlign.center,),
+                      child: Text("Vous devez vous inscrire par votre numéro, un code de confirmation vous sera envoyé pour valider votre identité", style: Style.titre(13.0), textAlign: TextAlign.center,),
                     ),
                     Container(
                       height: MediaQuery.of(context).size.height * 0.10,
@@ -136,34 +136,34 @@ class _LoginState extends State<Login> {
                           top: 30,
                           left: 10,
                           child: Container(
-                            height: 85,
-                            width: 85,
+                            height: 95,
+                            width: 95,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50.0),
                               image: DecorationImage(
-                                image: AssetImage("images/userBoy18.png"),
+                                image: AssetImage("images/covoiturage.jpeg"),
                                 fit: BoxFit.cover,
                               )
                             ),
                           ),
                         ),
                         Positioned(
-                          bottom: 30,
-                          left: 70,
+                          bottom: 40,
+                          left: 50,
                           child: Container(
-                            height: 100,
-                            width: 100,
+                            height: 120,
+                            width: 120,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/userBoy09.jpg"),
+                                  image: AssetImage("images/eventgala.jpeg"),
                                   fit: BoxFit.cover,
                                 )
                             ),
                           ),
                         ),
                         Positioned(
-                          top: 50,
+                          top: 70,
                           left: 130,
                           child: Container(
                             height: 120,
@@ -171,7 +171,7 @@ class _LoginState extends State<Login> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/userGirl05.jpg"),
+                                  image: AssetImage("images/dealsbuy.jpeg"),
                                   fit: BoxFit.cover,
                                 )
                             ),
@@ -181,42 +181,44 @@ class _LoginState extends State<Login> {
                           bottom: 10,
                           right: 10,
                           child: Container(
-                            height: 87,
-                            width: 87,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50.0),
-                                image: DecorationImage(
-                                  image: AssetImage("images/userGirl07.jpg"),
-                                  fit: BoxFit.cover,
-                                )
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 120,
-                          right: 110,
-                          child: Container(
                             height: 95,
                             width: 95,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/userGirl09.jpg"),
+                                  image: AssetImage("images/gestion.jpeg"),
                                   fit: BoxFit.cover,
                                 )
                             ),
                           ),
                         ),
+
+                        Positioned(
+                          bottom: 120,
+                          right: 110,
+                          child: Container(
+                            height: 105,
+                            width: 105,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50.0),
+                                image: DecorationImage(
+                                  image: AssetImage("images/actuality.jpeg"),
+                                  fit: BoxFit.cover,
+                                )
+                            ),
+                          ),
+                        ),
+
                         Positioned(
                           top: 40,
                           right: 10,
                           child: Container(
-                            height: 90,
-                            width: 90,
+                            height: 100,
+                            width: 100,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
-                                  image: AssetImage("images/test.jpg"),
+                                  image: AssetImage("images/earn.jpeg"),
                                   fit: BoxFit.cover,
                                 )
                             ),

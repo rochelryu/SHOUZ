@@ -87,7 +87,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
       backgroundColor: backgroundColor,
       body: GestureDetector(
         onTap: (){
-          FocusScope.of(context).requestFocus(new FocusNode());
+          FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Stack(
           children: <Widget>[
@@ -246,7 +246,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   showBadge: showBadge && numberNotif != 0,
                   child: Icon(Style.menu, color: Colors.white)),
               onTap: () {
-                FocusScope.of(context).requestFocus(new FocusNode());
+                FocusScope.of(context).requestFocus(FocusNode());
                 setState(() {
                   showBadge = !showBadge;
                   if (isCollasped) {

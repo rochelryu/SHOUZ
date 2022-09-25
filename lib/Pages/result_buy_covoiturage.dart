@@ -59,7 +59,7 @@ class _ResultBuyCovoiturageState extends State<ResultBuyCovoiturage> {
       child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new SvgPicture.asset(
+            SvgPicture.asset(
               "images/notconnection.svg",
               semanticsLabel: 'Not Connection',
               height: MediaQuery.of(context).size.height * 0.39,

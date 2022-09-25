@@ -8,6 +8,7 @@ import 'package:shouz/Pages/ChoiceHobie.dart';
 import 'package:shouz/Utils/Database.dart';
 
 import '../Constant/my_flutter_app_second_icons.dart' as prefix1;
+import '../Constant/widget_common.dart';
 
 class CreateProfil extends StatefulWidget {
   static String rootName = '/createProfil';
@@ -73,15 +74,30 @@ class _CreateProfil extends State<CreateProfil> {
             });
             await DBProvider.db.updateName(value);
             if (tmpFile == null) {
-              final fileName = profil["data"];
-              await DBProvider.db.newProfil(fileName, '');
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => dialogCustomForValidateAction(
+                      "Aucune photo de profil",
+                      "Vous n'avez pas choisi d'image de profil pour votre compte.\nVoulez vous vraiment continuer sans cela ?",
+                      "Oui",
+                          () async {
+                            final fileName = profil["data"];
+                            await DBProvider.db.newProfil(fileName, '');
+                            prefix0.setLevel(4);
+                            Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (builder) => ChoiceHobie()));
+
+                      }, context, true, "Non"),
+                  barrierDismissible: false);
+
             } else {
               final fileName = tmpFile?.path.split('/').last;
               await DBProvider.db.newProfil(fileName!, imagePath!);
+              prefix0.setLevel(4);
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (builder) => ChoiceHobie()));
             }
-            prefix0.setLevel(4);
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (builder) => ChoiceHobie()));
+
           } else
             _displaySnackBar(context);
         },
@@ -89,9 +105,9 @@ class _CreateProfil extends State<CreateProfil> {
         backgroundColor: prefix0.colorText,
         child: Icon(Icons.arrow_forward, color: Colors.white),
       ),
-      body: new GestureDetector(
+      body: GestureDetector(
         onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
+          FocusScope.of(context).requestFocus(FocusNode());
         },
         child: SingleChildScrollView(
           child: Stack(children: <Widget>[
@@ -138,7 +154,7 @@ class _CreateProfil extends State<CreateProfil> {
                                           backgroundColor: Colors.transparent,
                                           elevation: 10.0,
                                           builder: (builder) {
-                                            return new Container(
+                                            return Container(
                                                 height: 200,
                                                 margin: EdgeInsets.symmetric(
                                                     vertical: 10,
@@ -227,7 +243,7 @@ class _CreateProfil extends State<CreateProfil> {
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(50),
-                                          color: new Color.fromRGBO(2, 136, 209,
+                                          color: const Color.fromRGBO(2, 136, 209,
                                               0.5) // Specifies the background color and the opacity
                                           ),
                                       child: Center(
@@ -307,9 +323,9 @@ class _CreateProfil extends State<CreateProfil> {
 
   choiceType(type, data) {
     if (type == 1) {
-      return new AssetImage(data);
+      return AssetImage(data);
     } else {
-      return new FileImage(data);
+      return FileImage(data);
     }
   }
 

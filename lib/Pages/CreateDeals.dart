@@ -168,7 +168,7 @@ class _CreateDealsState extends State<CreateDeals> {
   Widget build(BuildContext context) {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
-      child: new Text(
+      child: Text(
         "Envoyer le produit",
         style: Style.sousTitreEvent(15),
       ),
@@ -176,11 +176,11 @@ class _CreateDealsState extends State<CreateDeals> {
     );
     var loginForm = Column(
       children: <Widget>[
-        new Form(
+        Form(
           key: formKey,
-          child: new Column(
+          child: Column(
             children: <Widget>[
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -204,7 +204,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: nameProductCtrl,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w300),
@@ -236,7 +236,7 @@ class _CreateDealsState extends State<CreateDeals> {
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     height: 60,
@@ -261,7 +261,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                           ? colorText
                                           : backgroundColor),
                                   borderRadius: BorderRadius.circular(50.0)),
-                              child: new TextField(
+                              child: TextField(
                                 controller: priceCtrl,
                                 style: TextStyle(
                                     color: Colors.white,
@@ -312,7 +312,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                           ? colorText
                                           : backgroundColor),
                                   borderRadius: BorderRadius.circular(50.0)),
-                              child: new TextField(
+                              child: TextField(
                                 controller: quantityCtrl,
                                 style: TextStyle(
                                     color: Colors.white,
@@ -348,7 +348,7 @@ class _CreateDealsState extends State<CreateDeals> {
                           ),
                         ]),
                   )),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
                   color: Colors.transparent,
@@ -400,7 +400,7 @@ class _CreateDealsState extends State<CreateDeals> {
                               color: _isDescribe
                                   ? colorText
                                   : Colors.grey),
-                          labelText: "Description du produit",
+                          labelText: "Donnez plus de details sur l'article",
                           labelStyle: TextStyle(
                             color: Colors.white,
                           )),
@@ -634,7 +634,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                       ? colorText
                                       : backgroundColor),
                               borderRadius: BorderRadius.circular(50.0)),
-                          child: new TextField(
+                          child: TextField(
                             controller: numeroCtrl,
                             onChanged: (text) {
                               setState(() {
@@ -691,7 +691,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 ? colorText
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: new TextField(
+                    child: TextField(
                       controller: positionCtrl,
                       onChanged: (text) {
                         setState(() {
@@ -725,7 +725,7 @@ class _CreateDealsState extends State<CreateDeals> {
                   ),
                 ),
               ),
-              new Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   height: 40,
@@ -768,7 +768,7 @@ class _CreateDealsState extends State<CreateDeals> {
             ],
           ),
         ),
-        requestLoading ? new CircularProgressIndicator() : loginBtn
+        requestLoading ? const CircularProgressIndicator() : loginBtn
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
@@ -822,14 +822,39 @@ class _CreateDealsState extends State<CreateDeals> {
   }
 
   void _submit() async {
-    setState(() => requestLoading = true);
-    if (nameProduct.length > 4 &&
-        describe.length > 20 &&
-        dropdownValue != null &&
-        base64Image.length > 0 &&
-        numero.length == 10 &&
-        position.length > 5 &&
-        price.length > 2) {
+
+    bool ready = true;
+    if(nameProduct.length < 3) {
+      ready = false;
+
+      showSnackBar(context, "Le nom du produit est trop court.");
+    }
+    if(describe.length < 7) {
+      ready = false;
+      showSnackBar(context, "Veuillez donner plus de détails dans le champs details articles.");
+    }
+    if(dropdownValue == null) {
+      ready = false;
+      showSnackBar(context, "Veuillez choisir une categorie pour l'article.");
+    }
+    if(base64Image.length == 0) {
+      ready = false;
+      showSnackBar(context, "Veuillez sélectionner au moins une image de l'article.");
+    }
+    if(numero.length != 10 ) {
+      ready = false;
+      showSnackBar(context, "Veuillez entrer un numéro de téléphone valide pour qu'on puisse vous appeler.");
+    }
+    if(position.length < 7 ) {
+      ready = false;
+      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+    }
+    if(price.length <= 2 ) {
+      ready = false;
+      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+    }
+    if(ready) {
+      setState(() => requestLoading = true);
       List<String> imageListTitle =
           post.map((image) => image.path.split('/').last).toList();
 
@@ -870,10 +895,11 @@ class _CreateDealsState extends State<CreateDeals> {
             "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
             true, context);
       } else if (product == 'notFound') {
+
         showDialog(
             context: context,
             builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
             barrierDismissible: false);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
@@ -887,9 +913,6 @@ class _CreateDealsState extends State<CreateDeals> {
             "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
             false, context);
       }
-    } else {
-      setState(() => requestLoading = false);
-      showSnackBar(context, "Remplissez correctement les champs avant d'envoyer");
     }
   }
 }

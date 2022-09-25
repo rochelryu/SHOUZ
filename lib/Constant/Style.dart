@@ -80,28 +80,28 @@ var pageList = [
   PageModel(
       imageUrl: "images/actu.png",
       title: "ACTUALITES",
-      body: "Suivez l'actualité d'ici et d'ailleurs. En plus soyez informés des dernières offres d'emploi et appel d'offre de votre localité",
+      body: "Suivez l'actualité d'ici et d'ailleurs. De plus soyez informés des dernières offres d'emploi et appel d'offres de votre localité.",
       titleGradient: gradient[0]),
   PageModel(
       imageUrl: "images/deals.png",
       title: "DEALS",
       body:
-          "Vendez sans frais ou achetez un produit avec la possibilité de discuter le prix d'achat. Nous vous livrons le produit, satisfait ou remboursé",
+          "Vendez gratuitement ou achetez un produit en ayant la possibilité de discuter du prix d'achat et s'assurer de la qualité. Nous vous livrons le produit, satisfait ou remboursé.",
       titleGradient: gradient[1]),
   PageModel(
       imageUrl: "images/event.png",
       title: "EVENEMENTS",
-      body: "Créer vos évènements et gagnez 100% sur la vente de vos tickets. Une personne qui achète des tickets peut les partager ou les annuler si besoin est",
+      body: "Créez vos évènements et gagnez 100% sur la vente de vos billets. Une personne qui achète des billets peut les partager au besoin.",
       titleGradient: gradient[2]),
   PageModel(
       imageUrl: "images/voyage.png",
       title: "VOYAGES",
-      body: "Le covoiturage simplifie vos trajets. Voyagez de ville en ville dans une personnelle confortable à bas prix et à n'importe qu'elle moment",
+      body: "Le covoiturage simplifie vos trajets. Voyagez de ville en ville dans un véhicule personnelle confortable à bas prix et à tout moment.",
       titleGradient: gradient[3]),
   PageModel(
       imageUrl: "images/publi.png",
       title: "PUBLICITES",
-      body: "Touchez une large audience de par votre publicité",
+      body: "Une présence, qui devient une visibilité pour les marchands et les entreprises.",
       titleGradient: gradient[4]),
   PageModel(
       imageUrl: "images/choice.png",
@@ -503,6 +503,14 @@ class Style {
       fontFamily: "Montserrat-Light",
       color: color,
       letterSpacing: 1.1,
+    );
+  }
+  static TextStyle skipedMessage([double size = 17.0, Color color = colorSecondary]) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "Montserrat-Black",
+      color: color,
+      decoration: TextDecoration.underline
     );
   }
 

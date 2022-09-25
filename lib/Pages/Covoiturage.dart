@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/Pages/create_travel.dart';
 import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -147,8 +148,10 @@ class _CovoiturageState extends State<Covoiturage> {
           showDialog(
               context: context,
               builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions sur ce compte', "Nous doutons de votre identité donc nous allons vous déconnecter.\nVeuillez vous reconnecter si vous êtes le vrai detenteur du compte", context),
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
               barrierDismissible: false);
+            Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => Login()));
         }
       }
     } on SocketException catch (_) {
