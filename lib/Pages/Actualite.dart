@@ -98,7 +98,7 @@ class _ActualiteState extends State<Actualite> {
                   builder: (BuildContext context) =>
                       dialogCustomForValidatePermissionNotification(
                           'Permission de Localisation importante',
-                          "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                           "D'accord",
                               () async => await location.requestPermission(),
                           context),
@@ -161,7 +161,7 @@ class _ActualiteState extends State<Actualite> {
                 builder: (BuildContext context) =>
                     dialogCustomForValidatePermissionNotification(
                         'Permission de Localisation importante',
-                        "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                        "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                         "D'accord",
                             () async => await location.requestPermission(),
                         context),

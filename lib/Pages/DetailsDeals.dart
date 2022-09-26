@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PageIndicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
@@ -50,8 +51,20 @@ class _DetailsDealsState extends State<DetailsDeals> {
       });
       _controller.addListener(checkVideo);
     }
-
     getUser();
+    verifyIfUserHaveReadModalExplain();
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readViewDetailDealsAndDiscutModalExplain') ?? false;
+    if(!asRead && !isMe) {
+      await modalForExplain("images/discussionInAppDeal.png", "1/4 - Si vous voulez acheter cet article vous pouvez discutez avec le vendeur directement dans l'application.\nVous pouvez négocier le prix avec lui afin d'obtenir une diminution et/ou de vous assurer de la qualité de l'article avant achat.", context);
+      await modalForExplain("images/accordPayDirect.png", "2/4 - SHOUZPAY: Tout achat d'article se fait directement dans l'application en rechargeant son compte SHOUZ par mobile money, crypto-monnaie ou carte bancaire.", context);
+      await modalForExplain("images/guardMoney.png", "3/4 - Attention: Ne vous laissez pas anarquer si le vendeur vous propose d'aller discuter sur une autre application ou de faire un paiement ailleurs.\nNous assurons toutes les garanties de votre sécurité quand vous restez sur SHOUZ pour toutes vos actions.", context);
+      await modalForExplain("images/guardMoney.png", "4/4 - Vous pouvez acheter en toute sécurité à partir de votre compte SHOUZPAY, nous vous livrerons l'article et en cas d'insatisfication nous vous remboursons votre argent, c'est ça la garantie avec SHOUZ.", context);
+      await prefs.setBool('readViewDetailDealsAndDiscutModalExplain', true);
+    }
   }
 
 

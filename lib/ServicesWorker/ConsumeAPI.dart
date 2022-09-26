@@ -694,9 +694,7 @@ class ConsumeAPI {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
-      'credentials': newClient.recovery,
       'code': code,
-
     };
 
     return _netUtil.post(VERIFY_OTP_URL, body: body).then((dynamic res) async {
@@ -708,18 +706,14 @@ class ConsumeAPI {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
-      'credentials': newClient.recovery,
-
     };
 
     return _netUtil.post(RESEND_RECOVERY_URL, body: body).then((dynamic res) async {
-      if (res["etat"] == "found") {
-        return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
-      } else {
+      if (res["etat"] != "found") {
         await DBProvider.db.delClient();
         setLevel(1);
-        return {'etat': res["etat"]};
       }
+      return {'etat': res["etat"]};
     });
   }
 

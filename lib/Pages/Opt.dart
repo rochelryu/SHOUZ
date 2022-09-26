@@ -168,8 +168,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         _startCountdown();
         final user = await consumeAPI.resendRecovery();
         if (user['etat'] == 'found') {
-          await DBProvider.db.delClient();
-          await DBProvider.db.newClient(user['user']);
           Fluttertoast.showToast(
               msg: "Code renvoyé veuillez verifier",
               toastLength: Toast.LENGTH_LONG,
@@ -179,7 +177,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
               textColor: Colors.white,
               fontSize: 16.0
           );
-
         } else {
           showDialog(
               context: context,
@@ -294,8 +291,9 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                             loadRequest = false;
                           });
                           if (verify['etat'] == 'found') {
-                            if (newClient!.name == '' ||
-                                newClient!.inscriptionIsDone == 0) {
+                            await DBProvider.db.updateClient(beta.join(""), newClient!.ident);
+                            if (newClient?.name == '' ||
+                                newClient?.inscriptionIsDone == 0) {
                               setLevel(3);
                               Navigator.push(
                                   context, ScaleRoute(widget: CreateProfil()));

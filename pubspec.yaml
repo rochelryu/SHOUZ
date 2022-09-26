@@ -64,7 +64,6 @@ dependencies:
   record: ^4.4.0
   firebase_messaging: ^13.0.1
   firebase_core: ^1.22.0
-  onesignal_flutter: ^3.4.1
   huawei_push: ^6.5.0+300
   animated_text_kit: ^4.2.2
   video_compress: ^3.1.1

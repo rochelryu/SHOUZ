@@ -427,6 +427,7 @@ OutlineInputBorder outlineInputBorder() {
     borderSide: BorderSide(color: colorText),
   );
 }
+
 Widget dialogCustomError(String title, String message, BuildContext context) {
   bool isIos = Platform.isIOS;
   return isIos

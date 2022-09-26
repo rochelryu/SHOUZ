@@ -118,19 +118,19 @@ var pageExplicationEventList = [
       body: "1- Cette rubrique existe pour tous ceux qui veulent organiser des événements et pouvoir vendre leurs tickets directement dans SHOUZ.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par une ou plusieurs personnes à qui vous aurez donné la permission (des vigils ou autres agents de sécurité).\nVotre décodeur doit avoir un compte SHOUZ car c'est avec son compte sous la rubrique décodage de ticket qu'il pourra décoder vos tickets."),
   PageExplicationModel(
       imageUrl: "images/allInOneExplainEvent.jpeg",
-      body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'on nombre maximal de ticket)."),
+      body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'au nombre maximal de ticket)."),
   PageExplicationModel(
       imageUrl: "images/ConsultingEvent.svg",
-      body: "3- Les clients qui achètent les tickets sont tout comme vous nos priorités donc nous travaillons afin d'améliorer leur cadre et possibilités d'actions dans SHOUZ.\nPar exemple un client qui achète un ticket de plusieurs places peut partager des places à d'autres membres dans l'application ce qui fera qu'eux aussi auront des tickets du nombre de places qui leur seront allouées.\nCeci est la fonctionnalité de partage de ticket qui est utilisé en cas d'indisponibilité ou de retard de celui qui a acheté les tickets. Et sert également à faciliter l'achat de tickets par des mentors afin de les distribuer aux membres intéressés."),
+      body: "3- Les clients qui achètent les tickets sont tout comme vous nos priorités donc nous travaillons afin d'améliorer leur cadre et possibilités d'actions dans SHOUZ.\nPar exemple un client qui achète un ticket de plusieurs places peut partager des places à d'autres membres dans l'application ce qui fera qu'eux aussi auront des tickets du nombre de places qui leur seront allouées.\nCeci est la fonctionnalité de partage de ticket qui est utilisé en cas d'indisponibilité ou de retard de celui qui a acheté les tickets et sert également à faciliter l'achat de tickets par des mentors afin de les distribuer aux membres intéressés."),
   PageExplicationModel(
       imageUrl: "images/cashIn.svg",
-      body: "4- Les clients qui achètent les tickets peuvent annuler l'achat de leur ticket s'ils trouvent qu'ils ne seront plus disponibles pour participer à l'événement, ainsi il récupère 90% du montant du ticket acheté, 5% vont dans les caisses de SHOUZ et les autres 5% vont sur le solde cumule du créateur de l'événement ainsi que le ticket qui redevient à nouveau disponible pour achat.\nMais l'annulation de ticket peut se faire si l'acheteur est pris un ticket d'aux plus 2 places et durant un temps, si on arrive à 24h avant le début de l'événement, aucun ticket ne peut être annulé."),
+      body: "4- Les clients qui achètent les tickets peuvent annuler l'achat de leur ticket s'ils trouvent qu'ils ne seront plus disponibles pour participer à l'événement, ainsi ils récupèrent 90% du montant du ticket acheté, les autres 10% vont sur le solde cumule du créateur de l'événement ainsi que le ticket qui redevient à nouveau disponible pour achat.\nMais l'annulation de ticket peut se faire si l'acheteur est pris un ticket d'au plus 2 places et durant un temps, si on arrive à 24h avant le début de l'événement, aucun ticket ne peut être annulé."),
   PageExplicationModel(
       imageUrl: "images/CancelledEvent.svg",
-      body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est reposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
+      body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est déposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
   PageExplicationModel(
       imageUrl: "images/notification.svg",
-      body: "6 - Nous notifions le créateur de l'événement lorsqu'un ticket est acheté, le nombre de tickets encore disponibles, s'il y a un ticket qui a été déjà décoder et qui essaye d'être décodé une nouvelle fois pour une tentative de fraude.\nNous assurons au créateur de l'événement une totale sécurité concernant l'achat et le décodage de ticket pour ses événements et nous assurons aussi une large communauté intéressée.\nNous tenons à rappeler que les événements ne sont visibles que chez ceux qui sont intéressés par la même catégorie qu'à l'événement."),
+      body: "6 - Nous notifions le créateur de l'événement lorsqu'un ticket est acheté, affichhons toutes les statistiques de l'évènement.\nNous assurons au créateur de l'événement une totale sécurité concernant l'achat, la gestion et le décodage de ticket pour ses événements et nous assurons aussi une large communauté intéressée.\nNous tenons à rappeler que les événements ne sont visibles que chez ceux qui sont intéressés par la même catégorie qu'à l'événement."),
 ];
 
 var pageExplicationTravelList = [
@@ -1079,7 +1079,7 @@ Future<Null> modalForExplain(String assetLink, String text, BuildContext context
             SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Text(text, style: Style.simpleTextOnBoardWithBolder(13.0), textAlign: TextAlign.center,),
+                child: Text(text, style: Style.simpleTextOnBoardWithBolder(13.0)),
               ),
               SizedBox(height: 20),
               Padding(

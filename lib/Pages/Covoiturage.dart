@@ -97,7 +97,10 @@ class _CovoiturageState extends State<Covoiturage> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readTravelModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/travelModal.png", "1 - Passager: Voyage à tout moment de ville en ville dans une voiture personnel en toute sécurité et avec un prix plus bas.\n2 - Conducteur: Tu es propriétaire d’un véhicule, tu veux voyager mais pas seul ? Avec SHOUZ COVOITURAGE gagne de l’argent en vendant des places de voyage.\nTout nos clients passagers ou conducteurs passent d'abord le test de verification d'identité avant de pouvoir acheter des tickets de voyages ou de créer un voyage.\nLa sécurité de nos clients avant tout.", context);
+      await modalForExplain("images/travelModal.png", "1/4 - Passager: Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans une vehicule personnel ou commercial en toute sécurité et avec un prix plus bas.\nTout nos clients passagers passent d'abord le teste de verification d'identité avant de pouvoir acheter des tickets de voyages.", context);
+      await modalForExplain("images/travelModal.png", "2/4 - Conducteur: Tu es propriétaire d’un véhicule personnel, tu veux voyager ou aller au travail mais pas seul ? Avec SHOUZ gagne de l’argent en vendant des places libre de ton véhicule à ton prix.\nTout nos conducteurs de vehicule personnel passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
+      await modalForExplain("images/travelModal.png", "3/4 - Chauffeur: Tu es conduit un véhicule commercial comme activité ? Nous te donnons des clients qui veulent se deplacer dans la ville à notre prix.\nTout nos conducteurs de vehicule commercial passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
+      await modalForExplain("images/travelModal.png", "4/4 - Service Indisponible: ce service (SHOUZ COVOITURAGE & VTC) sortira bientôt.", context);
       await prefs.setBool('readTravelModalExplain', true);
     }
   }
@@ -228,7 +231,7 @@ class _CovoiturageState extends State<Covoiturage> {
                   builder: (BuildContext context) =>
                       dialogCustomForValidatePermissionNotification(
                           'Permission de Localisation importante',
-                          "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                           "D'accord",
                               () async => await location.requestPermission(),
                           context),
@@ -401,7 +404,7 @@ class _CovoiturageState extends State<Covoiturage> {
                 builder: (BuildContext context) =>
                     dialogCustomForValidatePermissionNotification(
                         'Permission de Localisation importante',
-                        "Shouz a besoin d'avoir cette permission pour vous presenter des covoiturages dans votre localité mais aussi pour la bonne conversion de votre monnaie locale",
+                        "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                         "D'accord",
                             () async => await location.requestPermission(),
                         context),

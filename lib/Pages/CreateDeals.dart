@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
@@ -17,6 +18,7 @@ import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import 'package:video_player/video_player.dart';
 
+import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
@@ -70,6 +72,7 @@ class _CreateDealsState extends State<CreateDeals> {
     // TODO: implement initState
     super.initState();
     loadCategorie();
+    verifyIfUserHaveReadModalExplain();
   }
 
   loadCategorie() async {
@@ -82,6 +85,18 @@ class _CreateDealsState extends State<CreateDeals> {
       user = newClient;
       numero = newClient.numero;
     });
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/createShop.png", "1/4 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
+      await modalForExplain("images/createShop.png", "2/4 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
+      await modalForExplain("images/createShop.png", "3/4 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
+      await modalForExplain("images/createShop.png", "4/4 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
+      await prefs.setBool('readCreateDealsModalExplain', true);
+    }
   }
 
   @override
@@ -103,6 +118,13 @@ class _CreateDealsState extends State<CreateDeals> {
             .map((image) => base64Encode(image.readAsBytesSync()))
             .toList();
       });
+      if(files.length == 1) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Vous avez sélectionnez une seule image', "Une image c'est pas mal mais vous pouvez envoyer plus d'image pour que les clients puissent mieux voir votre article.\nVous pouvez ajouter les images d'article similaire par exemple.", context),
+            barrierDismissible: false);
+      }
     }
   }
 
@@ -339,7 +361,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                         color: _isQuantity
                                             ? colorText
                                             : Colors.grey),
-                                    hintText: "Quantité",
+                                    hintText: "Qte en Stock",
                                     hintStyle: TextStyle(
                                       color: Colors.white,
                                     )),
@@ -778,6 +800,9 @@ class _CreateDealsState extends State<CreateDeals> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(onPressed: (){
+          Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+        }, icon: Icon(Icons.arrow_back)),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -882,15 +907,11 @@ class _CreateDealsState extends State<CreateDeals> {
         base64Video = "";
         nameProductCtrl.clear();
         describeCtrl.clear();
-        positionCtrl.clear();
         priceCtrl.clear();
         quantityCtrl.clear();
-        numeroCtrl.clear();
         nameProduct = "";
         describe = "";
-        position = "";
         price = "";
-        numero = "";
         await askedToLead(
             "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
             true, context);

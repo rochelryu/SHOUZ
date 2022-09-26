@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'Constant/helper.dart';
@@ -223,53 +222,6 @@ class _MyHomePageState extends State<MyHomePage> {
     FirebaseMessaging.onMessage.listen((message) {
       firebaseMessagingInOpenHandler(message);
     });
-  }
-
-  void configOneSignal() async {
-    if(Platform.isAndroid){
-
-      if(await isHms()) {
-        OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
-        OneSignal.shared.setAppId(oneSignalAppId);
-        OneSignal.shared
-            .promptUserForPushNotificationPermission()
-            .then((accepted) {
-        });
-        User user = await DBProvider.db.getClient();
-        setState(() {
-          client = user;
-        });
-        if(user.numero != "null") {
-          OneSignal.shared.setExternalUserId(user.ident);
-        }
-
-        OneSignal.shared.setNotificationWillShowInForegroundHandler((OSNotificationReceivedEvent event) {
-          // Will be called whenever a notification is received in foreground
-          // Display Notification, pass null param for not displaying the notification
-          event.complete(event.notification);
-        });
-
-        OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-          // Will be called whenever a notification is opened/button pressed.
-        });
-
-        OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
-          // Will be called whenever the permission changes
-          // (ie. user taps Allow on the permission prompt in iOS)
-        });
-
-        OneSignal.shared.setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-          // Will be called whenever the subscription changes
-          // (ie. user gets registered with OneSignal and gets a user ID)
-        });
-
-        OneSignal.shared.setEmailSubscriptionObserver((OSEmailSubscriptionStateChanges emailChanges) {
-          // Will be called whenever then user's email subscription changes
-          // (ie. OneSignal.setEmail(email) is called and the user gets registered
-        });
-      }
-    }
-
   }
 
 

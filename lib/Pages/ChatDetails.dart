@@ -90,6 +90,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     _tabController = TabController(length: 2, vsync: this);
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
+    verifyIfUserHaveReadModalExplain();
   }
 
   @override
@@ -144,6 +145,30 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
   inWrite(bool etat, String id, String identUser) async {
     appState.setTyping(etat, id, identUser);
+  }
+
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if(room.split('_')[0] == widget.newClient.ident) {
+      final bool asRead = prefs.getBool('readViewFirstDealsForSellerModalExplain') ?? false;
+      if(!asRead) {
+        await modalForExplain("images/discussionInAppDeal.png", "1/4 - Shouz est votre boutique, discuttez avec le client, vous pouvez lui envoyer d'autres images de cet article et uniquement de cet article.", context);
+        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <+> qui est à coté du nom du client pour faire une offre.", context);
+        await modalForExplain("images/guardMoney.png", "3/4 - Attention: Nous n'acceptons pas que vous donnez votre contact à l'acheteur pour une conversation ailleurs ou que vous lui demandez de vous faire une quelconque transaction ailleurs.", context);
+        await modalForExplain("images/guardMoney.png", "4/4 - Si votre stock est epuisé, veuillez le notifier au client et marquer sur la fiche de votre article qu'il est épuisé.\nSi votre article n'est pas encore disponible ou qu'il doit être importé, veuillez le notifier au client et lui dire quand cela pourra être disponible avant de lui faire une offre de prix.", context);
+        await prefs.setBool('readViewFirstDealsForSellerModalExplain', true);
+      }
+    } else {
+      final bool asRead = prefs.getBool('readViewFirstDealsForBuyerModalExplain') ?? false;
+      if(!asRead) {
+        await modalForExplain("images/discussionInAppDeal.png", "1/4 - Shouz est votre assurance garantie, discuttez avec le vendeur, vous pouvez lui demander d'autres images de cet article et de vous donner plus d'informations sur l'article pour vous assurer du type de qualité.", context);
+        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <+> qui est à coté du nom du vender pour voir l'offre.", context);
+        await modalForExplain("images/guardMoney.png", "3/4 - Attention: N'acceptez pas que le vendeur vous donne son contact pour une conversation ailleurs ou qu'il vous demande de faire une transaction ailleurs. Tant que vous restez ici vous bénéficiez des garanties.", context);
+        await modalForExplain("images/discussionInAppDeal.png", "4/4 - Il y a certains vendeurs qui ont des articles en cours d'importation, donc veuillez leur demander si l'article est disponible actuelement ou il prendra combien de temps avant d'arriver chez eux.", context);
+        await prefs.setBool('readViewFirstDealsForBuyerModalExplain', true);
+      }
+    }
   }
 
   List<Widget> reformateView(conversation) {
@@ -579,7 +604,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
         }, icon: Icon(Icons.arrow_back)),
         actions: [
           IconButton(
-            icon: Icon(Icons.book_outlined),
+            icon: Icon(Icons.add),
             onPressed: () {
               scaffoldKey.currentState?.openEndDrawer();
             },
@@ -902,11 +927,11 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     indicatorColor: colorText,
                     tabs: [
                       Tab(
-                        text: (room.split('_')[0] == widget.newClient.ident) ? 'Moi ':'Vendeur',
+                        text: (room.split('_')[0] == widget.newClient.ident) ? 'Mon offre':'Vendeur',
                       ),
                       Tab(
                         //icon: const Icon(Icons.shopping_cart),
-                        text: (room.split('_')[1] == widget.newClient.ident) ? 'Moi': 'Acheteur',
+                        text: (room.split('_')[1] == widget.newClient.ident) ? 'Ma réponse': 'Acheteur',
                       ),
 
                     ],
