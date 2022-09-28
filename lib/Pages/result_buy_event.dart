@@ -131,7 +131,7 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Text(
-                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets.\n🥳Aussi avec SHOUZ vous avez les possibilitées suivantes:\n    - Partager des tickets à d'autres utilisateurs SHOUZ afin qu'ils accèdent à l'evenement avant ou après vous. (Par Exemple si vous êtes indisponible)\n    - Vous pouvez annuler l'achat et recuperer votre argent si vous trouvez que vous ne pouvez plus participer à l'évènement. (Mais vous devez le faire avant le debut de l'evenement).\n Pour voir vos tickets allez dans l'onglet Profil puis Évènements et cliquez sur l'évènement concerné" ,
+                      "Vous n'avez qu'à presenter cette image lors de la verification des tickets.\n🥳Aussi avec SHOUZ vous avez la possibilité de partager vos tickets à des amis ou de demander un remboursement si finalement vous êtes indisponible.\nPour voir vos tickets allez dans l'onglet Profil puis Évènements et cliquez sur l'évènement concerné" ,
                       style: Style.menuStyleItem(12),
                       textAlign: TextAlign.start,
                     ),

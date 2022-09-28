@@ -8,6 +8,7 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/Utils/Database.dart';
 
+import '../Constant/helper.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 
 class CheckoutRetrait extends StatefulWidget {
@@ -101,9 +102,12 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                                 Container(
                                   height: 40,
                                   width: 40,
-                                  child: SvgPicture.asset(
-                                    "images/bitcoin.svg",
-                                    semanticsLabel: 'Retrait Bitcoin',
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/bitcoin.png"),
+                                        fit: BoxFit.cover,
+                                      )
                                   ),
                                 )
 
@@ -139,11 +143,14 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                                 ),
                                 Text("Ethereum", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: SvgPicture.asset(
-                                    "images/ethereum.svg",
-                                    semanticsLabel: 'Retrait Ethereum',
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/eth.png"),
+                                        fit: BoxFit.cover,
+                                      )
                                   ),
                                 )
 
@@ -181,7 +188,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Text("1. Entré le montant que vous voulez retirer", style: Style.sousTitre(11)),
+              Text("1. Entrez le montant que vous voulez retirer", style: Style.sousTitre(11)),
               SizedBox(height: 15),
               Container(
                 height: 45,
@@ -208,7 +215,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                 ),
               ),
               SizedBox(height: 15),
-              Text("2. Entré votre adresse Bitcoin dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
+              Text("2. Entrez votre adresse Bitcoin dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
               SizedBox(height: 15),
               Row(
                 children: <Widget>[
@@ -244,7 +251,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                     child: Icon(Icons.check,color: Colors.white),
                     onPressed: () async {
                       if(txHashBtc.trim().length > 30) {
-                        if(int.parse(amount) > 1000 && int.parse(amount) % 100 == 0 && double.parse(amount) <= newClient!.wallet) {
+                        if(int.parse(amount) > minAmountOfTransaction && int.parse(amount) % 100 == 0 && double.parse(amount) <= newClient!.wallet) {
                           setState(() {
                             loadingFetchButton = true;
                           });
@@ -290,7 +297,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                         );
                       }
                     },
-                  ) : Expanded(child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),),
+                  ) : SizedBox(width:50, height: 50,child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.orange], strokeWidth: 2),),
                 ],
               ),
             ],
@@ -303,7 +310,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Text("1. Entré le montant que vous voulez retirer votre solde actuel est ${newClient == null ? '':newClient!.wallet.toString()}", style: Style.sousTitre(11)),
+              Text("1. Entrez le montant que vous voulez retirer", style: Style.sousTitre(11)),
               SizedBox(height: 15),
               Container(
                 height: 45,
@@ -330,7 +337,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                 ),
               ),
               SizedBox(height: 15),
-              Text("2. Entré votre adresse Ethereum dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
+              Text("2. Entrez votre adresse Ethereum dans le champ ci-dessous 👇", style: Style.sousTitre(11)),
               SizedBox(height: 15),
               Row(
                 children: <Widget>[
@@ -366,14 +373,13 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                     child: Icon(Icons.check,color: Colors.white),
                     onPressed: () async {
                       if(txHashEth.trim().length > 30) {
-                        if(int.parse(amount) > 1000 && int.parse(amount) % 100 == 0  && double.parse(amount) <= newClient!.wallet) {
+                        if(int.parse(amount) > minAmountOfTransaction && int.parse(amount) % 100 == 0  && double.parse(amount) <= newClient!.wallet) {
                           setState(() {
                             loadingFetchButton = true;
                           });
                           final demandeRetrait = await consumeAPI.demandeRetrait('ethereum', txHashEth.trim(), amount.trim());
                           if(demandeRetrait['etat'] == 'found') {
                             final titleAlert = "Super! votre demande est en cours de traitement";
-
                             await askedToLead(titleAlert, true, context);
                           } else if( demandeRetrait['etat'] == "badLevel") {
                             final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
@@ -413,7 +419,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                         );
                       }
                     },
-                  ) : Expanded(child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),),
+                  ) : SizedBox(width:50, height: 50,child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),),
                 ],
               ),
             ],

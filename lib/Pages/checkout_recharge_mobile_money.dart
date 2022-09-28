@@ -146,9 +146,15 @@ class _CheckoutRechargeMobileMoneyState
                                 ),
                                 Text("Orange Money", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/om.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -183,9 +189,15 @@ class _CheckoutRechargeMobileMoneyState
                                 ),
                                 Text("MoMo", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/momo.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/momo.jpeg"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -220,9 +232,15 @@ class _CheckoutRechargeMobileMoneyState
                                 ),
                                 Text("Moov", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/moov.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/moov.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -259,7 +277,13 @@ class _CheckoutRechargeMobileMoneyState
                                 Container(
                                   height: 40,
                                   width: 40,
-                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/wave.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -303,13 +327,11 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(mtnNumero.trim().length == 10 && _controller.text.length > 3) {
-                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
-                        setState(() {
-                          indexStepper += 1;
-                        });
-                      } else {
+                      bool isValid = true;
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
+                        isValid = false;
                         Fluttertoast.showToast(
-                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            msg: "Le montant maximum qu'un compte SHOUZPAY peut accumuler en 30 jours est $maxAmountOnAccount",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.CENTER,
                             timeInSecForIosWeb: 5,
@@ -318,7 +340,23 @@ class _CheckoutRechargeMobileMoneyState
                             fontSize: 16.0
                         );
                       }
-
+                      if(double.parse(_controllerForReceive.text) > maxAmountOfTransaction) {
+                        isValid = false;
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum pour une transaction SHOUZPAY est $maxAmountOfTransaction",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+                      if(isValid) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
+                      }
                     } else {
                       Fluttertoast.showToast(
                           msg: 'Numero Mtn incorrect ou le montant est insufisant',
@@ -541,12 +579,39 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(_controller.text.length > 3) {
-                      setState(() {
-                        indexStepper += 1;
-                      });
+                      bool isValid = true;
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
+                        isValid = false;
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum qu'un compte SHOUZPAY peut accumuler en 30 jours est $maxAmountOnAccount",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+                      if(double.parse(_controllerForReceive.text) > maxAmountOfTransaction) {
+                        isValid = false;
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum pour une transaction SHOUZPAY est $maxAmountOfTransaction",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+                      if(isValid) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
+                      }
                     } else {
                       Fluttertoast.showToast(
-                          msg: 'Le montant est insufisant',
+                          msg: 'Le montant minimum de rechargement est $minAmountOfTransaction',
                           toastLength: Toast.LENGTH_LONG,
                           gravity: ToastGravity.CENTER,
                           timeInSecForIosWeb: 5,
@@ -781,13 +846,11 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(orangeNumero.trim().length == 10 && _controller.text.length > 3) {
-                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
-                        setState(() {
-                          indexStepper += 1;
-                        });
-                      } else {
+                      bool isValid = true;
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
+                        isValid = false;
                         Fluttertoast.showToast(
-                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            msg: "Le montant maximum qu'un compte SHOUZPAY peut accumuler en 30 jours est $maxAmountOnAccount",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.CENTER,
                             timeInSecForIosWeb: 5,
@@ -795,6 +858,23 @@ class _CheckoutRechargeMobileMoneyState
                             textColor: Colors.white,
                             fontSize: 16.0
                         );
+                      }
+                      if(double.parse(_controllerForReceive.text) > maxAmountOfTransaction) {
+                        isValid = false;
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum pour une transaction SHOUZPAY est $maxAmountOfTransaction",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+                      if(isValid) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
                       }
                     } else {
                       Fluttertoast.showToast(
@@ -1060,13 +1140,11 @@ class _CheckoutRechargeMobileMoneyState
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
                     if(moovNumero.trim().length == 10 && _controller.text.length > 3) {
-                      if(double.parse(_controllerForReceive.text) + newClient!.wallet <= maxAmountOnAccount) {
-                        setState(() {
-                          indexStepper += 1;
-                        });
-                      } else {
+                      bool isValid = true;
+                      if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
+                        isValid = false;
                         Fluttertoast.showToast(
-                            msg: "Le montant maximum qu'un compte peut avoir est $maxAmountOnAccount",
+                            msg: "Le montant maximum qu'un compte SHOUZPAY peut accumuler en 30 jours est $maxAmountOnAccount",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.CENTER,
                             timeInSecForIosWeb: 5,
@@ -1074,6 +1152,23 @@ class _CheckoutRechargeMobileMoneyState
                             textColor: Colors.white,
                             fontSize: 16.0
                         );
+                      }
+                      if(double.parse(_controllerForReceive.text) > maxAmountOfTransaction) {
+                        isValid = false;
+                        Fluttertoast.showToast(
+                            msg: "Le montant maximum pour une transaction SHOUZPAY est $maxAmountOfTransaction",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 5,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
+                      }
+                      if(isValid) {
+                        setState(() {
+                          indexStepper += 1;
+                        });
                       }
                     } else {
                       Fluttertoast.showToast(

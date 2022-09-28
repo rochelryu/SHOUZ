@@ -87,55 +87,51 @@ class CardTopNewActu {
                   overflow: TextOverflow.ellipsis,
                   style: prefix0.Style.itemCustomFont()),
               SizedBox(height: 5.0),
-              Container(
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          CircleAvatar(
-                              child: ClipOval(
-                                  child: Image(
-                            width: 65,
-                            height: 65,
-                            image: NetworkImage(this.authorProfil),
-                            fit: BoxFit.cover,
-                          ))),
-                          SizedBox(width: 5.0),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.37,
-                            child: Text(
-                              this.authorName,
-                              style: prefix0.Style.titleInSegment(),
-                            ),
+              Row(
+                children: <Widget>[
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CircleAvatar(
+                            child: ClipOval(
+                                child: Image(
+                          width: 65,
+                          height: 65,
+                          image: NetworkImage(this.authorProfil),
+                          fit: BoxFit.cover,
+                        ))),
+                        SizedBox(width: 5.0),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.37,
+                          child: Text(
+                            this.authorName,
+                            style: prefix0.Style.titleInSegment(),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
 
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          Icon(
-                            Icons.alarm,
-                            color: Colors.white,
-                            size: 15.0,
-                          ),
-                          SizedBox(width: 2.0),
-                          Text(
-                            afficheDate,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          SizedBox(width: 2.0),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Icon(
+                          Icons.alarm,
+                          color: Colors.white,
+                          size: 15.0,
+                        ),
+                        SizedBox(width: 2.0),
+                        Text(
+                          afficheDate,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        SizedBox(width: 2.0),
+                      ],
+                    ),
+                  )
+                ],
               )
             ],
           ),

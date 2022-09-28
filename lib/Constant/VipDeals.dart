@@ -60,7 +60,7 @@ class _VipDealsState extends State<VipDeals> {
                     DateTime(register.year, register.month, register.day))
                 .inDays <
             1)
-        ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"
+        ? "Auj. à ${register.hour.toString()}h ${register.minute.toString()}"
         : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
     afficheDate = (DateTime.now()
                 .difference(

@@ -320,7 +320,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://www.shouz.network/"));
+                await launchUrl(Uri.parse("https://www.shouz.network/"), mode: LaunchMode.externalApplication);
               },
               leading:
                   Icon(Icons.help_outline, color: colorText, size: 33),
@@ -343,7 +343,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://www.shouz.network/"));
+                await launchUrl(Uri.parse("https://www.shouz.network/"), mode: LaunchMode.externalApplication);
               },
               leading: Icon(Icons.bookmark, color: colorText, size: 33),
               title: Text("A propos", style: Style.titre(14)),
@@ -354,7 +354,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://t.me/+wQ-tSmeUX6Q0ODg8"));
+                await launchUrl(Uri.parse("https://t.me/+wQ-tSmeUX6Q0ODg8"), mode: LaunchMode.externalApplication);
               },
               leading: Icon(Icons.support_agent, color: colorText, size: 33),
               title: Text("Communauté & Support", style: Style.titre(14)),

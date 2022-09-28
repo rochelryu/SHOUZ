@@ -620,10 +620,10 @@ Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitl
   );
 }
 
-Widget isErrorSubscribe(BuildContext context) {
+Widget isErrorSubscribe(BuildContext context, [double height = 0]) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 15.0),
-    height: MediaQuery.of(context).size.height,
+    height: height == 0 ? MediaQuery.of(context).size.height : height,
     width: MediaQuery.of(context).size.width,
     child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -631,7 +631,7 @@ Widget isErrorSubscribe(BuildContext context) {
           SvgPicture.asset(
             "images/notconnection.svg",
             semanticsLabel: 'Not Connection',
-            height: MediaQuery.of(context).size.height * 0.39,
+            height: height == 0 ? MediaQuery.of(context).size.height * 0.39 : height * 0.5,
           ),
           Text(
               "Un problème de connexion ! Veuillez verifier que vous disposez d'internet",

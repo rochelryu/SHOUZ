@@ -28,6 +28,7 @@ class ConsumeAPI {
   static final ADD_COMMENT_ON_ACTUALITY_URL = BASE_URL + "/client/addComment";
   static final GET_PROFIL_URL = BASE_URL + "/client/getProfil";
   static final VERIFY_URL = BASE_URL + "/client/verify";
+  static final GET_TRANSACTION_HISTORY_URL = BASE_URL + "/client/getTransactionHistory";
   static final UPDATE_PROFIL_PICTURE_URL = BASE_URL + "/client/changeProfil";
   static final UPDATE_BASIC_INFO_URL = BASE_URL + "/client/changeBasicInfo";
   static final GET_USER_BY_FILTER_URL = BASE_URL + "/client/getClientByNumber";
@@ -219,6 +220,17 @@ class ConsumeAPI {
     return res['info'];
   }
 
+  Future<Map<String, dynamic>> getTransactionHistory() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_TRANSACTION_HISTORY_URL/${newClient.ident}?credentials=${newClient.recovery}');
+    if(res['etat'] == "notFound") {
+      await DBProvider.db.delClient();
+      setLevel(1);
+    }
+    return res;
+  }
+
   Future<dynamic> verifyClientIsOnLine(String idClient) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
@@ -272,7 +284,7 @@ class ConsumeAPI {
     final body = {'id': newClient.ident, 'credentials': newClient.recovery, 'endpoint': endpoint, 'address': address,'amount': amount };
 
     return _netUtil.post(DEMANDERETRAIT_URL, body: body).then((dynamic res) async {
-      if (res['etat'] == 'found') {
+      if (res['etat'] == 'found' || res['etat'] == 'inWait') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
         await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
       }

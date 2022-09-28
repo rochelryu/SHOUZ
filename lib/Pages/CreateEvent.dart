@@ -121,7 +121,6 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   loadCategorie() async {
-    //final data = await consumeAPI.getAllCategrieWithoutFilter("event");
     final maxPlaceData = await consumeAPI.getMaxPlaceForCreateEvent();
     setState(() {
       //allCategorie = data;
@@ -131,7 +130,7 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   addTypeTicket() {
-    final controllerPrice = TextEditingController();
+    final controllerPrice = TextEditingController(text: maxPlace == 10 ? 'gratuit': '');
     final controllerQuantity = TextEditingController();
     final field = Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,6 +154,7 @@ class _CreateEventState extends State<CreateEvent> {
                   borderRadius: BorderRadius.circular(50.0)),
               child: TextField(
                 controller: controllerPrice,
+                enabled: maxPlace != 10,
                 style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w300),
@@ -170,6 +170,7 @@ class _CreateEventState extends State<CreateEvent> {
                     monVal = false;
                   });
                 },
+
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                     border: InputBorder.none,
@@ -516,7 +517,7 @@ class _CreateEventState extends State<CreateEvent> {
                       }
                     }),
               ),
-              Container(
+              if (maxPlace > 10) Container(
                 height: 155,
                 width: double.infinity,
                 padding: EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
@@ -683,11 +684,11 @@ class _CreateEventState extends State<CreateEvent> {
               Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                    "Si l'entrée est gratuite, écrivez gratuit à la place du prix",
+                    maxPlace > 10 ? "Si l'entrée est gratuite, écrivez gratuit à la place du prix" : "Vous ne pouvez que faire des entrées gratuites avec ce abonnement",
                     style: Style.sousTitre(13)),
               ),
               ..._listView(),
-              OutlinedButton(
+              if(maxPlace != 10) OutlinedButton(
                 style: outlineButtonStyle,
                   onPressed: addTypeTicket, child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -746,15 +747,15 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                 ),
               ),
-              allCategorie.length < 3 ? Padding(
+              if(allCategorie.length < (maxPlace != 10 ? 3: 1))Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  "Veuillez selectionner des categories pour votre évènement. (Max Categorie: 3)",
+                  "Veuillez selectionner des categories pour votre évènement. (Max Categorie: ${maxPlace != 10 ? '3': '1'})",
                   /*textAlign: TextAlign.justify,*/ style:
                 Style.sousTitre(13.0),
                 ),
-              ):SizedBox(width: 10),
-              allCategorie.length < 3 ? Padding(
+              ),
+              if(allCategorie.length < (maxPlace != 10 ? 3: 1))Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Card(
                     elevation: 10.0,
@@ -821,7 +822,7 @@ class _CreateEventState extends State<CreateEvent> {
                         },
                       ),
                     ),
-                  )):SizedBox(width: 10),
+                  )),
               Padding(
                   padding:
                   EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
@@ -926,20 +927,56 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   void _submit() async {
-    formKey.currentState;
-    setState(() => _isLoading = true);
-    
-    if (nameProduct.length > 5 &&
-        describe.length > 20 &&
-        allCategorie.length <= 3 &&
-        allCategorie.length > 0 &&
-        base64Image != '' &&
-        dateChoice != null &&
-        dateChoiceEnd != null &&
-        durrationEvent < 6  &&
-        position.length > 5 &&
-        _controllers.length > 0 &&
-        email.indexOf('@') > 4) {
+    bool ready = true;
+    if(nameProduct.length < 3) {
+      ready = false;
+
+      showSnackBar(context, "Le titre de l'évènement est trop court.");
+    }
+    if(describe.length < 17) {
+      ready = false;
+      showSnackBar(context, "Veuillez donner plus de détails dans le champs details de l'évènement.");
+    }
+    if(allCategorie.length == 0) {
+      ready = false;
+      showSnackBar(context, "Veuillez choisir au moins une categorie pour l'événement.");
+    }
+    if(allCategorie.length > 3) {
+      ready = false;
+      showSnackBar(context, "Vous ne pouvez que choisir au plus 3 categories pour l'événement.");
+    }
+    if(base64Image.length == 0) {
+      ready = false;
+      showSnackBar(context, "Veuillez sélectionner l'image de l'événement.");
+    }
+
+    if(dateChoice == null ) {
+      ready = false;
+      showSnackBar(context, "Veuillez choisir la date de debut de l'évènement");
+    }
+    if(dateChoiceEnd == null ) {
+      ready = false;
+      showSnackBar(context, "Veuillez choisir la date de fin de l'évènement");
+    }
+    if(durrationEvent >= 8 ) {
+      ready = false;
+      showSnackBar(context, "Votre évènement se deroulera sur ${durrationEvent.toString()} jours ? Verifiez les dates de debut et fin s'il vous plait.");
+    }
+    if(position.length < 6 ) {
+      ready = false;
+      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+    }
+    if(_controllers.length == 0 ) {
+      ready = false;
+      showSnackBar(context, "Faites entrer le prix et la quantité des types de ticket");
+    }
+    if(email.indexOf('@') <= 3) {
+      ready = false;
+      showSnackBar(context, "Faites entrer une adresse email valide.");
+    }
+
+    if (ready) {
+
       final array = _controllers
           .map((arrayItem) => "${arrayItem[0].text}:${arrayItem[1].text.length > 0 ? arrayItem[1].text:'0'}")
           .toList()
@@ -954,6 +991,7 @@ class _CreateEventState extends State<CreateEvent> {
         }
       }).toList();
       if(placeTotal <= maxPlace && isValidArrayForPrice.indexOf(false) == -1){
+        setState(() => _isLoading = true);
         String imageCover = post[0].path.split('/').last;
         String videoPub = (video != null) ? video!.path.split('/').last : "";
         final event = await consumeAPI.setEvent(
@@ -980,7 +1018,6 @@ class _CreateEventState extends State<CreateEvent> {
             allCategorie = [];
             post.clear();
             postVideo.clear();
-
             emailCtrl.clear();
             nameProductCtrl.clear();
             describeCtrl.clear();
@@ -1005,14 +1042,10 @@ class _CreateEventState extends State<CreateEvent> {
               false, context);
         }
       }else {
-        setState(() => _isLoading = false);
         await askedToLead(
             "Votre nombre maximum de ticket est de $maxPlace.\nSi un type de ticket est gratuit ecrivez juste gratuit à la place du prix du ticket",
             false, context);
       }
-    } else {
-      setState(() => _isLoading = false);
-      showSnackBar(context,"Remplissez correctement les champs avant d'envoyer (NB: Max Place ${maxPlace.toString()})");
     }
   }
 

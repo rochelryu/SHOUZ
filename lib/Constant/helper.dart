@@ -11,7 +11,9 @@ import 'Style.dart';
 import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 ConsumeAPI consumeAPI = new ConsumeAPI();
 
-const maxAmountOnAccount = 2000000;
+const maxAmountOnAccount = 10000000;
+const maxAmountOfTransaction = 1000000;
+const minAmountOfTransaction = 1000;
 
 void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -31,6 +33,12 @@ String reformatTimerForDisplayOnChrono(int time) {
   final minute = (time / 60).floor();
   final second = (time % 60);
   return "${minute.toString().length>1 ? minute.toString():'0${minute.toString()}' }:${second.toString().length>1 ? second.toString():'0${second.toString()}' }";
+}
+
+String reformatNumberForDisplayOnPrice(dynamic price) {
+  final numberFormated = NumberFormat("#,##0", 'fr_FR');
+
+  return numberFormated.format(price);
 }
 double defaultLatitude = 5.4143249;
 double defaultLongitude = -3.9770197;

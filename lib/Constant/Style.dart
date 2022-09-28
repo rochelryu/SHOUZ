@@ -524,6 +524,16 @@ class Style {
     );
   }
 
+  static dynamic simpleTextWithSizeAndColors([double size = 17.0, Color color = colorSecondary]) {
+    return TextStyle(
+      fontSize: size,
+      fontFamily: "Montserrat-Light",
+      color: color,
+      letterSpacing: 1.1,
+      fontWeight: FontWeight.w900,
+    );
+  }
+
   static dynamic simpleTextBlack() {
     return TextStyle(
       fontSize: 17.0,

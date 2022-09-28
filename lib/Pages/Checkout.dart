@@ -99,9 +99,12 @@ class _CheckoutState extends State<Checkout> {
                                   Container(
                                     height: 40,
                                     width: 40,
-                                    child: SvgPicture.asset(
-                                      "images/bitcoin.svg",
-                                      semanticsLabel: 'Recharge Bitcoin',
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(25),
+                                        image: DecorationImage(
+                                          image: AssetImage("images/bitcoin.png"),
+                                          fit: BoxFit.cover,
+                                        )
                                     ),
                                   )
 
@@ -137,11 +140,14 @@ class _CheckoutState extends State<Checkout> {
                                   ),
                                   Text("Ethereum", style: Style.titre(18)),
                                   Container(
-                                    height: 50,
-                                    width: 50,
-                                    child: SvgPicture.asset(
-                                      "images/ethereum.svg",
-                                      semanticsLabel: 'Recharge Ethereum',
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(25),
+                                        image: DecorationImage(
+                                          image: AssetImage("images/eth.png"),
+                                          fit: BoxFit.cover,
+                                        )
                                     ),
                                   )
 

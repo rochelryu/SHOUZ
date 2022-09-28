@@ -23,6 +23,7 @@ import 'package:shouz/Pages/travel_decode.dart';
 import 'package:shouz/Pages/update_info_basic.dart';
 
 import '../MenuDrawler.dart';
+import '../Pages/wallet_page.dart';
 
 final routes = {
   Login.rootName: (context) => Login(),
@@ -43,7 +44,8 @@ final routes = {
   Profil.rootName: (context) => Profil(),
   Notifications.rootName: (context) => Notifications(),
   CheckoutRechargeMobileMoney.rootName: (context) => CheckoutRechargeMobileMoney(key: UniqueKey(),),
-  CheckoutRetraitMobileMoney.rootName: (context) => CheckoutRetraitMobileMoney(key: UniqueKey(),),
+  CheckoutRetraitMobileMoney.rootName: (context) => CheckoutRetraitMobileMoney(key: UniqueKey()),
+  WalletPage.rootName: (context) => WalletPage(key: UniqueKey()),
   UpdateInfoBasic.rootName: (context) => UpdateInfoBasic(key: UniqueKey(),),
   CheckoutRetrait.rootName: (context) => CheckoutRetrait(),
   EventDecode.rootName: (context) => EventDecode(),

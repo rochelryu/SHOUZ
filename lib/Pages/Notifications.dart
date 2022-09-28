@@ -28,7 +28,7 @@ class Notifications extends StatefulWidget {
 
 class _NotificationsState extends State<Notifications>  with SingleTickerProviderStateMixin{
   late TabController _controller;
-  ConsumeAPI consumeAPI =new ConsumeAPI();
+  ConsumeAPI consumeAPI = new ConsumeAPI();
   int numberNotifDeals = 0, numberNotifEvent = 0, numberNotifCovoiturage = 0, numberNotifShouzPay = 0;
 
   late Future<Map<dynamic, dynamic>> notificationsFull;

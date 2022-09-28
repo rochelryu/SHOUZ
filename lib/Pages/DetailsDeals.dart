@@ -414,7 +414,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                               style: Style.priceOldDealsProductBiggest())
                         ],
                       ),
-                      if(widget.dealsDetailsSkeleton.level == 3) Container(
+                      /*if(widget.dealsDetailsSkeleton.level == 3) */Container(
                         child: TextButton(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,

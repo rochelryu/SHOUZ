@@ -37,7 +37,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
   @override
   Widget build(BuildContext context) {
     final register = DateTime.parse(widget.registerDate); //.toString();
-    String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays < 1) ?  "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : "${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
+    String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays < 1) ?  "Auj. à ${register.hour.toString()}h ${register.minute.toString()}"  : "${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
     afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Hier à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
     return Padding(padding: EdgeInsets.all(0.0),
       child: GestureDetector(

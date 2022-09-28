@@ -814,7 +814,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                               final register = DateTime.parse(ident['travelDate']); //.toString();
                                               String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays > - 1) ?  "Après demain à ${register.hour.toString()}h ${register.minute.toString()}"  : "Le ${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
                                               afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 0) ? "Demain à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
-                                              afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Aujourd'hui à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
+                                              afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Auj. à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
                                               return Padding(
                                                 padding: EdgeInsets.only(left: 20.0, top: 40.0,bottom: 10.0),
                                                 child: InkWell(

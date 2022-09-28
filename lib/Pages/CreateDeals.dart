@@ -273,7 +273,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 borderRadius: BorderRadius.circular(50.0)),
                             child: Container(
                               height: 50,
-                              width: MediaQuery.of(context).size.width * 0.5,
+                              width: MediaQuery.of(context).size.width * 0.42,
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               decoration: BoxDecoration(
                                   color: backgroundColorSec,
@@ -324,7 +324,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 borderRadius: BorderRadius.circular(50.0)),
                             child: Container(
                               height: 50,
-                              width: MediaQuery.of(context).size.width * 0.35,
+                              width: MediaQuery.of(context).size.width * 0.42,
                               padding: EdgeInsets.symmetric(horizontal: 0),
                               decoration: BoxDecoration(
                                   color: backgroundColorSec,

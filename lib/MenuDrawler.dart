@@ -19,7 +19,9 @@ import './Pages/Profil.dart';
 import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
+import 'Constant/my_flutter_app_second_icons.dart';
 import 'Pages/choice_other_hobie_second.dart';
+import 'Pages/wallet_page.dart';
 import 'Provider/AppState.dart';
 
 class MenuDrawler extends StatefulWidget {
@@ -151,9 +153,18 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     Navigator.of(context).push(
                         (MaterialPageRoute(builder: (context) => Profil())));
                   },
-                  leading: Icon(Icons.account_circle, color: Colors.white),
+                  leading: Icon(Icons.account_circle_outlined, color: Colors.white),
                   title:
                       Text("Profil", style: Style.menuStyleItem(16.0)),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.all(0.0),
+                  onTap: () {
+                    Navigator.pushNamed(context, WalletPage.rootName);
+                  },
+                  leading: Icon(MyFlutterAppSecond.credit_card, color: Colors.white),
+                  title: Text("Portefeuille",
+                      style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
@@ -161,26 +172,8 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     Navigator.of(context).push((MaterialPageRoute(
                         builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
                   },
-                  leading: Icon(Icons.favorite, color: Colors.white),
+                  leading: Icon(Icons.favorite_outline, color: Colors.white),
                   title: Text("Préférences",
-                      style: Style.menuStyleItem(16.0)),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.all(0.0),
-                  onTap: () async {
-
-                    Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => Notifications())));
-                  },
-                  leading: Badge(
-                    badgeColor: colorText,
-                    badgeContent: Text(
-                      numberNotif.toString(),
-                      style: TextStyle(color: Colors.white),),
-                    showBadge: numberNotif != 0,
-                    child: Icon(Icons.notifications, color: Colors.white),
-                  ),
-                  title: Text("Notifications",
                       style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
@@ -189,7 +182,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     Navigator.of(context).push((MaterialPageRoute(
                         builder: (context) => WidgetPage())));
                   },
-                  leading: Icon(Icons.widgets, color: Colors.white),
+                  leading: Icon(Icons.widgets_outlined, color: Colors.white),
                   title:
                       Text("Outils", style: Style.menuStyleItem(16.0)),
                 ),
@@ -199,7 +192,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     Navigator.of(context).push(
                         (MaterialPageRoute(builder: (context) => Setting())));
                   },
-                  leading: Icon(Icons.settings, color: Colors.white),
+                  leading: Icon(Icons.settings_outlined, color: Colors.white),
                   title: Text("Paramètres",
                       style: Style.menuStyleItem(16.0)),
                 ),
@@ -239,16 +232,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
             elevation: 0.0,
             backgroundColor: backgroundColor,
             leading: InkWell(
-              child: Badge(
-                  position: BadgePosition(top: 0, end: 0),
-                  badgeColor: colorText,
-                  badgeContent: Text(numberNotif.toString(),style: TextStyle(color: Colors.white),),
-                  showBadge: showBadge && numberNotif != 0,
-                  child: Icon(Style.menu, color: Colors.white)),
+              child: Icon(Style.menu, color: Colors.white),
               onTap: () {
                 FocusScope.of(context).requestFocus(FocusNode());
                 setState(() {
-                  showBadge = !showBadge;
                   if (isCollasped) {
                     _controller.reverse();
                   } else {
@@ -260,6 +247,21 @@ class _MenuDrawlerState extends State<MenuDrawler>
             ),
             title: Text(titleDomain[appState.getIndexBottomBar]),
             centerTitle: true,
+            actions: [
+              Badge(
+                  position: BadgePosition(top: 0, start: 0),
+                  badgeColor: colorText,
+                  badgeContent: Text(numberNotif.toString(),style: TextStyle(color: Colors.white),),
+                  showBadge: numberNotif != 0,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push((MaterialPageRoute(
+                          builder: (context) => Notifications())));
+                    },
+                    icon: Icon(numberNotif > 0 ? Icons.notifications_active :Icons.notifications_none, color: Colors.white)
+                  )
+              ),
+            ],
           ),
           body: menus[appState.getIndexBottomBar],
           bottomNavigationBar: (!isCollasped)

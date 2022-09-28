@@ -13,6 +13,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../Constant/helper.dart';
 import 'choice_method_payement.dart';
 
 class ExplainEvent extends StatefulWidget {
@@ -27,7 +28,7 @@ class _ExplainEventState extends State<ExplainEvent> {
   String forfaitName = '';
   int maxPlace = 0;
   late List<dynamic> displayItem;
-  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/none.jpg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpg', 'title': 'GOLD'},{'img': 'images/platine.jpg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
+  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/free.jpeg', 'title': 'FREE'},{'img': 'images/none.jpeg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpeg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpeg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpeg', 'title': 'GOLD'},{'img': 'images/platine.jpeg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
   bool isFinishLoad = false;
   User? newClient;
   late NavigatorState _navigator;
@@ -139,7 +140,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                                         children: <Widget>[
                                             Text(
                                             value['title'],
-                                            style: value['title'] != "BASIC"
+                                            style: value['title'] != "FREE" && value['title'] != "GOLD"
                                             ? Style.grandTitre(23)
                                                 : Style.grandTitreBlack(23),
                                             )
@@ -251,6 +252,12 @@ class _ExplainEventState extends State<ExplainEvent> {
 
   Widget titleOfPackage(String title) {
     if(title == 'BASIC') {
+      return GradientText(
+        'BASIC',
+        textAlign: TextAlign.left,
+        colors: [Color(0xFF8D6E63), Color(0xFF3E2723)],
+        style: Style.titreEvent(20),
+      );
       return Text(title, style: Style.titreEvent(20));
     } else if (title == 'PREMIUM') {
       return GradientText(
@@ -261,7 +268,7 @@ class _ExplainEventState extends State<ExplainEvent> {
       );
     } else if (title == 'MASTER_CLASS') {
       return GradientText(
-        'MASTER_CLASS',
+        'MASTER CLASS',
         textAlign: TextAlign.left,
         colors: [Color(0xFFE57373), Color(0xFFFF1744)],
         style: Style.titreEvent(20),
@@ -320,8 +327,8 @@ class _ExplainEventState extends State<ExplainEvent> {
                           height: 30,
                           width: double.infinity,
                           child: Center(
-                          child: Text("${element['priceLocalCurrencies'].toString()} ${newClient!.currencies}",
-                              style: Style.priceDealsProduct()),
+                          child: Text("${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.currencies}",
+                              style: Style.titre(15)),
                           ),
                         )
                       ],

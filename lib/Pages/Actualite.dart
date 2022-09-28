@@ -321,6 +321,7 @@ class _ActualiteState extends State<Actualite> {
         .toList();
     return Container(
       height: 330,
+
       width: MediaQuery.of(context).size.width * 0.6,
       child: Column(
         children: <Widget>[

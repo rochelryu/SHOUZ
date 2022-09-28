@@ -108,9 +108,15 @@ class _CheckoutRetraitMobileMoneyState
                                 ),
                                 Text("Orange Money", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/om.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/om.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -145,9 +151,15 @@ class _CheckoutRetraitMobileMoneyState
                                 ),
                                 Text("MoMo", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/momo.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    image: DecorationImage(
+                                      image: AssetImage("images/momo.jpeg"),
+                                      fit: BoxFit.cover,
+                                    )
+                                  ),
                                 )
 
                               ],
@@ -182,9 +194,15 @@ class _CheckoutRetraitMobileMoneyState
                                 ),
                                 Text("Moov", style: Style.titre(18)),
                                 Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Image.asset("images/moov.png", fit: BoxFit.contain,),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/moov.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],
@@ -221,7 +239,13 @@ class _CheckoutRetraitMobileMoneyState
                                 Container(
                                   height: 40,
                                   width: 40,
-                                  child: Image.asset("images/wave.png", fit: BoxFit.cover,),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      image: DecorationImage(
+                                        image: AssetImage("images/wave.png"),
+                                        fit: BoxFit.cover,
+                                      )
+                                  ),
                                 )
 
                               ],

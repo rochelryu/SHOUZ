@@ -141,18 +141,7 @@ class _ProfilState extends State<Profil> {
                                     ),
                                   ),
                                 ),
-                                Positioned(
-                                  top: 65,
-                                  right: 10,
-                                  child: Container(
-                                    padding: EdgeInsets.all(5),
-                                    color: colorText.withOpacity(0.5),
-                                    child: Text(
-                                      (newClient != null ) ? '${newClient!.wallet} ${newClient!.currencies}': '',
-                                      style: Style.titleInSegment(),
-                                    ),
-                                  ),
-                                )
+
                               ],
                             )),
                         progressIndicatorBuilder: (context, url, downloadProgress) =>

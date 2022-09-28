@@ -43,7 +43,7 @@ class _WidgetPageState extends State<WidgetPage> {
           {
             "icon": "prix des médicaments",
             "desc": "Liste standard de prix de médicament"
-          },*/
+          },
           {
             "icon": "Récharger son ShouzPay",
             "desc": "Par Crypto Monnaie ou Mobile Money"
@@ -51,7 +51,7 @@ class _WidgetPageState extends State<WidgetPage> {
           {
             "icon": "Rétirer son argent",
             "desc": "Par Crypto Monnaie ou Mobile Money"
-          },
+          },*/
           (!info['result']['isActivateCovoiturage'])
               ? (info['result']['assuranceVehicule'].length > 0) ? {"icon": "Analyse Document Conducteur","desc":"Nous analysons vos documents envoyés"} : {"icon": "Devenir Conducteur","desc":"Enregistrer vos informations"}
               : {
@@ -157,7 +157,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "Verification tickets":
+      case "Vérification tickets":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
