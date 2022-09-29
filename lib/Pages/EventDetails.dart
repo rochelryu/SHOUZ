@@ -303,7 +303,7 @@ class _EventDetailsState extends State<EventDetails> {
                         Text('Lieu', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
-                              await launchUrl(Uri.parse(mapForDevice(widget.position)));
+                              await launchUrl(Uri.parse("https://www.google.com/search?q=${widget.position}"), mode: LaunchMode.externalApplication);
                             },
                             child: Text("Map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
                         /*Text(

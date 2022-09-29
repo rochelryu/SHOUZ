@@ -62,7 +62,7 @@ String formatedDateForLocalWithoutTime(DateTime date) {
 
 String mapForDevice(String position) {
   if(Platform.isAndroid) {
-    return "https://www.google.com/maps/place/${position.replaceAll(" ", "")}";
+    return "https://www.google.com/maps/place/${position.replaceAll(" ", ",")}";
   } else {
     return "https://maps.apple.com/?address=${position.replaceAll(" ", "")}";
   }
@@ -170,6 +170,92 @@ class TableDataStats {
   late int placeTotal;
   late int priceTicket;
   late String registerDate;
+}
+
+class DataSourceBuyer extends DataTableSource {
+
+  late List<dynamic> _data;
+  DataSourceBuyer({required List<dynamic> data}) {
+    _data = data;
+  }
+
+  @override
+  DataRow? getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+                image: NetworkImage(_data[index].images),
+                fit: BoxFit.cover
+            )
+        ),
+      )),
+      DataCell(Text(_data[index].name, style: Style.sousTitre(12),)),
+      DataCell(Text(_data[index].priceTicket.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text(_data[index].placeTotal.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text("Ticket ${_data[index].typeTicket}", style: Style.sousTitre(12),)),
+      DataCell(Text(_data[index].registerDate, style: Style.sousTitre(12),)),
+    ]);
+  }
+
+  @override
+  // TODO: implement isRowCountApproximate
+  bool get isRowCountApproximate => false;
+
+  @override
+  // TODO: implement rowCount
+  int get rowCount => _data.length;
+
+  @override
+  // TODO: implement selectedRowCount
+  int get selectedRowCount => 0;
+  
+}
+
+class DataSourceRemover extends DataTableSource {
+
+  late List<dynamic> _data;
+  DataSourceRemover({required List<dynamic> data}) {
+    _data = data;
+  }
+
+  @override
+  DataRow? getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+                image: NetworkImage(_data[index].images),
+                fit: BoxFit.cover
+            )
+        ),
+      )),
+      DataCell(Text(_data[index].name, style: Style.sousTitre(12),)),
+      DataCell(Text(_data[index].priceTicket.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text(_data[index].commission.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text("Ticket ${_data[index].typeTicket}", style: Style.sousTitre(12),)),
+      DataCell(Text(_data[index].registerDate, style: Style.sousTitre(12),)),
+    ]);
+  }
+
+  @override
+  // TODO: implement isRowCountApproximate
+  bool get isRowCountApproximate => false;
+
+  @override
+  // TODO: implement rowCount
+  int get rowCount => _data.length;
+
+  @override
+  // TODO: implement selectedRowCount
+  int get selectedRowCount => 0;
+
 }
 
 class TableDataStatsForRemoved {

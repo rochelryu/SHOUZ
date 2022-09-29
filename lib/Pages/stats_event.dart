@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../Constant/Style.dart';
 import '../Constant/helper.dart';
@@ -25,6 +26,7 @@ class _StatsEventState extends State<StatsEvent> {
   DateTime registerDateOfEvent = DateTime.now();
   DateTime eventExpireDate = DateTime.now();
   List<PieSeriesData> pieSeriesData = [];
+  List<dynamic> allPrices = [];
   List<dynamic> tableDataStats = [];
   List<dynamic> tableDataStatsForRemoved = [];
   int totalTicketBuy = 0, totalTicketDecode = 0, cumulGain = 0;
@@ -56,6 +58,7 @@ class _StatsEventState extends State<StatsEvent> {
             eventExpireDate = DateTime.parse(data['result']['eventExpireDate']);
             totalTicketBuy = data['result']['totalTicketBuy'];
             cumulGain = data['result']['cumulGain'];
+            allPrices = data['result']['price'];
             totalTicketDecode = data['result']['totalTicketDecode'];
             itemTypeTicketForFrequence = frequenceBuyTicketWithFilter[0]['data'];
             chartDataLines = frequenceBuyTicketWithFilter.map((item) => ChartDataLine(item['date'], item['data'])).toList();
@@ -298,36 +301,31 @@ class _StatsEventState extends State<StatsEvent> {
                     ),
                   ),
                   SizedBox(height: 10),
+
+                  ...getAllRadialDisplay(allPrices),
                   Material(
                     elevation: 5,
                     child: Container(
                       width: double.infinity,
                       color: backgroundColor,
-                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Liste de tickets Achetés", style: Style.titleDealsProduct(),),
-                          SizedBox(height: 10,),
-                          if(tableDataStats.isNotEmpty) Container(
-                            height: 150,
-                            width: double.infinity,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                DataTable(
-                                  columns: [
-                                    DataColumn(label: Text("Profil", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Nom & Prénom", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Payé", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Ticket(s)", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Type", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Date achat", style: Style.titre(15),)),
-                                  ],
-                                  rows: getRowsForBuyer(tableDataStats),
-                                )
-                              ],
-                            ),
+                          PaginatedDataTable(
+                            columns: [
+                              DataColumn(label: Text("Profil", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Nom & Prénom", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Payé", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Ticket(s)", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Type", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Date achat", style: Style.sousTitreBlack(15),)),
+                            ],
+                            source: DataSourceBuyer(data: tableDataStats),
+                            header: Text("Liste de tickets achetés", style: Style.grandTitreBlack(18),),
+                            columnSpacing: 100,
+                            arrowHeadColor: backgroundColorSec,
+                            horizontalMargin: 30,
+                            rowsPerPage: tableDataStats.length < 10 ? tableDataStats.length: 10,
                           )
                         ],
                       ),
@@ -339,32 +337,25 @@ class _StatsEventState extends State<StatsEvent> {
                     child: Container(
                       width: double.infinity,
                       color: backgroundColor,
-                      height: tableDataStatsForRemoved.isNotEmpty ? 550: 50,
-                      padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Liste Ticket annulé", style: Style.titleDealsProduct(),),
-                          SizedBox(height: 10),
-                          if(tableDataStatsForRemoved.isNotEmpty) Container(
-                            height: 500,
-                            width: double.infinity,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                DataTable(
-                                  columns: [
-                                    DataColumn(label: Text("Profil", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Nom & Prénom", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Ticket Annulé", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Commission", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Type", style: Style.titre(15),)),
-                                    DataColumn(label: Text("Date achat", style: Style.titre(15),)),
-                                  ],
-                                  rows: getRowsForRemoved(tableDataStatsForRemoved),
-                                )
-                              ],
-                            ),
+
+                          PaginatedDataTable(
+                            columns: [
+                              DataColumn(label: Text("Profil", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Nom & Prénom", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Ticket Annulé", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Commission", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Type", style: Style.sousTitreBlack(15),)),
+                              DataColumn(label: Text("Date achat", style: Style.sousTitreBlack(15),)),
+                            ],
+                            source: new DataSourceRemover(data: tableDataStatsForRemoved),
+                            header: Text("Liste de tickets annulés", style: Style.grandTitreBlack(18),),
+                            columnSpacing: 100,
+                            arrowHeadColor: backgroundColorSec,
+                            horizontalMargin: 30,
+                            rowsPerPage: tableDataStatsForRemoved.length < 10 ? tableDataStatsForRemoved.length: 10,
                           )
                         ],
                       ),
@@ -396,28 +387,77 @@ class _StatsEventState extends State<StatsEvent> {
     return data;
   }
 
-  List<DataRow> getRowsForBuyer(List<dynamic> data) => data.map((tableData) {
-    return DataRow(cells: [
-      DataCell(Container(
-        height: 40,
-        width: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: NetworkImage(tableData.images),
-            fit: BoxFit.cover
-          )
+
+
+  List<Widget> getAllRadialDisplay(List<dynamic> prices) {
+    List<Widget> allWidget = [];
+    for(int index = 0; index < prices.length; index++) {
+      final price = prices[index];
+      allWidget.add(Material(
+        elevation: 5,
+        child: Container(
+          width: double.infinity,
+          color: backgroundColor,
+          height: 350,
+          padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Vente ticket ${price["price"]}", style: Style.titleDealsProduct(),),
+              SizedBox(height: 10,),
+              Expanded(
+                  child: SfRadialGauge(
+                    axes: <RadialAxis>[
+                      RadialAxis(
+                          startAngle: 180,
+                          endAngle: 360,
+                          canScaleToFit: true,
+                          showLastLabel: true,
+                          interval: 10,
+                          labelFormat: '{value}%',
+                          labelsPosition: ElementsPosition.outside,
+                          minorTickStyle: MinorTickStyle(
+                              color: colorWelcome,
+                              length: 0.05, lengthUnit: GaugeSizeUnit.factor),
+                          majorTickStyle: MajorTickStyle(
+                              color: colorsForStats[index],
+                              length: 0.1, lengthUnit: GaugeSizeUnit.factor),
+                          minorTicksPerInterval: 5,
+                          pointers: <GaugePointer>[
+                            NeedlePointer(
+                                value: ((price['numberPlaceTotal'] - price['numberPlace'])/ price['numberPlaceTotal'])*100,
+                                needleEndWidth: 3,
+                                needleLength: 0.8,
+                                needleColor: backgroundColorSec,
+                                knobStyle: KnobStyle(
+                                  color: colorPrimary,
+                                  knobRadius: 8,
+                                  sizeUnit: GaugeSizeUnit.logicalPixel,
+                                ),
+                                tailStyle: TailStyle(
+                                    color: colorPrimary,
+                                    width: 3,
+                                    lengthUnit: GaugeSizeUnit.logicalPixel,
+                                    length: 20))
+                          ],
+                          axisLabelStyle: const GaugeTextStyle(fontWeight: FontWeight.w500, color: colorPrimary,),
+                          axisLineStyle: AxisLineStyle(thickness: 3, color: colorsForStats[index])),
+                    ],
+                  )
+              )
+            ],
+          ),
         ),
-      )),
-      DataCell(Text(tableData.name, style: Style.sousTitre(12),)),
-      DataCell(Text(tableData.priceTicket.toString(), style: Style.priceDealsProduct(),)),
-      DataCell(Text(tableData.placeTotal.toString(), style: Style.priceDealsProduct(),)),
-      DataCell(Text("Ticket ${tableData.typeTicket}", style: Style.sousTitre(12),)),
-      DataCell(Text(tableData.registerDate, style: Style.sousTitre(12),)),
-    ]);
-  }).toList();
+      ));
+      allWidget.add(SizedBox(height: 10));
+    }
+
+    return allWidget;
+
+  }
 
   List<DataRow> getRowsForRemoved(List<dynamic> data) => data.map((tableDataStatsForRemoved) {
+    print(tableDataStatsForRemoved.name);
     return DataRow(cells: [
       DataCell(Container(
         height: 40,
@@ -432,7 +472,7 @@ class _StatsEventState extends State<StatsEvent> {
       )),
       DataCell(Text(tableDataStatsForRemoved.name, style: Style.sousTitre(12),)),
       DataCell(Text(tableDataStatsForRemoved.priceTicket.toString(), style: Style.priceDealsProduct(),)),
-      DataCell(Text(tableDataStatsForRemoved.comission.toString(), style: Style.priceDealsProduct(),)),
+      DataCell(Text(tableDataStatsForRemoved.commission.toString(), style: Style.priceDealsProduct(),)),
       DataCell(Text("Ticket ${tableDataStatsForRemoved.typeTicket}", style: Style.sousTitre(12),)),
       DataCell(Text(tableDataStatsForRemoved.registerDate, style: Style.sousTitre(12),)),
     ]);
