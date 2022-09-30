@@ -9,6 +9,7 @@ import '../MenuDrawler.dart';
 import '../Pages/LoadHide.dart';
 import '../Pages/Notifications.dart';
 import '../Pages/create_travel.dart';
+import '../Pages/wallet_page.dart';
 
 Future<void> createShouzNotification(String title, String body, Map<String, String> payload) async {
   var random = Random();
@@ -71,6 +72,9 @@ class NotificationController {
     else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innernotifications") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => Notifications()), (route) => route.isFirst);
+    }
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerwallet") {
+      MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(WalletPage.rootName, (route) => route.isFirst);
     }
     else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innertravel") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(

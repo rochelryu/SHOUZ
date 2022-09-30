@@ -43,6 +43,7 @@ class ConsumeAPI {
   static final PERCENTAGE_METHOD_PAYEMENT_URL = BASE_URL + "/client/getPercentageModePayement";
   static final GET_MOBILE_MONEY_AVALAIBLE_URL = BASE_URL + "/client/getMobileMoneyAvalaible";
   static final GET_MAX_PLACE_FOR_CREATE_EVENT_URL = BASE_URL + "/client/getMaxPlaceForCreateEvent";
+  static final GET_LATEST_VERSION_APP_URL = BASE_URL + "/client/getLastVersionApp";
   static final ALL_CATEGIRES_URL = BASE_URL + "/categorie/all";
 
   static final SET_EVENT_URL = BASE_URL + "/event/inside";
@@ -227,6 +228,8 @@ class ConsumeAPI {
     if(res['etat'] == "notFound") {
       await DBProvider.db.delClient();
       setLevel(1);
+    } else if(res['etat'] == "found") {
+      await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
     }
     return res;
   }
@@ -1177,4 +1180,10 @@ class ConsumeAPI {
     });
   }
 
+  //Version of App
+
+  Future<Map<String, dynamic>> getLatestVersionApp() async {
+    final res = await _netUtil.get(GET_LATEST_VERSION_APP_URL);
+    return res;
+  }
 }

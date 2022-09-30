@@ -53,8 +53,10 @@ class _WalletPageState extends State<WalletPage> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => Login()));
       } else if(getAllTransactions['etat'] == 'found') {
+        user = await DBProvider.db.getClient();
         setState(() {
           arrayOfAllTransaction = getAllTransactions['result']['arrayOfAllTransaction'];
+          newClient = user;
           isLoading = false;
         });
         await prefs.setString('transactionHistory', jsonEncode(getAllTransactions['result']['arrayOfAllTransaction']));

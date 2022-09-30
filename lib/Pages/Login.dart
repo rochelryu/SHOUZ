@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Opt.dart';
@@ -20,6 +23,8 @@ class _LoginState extends State<Login> {
 
   late User user;
   String numero = "";
+  bool isCliked = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,16 +108,20 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     ElevatedButton(
-                      style: raisedButtonStyle,
+                      style: !isCliked ? raisedButtonStyle : raisedButtonLockedStyle,
                       child: Container(
                         height: 40,
                         width: MediaQuery.of(context).size.width/1.45,
                         child: Center(
-                          child: Text("S'enregistrer", style: Style.titre(18)),
+                          child: !isCliked ? Text("S'enregistrer", style: Style.titre(18)) : LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorPrimary], strokeWidth: 2),
                         ),
                       ),
                       onPressed: () async {
                         if(numero.length == 10) {
+                          if(!isCliked) {
+                            setState(() {
+                              isCliked = true;
+                            });
                             final res = await ConsumeAPI().signin(numero, '+225');
                             setState(() {
                               user = res['user'];
@@ -120,11 +129,15 @@ class _LoginState extends State<Login> {
                             await DBProvider.db.delClient();
                             await DBProvider.db.newClient(user);
                             setLevel(2);
-                              Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (builder) => Otp(key: UniqueKey(),)
-                              )
+                            setState(() {
+                                isCliked = false;
+                              });
+                            Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (builder) => Otp(key: UniqueKey(),)
+                                )
                             );
+                          }
                              
                           } else _displaySnackBar(context);
                       },

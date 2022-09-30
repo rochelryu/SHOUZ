@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
+import 'package:shouz/Pages/wallet_page.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -1425,8 +1426,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                   });
                   await consumeAPI.viewNotif(atMoment[index]['_id'], "SHOUZPAY");
                 }
-                Navigator.of(context)
-                    .push((MaterialPageRoute(builder: (context) => Profil())));
+                Navigator.pushNamed(context, WalletPage.rootName);
               },
               child: Container(
                 color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),

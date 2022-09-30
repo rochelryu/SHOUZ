@@ -150,7 +150,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 // Returns "Resend" button
   get _getResendButton {
     return ElevatedButton(
-      style: raisedButtonStyle,
+      style: !loadRequest ? raisedButtonStyle: raisedButtonLockedStyle,
       child: Container(
         height: 42,
         width: 150,
@@ -161,31 +161,34 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         ),
       ),
       onPressed: () async {
-        setState(() {
-          _hideResendButton = true;
-          totalTimeInSeconds = time;
-        });
-        _startCountdown();
-        final user = await consumeAPI.resendRecovery();
-        if (user['etat'] == 'found') {
-          Fluttertoast.showToast(
-              msg: "Code renvoyé veuillez verifier",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 1,
-              backgroundColor: colorSuccess,
-              textColor: Colors.white,
-              fontSize: 16.0
-          );
-        } else {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-              barrierDismissible: false);
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (builder) => Login()));
+        if(!loadRequest) {
+          setState(() {
+            _hideResendButton = true;
+            totalTimeInSeconds = time;
+          });
+          _startCountdown();
+          final user = await consumeAPI.resendRecovery();
+          if (user['etat'] == 'found') {
+            Fluttertoast.showToast(
+                msg: "Code renvoyé veuillez verifier",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: colorSuccess,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+                barrierDismissible: false);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (builder) => Login()));
+          }
         }
+
         // Resend you OTP via API or anything
       },
     );
@@ -273,70 +276,8 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                         color: Colors.white,
                         size: 32.0,
                       ),
-                      onPressed: () async {
-                        List<int> beta = [
-                          _firstDigit!,
-                          _secondDigit!,
-                          _thirdDigit!,
-                          _fourthDigit!,
-                          _fiveDigit!,
-                          _sixDigit!,
-                        ];
-                        if (beta.join("").indexOf('null') == -1 && !loadRequest) {
-                          setState(() {
-                            loadRequest = true;
-                          });
-                          final verify = await consumeAPI.verifyOtp(beta.join(""));
-                          setState(() {
-                            loadRequest = false;
-                          });
-                          if (verify['etat'] == 'found') {
-                            await DBProvider.db.updateClient(beta.join(""), newClient!.ident);
-                            if (newClient?.name == '' ||
-                                newClient?.inscriptionIsDone == 0) {
-                              setLevel(3);
-                              Navigator.push(
-                                  context, ScaleRoute(widget: CreateProfil()));
-                            } else {
-                              setLevel(5);
-                              final user = await consumeAPI.updateRecovery();
-                              if (user['etat'] == 'found') {
-                                await DBProvider.db.delClient();
-                                await DBProvider.db.newClient(user['user']);
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        dialogCustomError(
-                                            'De retour',
-                                            'Nous sommes heureux de vous revoir ${newClient!.name}',
-                                            context),
-                                    barrierDismissible: false);
-                                Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
-                              } else {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) => dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-                                    barrierDismissible: false);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (builder) => Login()));
-                              }
+                      onPressed: _submit),
 
-                            }
-                          } else {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    dialogCustomError(
-                                        'Erreur',
-                                        verify['error'],
-                                        context),
-                                barrierDismissible: false);
-                          }
-                        }
-                      }),
-                  /*new SizedBox(
-                  width: 80.0,
-                ),*/
                   _otpKeyboardInputButton(
                       label: "0",
                       onPressed: () {
@@ -348,27 +289,94 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        setState(() {
-                          if (_sixDigit != null) {
-                            _sixDigit = null;
-                          } else if (_fiveDigit != null) {
-                            _fiveDigit = null;
-                          } else if (_fourthDigit != null) {
-                            _fourthDigit = null;
-                          } else if (_thirdDigit != null) {
-                            _thirdDigit = null;
-                          } else if (_secondDigit != null) {
-                            _secondDigit = null;
-                          } else if (_firstDigit != null) {
-                            _firstDigit = null;
-                          }
-                        });
+                        if(!loadRequest) {
+                          setState(() {
+                            if (_sixDigit != null) {
+                              _sixDigit = null;
+                            } else if (_fiveDigit != null) {
+                              _fiveDigit = null;
+                            } else if (_fourthDigit != null) {
+                              _fourthDigit = null;
+                            } else if (_thirdDigit != null) {
+                              _thirdDigit = null;
+                            } else if (_secondDigit != null) {
+                              _secondDigit = null;
+                            } else if (_firstDigit != null) {
+                              _firstDigit = null;
+                            }
+                          });
+                        }
+
                       }),
                 ],
               ),
             ),
           ],
         ));
+  }
+
+  void _submit() async {
+    {
+      List<int> beta = [
+        _firstDigit!,
+        _secondDigit!,
+        _thirdDigit!,
+        _fourthDigit!,
+        _fiveDigit!,
+        _sixDigit!,
+      ];
+      if (beta.join("").indexOf('null') == -1 && !loadRequest) {
+        setState(() {
+          loadRequest = true;
+        });
+        final verify = await consumeAPI.verifyOtp(beta.join(""));
+        setState(() {
+          loadRequest = false;
+        });
+        if (verify['etat'] == 'found') {
+          await DBProvider.db.updateClient(beta.join(""), newClient!.ident);
+          if (newClient?.name == '' ||
+              newClient?.inscriptionIsDone == 0) {
+            setLevel(3);
+            Navigator.push(
+                context, ScaleRoute(widget: CreateProfil()));
+          } else {
+            setLevel(5);
+            final user = await consumeAPI.updateRecovery();
+            if (user['etat'] == 'found') {
+              await DBProvider.db.delClient();
+              await DBProvider.db.newClient(user['user']);
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      dialogCustomError(
+                          'De retour',
+                          'Nous sommes heureux de vous revoir ${newClient!.name}',
+                          context),
+                  barrierDismissible: false);
+              Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+                  barrierDismissible: false);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => Login()));
+            }
+
+          }
+        } else {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError(
+                      'Erreur',
+                      verify['error'],
+                      context),
+              barrierDismissible: false);
+        }
+      }
+    }
   }
 
 // Overridden methods
@@ -488,7 +496,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
   }
 
 // Current digit
-  void _setCurrentDigit(int i) {
+  void _setCurrentDigit(int i) async {
     setState(() {
       _currentDigit = i;
       if (_firstDigit == null) {
@@ -505,6 +513,9 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         _sixDigit = _currentDigit;
       }
     });
+    if(_sixDigit != null) {
+      _submit();
+    }
   }
 
   Future<Null> _startCountdown() async {

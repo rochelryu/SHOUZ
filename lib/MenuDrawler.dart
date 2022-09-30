@@ -1,13 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:badges/badges.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import './Constant/my_flutter_app_second_icons.dart' as prefix1;
 import './Pages/Actualite.dart';
@@ -47,6 +50,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
   List<String> titleDomain = ['Actualité', 'E-commerce', 'Événementiel', 'Covoiturage'];
 
   int numberConnected = 0;
+  ConsumeAPI consumeAPI =new ConsumeAPI();
 
   @override
   void initState() {
@@ -67,6 +71,63 @@ class _MenuDrawlerState extends State<MenuDrawler>
       newClient = user;
       id = newClient!.ident;
     });
+    try {
+      final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
+      if(getLatestVersionApp['playstore'] != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final versionning = prefs.getString("versionning");
+        if(versionning != null) {
+          final versionInApp = jsonDecode(versionning) as dynamic;
+          if(Platform.isAndroid) {
+            if(await isHms()) {
+              if(versionInApp['appGallery'] != getLatestVersionApp['appGallery']) {
+                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
+              }
+            } else {
+              if(versionInApp['playstore'] != getLatestVersionApp['playstore']) {
+                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
+              }
+            }
+          } else {
+            if(versionInApp["appleStore"] != getLatestVersionApp['appleStore']){
+              await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+              await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+              await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
+            }
+          }
+        }
+        else {
+          if(Platform.isAndroid) {
+            if(await isHms()) {
+              if("1.0.5" != getLatestVersionApp['appGallery']) {
+                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
+              }
+            } else {
+              if("1.0.5" != getLatestVersionApp['playstore']) {
+                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
+              }
+            }
+          } else {
+            if("1.0.5" != getLatestVersionApp['appleStore']){
+              await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
+              await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+              await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
+            }
+          }
+        }
+      }
+
+    } catch(e) {
+
+    }
   }
 
 

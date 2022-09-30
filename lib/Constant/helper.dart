@@ -14,6 +14,9 @@ ConsumeAPI consumeAPI = new ConsumeAPI();
 const maxAmountOnAccount = 10000000;
 const maxAmountOfTransaction = 1000000;
 const minAmountOfTransaction = 1000;
+const linkAppGalleryForShouz = "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
+const linkPlayStoreForShouz = "https://play.google.com/store/apps/details?id=com.shouz.app";
+const linkAppleStoreForShouz = "";
 
 void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -98,13 +101,14 @@ Future getTokenForNotificationProvider() async {
       //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
       huawei.Push.getTokenStream.listen((String event) {
         _token = event;
+        print("_token ------------, $_token");
       }, onError: (dynamic error) {
         print(error.message);
       });
 
       huawei.Push.getToken("");
 
-      //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
+      print('Huawei push token ::  $_token, $result');
 
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";

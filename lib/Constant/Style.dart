@@ -966,6 +966,16 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   ),
 );
 
+final ButtonStyle raisedButtonLockedStyle = ElevatedButton.styleFrom(
+  foregroundColor: Colors.white,
+  backgroundColor: colorSecondary,
+  minimumSize: const Size(88, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+  ),
+);
+
 
 final ButtonStyle raisedButtonStyleError = ElevatedButton.styleFrom(
   foregroundColor: Colors.white,
