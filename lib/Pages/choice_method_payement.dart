@@ -142,7 +142,7 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                       color: Colors.white,
                       child: GestureDetector(
                         onTap: () {
-                          appState.setPercentageRecharge(info!['PERCENTAGE_SHOUZPAY_MOBILE_MONEY']);
+                          appState.setPercentageRecharge(info?['PERCENTAGE_SHOUZPAY_MOBILE_MONEY']);
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (builder) => VerifyUser(key: UniqueKey(), redirect: widget.isRetrait ? CheckoutRetraitMobileMoney.rootName : CheckoutRechargeMobileMoney.rootName,)));
                         },

@@ -366,7 +366,7 @@ class _CheckoutRetraitMobileMoneyState
                       mtnNumero = '';
                       loadConfirmation = false;
                     });
-                    _controller.clear();
+                    _controller.text = '0';
 
 
                   } else {
@@ -478,7 +478,7 @@ class _CheckoutRetraitMobileMoneyState
                       waveNumero = '';
                       loadConfirmation = false;
                     });
-                    _controller.clear();
+                    _controller.text = '0';
                   } else {
                     Fluttertoast.showToast(
                         msg: 'Verifié le numero Wave ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
@@ -587,7 +587,7 @@ class _CheckoutRetraitMobileMoneyState
                       orangeNumero = '';
                       loadConfirmation = false;
                     });
-                    _controller.clear();
+                    _controller.text = '0';
                   } else {
                     Fluttertoast.showToast(
                         msg: 'Verifié le numero Orange ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',
@@ -695,7 +695,7 @@ class _CheckoutRetraitMobileMoneyState
                       moovNumero = '';
                       loadConfirmation = false;
                     });
-                    _controller.clear();
+                    _controller.text = '0';
                   } else {
                     Fluttertoast.showToast(
                         msg: 'Verifié le numero Moov ainsi que le montant (le montant doit être un multiple de 100 et être supérieur ou egal à 1000 Frs)',

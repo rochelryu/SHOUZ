@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -154,7 +155,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
       final bool asRead = prefs.getBool('readViewFirstDealsForSellerModalExplain') ?? false;
       if(!asRead) {
         await modalForExplain("images/discussionInAppDeal.png", "1/4 - Shouz est votre boutique, discuttez avec le client, vous pouvez lui envoyer d'autres images de cet article et uniquement de cet article.", context);
-        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <+> qui est à coté du nom du client pour faire une offre.", context);
+        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour faire une offre.", context);
         await modalForExplain("images/guardMoney.png", "3/4 - Attention: Nous n'acceptons pas que vous donnez votre contact à l'acheteur pour une conversation ailleurs ou que vous lui demandez de vous faire une quelconque transaction ailleurs.", context);
         await modalForExplain("images/guardMoney.png", "4/4 - Si votre stock est epuisé, veuillez le notifier au client et marquer sur la fiche de votre article qu'il est épuisé.\nSi votre article n'est pas encore disponible ou qu'il doit être importé, veuillez le notifier au client et lui dire quand cela pourra être disponible avant de lui faire une offre de prix.", context);
         await prefs.setBool('readViewFirstDealsForSellerModalExplain', true);
@@ -163,7 +164,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
       final bool asRead = prefs.getBool('readViewFirstDealsForBuyerModalExplain') ?? false;
       if(!asRead) {
         await modalForExplain("images/discussionInAppDeal.png", "1/4 - Shouz est votre assurance garantie, discuttez avec le vendeur, vous pouvez lui demander d'autres images de cet article et de vous donner plus d'informations sur l'article pour vous assurer du type de qualité.", context);
-        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <+> qui est à coté du nom du vender pour voir l'offre.", context);
+        await modalForExplain("images/accordPayDirect.png", "2/4 - Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour voir l'offre.", context);
         await modalForExplain("images/guardMoney.png", "3/4 - Attention: N'acceptez pas que le vendeur vous donne son contact pour une conversation ailleurs ou qu'il vous demande de faire une transaction ailleurs. Tant que vous restez ici vous bénéficiez des garanties.", context);
         await modalForExplain("images/discussionInAppDeal.png", "4/4 - Il y a certains vendeurs qui ont des articles en cours d'importation, donc veuillez leur demander si l'article est disponible actuelement ou il prendra combien de temps avant d'arriver chez eux.", context);
         await prefs.setBool('readViewFirstDealsForBuyerModalExplain', true);
@@ -289,7 +290,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(" 💁🏽‍♂ ️Le produit vous convient il ?", style: Style.chatIsMe(15),),
+              Text("💁 ️Le produit est il bel et bien ce dont vous avez convenu avec le vendeur ? ", style: Style.chatIsMe(15),),
               SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -603,11 +604,17 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           }
         }, icon: Icon(Icons.arrow_back)),
         actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              scaffoldKey.currentState?.openEndDrawer();
-            },
+          Badge(
+            showBadge: room.split('_')[0] != widget.newClient.ident && conversation['etatCommunication'] == 'Seller Purpose price final at buyer',
+            position: BadgePosition(top: 0, start: 0),
+            badgeColor: colorText,
+            badgeContent: Text('!',style: TextStyle(color: Colors.white),),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart_outlined),
+              onPressed: () {
+                scaffoldKey.currentState?.openEndDrawer();
+              },
+            ),
           ),
         ],
         backgroundColor: backgroundColor,
@@ -635,20 +642,18 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                 children: <Widget>[
                   Text(widget.name.toString().split('_')[0],
                     maxLines: 1, style: Style.titleInSegment(12.0), overflow: TextOverflow.ellipsis),
-                  Text(onLine ? "En ligne" : "",
+                  if(onLine) Text( "En ligne",
                       style: Style.sousTitre(10)),
-                  Row(
+                  if (appState.getTyping) Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(width: 3),
-                      appState.getTyping
-                          ? Container(
+                      Container(
                         height: 6,
                         width: 25,
                         padding: EdgeInsets.only(top: 2),
                         child: LoadingIndicator(indicatorType: Indicator.ballPulse,colors: [colorSecondary], strokeWidth: 1),
-                      )
-                          : SizedBox(width: 8),
+                      ),
 
                     ],
                   )

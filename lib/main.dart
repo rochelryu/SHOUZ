@@ -47,9 +47,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  ByteData data = await PlatformAssetBundle().load('images/lets-encrypt-r3.cer');
+  SecurityContext.defaultContext.setTrustedCertificatesBytes(data.buffer.asUint8List());
+
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -83,7 +86,6 @@ void main() async {
   );
   final _messaging = FirebaseMessaging.instance;
 
-  // 3. On iOS, this helps to take the user permissions
   await _messaging.requestPermission(
     alert: true,
     badge: true,
@@ -142,25 +144,32 @@ class _MyHomePageState extends State<MyHomePage> {
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
-    // Called when a data message is received
-    String? data = remoteMessage.data;
-    final notification = remoteMessage.notification;
-    print(data);
-    print(notification);
-    //String result = await huawei.Push.turnOnPush();
+    final dataString = remoteMessage.data ?? "";
+    final data = jsonDecode(dataString);
+    if(mounted) {
+      appState = Provider.of<AppState>(context, listen: false);
+
+      if(data['room'] != null) {
+        if(appState.getIdOldConversation != data['_id'] || appState.getIdOldConversation == '') {
+          appState.setNumberNotif(appState.getNumberNotif + 1);
+          huaweiMessagingBackgroundHandler(data);
+        }
+      } else {
+        appState.setNumberNotif(appState.getNumberNotif + 1);
+        huaweiMessagingBackgroundHandler(data);
+      }
+    }
   }
 
   void _onHmsMessageReceiveError(Object error) {
+    print("error message ");
     print(error);
-    // Called when an error occurs while receiving the data message
   }
 
   @override
   void initState() {
     super.initState();
-    //configOneSignal();
     FlutterNativeSplash.remove();
-    initMessageStream();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if(!isAllowed) {
         showDialog(
@@ -181,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
+    initMessageStream();
 
 
     getNewLevel();
@@ -198,10 +208,11 @@ class _MyHomePageState extends State<MyHomePage> {
             client = user;
           });
           if(user.numero != "null") {
-            getTokenForNotificationProvider();
+            await getTokenForNotificationProvider();
+
+            huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
           }
-          await huawei.Push.registerBackgroundMessageHandler(_onHmsMessageReceived);
-          huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
+
         } else {
           listenFirebase();
         }
@@ -242,8 +253,6 @@ class _MyHomePageState extends State<MyHomePage> {
         _firebaseMessagingBackgroundHandler(message);
       }
     }
-
-
   }
 
 
@@ -286,13 +295,6 @@ class _MyHomePageState extends State<MyHomePage> {
         if(getClient.name.trim() != data['author'].trim()) {
           appState.ackReadMessage(data['room']);
         }
-      } else {
-        // ici c'est incrémenté les notif uniquement quand c'est huawei car il ne reçoit pas les notif incrémenté de firebase
-        if(Platform.isAndroid){
-          if(await isHms()) {
-            appState.setNumberNotif(appState.getNumberNotif + 1);
-          }
-        }
       }
     });
 
@@ -304,8 +306,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     socket!.on("receivedConversation", (data) async {
-      //sample event
-
       if (data['etat'] == 'found') {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         appState.setConversation(data['result']);
@@ -354,12 +354,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     });
     socket!.on("roomCreatedForNotification", (data) async {
-
-      if(Platform.isAndroid){
-        if(await isHms()) {
-          appState.setNumberNotif(appState.getNumberNotif + 1);
-        }
-      }
     });
     socket!.on("typingResponse", (data) async {
 
@@ -428,7 +422,6 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           }),
     );
-    //return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
   }
 
   Widget levelUser(int level) {

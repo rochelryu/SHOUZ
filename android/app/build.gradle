@@ -37,6 +37,7 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'com.huawei.agconnect'
 
 
 def keystoreProperties = new Properties()
@@ -107,9 +108,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.huawei.hms:location:6.0.0.302'
     implementation "com.google.android.material:material:1.7.0-alpha01"
-    implementation 'com.huawei.agconnect:agconnect-core:1.5.2.300'
+    implementation 'com.huawei.agconnect:agconnect-core:1.6.1.300'
     implementation 'com.huawei.hms:push:6.5.0.300'
 
 }
-
-apply plugin: 'com.huawei.agconnect'

@@ -28,6 +28,7 @@ class _WalletPageState extends State<WalletPage> {
   User? newClient;
   List<dynamic> arrayOfAllTransaction = [];
   bool isLoading = true, isError = false;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -91,158 +92,162 @@ class _WalletPageState extends State<WalletPage> {
         backgroundColor: backgroundColor,
         title: Text('Portefeuille'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 15),
-            Container(
-              width: double.infinity,
-                child: Text("Votre Solde", style: Style.titleInSegment(20), textAlign: TextAlign.center,)),
-            SizedBox(height: 10),
-            Container(
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: getInfo,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 15),
+              Container(
                 width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if(newClient != null )Text(reformatNumberForDisplayOnPrice(newClient!.wallet), style: Style.titre(40),),
-                    if(newClient != null ) Text(newClient!.currencies, style: Style.titre(12),)
-                  ],
-                )
-            ),
-            SizedBox(height: 25),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 35),
-              child: Row(
-                children: [
-                  Expanded(child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false)));
-                    },
-                    child: Container(
-                      height: 120,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey[300],
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 50,
-                            margin: EdgeInsets.only(right: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(MyFlutterAppSecond.money,
-                                    color: Colors.grey[700], size: 30.0)
-                              ],
-                            ),
-                          ),
-
-                          Spacer(),
-                          Text("Recharger", style: Style.grandTitreBlack(12),),
-                          SizedBox(height: 10),
-                        ],
-                      ),
-                    ),
-                  )),
-                  SizedBox(width: 15),
-                  Expanded(child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: true)));
-                    },
-                    child: Container(
-                      height: 120,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.lightBlue[100],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 50,
-                            margin: EdgeInsets.only(right: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(MyFlutterAppSecond.credit_card,
-                                    color: Colors.blue[900], size: 30.0)
-                              ],
-                            ),
-                          ),
-                          Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            child: Text("Retirer", style: Style.grandTitreBlack(12),),
-                          ),
-                          SizedBox(height: 10),
-                        ],
-                      ),
-                    ),
-                  )),
-                  SizedBox(width: 15),
-                  Expanded(child: GestureDetector(
-                    onTap: () async {
-                      await launchUrl(
-                          Uri.parse("https://wa.me/2250564250219"),
-                        mode: LaunchMode.externalApplication
-                      );
-                    },
-                    child: Container(
-                      height: 120,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.green[200],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 50,
-                            margin: EdgeInsets.only(right: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(Icons.support_agent_outlined,
-                                    color: Colors.green[900], size: 30.0)
-                              ],
-                            ),
-                          ),
-                          Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            child: Text("Aide", style: Style.grandTitreBlack(12),),
-                          ),
-                          SizedBox(height: 10),
-                        ],
-                      ),
-                    ),
-                  )),
-
-                ],
+                  child: Text("Votre Solde", style: Style.titleInSegment(20), textAlign: TextAlign.center,)),
+              SizedBox(height: 10),
+              Container(
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if(newClient != null )Text(reformatNumberForDisplayOnPrice(newClient!.wallet), style: Style.titre(40),),
+                      if(newClient != null ) Text(newClient!.currencies, style: Style.titre(12),)
+                    ],
+                  )
               ),
-            ),
-            SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, bottom: 10),
-              child: Text("Historique", style: Style.titleInSegment(20)),
-            ),
-            if(isLoading) Center(child: Container(
-              height: 200,
-              width: 200,
-              child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
-            ),),
-            if(isError && arrayOfAllTransaction.length == 0) isErrorSubscribe(context, 450),
-            if(!isLoading && arrayOfAllTransaction.length > 0) ...transactionItem()
-            //...transactionItem(),
-          ],
+              SizedBox(height: 25),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 35),
+                child: Row(
+                  children: [
+                    Expanded(child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false)));
+                      },
+                      child: Container(
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.grey[300],
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 50,
+                              margin: EdgeInsets.only(right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(MyFlutterAppSecond.money,
+                                      color: Colors.grey[700], size: 30.0)
+                                ],
+                              ),
+                            ),
+
+                            Spacer(),
+                            Text("Recharger", style: Style.grandTitreBlack(12),),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    )),
+                    SizedBox(width: 15),
+                    Expanded(child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: true)));
+                      },
+                      child: Container(
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.lightBlue[100],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 50,
+                              margin: EdgeInsets.only(right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(MyFlutterAppSecond.credit_card,
+                                      color: Colors.blue[900], size: 30.0)
+                                ],
+                              ),
+                            ),
+                            Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text("Retirer", style: Style.grandTitreBlack(12),),
+                            ),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    )),
+                    SizedBox(width: 15),
+                    Expanded(child: GestureDetector(
+                      onTap: () async {
+                        await launchUrl(
+                            Uri.parse("https://wa.me/2250564250219"),
+                          mode: LaunchMode.externalApplication
+                        );
+                      },
+                      child: Container(
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.green[200],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 50,
+                              margin: EdgeInsets.only(right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(Icons.support_agent_outlined,
+                                      color: Colors.green[900], size: 30.0)
+                                ],
+                              ),
+                            ),
+                            Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text("Aide", style: Style.grandTitreBlack(12),),
+                            ),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    )),
+
+                  ],
+                ),
+              ),
+              SizedBox(height: 25),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, bottom: 10),
+                child: Text("Historique", style: Style.titleInSegment(20)),
+              ),
+              if(isLoading) Center(child: Container(
+                height: 200,
+                width: 200,
+                child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
+              ),),
+              if(isError && arrayOfAllTransaction.length == 0) isErrorSubscribe(context, 450),
+              if(!isLoading && arrayOfAllTransaction.length > 0) ...transactionItem()
+              //...transactionItem(),
+            ],
+          ),
         ),
       ),
     );

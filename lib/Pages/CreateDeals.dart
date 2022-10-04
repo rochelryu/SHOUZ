@@ -781,7 +781,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
                         },
                       ),
-                      Text('Booster ce deal en VIP (${priceVip.toString()} ${user?.currencies})',
+                      Text('Booster ce deal en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user?.currencies})',
                           style: Style.warning(11)),
                     ],
                   ),

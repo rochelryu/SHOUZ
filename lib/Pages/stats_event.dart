@@ -325,7 +325,7 @@ class _StatsEventState extends State<StatsEvent> {
                             columnSpacing: 100,
                             arrowHeadColor: backgroundColorSec,
                             horizontalMargin: 30,
-                            rowsPerPage: tableDataStats.length < 10 ? tableDataStats.length: 10,
+                            rowsPerPage: tableDataStats.length < 10 ? tableDataStats.length == 0 ? 1: tableDataStats.length: 10,
                           )
                         ],
                       ),
@@ -355,7 +355,7 @@ class _StatsEventState extends State<StatsEvent> {
                             columnSpacing: 100,
                             arrowHeadColor: backgroundColorSec,
                             horizontalMargin: 30,
-                            rowsPerPage: tableDataStatsForRemoved.length < 10 ? tableDataStatsForRemoved.length: 10,
+                            rowsPerPage: tableDataStatsForRemoved.length < 10 ? tableDataStatsForRemoved.length == 0 ? 1: tableDataStatsForRemoved.length: 10,
                           )
                         ],
                       ),
@@ -457,7 +457,6 @@ class _StatsEventState extends State<StatsEvent> {
   }
 
   List<DataRow> getRowsForRemoved(List<dynamic> data) => data.map((tableDataStatsForRemoved) {
-    print(tableDataStatsForRemoved.name);
     return DataRow(cells: [
       DataCell(Container(
         height: 40,

@@ -909,7 +909,7 @@ class _CovoiturageState extends State<Covoiturage> {
                                                                         children: <Widget>[
                                                                           Icon(Icons.account_balance_wallet, color: Colors.white, size: 22.0),
                                                                           SizedBox(width: 10.0),
-                                                                          Text(ident['price'].toString() + ' ' + ident['infoAuthor']['currencies'], style: Style.titleInSegment()),
+                                                                          Text(reformatNumberForDisplayOnPrice(ident['price']) + ' ' + ident['infoAuthor']['currencies'], style: Style.titleInSegment()),
                                                                         ],),
                                                                       SizedBox(height: 5.0),
                                                                       Row(mainAxisAlignment: MainAxisAlignment.start,

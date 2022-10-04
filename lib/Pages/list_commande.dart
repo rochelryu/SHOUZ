@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shouz/Constant/helper.dart';
 
 import '../Constant/Style.dart';
 import '../Constant/widget_common.dart';
@@ -110,7 +111,7 @@ class _ListCommandeState extends State<ListCommande> {
                             onPressed: () {
 
                             },
-                            child: Text('Rendre cet article VIP à 1000 ${user?.currencies}'),
+                            child: Text('Rendre cet article VIP à 1 000 ${user?.currencies}'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: colorPrimary, backgroundColor: colorText,
                               minimumSize: Size(88, 36),
@@ -188,7 +189,7 @@ class _ListCommandeState extends State<ListCommande> {
                                             if(commande["lastMessage"][0]["image"].toString().indexOf(".m4a") != -1)Text(commande["lastMessage"][0]["ident"] == user?.ident ? "🗣 Vous avez envoyé une note vocale": "🗣 Vous a envoyé une note vocale", style: Style.simpleTextOnBoard(12, colorWelcome)),
                                             if(commande["lastMessage"][0]["image"].toString().indexOf(".m4a") == -1 && commande["lastMessage"][0]["image"] != "")Text(commande["lastMessage"][0]["ident"] == user?.ident ? "🖼️ Vous avez envoyé une image": "🖼️ Vous a envoyé une image", style: Style.simpleTextOnBoard(12, colorWelcome)),
                                             if(commande["lastMessage"][0]["image"] == "")Text(commande["lastMessage"][0]["ident"] == user?.ident ? "Vous: ${commande["lastMessage"][0]["content"]}": "${commande["lastMessage"][0]["content"]}", style: Style.simpleTextOnBoard(12, colorWelcome), maxLines: 2, overflow: TextOverflow.ellipsis),
-                                            if(commande["etatCommunication"] != "Conversation between users") Text("Prix total: ${commande["priceFinal"].toString()} ${user?.currencies}. Qte Totale: ${commande["quantityProduct"].toString()}", style: Style.simpleTextOnBoard(12, colorWelcome), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                            if(commande["etatCommunication"] != "Conversation between users") Text("Prix total: ${reformatNumberForDisplayOnPrice(commande["priceFinal"])} ${user?.currencies}. Qte Totale: ${commande["quantityProduct"].toString()}", style: Style.simpleTextOnBoard(12, colorWelcome), maxLines: 2, overflow: TextOverflow.ellipsis),
                                             statusLevelDelivery(commande["levelDelivery"]),
                                           ],
                                         )

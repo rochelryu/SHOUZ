@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/PopulaireDeals.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VipDeals.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/search_advanced.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -315,8 +316,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             title: populaireActu[0][choiceItemSearch]
                                             ['body'][index]['name'],
                                             favorite: false,
-                                            price: populaireActu[0][choiceItemSearch]
-                                            ['body'][index]['price'].toString() + ' XOF',
+                                            price: reformatNumberForDisplayOnPrice(populaireActu[0][choiceItemSearch]
+                                            ['body'][index]['price']) + ' XOF',
                                             numero: populaireActu[0][choiceItemSearch]
                                             ['body'][index]['numero'],
                                             autor: populaireActu[0][choiceItemSearch]
@@ -425,8 +426,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           title: populaireActu[0][choiceItemSearch]
                                           ['body'][index]['name'],
                                           favorite: false,
-                                          price: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['price'].toString() + ' XOF',
+                                          price: reformatNumberForDisplayOnPrice(populaireActu[0][choiceItemSearch]
+                                          ['body'][index]['price']) + ' XOF',
                                           numero: populaireActu[0][choiceItemSearch]
                                           ['body'][index]['numero'],
                                           autor: populaireActu[0][choiceItemSearch]
@@ -487,8 +488,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           title: populaireActu[1][choiceItemSearch]
                                           ['body'][index]['name'],
                                           favorite: false,
-                                          price: populaireActu[1][choiceItemSearch]
-                                          ['body'][index]['price'].toString()+ ' XOF',
+                                          price: reformatNumberForDisplayOnPrice(populaireActu[1][choiceItemSearch]
+                                          ['body'][index]['price']) + ' XOF',
                                           numero: populaireActu[1][choiceItemSearch]
                                           ['body'][index]['numero'],
                                           autor: populaireActu[1][choiceItemSearch]
@@ -587,8 +588,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 title: populaireActu[1][choiceItemSearch]
                                                 ['body'][index]['name'],
                                                 favorite: false,
-                                                price: populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['price'].toString()+ ' XOF',
+                                                price: reformatNumberForDisplayOnPrice(populaireActu[1][choiceItemSearch]
+                                                ['body'][index]['price']) + ' XOF',
                                                 numero: populaireActu[1][choiceItemSearch]
                                                 ['body'][index]['numero'],
                                                 autor: populaireActu[1][choiceItemSearch]
@@ -645,8 +646,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             title: populaireActu[2][choiceItemSearch]
                                             ['body'][index]['name'],
                                             favorite: false,
-                                            price: populaireActu[2][choiceItemSearch]
-                                            ['body'][index]['price'].toString()+ ' XOF',
+                                            price: reformatNumberForDisplayOnPrice(populaireActu[2][choiceItemSearch]
+                                            ['body'][index]['price']) + ' XOF',
                                             numero: populaireActu[2][choiceItemSearch]
                                             ['body'][index]['numero'],
                                             autor: populaireActu[2][choiceItemSearch]
@@ -744,8 +745,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 title: populaireActu[2][choiceItemSearch]
                                                 ['body'][index]['name'],
                                                 favorite: false,
-                                                price: populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['price'].toString()+ ' XOF',
+                                                price: reformatNumberForDisplayOnPrice(populaireActu[2][choiceItemSearch]
+                                                ['body'][index]['price']) + ' XOF',
                                                 numero: populaireActu[2][choiceItemSearch]
                                                 ['body'][index]['numero'],
                                                 autor: populaireActu[2][choiceItemSearch]

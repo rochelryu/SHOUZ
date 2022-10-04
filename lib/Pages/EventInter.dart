@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/Pages/explication_event.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -238,7 +239,7 @@ class _EventInterState extends State<EventInter> {
                                                 SizedBox(width: 5.0),
                                                 Text(
                                                   event['listEventsWithFilter']
-                                                  [index]['price'][0]['price'],
+                                                  [index]['price'][0]['price'].toString().toUpperCase() == "GRATUIT" ? event['listEventsWithFilter'][index]['price'][0]['price'] : reformatNumberForDisplayOnPrice(event['listEventsWithFilter'][index]['price'][0]['price']),
                                                   style: Style
                                                       .titleInSegment(),
                                                 ),

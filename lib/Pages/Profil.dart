@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/CardTopNewActu.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
@@ -604,7 +605,7 @@ class _ProfilState extends State<Profil> {
                                                     .titleDealsProduct(), overflow: TextOverflow.ellipsis,),
                                               SizedBox(height: 5.0),
                                               Text(
-                                                  '${item['price'].toString()} ${newClient!.currencies}',
+                                                  '${reformatNumberForDisplayOnPrice(item['price'])} ${newClient!.currencies}',
                                                   style: Style
                                                       .priceDealsProduct()),
                                             ],
@@ -1165,7 +1166,7 @@ class _ProfilState extends State<Profil> {
                                                   children: [
                                                     Icon(Icons.account_balance_wallet, color: Colors.white, size: 16,),
                                                     SizedBox(width: 3),
-                                                    Text(item['price'].toString().toUpperCase(), style: Style.simpleTextOnNews()),
+                                                    Text(reformatNumberForDisplayOnPrice(item['price']), style: Style.simpleTextOnNews()),
                                                     SizedBox(width: 1),
                                                     Text(newClient != null ? newClient!.currencies : '', style: Style.simpleTextOnNews()),
                                                   ],

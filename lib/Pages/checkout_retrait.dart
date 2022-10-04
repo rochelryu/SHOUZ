@@ -378,8 +378,8 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                             loadingFetchButton = true;
                           });
                           final demandeRetrait = await consumeAPI.demandeRetrait('ethereum', txHashEth.trim(), amount.trim());
-                          if(demandeRetrait['etat'] == 'found') {
-                            final titleAlert = "Super! votre demande est en cours de traitement";
+                          if(demandeRetrait['etat'] == 'found' || demandeRetrait['etat'] == 'inWait') {
+                            final titleAlert = "Super! votre transaction vient d'être faites vous allez la recevoir d'ici peu";
                             await askedToLead(titleAlert, true, context);
                           } else if( demandeRetrait['etat'] == "badLevel") {
                             final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";

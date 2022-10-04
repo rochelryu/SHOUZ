@@ -375,7 +375,7 @@ class _EventDetailsState extends State<EventDetails> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text('${checkPros[i]['price'].toString()} ${checkPros[i]['price'].toString() == 'GRATUIT' ? '': user.currencies}',
+                          Text('${checkPros[i]['price'].toString() == 'GRATUIT' ? checkPros[i]['price'].toString(): reformatNumberForDisplayOnPrice(checkPros[i]['price']) +' '+user.currencies}',
                               style: TextStyle(
                                   color: (checkPros[i]['choice'] == 0)
                                       ? Colors.white
@@ -512,7 +512,7 @@ class _EventDetailsState extends State<EventDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Cumul Gain: ${widget.cumulGain.toString()} ${user.currencies}", style: Style.sousTitre(17),),
+                  Text("Cumul Gain: ${reformatNumberForDisplayOnPrice(widget.cumulGain)} ${user.currencies}", style: Style.sousTitre(17),),
                 ],
               )
           ),

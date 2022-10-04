@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
@@ -119,7 +120,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
           Center(
             child: Padding(
               padding: EdgeInsets.only(right: 5),
-              child: Text("${widget.price.toString()} ${widget.infoAuthor['currencies']}"),
+              child: Text("${reformatNumberForDisplayOnPrice(widget.price)} ${widget.infoAuthor['currencies']}"),
             ),
           )
         ],

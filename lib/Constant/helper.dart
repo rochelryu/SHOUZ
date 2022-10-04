@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
+import '../Provider/Notifications.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Style.dart';
 import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
@@ -75,10 +78,7 @@ int daysBetween(DateTime from, DateTime to) {
   from = DateTime(from.year, from.month, from.day, from.hour, from.minute);
   to = DateTime(to.year, to.month, to.day, to.hour, to.minute);
   final diff = to.difference(from).inHours / 24;
-  print(from.toString());
-  print(to.toString());
 
-  print(diff);
   return diff.ceil();
 }
 Future<bool> isGms() async {
@@ -89,26 +89,43 @@ Future<bool> isHms() async {
   return await FlutterHmsGmsAvailability.isHmsAvailable;
 }
 
+void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
+  final data = remoteMessage.data ?? "";
+  huaweiMessagingBackgroundHandler(jsonDecode(data));
+}
+
+Future<void> huaweiMessagingBackgroundHandler(dynamic message) async {
+
+  var body = message['bodyNotif'].toString().trim() == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message['bodyNotif'].toString().trim();
+  body = message['bodyNotif'].toString().trim() == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
+  Map<String, String> data = Map<String, String>.from(message);
+  createShouzNotification(message['titreNotif'].toString().trim(), body, data);
+}
+
 Future getTokenForNotificationProvider() async {
 
 
   if(Platform.isAndroid){
     if(await isHms()) {
-      huawei.Push.enableLogger();
       String _token = '';
-      String result = await huawei.Push.getId() ?? "";
       huawei.Push.getToken("");
-      //print('Huawei push token ::  ${huawei.HosNotificationHelper.token} ');
-      huawei.Push.getTokenStream.listen((String event) {
-        _token = event;
-        print("_token ------------, $_token");
+      huawei.Push.getTokenStream.listen((String event) async {
+        if(event.isNotEmpty) {
+          _token = event;
+          final prefs = await SharedPreferences.getInstance();
+          final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+          if(tokenNotification != _token.trim() && _token.trim() != "") {
+            final infoSaveToken = await consumeAPI.updateTokenVerification(_token.trim(), "huawei_push");
+            if(infoSaveToken['etat'] == "found") {
+              await prefs.setString('tokenNotification', _token.trim());
+            }
+          }
+          await huawei.Push.registerBackgroundMessageHandler(_onHmsMessageReceived);
+        }
+
       }, onError: (dynamic error) {
-        print(error.message);
+        print("error.message ${error.message}");
       });
-
-      huawei.Push.getToken("");
-
-      print('Huawei push token ::  $_token, $result');
 
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
