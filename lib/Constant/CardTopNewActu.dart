@@ -88,6 +88,7 @@ class CardTopNewActu {
                   style: prefix0.Style.itemCustomFont()),
               SizedBox(height: 5.0),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
                     child: Row(
@@ -115,7 +116,7 @@ class CardTopNewActu {
 
                   Container(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         Icon(
                           Icons.alarm,

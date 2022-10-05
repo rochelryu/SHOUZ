@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -171,23 +172,27 @@ class _DetailsActuState extends State<DetailsActu> {
               }
             },
           ),
-          Positioned(
-            right: 30.0,
-            bottom: 30.0,
-            child: lastPage && !error
-                ? FloatingActionButton(
+          if(lastPage && !error) Positioned(
+              right: 30.0,
+              bottom: 30.0,
+              child: FloatingActionButton(
                     backgroundColor: colorText,
-                    child: Icon(
-                      Icons.message,
-                      color: colorPrimary,
-                      size: 22.0,
+                    child: Badge(
+                      position: BadgePosition(top: -23, end: -15),
+                      badgeColor: colorPrimary,
+                      badgeContent: Text(widget.comment.length.toString(),style: TextStyle(color: backgroundColor),),
+                      showBadge: widget.comment.length > 0,
+                      child: Icon(
+                        Icons.message,
+                        color: colorPrimary,
+                        size: 22.0,
+                      ),
                     ),
                     onPressed: () {
                       Navigator.of(context).push((MaterialPageRoute(
                           builder: (context) => CommentActu(id: widget.id, title: widget.title,comment: widget.comment, imageCover: widget.imageCover, key: UniqueKey(),))));
                     },
                   )
-                : Container(),
           )
         ],
       ),

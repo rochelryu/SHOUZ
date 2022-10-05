@@ -59,6 +59,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 
   Timer? _timer;
   Timer? _ampTimer;
+  Timer? perodicScroll;
   final _audioRecorder = Record();
   //String pathRecordAudio = '';
 
@@ -92,14 +93,22 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     appState = Provider.of<AppState>(context, listen: false);
     loadProfil();
     verifyIfUserHaveReadModalExplain();
+    perodicScroll = Timer.periodic(new Duration(seconds: 1), (timer) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut);
+      }
+    });
   }
 
   @override
   dispose() {
-    _scrollController.dispose();
+    perodicScroll?.cancel();
     _timer?.cancel();
     _ampTimer?.cancel();
     _audioRecorder.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -585,10 +594,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context);
     final conversation = appState.getConversationGetter;
-    if (_scrollController.hasClients) Timer(
-        Duration(seconds: 1),
-            () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
 
     return Scaffold(
       key: scaffoldKey,
@@ -842,11 +847,9 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                       inWrite(false, room, widget.newClient.ident);
                                     }
                                     // tabs.add(Bubble(isMe: true,message: message, registerDate: (DateTime.now().hour).toString() +":"+(DateTime.now().minute).toString(), image: imm));
-                                    Timer(
-                                        Duration(milliseconds: 10),
-                                            () => _scrollController.jumpTo(
-                                            _scrollController
-                                                .position.maxScrollExtent));
+                                    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+                                        duration: const Duration(milliseconds: 500),
+                                        curve: Curves.easeInOut);
                                   } else {
                                     if (imm != null) {
                                       final base64Image =

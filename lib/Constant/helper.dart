@@ -14,7 +14,7 @@ import 'Style.dart';
 import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 ConsumeAPI consumeAPI = new ConsumeAPI();
 
-const maxAmountOnAccount = 10000000;
+const maxAmountOnAccount = 5000000;
 const maxAmountOfTransaction = 1000000;
 const minAmountOfTransaction = 1000;
 const linkAppGalleryForShouz = "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";

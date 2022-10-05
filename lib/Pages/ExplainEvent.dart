@@ -6,6 +6,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
+import 'package:shouz/Constant/widget_common.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/ResultSubscribeForfait.dart';
 import 'package:shouz/Provider/AppState.dart';
@@ -25,8 +26,6 @@ class ExplainEvent extends StatefulWidget {
 class _ExplainEventState extends State<ExplainEvent> {
   late AppState appState;
   ConsumeAPI consumeAPI = new ConsumeAPI();
-  String forfaitName = '';
-  int maxPlace = 0;
   late List<dynamic> displayItem;
   List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/free.jpeg', 'title': 'FREE'},{'img': 'images/none.jpeg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpeg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpeg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpeg', 'title': 'GOLD'},{'img': 'images/platine.jpeg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
   bool isFinishLoad = false;
@@ -196,23 +195,10 @@ class _ExplainEventState extends State<ExplainEvent> {
             ],
           ),
         ),
-        floatingActionButton: forfaitName == ''
-            ? SizedBox(width: 30)
-            : FloatingActionButton(
-                onPressed: () async {
-                  await _askedToLead();
-                },
-                backgroundColor: colorText,
-                child:Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  Icon(Icons.check),
-                  Text(forfaitName.substring(0, 1), style: Style.chatIsMe(25),)
-                ],),
-              ));
+    );
   }
 
-  Future<Null> _askedToLead() async {
+  Future<Null> _askedToLead(String forfaitName, int maxPlace) async {
     appState.setForfaitEventEnum(forfaitName, maxPlace);
     Navigator.of(context).push(MaterialPageRoute(
         builder: (builder) => VerifyUser(
@@ -308,10 +294,13 @@ class _ExplainEventState extends State<ExplainEvent> {
                   child: ListTile(
                     onTap: () {
                       if (newClient!.wallet >= element['priceLocalCurrencies']) {
-                        setState(() {
-                          forfaitName = element['title'];
-                          maxPlace = element['maxPlace'];
-                        });
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) => dialogCustomForValidateAction('FORFAIT ${element['title'].toString().replaceAll(',', ' ')}', "Votre compte SHOUZPAY sera débité de ${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.currencies}.\nÊtes vous d'accord ?", 'Oui', () async {
+                              await _askedToLead(element['title'], element['maxPlace']);
+                            }, context),
+                            barrierDismissible: false);
+
                       } else {
                         _askedToInsufisanceWallet();
                       }
@@ -321,7 +310,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                            "${element['describe']}. \nMax place : ${element['maxPlace'].toString()}",
+                            "${element['describe']}.\nMax place: ${element['maxPlace'].toString()}",
                             style: Style.sousTitre(13)),
                         Container(
                           height: 30,

@@ -17,7 +17,6 @@ import '../Utils/Database.dart';
 import 'ChatDetails.dart';
 import 'LoadHide.dart';
 import 'Login.dart';
-import 'Profil.dart';
 import 'choice_categorie_scan.dart';
 import 'create_travel.dart';
 
@@ -39,7 +38,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    _controller =  new TabController(length: 4, vsync: this);
+    _controller = TabController(length: 4, vsync: this);
     getInfo();
     notificationsFull = consumeAPI.getAllNotif();
   }
