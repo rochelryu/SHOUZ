@@ -74,6 +74,7 @@ dependencies:
   flutter_native_splash: ^2.2.10+1
   badges: ^2.0.3
   flutter_hms_gms_availability: ^2.0.0
+  flutter_slidable: ^2.0.0
 
 
 dev_dependencies:

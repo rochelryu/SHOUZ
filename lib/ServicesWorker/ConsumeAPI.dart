@@ -23,6 +23,8 @@ class ConsumeAPI {
   static final SETTINGS_URL = BASE_URL + "/client/settings";
   static final RECHARGE_BYCRYPTO_URL = BASE_URL + "/client/transactionCrypto";
   static final DEMANDERETRAIT_URL = BASE_URL + "/client/demandeRetrait";
+  static final HIDE_TRANSACTION_URL = BASE_URL + "/client/hideTransaction";
+  static final REMOVE_TRANSACTION_URL = BASE_URL + "/client/removeTransaction";
   static final RECHARGE_BYMOBILEMONEY_URL = BASE_URL + "/client/transactionMobileMoney";
   static final RESPONSE_FINAL_DEALS_URL = BASE_URL + "/client/responseProductForLastStep";
   static final ADD_COMMENT_ON_ACTUALITY_URL = BASE_URL + "/client/addComment";
@@ -291,6 +293,24 @@ class ConsumeAPI {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
         await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
       }
+      return res;
+    });
+  }
+
+  hideTransaction(String endpoint, String idTransaction, String typeTransaction) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {'id': newClient.ident, 'credentials': newClient.recovery, 'endpoint': endpoint, 'idTransaction': idTransaction,'typeTransaction': typeTransaction };
+
+    return _netUtil.post(HIDE_TRANSACTION_URL, body: body).then((dynamic res) async {
+      return res;
+    });
+  }
+
+  removeTransaction(String idTransaction) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {'id': newClient.ident, 'credentials': newClient.recovery, 'idTransaction': idTransaction};
+
+    return _netUtil.post(REMOVE_TRANSACTION_URL, body: body).then((dynamic res) async {
       return res;
     });
   }
@@ -581,9 +601,9 @@ class ConsumeAPI {
   }
 
   // For Deals
-  Future<List<dynamic>> getDeals(int numberItemVip, int numberItemRecent, int numberItemPopulaire) async {
+  Future<List<dynamic>> getDeals(int numberItemVip, int numberItemRecent, int numberItemPopulaire, [String searchData = ""]) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}?numberItemVip=${numberItemVip.toString()}&numberItemRecent=${numberItemRecent.toString()}&numberItemPopulaire=${numberItemPopulaire.toString()}');
+    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}?numberItemVip=${numberItemVip.toString()}&numberItemRecent=${numberItemRecent.toString()}&numberItemPopulaire=${numberItemPopulaire.toString()}&searchData=${searchData.trim()}');
     return res;
   }
 

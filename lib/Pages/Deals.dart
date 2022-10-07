@@ -42,7 +42,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyVip = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyRecent = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyPopular = new GlobalKey<RefreshIndicatorState>();
-  bool loadingFull = true, loadMinim =false, isError = false, isEnd = false;
+  bool loadingFull = true, loadMinim =false, isError = false, isEnd = false, readyForLaunchSearchAdvanced =false;
 
 
   @override
@@ -78,6 +78,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     _controller = TabController(length: 3, vsync: this)
       ..addListener(() {
         if (_controller.indexIsChanging) {
+          if(searchData != '') {
+            loadProduct();
+          }
           searchCtrl.clear();
           setState(() {
             choiceSearch = _controller.index;
@@ -94,7 +97,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   Future loadProduct() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
+      final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData);
       setState(() {
         dealsFull = data;
       });
@@ -230,19 +233,18 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                         setState(() {
                                           dealsFull = data;
                                         });
-
                                       }
                                     },
-                                    onSubmitted: (String text) {
-                                      searchDataInContext(text);
+                                    onSubmitted: (String text) async {
+                                      await loadProduct();
                                       FocusScope.of(context).requestFocus(FocusNode());
                                     },
                                   ),
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.search, color: Colors.white),
-                                  onPressed: () {
-                                    searchDataInContext(searchData);
+                                  onPressed: () async {
+                                    await loadProduct();
                                     FocusScope.of(context).requestFocus(FocusNode());
                                   },
                                 )
@@ -788,6 +790,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 child: Icon(Icons.add, color: Colors.white, size: 22.0),
               ),
             ),
+
             if(loadMinim) Positioned(
                 bottom: 0,
                 left: 0,
@@ -807,15 +810,6 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
           ],
         ),
     );
-  }
-
-  void searchDataInContext(String text) async {
-    final List<dynamic> oldDealsNoFutur = dealsFull;
-    final List<dynamic> newPartialDealsFull = oldDealsNoFutur[_controller.index][choiceItemSearch]['body'].where((element) => element['name'].toString().toLowerCase().indexOf(text.toLowerCase()) != -1).toList();
-    oldDealsNoFutur[_controller.index][choiceItemSearch]['body'] = newPartialDealsFull;
-    setState(() {
-      dealsFull = oldDealsNoFutur;
-    });
   }
 
 

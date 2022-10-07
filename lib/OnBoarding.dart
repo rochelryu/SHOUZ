@@ -179,7 +179,7 @@ class _OnBoardingState extends State<OnBoarding> {
               },
             ),
             Positioned(
-              left: 30.0,
+              left: 20.0,
               bottom: 40.0,
               child: Container(
                 width: 180.0,
@@ -202,7 +202,7 @@ class _OnBoardingState extends State<OnBoarding> {
                     )
             ),
             if(!lastPage) Positioned(
-                right: 30.0,
+                right: 15.0,
                 bottom: 20.0,
                 child: TextButton(
                   onPressed: () async {

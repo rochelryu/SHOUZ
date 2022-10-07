@@ -1255,7 +1255,7 @@ class _CheckoutRechargeMobileMoneyState
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: "Code d'autorisation",
+                                      hintText: "Montant à envoyer",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {

@@ -164,8 +164,8 @@ class _LoginState extends State<Login> {
                           bottom: 40,
                           left: 50,
                           child: Container(
-                            height: 120,
-                            width: 120,
+                            height: 100,
+                            width: 100,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50.0),
                                 image: DecorationImage(
@@ -207,8 +207,8 @@ class _LoginState extends State<Login> {
                         ),
 
                         Positioned(
-                          bottom: 120,
-                          right: 110,
+                          bottom: 90,
+                          right: 120,
                           child: Container(
                             height: 105,
                             width: 105,

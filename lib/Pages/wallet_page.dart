@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -267,24 +268,118 @@ class _WalletPageState extends State<WalletPage> {
           ? "Hier à ${register.hour.toString()}h ${register.minute.toString()}"
           : afficheDate;
       allTransactions.add(
-          ListTile(
-            leading: Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  image: DecorationImage(
-                    image: AssetImage(imagePictureByNetwork(transaction["network"])),
-                    fit: BoxFit.cover,
-                  )
-              ),
+          Slidable(
+            key: UniqueKey(),
+            startActionPane: ActionPane(
+              // A motion is a widget used to control how the pane animates.
+              motion: const DrawerMotion(),
+
+              // All actions are defined in the children parameter.
+              children: [
+                if(transaction["state"] == 1) SlidableAction(
+                  onPressed: (context) async {
+                    await consumeAPI.removeTransaction(transaction["_id"]);
+                    setState(() {
+                      arrayOfAllTransaction.removeAt(index);
+                    });
+                  },
+                  backgroundColor: colorError,
+                  foregroundColor: Colors.white,
+                  icon: Icons.stop_circle,
+                  label: 'Annuler',
+                ),
+                if(transaction["state"] != 1) SlidableAction(
+                  onPressed: (context) async {
+                    await launchUrl(
+                        Uri.parse("https://wa.me/2250564250219?text=Problème sur mon ${transaction["typeTransaction"] == "WITHDRAW" ? "retrait" : "rechargement"} par ${transaction["network"].toString().toUpperCase()}.\nCode référence: ${transaction["_id"]}.\n${transaction["address"].length == 10 ? "Numero Mobile Money: " + transaction["address"]: "Adresse Crypto: "+ transaction["address"]}.\nDate Opération: ${formatedDateForLocal(register)}" ),
+                        mode: LaunchMode.externalApplication
+                    );
+                  },
+                  backgroundColor: colorText,
+                  foregroundColor: colorPrimary,
+                  icon: Icons.support_agent,
+                  label: 'Signaler',
+                ),
+                SlidableAction(
+                  // An action can be bigger than the others.
+                  onPressed: (context) async {
+                    await consumeAPI.hideTransaction(transaction["network"], transaction["_id"], transaction["typeTransaction"]);
+                    setState(() {
+                      arrayOfAllTransaction.removeAt(index);
+                    });
+                  },
+                  backgroundColor: colorWarning,
+                  foregroundColor: Colors.black,
+                  icon: Icons.visibility_off_outlined,
+                  label: 'Masquer',
+                ),
+
+
+              ],
             ),
-            title: Text(transaction["address"], style: Style.titre(15),),
-            subtitle: Text(transaction["state"] == 1 ? "En attente" : transaction["state"] == 2 ? "Echouée" : afficheDate, style: Style.simpleTextOnBoardWithBolder(12)),
-            trailing: Container(
-              width: 120,
-              height: 28,
-              child: amountDisplayByStatus(transaction["state"], transaction["typeTransaction"], transaction["amount"]),
+
+            // The end action pane is the one at the right or the bottom side.
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              children: [
+                SlidableAction(
+                  // An action can be bigger than the others.
+                  onPressed: (context) async {
+                    await consumeAPI.hideTransaction(transaction["network"], transaction["_id"], transaction["typeTransaction"]);
+                    setState(() {
+                      arrayOfAllTransaction.removeAt(index);
+                    });
+                  },
+                  backgroundColor: colorWarning,
+                  foregroundColor: Colors.black,
+                  icon: Icons.visibility_off_outlined,
+                  label: 'Masquer',
+                ),
+                if(transaction["state"] != 1) SlidableAction(
+                  onPressed: (context) async {
+                    await launchUrl(
+                        Uri.parse("https://wa.me/2250564250219?text=Problème sur mon ${transaction["typeTransaction"] == "WITHDRAW" ? "retrait" : "rechargement"} par ${transaction["network"].toString().toUpperCase()}.\nCode référence: ${transaction["_id"]}.\n${transaction["address"].length == 10 ? "Numero Mobile Money: " + transaction["address"]: "Adresse Crypto: "+ transaction["address"]}.\nDate Opération: ${formatedDateForLocal(register)}" ),
+                        mode: LaunchMode.externalApplication
+                    );
+                  },
+                  backgroundColor: colorText,
+                  foregroundColor: colorPrimary,
+                  icon: Icons.support_agent,
+                  label: 'Signaler',
+                ),
+                if(transaction["state"] == 1) SlidableAction(
+                  onPressed: (context) async {
+                    await consumeAPI.removeTransaction(transaction["_id"]);
+                    setState(() {
+                      arrayOfAllTransaction.removeAt(index);
+                    });
+                  },
+                  backgroundColor: colorError,
+                  foregroundColor: Colors.white,
+                  icon: Icons.stop_circle,
+                  label: 'Annuler',
+                ),
+              ],
+            ),
+            child: ListTile(
+              leading: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    image: DecorationImage(
+                      image: AssetImage(imagePictureByNetwork(transaction["network"])),
+                      fit: BoxFit.cover,
+                    )
+                ),
+              ),
+              title: Text(transaction["address"], style: Style.titre(15),),
+              subtitle: Text(transaction["state"] == 1 ? "En attente" : transaction["state"] == 2 ? "Echouée" : afficheDate, style: Style.simpleTextOnBoardWithBolder(12)),
+              trailing: Container(
+                width: 120,
+                height: 28,
+                child: amountDisplayByStatus(transaction["state"], transaction["typeTransaction"], transaction["amount"]),
+              ),
             ),
           )
       );
