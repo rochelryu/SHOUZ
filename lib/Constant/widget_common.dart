@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -5,11 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+import 'package:ticket_widget/ticket_widget.dart';
 
+import '../MenuDrawler.dart';
 import '../Models/User.dart';
+import '../Pages/share_ticket.dart';
 import '../Pages/ticket_detail.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Style.dart';
+import 'helper.dart';
 
 
 Widget loadDataSkeletonOfActuality (BuildContext context) {
@@ -413,6 +418,185 @@ Widget loadDataSkeletonOfEvent (BuildContext context, [double height = 235]) {
   );
 }
 
+Widget detailTicket(String idTicket, String idEvent, String nameImage, int placeTotal, String typeTicket, int priceTicket, List<dynamic> timesDecode, String registerDate, int durationEventByDay, String nameEvent, BuildContext context, [bool removeTicket = false]) {
+  final consumeAPI = ConsumeAPI();
+  return Center(
+    child:TicketWidget(
+        padding: EdgeInsets.all(10.0),
+        width: MediaQuery.of(context).size.width * 0.75,
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push((MaterialPageRoute(
+                        builder: (context) => ShareTicket(key: UniqueKey(), ticketId: idEvent, placeTotal: placeTotal, typeTicket: typeTicket))));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30.0),
+                      border: Border.all(width: 1.0, color: colorSuccess),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Partager',
+                        style: TextStyle(color: colorSuccess),
+                      ),
+                    ),
+                  ),
+                ),
+                if(removeTicket && placeTotal < 3) GestureDetector(
+                  onTap: () async {
+                    final shareTicket = await consumeAPI.dropEventTicket(idTicket);
+                    if(shareTicket['etat'] == 'found') {
+                      await askedToLead(
+                          "Ticket Annulé votre compte vient de recevoir 90% du montant total du ticket",
+                          true, context);
+                      Timer(Duration(seconds: 3), () {
+                        Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+                      });
+
+                    }
+                    else {
+                      await askedToLead(shareTicket['error'], false, context);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30.0),
+                      border: Border.all(width: 1.0, color: colorError),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Annuler',
+                        style: TextStyle(color: colorError),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text(nameEvent, maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: Style.grandTitreBlack(14.0),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ticketDetailsWidget('Type ticket', typeTicket.toString().toUpperCase() == 'GRATUIT' ? typeTicket: reformatNumberForDisplayOnPrice(int.parse(typeTicket)) , 'Nbre place', placeTotal.toString()),
+                  SizedBox(height: 10),
+                  ticketDetailsWidget('Prix achat', reformatNumberForDisplayOnPrice(priceTicket), 'Utilisation', '${timesDecode.length.toString()}/${durationEventByDay}'),
+                  SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Date achat",
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            formatedDateForLocal(DateTime.parse(registerDate)),
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+            Expanded(child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    height: 190,
+                    width: 190,
+                    child: Hero(
+                        tag: idTicket,
+                        child: CachedNetworkImage(
+                          imageUrl: "${ConsumeAPI.AssetBuyEventServer}$idEvent/$nameImage",
+                          progressIndicatorBuilder: (context, url, downloadProgress) =>
+                              Center(
+                                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+                          errorWidget: (context, url, error) => notSignal(),
+                          fit: BoxFit.cover,
+                        )
+                    )),
+
+              ],
+            ))
+          ],
+        )
+    ),
+  );
+}
+
+Widget ticketDetailsWidget(String firstTitle, String firstDesc,
+    String secondTitle, String secondDesc) {
+  return Row(
+    children: [
+      Expanded(
+        flex: 3,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                firstTitle,
+                style: const TextStyle(color: Colors.grey),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  firstDesc,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+      Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  secondTitle,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    secondDesc,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                )
+              ],
+            ),
+          ))
+    ],
+  );
+}
+
 final otpInputDecoration = InputDecoration(
   contentPadding:
   EdgeInsets.symmetric(vertical: getProportionateScreenWidth(15)),
@@ -561,7 +745,7 @@ Widget livraisonWidget(String assetFile, String title) {
   );
 }
 
-Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitle, var eventDate, User user) {
+Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitle, User user) {
   return Container(
     padding: EdgeInsets.only(top: 5, bottom: 5, left: 12),
     height: 200,
@@ -585,7 +769,19 @@ Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitl
                         child: InkWell(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                              return TicketDetail(eventTitle, tickets[index]['idEvent'], tickets[index]['_id'], tickets[index]['nameImage'], tickets[index]['placeTotal'],tickets[index]['priceTicket'],tickets[index]['typeTicket'], eventDate, user);
+                              return TicketDetail(
+                                  eventTitle,
+                                  tickets[index]['idEvent'],
+                                  tickets[index]['_id'],
+                                  tickets[index]['nameImage'],
+                                  tickets[index]['placeTotal'],
+                                  tickets[index]['priceTicket'],
+                                  tickets[index]['typeTicket'],
+                                  tickets[index]['registerDate'],
+                                  user,
+                                  tickets[index]['timesDecode'],
+                                  tickets[index]['durationEventByDay'],
+                              );
                             }));
                           },
                           child: Container(

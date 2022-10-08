@@ -328,7 +328,7 @@ class _EventDetailsState extends State<EventDetails> {
               ],
             ),
           ),
-          if (widget.allTicket.length > 0) componentForDisplayTicketByEvent(widget.allTicket, widget.title, widget.enventDate, user),
+          if (widget.allTicket.length > 0) componentForDisplayTicketByEvent(widget.allTicket, widget.title, user),
           Row(
             children: <Widget>[
               SizedBox(

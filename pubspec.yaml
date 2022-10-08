@@ -75,6 +75,7 @@ dependencies:
   badges: ^2.0.3
   flutter_hms_gms_availability: ^2.0.0
   flutter_slidable: ^2.0.0
+  ticket_widget: ^0.0.1
 
 
 dev_dependencies:

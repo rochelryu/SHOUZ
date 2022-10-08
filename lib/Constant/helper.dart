@@ -56,7 +56,7 @@ String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
 
 String formatedDateForLocal(DateTime date) {
   initializeDateFormatting();
-  var formatDate = DateFormat("dd-MM-yyyy' à 'HH:mm");
+  var formatDate = DateFormat("dd/MM/yyyy' à 'HH:mm");
   return formatDate.format(date);
 }
 

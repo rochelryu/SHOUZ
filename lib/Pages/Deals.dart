@@ -236,16 +236,18 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       }
                                     },
                                     onSubmitted: (String text) async {
-                                      await loadProduct();
                                       FocusScope.of(context).requestFocus(FocusNode());
+                                      Navigator.of(context).push((MaterialPageRoute(
+                                          builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
                                     },
                                   ),
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.search, color: Colors.white),
                                   onPressed: () async {
-                                    await loadProduct();
                                     FocusScope.of(context).requestFocus(FocusNode());
+                                    Navigator.of(context).push((MaterialPageRoute(
+                                        builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
                                   },
                                 )
                               ],

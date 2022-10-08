@@ -1127,6 +1127,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.12"
+  ticket_widget:
+    dependency: "direct main"
+    description:
+      name: ticket_widget
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   timeline_tile:
     dependency: "direct main"
     description:

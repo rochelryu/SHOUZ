@@ -1,13 +1,19 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/MenuDrawler.dart';
+import 'package:shouz/Pages/share_ticket.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:ticket_widget/ticket_widget.dart';
 
 import 'Login.dart';
 
@@ -59,6 +65,16 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+          },
+          icon: Icon(Icons.close),
+        ),
+      ),
       body: body(isFinishLoad),
     );
   }
@@ -91,15 +107,35 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
     );
   }
 
-  Widget isSuccessSubscribe(Map<dynamic, dynamic> result) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          AnimatedContainer(
+  Widget body(int isFinishLoad) {
+    if(isFinishLoad == 0){
+      return Center(child: Container(
+        height: 200,
+        width: 200,
+        child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
+      ),);
+    } else if(isFinishLoad == 1) {
+      final result = subscribeCallback!['result'];
+      return detailTicket(
+          result['infoTicket']['_id'],
+          result['infoTicket']['idEvent'],
+          result['infoTicket']['nameImage'],
+          result['infoTicket']['placeTotal'],
+          result['infoTicket']['typeTicket'],
+          result['infoTicket']['priceTicket'],
+          result['infoTicket']['timesDecode'],
+          result['infoTicket']['registerDate'],
+          result['infoTicket']['durationEventByDay'],
+          result['infoTicket']['nameEvent'],
+          context,
+      );
+    } else {
+      return isErrorSubscribe(subscribeCallback!['error']);
+    }
+  }
+}
+
+/*AnimatedContainer(
             duration: transitionMedium,
             height: 1.0 + size,
             width: 1.0 + size,
@@ -143,23 +179,4 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
                         }),
                   ],
                 ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget body(int isFinishLoad) {
-    if(isFinishLoad == 0){
-      return Center(child: Container(
-        height: 200,
-        width: 200,
-        child: LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [colorText], strokeWidth: 2),
-      ),);
-    } else if(isFinishLoad == 1) {
-      return isSuccessSubscribe(subscribeCallback!['result']);
-    } else {
-      return isErrorSubscribe(subscribeCallback!['error']);
-    }
-  }
-}
+              )),*/
