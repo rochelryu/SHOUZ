@@ -12,6 +12,7 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/Categorie.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 import '../Constant/helper.dart';
@@ -63,7 +64,8 @@ class _CreateEventState extends State<CreateEvent> {
   bool _isPosition = false;
   bool _isQuantity = false;
   bool _isLoading = false;
-  bool monVal = false;
+  bool monVal = false, showFloatingAction =true;
+  ScrollController _scrollController = ScrollController();
   List<List<TextEditingController>> _controllers = [];
   List<Row> _fields = [];
 
@@ -118,6 +120,17 @@ class _CreateEventState extends State<CreateEvent> {
     // TODO: implement initState
     super.initState();
     loadCategorie();
+    _scrollController.addListener(() {
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+        setState(() {
+          showFloatingAction = false;
+        });
+      } else {
+        setState(() {
+          showFloatingAction = true;
+        });
+      }
+    });
   }
 
   loadCategorie() async {
@@ -240,6 +253,7 @@ class _CreateEventState extends State<CreateEvent> {
       _controller!.removeListener(() {});
       _controller!.dispose();
     }
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -890,39 +904,60 @@ class _CreateEventState extends State<CreateEvent> {
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: 20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Créer Un Evenement !",
-                          style: Style.secondTitre(22)),
-                      SizedBox(height: 10.0),
-                      Text("Vendez vos tickets,",
-                          style: Style.sousTitre(14),
-                          textAlign: TextAlign.center),
-                      Text("managé votre évenement",
-                          style: Style.sousTitre(14),
-                          textAlign: TextAlign.center),
-                    ],
+        child: ListView(
+          controller: _scrollController,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Créer Un Evenement !",
+                            style: Style.secondTitre(22)),
+                        SizedBox(height: 10.0),
+                        Text("Vendez vos tickets,",
+                            style: Style.sousTitre(14),
+                            textAlign: TextAlign.center),
+                        Text("managé votre évenement",
+                            style: Style.sousTitre(14),
+                            textAlign: TextAlign.center),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  width: double.infinity,
-                  child: loginForm,
-                )
-              ],
-            ),
-          ),
+                  Container(
+                    width: double.infinity,
+                    child: loginForm,
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ),
+      floatingActionButton: showFloatingAction ? Container(width: 180,child: ElevatedButton(
+        style: raisedButtonStyle,
+        onPressed: () async {
+          await launchUrl(
+              Uri.parse("https://wa.me/2250564250219?text=Je veux créer mon évènement sur SHOUZ ÉVENEMENTIEL mais je ne sais pas comment m'y prendre." ),
+              mode: LaunchMode.externalApplication
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.support_agent),
+
+            Text("Besoin aide ?", style: Style.simpleTextOnBoard(14, colorPrimary),),
+
+          ],
+        ),
+      )) :null,
     );
   }
 

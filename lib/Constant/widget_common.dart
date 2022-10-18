@@ -495,7 +495,7 @@ Widget detailTicket(String idTicket, String idEvent, String nameImage, int place
                 children: [
                   ticketDetailsWidget('Type ticket', typeTicket.toString().toUpperCase() == 'GRATUIT' ? typeTicket: reformatNumberForDisplayOnPrice(int.parse(typeTicket)) , 'Nbre place', placeTotal.toString()),
                   SizedBox(height: 10),
-                  ticketDetailsWidget('Prix achat', reformatNumberForDisplayOnPrice(priceTicket), 'Utilisation', '${timesDecode.length.toString()}/${durationEventByDay}'),
+                  ticketDetailsWidget('Prix achat', reformatNumberForDisplayOnPrice(priceTicket), 'Utilisation', '${timesDecode.length.toString()}/$durationEventByDay'),
                   SizedBox(height: 20),
                   Container(
                     width: double.infinity,
@@ -761,7 +761,6 @@ Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitl
               itemBuilder: (BuildContext context, int index) {
                 return Container(
                   width: 170,
-                  margin: EdgeInsets.only(right: 15),
                   child: Column(
                     children: [
                       Card(

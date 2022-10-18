@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:huawei_location/permission/permission_handler.dart';
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as permission;
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/Login.dart';
@@ -22,8 +22,7 @@ class _OnBoardingState extends State<OnBoarding> {
   int _counter = 0;
   bool lastPage = false;
   late Location location;
-  late PermissionStatus _permissionGranted;
-  PermissionHandler permissionHandler = PermissionHandler();
+
 
   @override
   void initState() {
@@ -60,7 +59,8 @@ class _OnBoardingState extends State<OnBoarding> {
                   if(Platform.isAndroid) {
 
                     if (await isHms()) {
-                      bool status = await permissionHandler.requestLocationPermission();
+                      bool status = await permissionsLocation();
+
 
                       if(!status) {
                         showDialog(
@@ -70,12 +70,12 @@ class _OnBoardingState extends State<OnBoarding> {
                                     'Permission de Localisation importante',
                                     "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                     "D'accord",
-                                        () async => await permissionHandler.requestLocationPermission(),
+                                        () async => await permission.Permission.locationWhenInUse.request(),
                                     context),
                             barrierDismissible: false);
                       }
                     } else {
-                      _permissionGranted = await location.hasPermission();
+                      final _permissionGranted = await location.hasPermission();
                       if (_permissionGranted == PermissionStatus.denied) {
                         showDialog(
                             context: context,
@@ -90,7 +90,7 @@ class _OnBoardingState extends State<OnBoarding> {
                       }
                     }
                   } else {
-                    _permissionGranted = await location.hasPermission();
+                    final _permissionGranted = await location.hasPermission();
                     if (_permissionGranted == PermissionStatus.denied) {
                       showDialog(
                           context: context,
@@ -209,7 +209,7 @@ class _OnBoardingState extends State<OnBoarding> {
                     if(Platform.isAndroid) {
 
                       if (await isHms()) {
-                        bool status = await permissionHandler.requestLocationPermission();
+                        bool status = await permissionsLocation();
 
                         if(!status) {
                           showDialog(
@@ -219,13 +219,13 @@ class _OnBoardingState extends State<OnBoarding> {
                                       'Autorisation de localisation',
                                       "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                       "D'accord",
-                                          () async => await permissionHandler.requestLocationPermission(),
+                                          () async => await permission.Permission.location.request(),
                                       context),
                               barrierDismissible: false
                           );
                         }
                       } else {
-                          _permissionGranted = await location.hasPermission();
+                          final _permissionGranted = await location.hasPermission();
                           if (_permissionGranted == PermissionStatus.denied) {
                           showDialog(
                           context: context,
@@ -240,7 +240,7 @@ class _OnBoardingState extends State<OnBoarding> {
                           }
                       }
                     } else {
-                        _permissionGranted = await location.hasPermission();
+                        final _permissionGranted = await location.hasPermission();
                         if (_permissionGranted == PermissionStatus.denied) {
                       showDialog(
                       context: context,

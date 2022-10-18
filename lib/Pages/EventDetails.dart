@@ -600,7 +600,7 @@ class _EventDetailsState extends State<EventDetails> {
 
           ElevatedButton(
             style: raisedButtonStyleSuccess,
-            child: loadForRecupGain ? CircularProgressIndicator(color: colorPrimary,) : Text("Recuperer Gain", style: Style.titre(18)),
+            child: loadForRecupGain ? CircularProgressIndicator(color: colorPrimary,) : Text("Recuperer Gain"),
             onPressed: () async {
               if(!loadForRecupGain) {
                 setState(() {

@@ -4,12 +4,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
-import 'package:huawei_location/location/fused_location_provider_client.dart';
-import 'package:huawei_location/location/location.dart' as loactionHuawei;
-import 'package:huawei_location/location/location_request.dart';
-import 'package:huawei_location/location/location_settings_request.dart';
-import 'package:huawei_location/permission/permission_handler.dart';
+import 'package:huawei_location/huawei_location.dart' as huawei_location;
+
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as permission;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/CardTopNewActu.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -36,7 +34,6 @@ class _ActualiteState extends State<Actualite> {
   late PermissionStatus _permissionGranted;
   late Future<Map<String, dynamic>> topActualite;
   late Future<Map<String, dynamic>> contentActulite;
-  PermissionHandler permissionHandler = PermissionHandler();
   User? newClient;
 
   ConsumeAPI consumeAPI = ConsumeAPI();
@@ -48,17 +45,18 @@ class _ActualiteState extends State<Actualite> {
     if(Platform.isAndroid){
       if(await isHms()) {
         try {
-          bool status = await permissionHandler.hasLocationPermission();
+
+          bool status = await permissionsLocation();
           if(status) {
-            FusedLocationProviderClient locationService = FusedLocationProviderClient();
-            LocationRequest locationRequest = LocationRequest();
-            LocationSettingsRequest locationSettingsRequest = LocationSettingsRequest(
-              requests: <LocationRequest>[locationRequest],
+            huawei_location.FusedLocationProviderClient locationService = huawei_location.FusedLocationProviderClient();
+            huawei_location.LocationRequest locationRequest = huawei_location.LocationRequest();
+            huawei_location.LocationSettingsRequest locationSettingsRequest = huawei_location.LocationSettingsRequest(
+              requests: <huawei_location.LocationRequest>[locationRequest],
               needBle: true,
               alwaysShow: true,
             );
             await locationService.checkLocationSettings(locationSettingsRequest);
-            loactionHuawei.Location locations = await locationService.getLastLocation();
+            huawei_location.Location locations = await locationService.getLastLocation();
             setState(() {
               locationData = LocationData.fromMap(
                   {
@@ -81,7 +79,7 @@ class _ActualiteState extends State<Actualite> {
               );
             });
           } else {
-            await permissionHandler.requestLocationPermission();
+            await permission.Permission.locationWhenInUse.request();
             getPositionCurrent();
           }
         } catch (e) {

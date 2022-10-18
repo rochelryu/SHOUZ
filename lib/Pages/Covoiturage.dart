@@ -1,10 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:huawei_location/location/fused_location_provider_client.dart';
-import 'package:huawei_location/location/location_request.dart';
-import 'package:huawei_location/location/location_settings_request.dart';
-import 'package:huawei_location/permission/permission_handler.dart';
+import 'package:huawei_location/huawei_location.dart' as huawei_location;
 import 'package:latlong2/latlong.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,8 +15,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import './CovoiturageChoicePlace.dart';
-import 'package:huawei_location/location/location.dart' as loactionHuawei;
-
+import 'package:permission_handler/permission_handler.dart' as permission;
 
 import 'package:location/location.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -71,9 +67,6 @@ class _CovoiturageState extends State<Covoiturage> {
   late bool _serviceEnabled;
   late Future<Map<String, dynamic>> covoiturage;
   ConsumeAPI consumeAPI = ConsumeAPI();
-  PermissionHandler permissionHandler = PermissionHandler();
-  FusedLocationProviderClient locationService = FusedLocationProviderClient();
-  LocationRequest locationRequest = LocationRequest();
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   bool isActivateCovoiturage =false;
   int level = 0;
@@ -171,17 +164,17 @@ class _CovoiturageState extends State<Covoiturage> {
     if(Platform.isAndroid){
       if(await isHms()) {
         try {
-          bool status = await permissionHandler.hasLocationPermission();
+          bool status = await permissionsLocation();
           if(status) {
-            FusedLocationProviderClient locationService = FusedLocationProviderClient();
-            LocationRequest locationRequest = LocationRequest();
-            LocationSettingsRequest locationSettingsRequest = LocationSettingsRequest(
-              requests: <LocationRequest>[locationRequest],
+            huawei_location.FusedLocationProviderClient locationService = huawei_location.FusedLocationProviderClient();
+            huawei_location.LocationRequest locationRequest = huawei_location.LocationRequest();
+            huawei_location.LocationSettingsRequest locationSettingsRequest = huawei_location.LocationSettingsRequest(
+              requests: <huawei_location.LocationRequest>[locationRequest],
               needBle: true,
               alwaysShow: true,
             );
-            await locationService.checkLocationSettings(locationSettingsRequest);
-            loactionHuawei.Location locations = await locationService.getLastLocation();
+            final state = await locationService.checkLocationSettings(locationSettingsRequest);
+            huawei_location.Location locations = await locationService.getLastLocation();
             if(locations.latitude == null) {
               if(newClient!.lagitude != 0.0) {
                 locations.latitude = newClient!.lagitude;
@@ -214,7 +207,7 @@ class _CovoiturageState extends State<Covoiturage> {
               finishedLoadPosition = true;
             });
           } else {
-            await permissionHandler.requestLocationPermission();
+            await permission.Permission.locationWhenInUse.request();
             getPositionCurrent();
           }
         } catch (e) {

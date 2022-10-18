@@ -16,6 +16,7 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 import '../MenuDrawler.dart';
@@ -62,9 +63,11 @@ class _CreateDealsState extends State<CreateDeals> {
   TextEditingController numeroCtrl = new TextEditingController();
   bool requestLoading = false;
   bool _isCategorie = false;
-  bool monVal = false;
+  bool monVal = false, showFloatingAction =true;
   User? user;
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  ScrollController _scrollController = ScrollController();
+
 
 
   @override
@@ -73,6 +76,17 @@ class _CreateDealsState extends State<CreateDeals> {
     super.initState();
     loadCategorie();
     verifyIfUserHaveReadModalExplain();
+    _scrollController.addListener(() {
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+       setState(() {
+         showFloatingAction = false;
+       });
+      } else {
+        setState(() {
+          showFloatingAction = true;
+        });
+      }
+    });
   }
 
   loadCategorie() async {
@@ -101,6 +115,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -781,7 +796,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
                         },
                       ),
-                      Text('Booster ce deal en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user?.currencies})',
+                      Text('Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user?.currencies})',
                           style: Style.warning(11)),
                     ],
                   ),
@@ -806,43 +821,65 @@ class _CreateDealsState extends State<CreateDeals> {
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: 20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Créer Votre Annonce !",
-                          style: Style.secondTitre(22)),
-                      SizedBox(height: 10.0),
-                      Text(
-                        "Vendez tout ce que vous voulez,",
-                        style: Style.sousTitre(14),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        "c’est sans frais.",
-                        style: Style.sousTitre(14),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+        child: ListView(
+          controller: _scrollController,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Créer Votre Annonce !",
+                            style: Style.secondTitre(22)),
+                        SizedBox(height: 10.0),
+                        Text(
+                          "Vendez tout ce que vous voulez,",
+                          style: Style.sousTitre(14),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          "c’est sans frais.",
+                          style: Style.sousTitre(14),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  width: double.infinity,
-                  child: loginForm,
-                )
-              ],
-            ),
-          ),
+                  Container(
+                    width: double.infinity,
+                    child: loginForm,
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ),
+      floatingActionButton: showFloatingAction ? Container(width: 180,child: ElevatedButton(
+        style: raisedButtonStyle,
+        onPressed: () async {
+          await launchUrl(
+              Uri.parse("https://wa.me/2250564250219?text=Je veux mettre mon article en vente sur SHOUZ E-COMMERCE mais je ne sais pas comment m'y prendre." ),
+              mode: LaunchMode.externalApplication
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.support_agent),
+
+            Text("Besoin aide ?", style: Style.simpleTextOnBoard(14, colorPrimary),),
+
+          ],
+        ),
+      )) :null,
+
     );
   }
 

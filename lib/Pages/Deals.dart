@@ -110,9 +110,11 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     }catch (e) {
       final dealsFullString = prefs.getString("dealsFull");
       if(dealsFullString != null) {
-        setState(() {
-          dealsFull = jsonDecode(dealsFullString) as List<dynamic>;
-        });
+        if(mounted) {
+          setState(() {
+            dealsFull = jsonDecode(dealsFullString) as List<dynamic>;
+          });
+        }
         Timer(const Duration(seconds: 1), changeMenuOptionButton);
       }
       setState(() {

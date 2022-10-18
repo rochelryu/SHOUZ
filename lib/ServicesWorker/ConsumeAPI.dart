@@ -827,7 +827,7 @@ class ConsumeAPI {
       return res;
     });
   }
-  decodeTicketByNumero( String eventId, String numberClient) async {
+  decodeTicketEventByNumero( String eventId, String numberClient) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
@@ -835,7 +835,7 @@ class ConsumeAPI {
       'eventId': eventId,
       'numberClient': numberClient,
     };
-    return _netUtil.post(DECODE_BY_NUMBER_FOR_TRAVEL_URL, body: body).then((dynamic res) async {
+    return _netUtil.post(DECODE_BY_NUMBER_URL, body: body).then((dynamic res) async {
       if(res['etat'] =='notFound' && res['error'] == "Vous n'êtes pas authorisé"){
         await DBProvider.db.delClient();
         setLevel(1);

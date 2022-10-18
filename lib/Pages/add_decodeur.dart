@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
@@ -29,6 +30,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
   void initState() {
     super.initState();
     getInfo();
+    verifyIfUserHaveReadModalExplain();
   }
 
   Future getInfo() async {
@@ -50,6 +52,17 @@ class _AddDecodeurState extends State<AddDecodeur> {
       }
     } catch (e) {
       print("Erreur $e");
+    }
+  }
+  verifyIfUserHaveReadModalExplain() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool asRead = prefs.getBool('readAddDecodeModalExplain') ?? false;
+    if(!asRead) {
+      await modalForExplain("images/surveillance.svg", "1/4 - Choisissé qui aura le privilège de decoder vos tickets de cet évènement, vous pouvez choisir plusieurs personnes si vous le voulez.\nPar defaut vous êtes vous même le premier décodeur de votre évènement.", context, true);
+      await modalForExplain("images/surveillance.svg", "2/4 - Les décodeurs pourront commencer leurs activités dès qu'il resterar 3H avant le debut de l'évènement.\nToute tentative avant ça sera nulle et sans effet et en plus vous serrez alerté.", context, true);
+      await modalForExplain("images/surveillance.svg", "3/4 - Les décodeurs doivent avoir l'application Shouz pour decoder, il leur suffit de se rendre dans le menu <<Outils>> puis ils veront l'option <<Vérification Tickets>>.", context, true);
+      await modalForExplain("images/surveillance.svg", "4/4 - Si un client a son téléphone déchargé et qu'il est dans l'incapacité de presenter son ticket, il peut donner son numero de compte Shouz pour vérification.", context, true);
+      await prefs.setBool('readAddDecodeModalExplain', true);
     }
   }
 
@@ -80,11 +93,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
             Padding(
                 padding:
                 EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-                child: decodeur.isEmpty ? Text(
-                  "Choisissé qui aura le privilège de decoder vos tickets de cet évènement, vous pouvez choisir plusieurs personnes si vous le voulez",
-                  /*textAlign: TextAlign.justify,*/ style:
-                Style.enterChoiceHobie(21.0),
-                ): Container(
+                child: Container(
                   height: 70,
                   width: double.infinity,
                   child: ListView.builder(

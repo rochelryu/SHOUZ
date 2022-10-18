@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
 import '../Provider/Notifications.dart';
@@ -83,6 +84,13 @@ int daysBetween(DateTime from, DateTime to) {
 }
 Future<bool> isGms() async {
   return await FlutterHmsGmsAvailability.isGmsAvailable;
+}
+
+Future<bool> permissionsLocation() async {
+  final statusLocation = await Permission.location.status;
+  final statusWhenInUse = await Permission.locationWhenInUse.status;
+  final statusAlways = await Permission.locationAlways.status;
+  return statusLocation.isGranted || statusWhenInUse.isGranted || statusAlways.isGranted;
 }
 
 Future<bool> isHms() async {

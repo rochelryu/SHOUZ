@@ -109,7 +109,7 @@ class _DecodeByNumberState extends State<DecodeByNumber> {
 
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          suffixIcon: scanned ? CircularProgressIndicator(value: 15, strokeWidth: 1.0,): Icon(Icons.search, color: colorText, size: 15,),
+                          suffixIcon: scanned ? CircularProgressIndicator(value: 15, strokeWidth: 1.0,): Icon(Icons.search, color: colorText, size: 15),
                           hintText:
                           "Recherche par son numero",
                           hintStyle: TextStyle(
@@ -146,7 +146,7 @@ class _DecodeByNumberState extends State<DecodeByNumber> {
                         setState(() {
                           scanned = true;
                         });
-                        final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketByNumero(widget.idOfType, user['numero']):await consumeAPI.decodeTicketTravelByNumero(widget.idOfType, user['numero']);
+                        final inforDecode = widget.type == 1 ? await consumeAPI.decodeTicketEventByNumero(widget.idOfType, user['numero']):await consumeAPI.decodeTicketTravelByNumero(widget.idOfType, user['numero']);
                         if(inforDecode['etat'] == 'found') {
                           setState(() {
                             scanned = false;

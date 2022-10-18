@@ -198,11 +198,14 @@ class _ExplainEventState extends State<ExplainEvent> {
     );
   }
 
-  Future<Null> _askedToLead(String forfaitName, int maxPlace) async {
+  Future askedToLead(String forfaitName, int maxPlace) async {
     appState.setForfaitEventEnum(forfaitName, maxPlace);
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (builder) => VerifyUser(
-          redirect: ResultSubscribeForfait.rootName, key: UniqueKey(),)));
+    Timer(const Duration(milliseconds: 1000), () {
+      _navigator.push(MaterialPageRoute(
+          builder: (builder) => VerifyUser(
+            redirect: ResultSubscribeForfait.rootName, key: UniqueKey(),)));
+    });
+
   }
 
   _askedToInsufisanceWallet() {
@@ -244,7 +247,6 @@ class _ExplainEventState extends State<ExplainEvent> {
         colors: [Color(0xFF8D6E63), Color(0xFF3E2723)],
         style: Style.titreEvent(20),
       );
-      return Text(title, style: Style.titreEvent(20));
     } else if (title == 'PREMIUM') {
       return GradientText(
         'PREMIUM',
@@ -297,7 +299,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) => dialogCustomForValidateAction('FORFAIT ${element['title'].toString().replaceAll(',', ' ')}', "Votre compte SHOUZPAY sera débité de ${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.currencies}.\nÊtes vous d'accord ?", 'Oui', () async {
-                              await _askedToLead(element['title'], element['maxPlace']);
+                              await askedToLead(element['title'], element['maxPlace']);
                             }, context),
                             barrierDismissible: false);
 

@@ -13,8 +13,9 @@ import '../Pages/wallet_page.dart';
 
 Future<void> createShouzNotification(String title, String body, Map<String, String> payload) async {
   var random = Random();
-  await AwesomeNotifications().createNotification(
-      content: NotificationContent(
+  if(payload['pictureNotification'] == null) {
+    await AwesomeNotifications().createNotification(
+        content: NotificationContent(
           id: random.nextInt(225),
           channelKey: channelKey,
           title:title,
@@ -23,8 +24,24 @@ Future<void> createShouzNotification(String title, String body, Map<String, Stri
           payload: payload,
           displayOnBackground: true,
           backgroundColor: backgroundColor,
-      )
-  );
+        )
+    );
+  } else {
+    await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: random.nextInt(225),
+          channelKey: channelKey,
+          title:title,
+          body:body,
+          notificationLayout: NotificationLayout.BigPicture,
+          bigPicture: payload['pictureNotification'],
+          payload: payload,
+          displayOnBackground: true,
+          backgroundColor: backgroundColor,
+        )
+    );
+  }
+
 }
 
 
@@ -83,6 +100,10 @@ class NotificationController {
     else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerevent") {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => LoadEvent(key: UniqueKey(), eventId: notification.payload!['eventId'] ?? '')), (route) => route.isFirst);
+    }
+    else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerdeals" && notification.payload!['room'] == null) {
+      MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
+          builder: (context) => LoadProduct(key: UniqueKey(), productId: notification.payload!['productId'] ?? '')), (route) => route.isFirst);
     }
   }
 }

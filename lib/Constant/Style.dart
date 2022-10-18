@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shouz/Utils/Database.dart';
 
@@ -1077,7 +1078,7 @@ Future<Null> askedToLead(String message, bool success, BuildContext context) asy
   );
 }
 
-Future<Null> modalForExplain(String assetLink, String text, BuildContext context) async {
+Future<Null> modalForExplain(String assetLink, String text, BuildContext context, [bool isSvg = false]) async {
   
   return showDialog(
       context: context,
@@ -1085,7 +1086,7 @@ Future<Null> modalForExplain(String assetLink, String text, BuildContext context
         return SimpleDialog(
 
           children: <Widget>[
-            Container(
+            if(!isSvg) Container(
               width: double.infinity,
               height: 250,
               decoration: BoxDecoration(
@@ -1095,6 +1096,10 @@ Future<Null> modalForExplain(String assetLink, String text, BuildContext context
                 )
               ),
             
+            ),
+            if(isSvg) SvgPicture.asset(assetLink,
+              semanticsLabel: text.substring(0, 20),
+              height: 250,
             ),
             SizedBox(height: 10),
               Padding(
