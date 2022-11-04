@@ -137,25 +137,25 @@ var pageExplicationEventList = [
 
 var pageExplicationTravelList = [
   PageExplicationModel(
-      imageUrl: "images/tranquile.png",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}tranquile.png",
       body: "Salut à vous et bienvenue dans les explications de la rubrique Voyage.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
   PageExplicationModel(
-      imageUrl: "images/conducteur.svg",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}conducteur.svg",
       body: "1- Cette rubrique existe pour tous ceux qui veulent rémunérer leurs voyages en vendant des places de leur vehicule lors de leurs differents voyage entre ville.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par vous-même lors de l'embarcation. Au moment d'embarquer il vous suffit de vous rendre sous la rubrique Outils>Vérifications Tickets>decoder ticket de voyage."),
   PageExplicationModel(
-      imageUrl: "images/driving.svg",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}driving.svg",
       body: "2- N'importe qui ne peut créer un voyage et le rémunérer. Pour pouvoir créer un voyage il vous faut faire une demande conductrice auprès de Shouz en envoyant des images de la carte grise, carte de visite technique, permis de conduire, assurance, et aussi une photo de votre véhicule et une autre image de vous.\nCette demande peut se faire sous la rubrique Outils>Devenir Conducteur. Nos robots analyseront vos documents de façon minutieuse et avec les supports de vérification adéquate car il en va de la sécurité de nos utilisateurs intéressés."),
   PageExplicationModel(
-      imageUrl: "images/secondvoyage.png",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}secondvoyage.png",
       body: "3- N'importe qui ne peut être passager d'un voyage. Pour pouvoir être passager il faut débloquer son compte en envoyant des images d'une pièce d'identité(CNI, PASSPORT, PERMIS ou ATTESTATION) aussi une image de soi ayant attrapé la pièce en question de par la main.\nCette demande peut se faire sous la rubrique Paramètre>compte>Information Voyage. Nos robots analyseront vos documents de façon minutieuse et avec les supports de vérification adéquate car il en va de la sécurité de nos conducteurs."),
   PageExplicationModel(
-      imageUrl: "images/voyage.png",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}voyage.png",
       body: "4- Le prix du ticket est donné par le conducteur. lors de l'achat des tickets le conducteur ne reçoit pas immédiatement l'argent. s'est après avoir decoder le ticket du passager à l'arrivée que le conducteur reçoit ainsi l'argent du ticket. Il reçoit 90% de la vente du ticket et SHOUZ reçoit les 10% restant.\nPar contre si lors de son voyage l'administration SHOUZ l'appelle pour récupérer un colis dans sa ville de départ pour remettre à une tierce personne sur son trajet, le conducteur bénéficiera d'un avantage commission ce qui lui permettra de gagner 95% au lieu de 90% sur chaque ticket."),
   PageExplicationModel(
-      imageUrl: "images/wait_vehicule.svg",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}wait_vehicule.svg",
       body: "5- En résumé, le principe est simple, pour devenir conducteur et gagner 90% ou 95% de chaque ticket vendu vous devez faire une demande conductrice.\nPour pouvoir acheter une place pour un voyage il faut que votre compte soit authentifié et pour cela vous deviez envoyer des informations vous concernant à l'administration SHOUZ. "),
   PageExplicationModel(
-      imageUrl: "images/notime.svg",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}notime.svg",
       body: "6 - Tout traitement de demande conducteur ou voyageur par l'administration SHOUZ prend moins de 48h"),
 ];
 List<List<Color>> gradient = [
