@@ -208,7 +208,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                                             Icon(
                                               Icons.favorite,
                                               color: Colors.redAccent,
-                                              size: 17.0,
+                                              size: 13.0,
                                             )
                                           ],
                                         )),

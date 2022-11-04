@@ -75,8 +75,8 @@ class _ExplicationEventState extends State<ExplicationEvent> {
                           children: <Widget>[
                             page.imageUrl.toString().indexOf('.svg') == -1 ? Container(
                               padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: Image.asset(page.imageUrl),
-                            ): SvgPicture.asset(
+                              child: Image.network(page.imageUrl),
+                            ): SvgPicture.network(
                               page.imageUrl,
                           semanticsLabel: page.imageUrl.toString().toUpperCase(),
                           height:

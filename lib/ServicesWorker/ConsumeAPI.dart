@@ -128,7 +128,7 @@ class ConsumeAPI {
     });
   }
 
-  signinSecondStep(dynamic images, dynamic base64, List<String> choice) async {
+  signinSecondStep(dynamic images, dynamic base64, List<String> choice, String codeParrain) async {
     User newClient = await DBProvider.db.getClient();
     return _netUtil.post(SIGINSECONDSTEP_URL, body: {
       "id": newClient.ident,
@@ -136,7 +136,8 @@ class ConsumeAPI {
       "base64": base64,
       "name": newClient.name,
       "choice": choice.join(','),
-      "recovery": newClient.recovery
+      "recovery": newClient.recovery,
+      "codeParrain": codeParrain.trim(),
     }).then((dynamic res) {
       if (res["etat"] == "found") {
         return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};

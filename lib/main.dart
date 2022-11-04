@@ -43,6 +43,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   var body = message.data['bodyNotif'].toString().trim() == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.data['bodyNotif'].toString().trim();
   body = message.data['bodyNotif'].toString().trim() == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
   Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
+  print(body);
+  print(data);
   createShouzNotification(message.data['titreNotif'].toString().trim(), body, data);
 }
 
@@ -136,18 +138,18 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   late AppState appState;
   IO.Socket? socket;
   int level = 15;
   User? client;
+  String idOldConversation = "";
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
     final dataString = remoteMessage.data ?? "";
     final data = jsonDecode(dataString);
     if(mounted) {
-      appState = Provider.of<AppState>(context, listen: false);
 
       if(data['room'] != null) {
         if(appState.getIdOldConversation != data['_id'] || appState.getIdOldConversation == '') {
@@ -162,14 +164,49 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onHmsMessageReceiveError(Object error) {
-    print("error message ");
+    print("error message _onHmsMessageReceiveError");
     print(error);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("app in resumed");
+
+        if(client?.ident != "") {
+          appState.setJoinConnected(client?.ident ?? "");
+        }
+        if(idOldConversation != "" && appState.getConversationGetter['room'] != null && client?.name.trim() != appState.getConversationGetter['author'].trim()) {
+            appState.ackReadMessage(appState.getConversationGetter['room']);
+        }
+        break;
+      case AppLifecycleState.inactive:
+        if(appState.getIdOldConversation != "") {
+          print("appState.getIdOldConversation");
+          print(appState.getIdOldConversation);
+          idOldConversation = appState.getIdOldConversation;
+          appState.setIdOldConversation('');
+        }
+        break;
+      case AppLifecycleState.paused:
+        if(appState.getIdOldConversation != "") {
+          print("appState.getIdOldConversation");
+          print(appState.getIdOldConversation);
+          idOldConversation = appState.getIdOldConversation;
+          appState.setIdOldConversation('');
+        }
+        break;
+      default :
+        break;
+    }
   }
 
   @override
   void initState() {
     super.initState();
     FlutterNativeSplash.remove();
+    WidgetsBinding.instance.addObserver(this);
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if(!isAllowed) {
         showDialog(
@@ -191,6 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
     initMessageStream();
+    WidgetsBinding.instance.addObserver(this);
 
 
     getNewLevel();
@@ -203,16 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       if(Platform.isAndroid){
         if(await isHms()) {
-          User user = await DBProvider.db.getClient();
-          setState(() {
-            client = user;
-          });
-          if(user.numero != "null") {
-            await getTokenForNotificationProvider();
-
-            huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
-          }
-
+          huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
         } else {
           listenFirebase();
         }
@@ -241,8 +270,6 @@ class _MyHomePageState extends State<MyHomePage> {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     if(mounted) {
-      appState = Provider.of<AppState>(context, listen: false);
-
       if(message.data['room'] != null) {
         if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
           appState.setNumberNotif(appState.getNumberNotif + 1);
@@ -312,7 +339,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appState.setIdOldConversation(data['result']['_id']);
         appState.ackReadMessage(data['result']['room']);
         await prefs.setString(data['result']['room'], jsonEncode(data['result']));
-        if(client == null) {
+        if(client == null && mounted) {
           final User getClient = await DBProvider.db.getClient();
           setState(() {
             client = getClient;
@@ -385,6 +412,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     AwesomeNotifications().dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

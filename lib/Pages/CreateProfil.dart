@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Painture.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Pages/ChoiceHobie.dart';
@@ -19,6 +20,7 @@ class CreateProfil extends StatefulWidget {
 
 class _CreateProfil extends State<CreateProfil> {
   String value = '';
+  String codeParrain = '';
   String? imagePath;
   final picker = ImagePicker();
   File? tmpFile;
@@ -73,6 +75,8 @@ class _CreateProfil extends State<CreateProfil> {
               heigth = 0;
             });
             await DBProvider.db.updateName(value);
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('codeParrain', codeParrain);
             if (tmpFile == null) {
               showDialog(
                   context: context,
@@ -308,6 +312,41 @@ class _CreateProfil extends State<CreateProfil> {
                           onChanged: (text) {
                             setState(() {
                               value = text;
+                            });
+                          },
+                        ),
+                      ),
+                    )),
+                SizedBox(height: 15),
+                Padding(
+                    padding:
+                    EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+                    child: Card(
+                      elevation: 10.0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Container(
+                        height: 50,
+                        padding: EdgeInsets.only(left: 15.0, top: 2.0),
+                        width: MediaQuery.of(context).size.width,
+                        child: TextField(
+                          autofocus: true,
+                          style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w300),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            suffixIcon: Icon(Icons.local_activity_outlined,
+                                color: Colors.grey[500]),
+                            hintText: "Code parrain (facultatif)",
+                            hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey[500],
+                                fontSize: 15.0),
+                          ),
+                          onChanged: (text) {
+                            setState(() {
+                              codeParrain = text;
                             });
                           },
                         ),

@@ -82,20 +82,20 @@ class _MenuDrawlerState extends State<MenuDrawler>
             if(await isHms()) {
               if(versionInApp['appGallery'] != getLatestVersionApp['appGallery']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
               }
             } else {
               if(versionInApp['playstore'] != getLatestVersionApp['playstore']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
               }
             }
           } else {
             if(versionInApp["appleStore"] != getLatestVersionApp['appleStore']){
               await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+              await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
               await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
             }
           }
@@ -105,20 +105,20 @@ class _MenuDrawlerState extends State<MenuDrawler>
             if(await isHms()) {
               if("1.0.7" != getLatestVersionApp['appGallery']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
               }
             } else {
               if("1.0.7" != getLatestVersionApp['playstore']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
               }
             }
           } else {
             if("1.0.7" != getLatestVersionApp['appleStore']){
               await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain("images/updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
+              await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
               await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
             }
           }

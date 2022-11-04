@@ -13,6 +13,7 @@ class AppState with ChangeNotifier {
   String idVoyage = '';
   int maxPlace = 0;
   double percentageRecharge = 0.0;
+  int amountTvaWithdraw = 300;
   int indexBottomBar = new Random().nextInt(3);
   String idOldConversation = '';
   String priceVoyageTotal = '';
@@ -91,6 +92,11 @@ class AppState with ChangeNotifier {
 
   setPercentageRecharge(double percentageRecharge) {
     this.percentageRecharge = percentageRecharge;
+    notifyListeners();
+  }
+
+  setAmountTvaWithdraw(int amountTvaWithdraw) {
+    this.amountTvaWithdraw = amountTvaWithdraw;
     notifyListeners();
   }
 
@@ -183,7 +189,7 @@ class AppState with ChangeNotifier {
       "image": imageName,
       "id": id
     };
-
+    print(imageName);
       _socket!.emit("message", [jsonData]);
       notifyListeners();
   }
@@ -313,6 +319,7 @@ class AppState with ChangeNotifier {
   bool get getLoadingToSend => loadingToSend;
   String get getIdOldConversation => idOldConversation;
   double get getPercentageRecharge => percentageRecharge;
+  int get getAmountTvaWithdraw => amountTvaWithdraw;
   String get getNumberTicket => numberTicket.toString();
   int get getNumberNotif => numberNotif;
   int get getChoiceSearch => choiceSearch;

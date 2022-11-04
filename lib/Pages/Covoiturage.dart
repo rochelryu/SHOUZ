@@ -1,4 +1,3 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:huawei_location/huawei_location.dart' as huawei_location;
@@ -67,7 +66,6 @@ class _CovoiturageState extends State<Covoiturage> {
   late bool _serviceEnabled;
   late Future<Map<String, dynamic>> covoiturage;
   ConsumeAPI consumeAPI = ConsumeAPI();
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   bool isActivateCovoiturage =false;
   int level = 0;
   bool trueLoad = true;
@@ -90,10 +88,10 @@ class _CovoiturageState extends State<Covoiturage> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readTravelModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/travelModal.png", "1/4 - Passager: Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans une vehicule personnel ou commercial en toute sécurité et avec un prix plus bas.\nTout nos clients passagers passent d'abord le teste de verification d'identité avant de pouvoir acheter des tickets de voyages.", context);
-      await modalForExplain("images/travelModal.png", "2/4 - Conducteur: Tu es propriétaire d’un véhicule personnel, tu veux voyager ou aller au travail mais pas seul ? Avec SHOUZ gagne de l’argent en vendant des places libre de ton véhicule à ton prix.\nTout nos conducteurs de vehicule personnel passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
-      await modalForExplain("images/travelModal.png", "3/4 - Chauffeur: Tu es conduit un véhicule commercial comme activité ? Nous te donnons des clients qui veulent se deplacer dans la ville à notre prix.\nTout nos conducteurs de vehicule commercial passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
-      await modalForExplain("images/travelModal.png", "4/4 - Service Indisponible: ce service (SHOUZ COVOITURAGE & VTC) sortira bientôt.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "1/4 - Passager: Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans une vehicule personnel ou commercial en toute sécurité et avec un prix plus bas.\nTout nos clients passagers passent d'abord le teste de verification d'identité avant de pouvoir acheter des tickets de voyages.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "2/4 - Conducteur: Tu es propriétaire d’un véhicule personnel, tu veux voyager ou aller au travail mais pas seul ? Avec SHOUZ gagne de l’argent en vendant des places libre de ton véhicule à ton prix.\nTout nos conducteurs de vehicule personnel passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "3/4 - Chauffeur: Tu es conduit un véhicule commercial comme activité ? Nous te donnons des clients qui veulent se deplacer dans la ville à notre prix.\nTout nos conducteurs de vehicule commercial passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "4/4 - Service Indisponible: ce service (SHOUZ COVOITURAGE & VTC) sortira bientôt.", context);
       await prefs.setBool('readTravelModalExplain', true);
     }
   }
@@ -165,6 +163,7 @@ class _CovoiturageState extends State<Covoiturage> {
       if(await isHms()) {
         try {
           bool status = await permissionsLocation();
+          bool statusPermanent = await permissionsPermanentDenied();
           if(status) {
             huawei_location.FusedLocationProviderClient locationService = huawei_location.FusedLocationProviderClient();
             huawei_location.LocationRequest locationRequest = huawei_location.LocationRequest();
@@ -207,8 +206,22 @@ class _CovoiturageState extends State<Covoiturage> {
               finishedLoadPosition = true;
             });
           } else {
-            await permission.Permission.locationWhenInUse.request();
-            getPositionCurrent();
+            if(statusPermanent) {
+              await openSettingApp();
+            } else {
+              await incrementPermanentDenied();
+              await showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      dialogCustomForValidatePermissionNotification(
+                          'Permission de Localisation importante',
+                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
+                          "D'accord",
+                              () async => await permission.Permission.locationWhenInUse.request(),
+                          context),
+                  barrierDismissible: false);
+              getPositionCurrent();
+            }
           }
         } catch (e) {
           print(e);
@@ -216,10 +229,12 @@ class _CovoiturageState extends State<Covoiturage> {
       } else {
         try {
           _permissionGranted = await location.hasPermission();
-          if (_permissionGranted == PermissionStatus.denied) {
+          bool statusPermanent = await permissionsPermanentDenied();
+          if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
             _permissionGranted = await location.requestPermission();
             if (_permissionGranted != PermissionStatus.granted) {
-              showDialog(
+              await incrementPermanentDenied();
+              await showDialog(
                   context: context,
                   builder: (BuildContext context) =>
                       dialogCustomForValidatePermissionNotification(
@@ -304,7 +319,11 @@ class _CovoiturageState extends State<Covoiturage> {
                 });
               }
             }
-          } else {
+          }
+          else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+            await openSettingApp();
+          }
+          else {
             _serviceEnabled = await location.serviceEnabled();
             if (!_serviceEnabled) {
               _serviceEnabled = await location.requestService();
@@ -389,10 +408,12 @@ class _CovoiturageState extends State<Covoiturage> {
     } else {
       try {
         _permissionGranted = await location.hasPermission();
-        if (_permissionGranted == PermissionStatus.denied) {
+        bool statusPermanent = await permissionsPermanentDenied();
+        if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
           _permissionGranted = await location.requestPermission();
           if (_permissionGranted != PermissionStatus.granted) {
-            showDialog(
+            await incrementPermanentDenied();
+            await showDialog(
                 context: context,
                 builder: (BuildContext context) =>
                     dialogCustomForValidatePermissionNotification(
@@ -431,15 +452,16 @@ class _CovoiturageState extends State<Covoiturage> {
                           "provider" : '',
                         }
                     );
-                    finishedLoadPosition = true;
                   });
 
                 } else {
                   setState(() {
                     locationData = test;
-                    finishedLoadPosition = true;
                   });
                 }
+                setState(() {
+                  finishedLoadPosition = true;
+                });
               }
             } else {
               var test = await location.getLocation();
@@ -464,18 +486,23 @@ class _CovoiturageState extends State<Covoiturage> {
                         "provider" : '',
                       }
                   );
-                  finishedLoadPosition = true;
                 });
 
               } else {
                 setState(() {
                   locationData = test;
-                  finishedLoadPosition = true;
                 });
               }
+              setState(() {
+                finishedLoadPosition = true;
+              });
             }
           }
-        } else {
+        }
+        else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+          await openSettingApp();
+        }
+        else {
           _serviceEnabled = await location.serviceEnabled();
           if (!_serviceEnabled) {
             _serviceEnabled = await location.requestService();
@@ -513,42 +540,12 @@ class _CovoiturageState extends State<Covoiturage> {
                   finishedLoadPosition = true;
                 });
               }
-              setState(() {
-                finishedLoadPosition = true;
-              });
             }
           } else {
             var test = await location.getLocation();
-            if(test.latitude == null) {
-              setState(() {
-                locationData = LocationData.fromMap(
-                    {
-                      "latitude" : newClient!.lagitude != 0.0 ? newClient!.lagitude: defaultLatitude,
-                      "longitude" : newClient!.longitude != 0.0 ? newClient!.longitude: defaultLongitude,
-                      "accuracy" : 0.0,
-                      "altitude" : 0.0,
-                      "speed" : 0.0,
-                      "speed_accuracy" : 0.0,
-                      "heading" : 0.0,
-                      "time" : 0.0,
-                      "isMock" : false,
-                      "verticalAccuracy" : 0.0,
-                      "headingAccuracy" : 0.0,
-                      "elapsedRealtimeNanos" : 0.0,
-                      "elapsedRealtimeUncertaintyNanos" : 0.0,
-                      "satelliteNumber" : 1,
-                      "provider" : '',
-                    }
-                );
-                finishedLoadPosition = true;
-              });
-
-            } else {
-              setState(() {
-                locationData = test;
-                finishedLoadPosition = true;
-              });
-            }
+            setState(() {
+              locationData = test;
+            });
           }
           var test = await location.getLocation();
           if(test.latitude == null) {

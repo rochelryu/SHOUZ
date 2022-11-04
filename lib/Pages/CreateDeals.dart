@@ -105,10 +105,10 @@ class _CreateDealsState extends State<CreateDeals> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/createShop.png", "1/4 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("images/createShop.png", "2/4 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
-      await modalForExplain("images/createShop.png", "3/4 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
-      await modalForExplain("images/createShop.png", "4/4 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/4 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/4 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/4 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/4 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
       await prefs.setBool('readCreateDealsModalExplain', true);
     }
   }
@@ -949,6 +949,7 @@ class _CreateDealsState extends State<CreateDeals> {
         nameProduct = "";
         describe = "";
         price = "";
+
         await askedToLead(
             "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
             true, context);
@@ -971,6 +972,9 @@ class _CreateDealsState extends State<CreateDeals> {
             "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
             false, context);
       }
+      setState(() {
+        monVal = false;
+      });
     }
   }
 }

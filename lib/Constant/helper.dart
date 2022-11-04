@@ -92,6 +92,21 @@ Future<bool> permissionsLocation() async {
   final statusAlways = await Permission.locationAlways.status;
   return statusLocation.isGranted || statusWhenInUse.isGranted || statusAlways.isGranted;
 }
+Future<bool> permissionsPermanentDenied() async {
+  final prefs = await SharedPreferences.getInstance();
+  final int numberPermissionDenied = prefs.getInt('numberPermissionDenied') ?? 0;
+  return numberPermissionDenied > 3;
+}
+
+Future incrementPermanentDenied() async {
+  final prefs = await SharedPreferences.getInstance();
+  final int numberPermissionDenied = prefs.getInt('numberPermissionDenied') ?? 0;
+  prefs.setInt("numberPermissionDenied", numberPermissionDenied + 1);
+}
+
+Future openSettingApp() async {
+  await openAppSettings();
+}
 
 Future<bool> isHms() async {
   return await FlutterHmsGmsAvailability.isHmsAvailable;

@@ -46,7 +46,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/preferences.gif", "Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offres et offres d'emplois uniquement en fonction de vos préférences.\nSélectionnez vos préférences pour continuer, vous pourriez les modifier ou complêter plus tard.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}preferences.gif", "Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offres et offres d'emplois uniquement en fonction de vos préférences.\nSélectionnez vos préférences pour continuer, vous pourriez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
   }
@@ -73,9 +73,11 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                         choice.sort((a, b) => a.toString().compareTo(b.toString()));
                         final profils = await DBProvider.db.getProfil();
                         base64Image = profils['base'] != "" ? base64Encode(File(profils['base']).readAsBytesSync()): "";
+                        final prefs = await SharedPreferences.getInstance();
+                        final codeParrain = await prefs.getString("codeParrain") ?? "";
                         final signinUser = await consumeAPI
                             .signinSecondStep(
-                            profils['name'], base64Image, choice);
+                            profils['name'], base64Image, choice, codeParrain);
                         if (signinUser['etat'] == 'found') {
                           await DBProvider.db.delClient();
                           await DBProvider.db.newClient(signinUser['user']);
@@ -139,6 +141,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
             ),
             Expanded(
                 child: ListView.builder(
+
                     itemCount: allCategorie.length,
                     itemBuilder: (context, index) {
                       final categorie = allCategorie[index];
@@ -154,20 +157,13 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                               child: Text(placeHolderAvatar,
                                   style:TextStyle(color: Colors.white))),
                         ),
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                                width: MediaQuery.of(context).size.width*0.6,
-                                child: Text(categorie.name, style: Style.sousTitre(13, colorPrimary), maxLines: 2, overflow: TextOverflow.ellipsis,)),
-
-                          ],
-                        ),
+                        title: Container(
+                            width: MediaQuery.of(context).size.width*0.6,
+                            child: Text(categorie.name, style: Style.sousTitre(13, colorPrimary), maxLines: 2, overflow: TextOverflow.ellipsis,)),
                         trailing: Switch(
                           value: allCategorie[index].isHobie,
                           activeColor: colorText,
                           onChanged: (bool value) {
-
                             setState(() {
                               if(!value) {
                                 choice.remove(categorie.name);

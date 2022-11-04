@@ -9,6 +9,7 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/Utils/Database.dart';
 
+import '../Constant/helper.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 
 class CheckoutRetraitMobileMoney extends StatefulWidget {
@@ -46,7 +47,6 @@ class _CheckoutRetraitMobileMoneyState
     User user = await DBProvider.db.getClient();
     setState(() {
       newClient = user;
-
     });
   }
 
@@ -79,7 +79,7 @@ class _CheckoutRetraitMobileMoneyState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
-                      Text("Votre solde: ${newClient != null ? newClient!.wallet : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
+                      Text("Votre solde: ${newClient != null ? reformatNumberForDisplayOnPrice(newClient!.wallet) : ''}", textAlign: TextAlign.center, style: Style.titre(20.0),),
 
                       GestureDetector(
                         onTap: () {
@@ -277,7 +277,7 @@ class _CheckoutRetraitMobileMoneyState
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text("1. Faites entrer votre numero de telephone Mtn qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Mtn qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe ${appState.getAmountTvaWithdraw.toString()} Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -340,7 +340,7 @@ class _CheckoutRetraitMobileMoneyState
               ),
             ),
             SizedBox(height: 5),
-            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            if (int.parse(_controller.text) - appState.getAmountTvaWithdraw > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - appState.getAmountTvaWithdraw}", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.yellow], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMtnMoney,
@@ -389,7 +389,7 @@ class _CheckoutRetraitMobileMoneyState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
 
-            Text("1. Faites entrer votre numero de telephone Wave qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Wave qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe ${appState.getAmountTvaWithdraw.toString()} Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -452,7 +452,7 @@ class _CheckoutRetraitMobileMoneyState
               ),
             ),
             SizedBox(height: 5),
-            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            if (int.parse(_controller.text) - appState.getAmountTvaWithdraw > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - appState.getAmountTvaWithdraw}", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blue], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleWave,
@@ -499,7 +499,7 @@ class _CheckoutRetraitMobileMoneyState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
 
-            Text("1. Faites entrer votre numero de telephone Orange qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Orange qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe ${appState.getAmountTvaWithdraw.toString()} Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -561,7 +561,7 @@ class _CheckoutRetraitMobileMoneyState
               ),
             ),
             SizedBox(height: 5),
-            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            if (int.parse(_controller.text) - appState.getAmountTvaWithdraw > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - appState.getAmountTvaWithdraw}", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.deepOrangeAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleOrangeMoney,
@@ -607,7 +607,7 @@ class _CheckoutRetraitMobileMoneyState
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text("1. Faites entrer votre numero de telephone Moov qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe 300 Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
+            Text("1. Faites entrer votre numero de telephone Moov qui doit recevoir la transaction puis le montant de votre transaction. Montant Min: 1000 Frs (frais de timbre & taxe ${appState.getAmountTvaWithdraw.toString()} Frs pour n'importe qu'elle montant)", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             Container(
               height: 45,
@@ -669,7 +669,7 @@ class _CheckoutRetraitMobileMoneyState
               ),
             ),
             SizedBox(height: 5),
-            if (int.parse(_controller.text) - 300 > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - 300}", style: Style.sousTitre(11)),
+            if (int.parse(_controller.text) - appState.getAmountTvaWithdraw > 0) Text("Vous allez recevoir ${int.parse(_controller.text) - appState.getAmountTvaWithdraw}", style: Style.sousTitre(11)),
             SizedBox(height: 10),
             loadConfirmation ? Container(height: 30,child: Center(child:  LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [Colors.blueAccent], strokeWidth: 2),),) : ElevatedButton(
                 style: raisedButtonStyleMoovMoney,

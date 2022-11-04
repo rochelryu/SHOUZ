@@ -8,7 +8,7 @@ import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
 
@@ -22,6 +22,7 @@ class _OnBoardingState extends State<OnBoarding> {
   int _counter = 0;
   bool lastPage = false;
   late Location location;
+
 
 
   @override
@@ -60,48 +61,61 @@ class _OnBoardingState extends State<OnBoarding> {
 
                     if (await isHms()) {
                       bool status = await permissionsLocation();
-
-
-                      if(!status) {
-                        showDialog(
+                      bool statusPermanent = await permissionsPermanentDenied();
+                      if(!status && !statusPermanent) {
+                        await incrementPermanentDenied();
+                        await showDialog(
                             context: context,
                             builder: (BuildContext context) =>
-                                dialogCustomForValidatePermissionNotification(
+                                dialogCustomForValidateAction(
                                     'Permission de Localisation importante',
                                     "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                     "D'accord",
                                         () async => await permission.Permission.locationWhenInUse.request(),
-                                    context),
+                                    context, false),
                             barrierDismissible: false);
+                      }
+                      else if(!status && statusPermanent) {
+                        await openSettingApp();
                       }
                     } else {
                       final _permissionGranted = await location.hasPermission();
-                      if (_permissionGranted == PermissionStatus.denied) {
-                        showDialog(
+                      bool statusPermanent = await permissionsPermanentDenied();
+                      if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
+                        await incrementPermanentDenied();
+                        await showDialog(
                             context: context,
                             builder: (BuildContext context) =>
-                                dialogCustomForValidatePermissionNotification(
+                                dialogCustomForValidateAction(
                                     'Permission de Localisation importante',
                                     "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                     "D'accord",
                                         () async => await location.requestPermission(),
-                                    context),
+                                    context, false),
                             barrierDismissible: false);
+                      }
+                      else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+                        await openSettingApp();
                       }
                     }
                   } else {
                     final _permissionGranted = await location.hasPermission();
-                    if (_permissionGranted == PermissionStatus.denied) {
-                      showDialog(
+                    bool statusPermanent = await permissionsPermanentDenied();
+                    if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
+                      await incrementPermanentDenied();
+                      await showDialog(
                           context: context,
                           builder: (BuildContext context) =>
-                              dialogCustomForValidatePermissionNotification(
+                              dialogCustomForValidateAction(
                                   'Permission de Localisation importante',
                                   "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                   "D'accord",
                                       () async => await location.requestPermission(),
-                                  context),
+                                  context, false),
                           barrierDismissible: false);
+                    }
+                    else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+                        await openSettingApp();
                     }
                   }
                 }
@@ -210,48 +224,61 @@ class _OnBoardingState extends State<OnBoarding> {
 
                       if (await isHms()) {
                         bool status = await permissionsLocation();
-
-                        if(!status) {
-                          showDialog(
+                        bool statusPermanent = await permissionsPermanentDenied();
+                        if(!status && !statusPermanent) {
+                          await incrementPermanentDenied();
+                          await showDialog(
                               context: context,
                               builder: (BuildContext context) =>
-                                  dialogCustomForValidatePermissionNotification(
-                                      'Autorisation de localisation',
+                                  dialogCustomForValidateAction(
+                                      'Permission de Localisation importante',
                                       "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
                                       "D'accord",
-                                          () async => await permission.Permission.location.request(),
-                                      context),
-                              barrierDismissible: false
-                          );
+                                          () async => await permission.Permission.locationWhenInUse.request(),
+                                      context, false),
+                              barrierDismissible: false);
+                        }
+                        else if(!status && statusPermanent) {
+                        await openSettingApp();
                         }
                       } else {
-                          final _permissionGranted = await location.hasPermission();
-                          if (_permissionGranted == PermissionStatus.denied) {
-                          showDialog(
-                          context: context,
-                          builder: (BuildContext context) =>
-                          dialogCustomForValidatePermissionNotification(
-                          'Permission de Localisation importante',
-                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
-                          "D'accord",
-                          () async => await location.requestPermission(),
-                          context),
-                          barrierDismissible: false);
-                          }
+                        final _permissionGranted = await location.hasPermission();
+                        bool statusPermanent = await permissionsPermanentDenied();
+                        if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
+                          await incrementPermanentDenied();
+                          await showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  dialogCustomForValidateAction(
+                                      'Permission de Localisation importante',
+                                      "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
+                                      "D'accord",
+                                          () async => await location.requestPermission(),
+                                      context, false),
+                              barrierDismissible: false);
+                        }
+                        else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+                        await openSettingApp();
+                        }
                       }
                     } else {
-                        final _permissionGranted = await location.hasPermission();
-                        if (_permissionGranted == PermissionStatus.denied) {
-                      showDialog(
-                      context: context,
-                      builder: (BuildContext context) =>
-                      dialogCustomForValidatePermissionNotification(
-                      'Permission de Localisation importante',
-                      "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
-                      "D'accord",
-                      () async => await location.requestPermission(),
-                      context),
-                      barrierDismissible: false);
+                      final _permissionGranted = await location.hasPermission();
+                      bool statusPermanent = await permissionsPermanentDenied();
+                      if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
+                        await incrementPermanentDenied();
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
+                                    "D'accord",
+                                        () async => await location.requestPermission(),
+                                    context, false),
+                            barrierDismissible: false);
+                      }
+                      else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+                        await openSettingApp();
                       }
                     }
                     Navigator.push(context, ScaleRoute(widget: Login()));

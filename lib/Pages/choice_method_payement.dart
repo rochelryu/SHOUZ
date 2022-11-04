@@ -38,6 +38,7 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
       final data = await consumeAPI.getAllPercentage();
 
       if(data["etat"] == 'found') {
+        appState.setAmountTvaWithdraw(data["result"]['amountTvaWithdraw']);
         setState(() {
           info = data["result"];
         });

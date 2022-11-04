@@ -47,6 +47,7 @@ class _ActualiteState extends State<Actualite> {
         try {
 
           bool status = await permissionsLocation();
+          bool statusPermanent = await permissionsPermanentDenied();
           if(status) {
             huawei_location.FusedLocationProviderClient locationService = huawei_location.FusedLocationProviderClient();
             huawei_location.LocationRequest locationRequest = huawei_location.LocationRequest();
@@ -79,8 +80,23 @@ class _ActualiteState extends State<Actualite> {
               );
             });
           } else {
-            await permission.Permission.locationWhenInUse.request();
-            getPositionCurrent();
+            if(statusPermanent) {
+              await openSettingApp();
+            } else {
+              await incrementPermanentDenied();
+              await showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      dialogCustomForValidatePermissionNotification(
+                          'Permission de Localisation importante',
+                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
+                          "D'accord",
+                              () async => await permission.Permission.locationWhenInUse.request(),
+                          context),
+                  barrierDismissible: false);
+              getPositionCurrent();
+            }
+
           }
         } catch (e) {
           print(e);
@@ -88,10 +104,12 @@ class _ActualiteState extends State<Actualite> {
       } else {
         try {
           _permissionGranted = await location.hasPermission();
-          if (_permissionGranted == PermissionStatus.denied) {
+          bool statusPermanent = await permissionsPermanentDenied();
+          if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
             _permissionGranted = await location.requestPermission();
             if (_permissionGranted != PermissionStatus.granted) {
-              showDialog(
+              await incrementPermanentDenied();
+              await showDialog(
                   context: context,
                   builder: (BuildContext context) =>
                       dialogCustomForValidatePermissionNotification(
@@ -120,7 +138,11 @@ class _ActualiteState extends State<Actualite> {
                 });
               }
             }
-          } else {
+          }
+          else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+            await openSettingApp();
+          }
+          else {
             _serviceEnabled = await location.serviceEnabled();
             if (!_serviceEnabled) {
               _serviceEnabled = await location.requestService();
@@ -145,15 +167,17 @@ class _ActualiteState extends State<Actualite> {
           }
 
         } catch (e) {
-          print("nous avons une erreur $e");
+          print("nous avons une erreur ${e.toString()}");
         }
       }
     } else {
       try {
         _permissionGranted = await location.hasPermission();
-        if (_permissionGranted == PermissionStatus.denied) {
+        bool statusPermanent = await permissionsPermanentDenied();
+        if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
           _permissionGranted = await location.requestPermission();
           if (_permissionGranted != PermissionStatus.granted) {
+            await incrementPermanentDenied();
             showDialog(
                 context: context,
                 builder: (BuildContext context) =>
@@ -183,7 +207,11 @@ class _ActualiteState extends State<Actualite> {
               });
             }
           }
-        } else {
+        }
+        else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
+          await openSettingApp();
+        }
+        else {
           _serviceEnabled = await location.serviceEnabled();
           if (!_serviceEnabled) {
             _serviceEnabled = await location.requestService();
@@ -219,7 +247,7 @@ class _ActualiteState extends State<Actualite> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readActualityModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/news.gif", "Nous vous informons le plus tôt possible de ce qui se passe ici et ailleurs. Notre équipe s'occupe de démêler les fakes news afin de vous envoyer que ce qui est vrai, nous vous proposons même des appels d'offre & offres d'emploi.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}news.gif", "Nous vous informons le plus tôt possible de ce qui se passe ici et ailleurs. Notre équipe s'occupe de démêler les fakes news afin de vous envoyer que ce qui est vrai, nous vous proposons même des appels d'offre & offres d'emploi.\nLe tout uniquement en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readActualityModalExplain', true);
     }
   }

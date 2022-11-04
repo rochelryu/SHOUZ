@@ -36,7 +36,7 @@ class _ChoiceOtherHobieSecondState extends State<ChoiceOtherHobieSecond> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readPreferenceModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/preferences.gif", "Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offres et offres d'emplois uniquement en fonction de vos préférences.\nSélectionnez vos préférences pour continuer, vous pourriez les modifier ou complêter plus tard.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}preferences.gif", "Nous vous présentons des articles de qualité, des évènements, des actualités, des appels d'offres et offres d'emplois uniquement en fonction de vos préférences.\nSélectionnez vos préférences pour continuer, vous pourriez les modifier ou complêter plus tard.", context);
       await prefs.setBool('readPreferenceModalExplain', true);
     }
   }

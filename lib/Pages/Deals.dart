@@ -129,9 +129,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readDealsModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("images/ecommerce.gif", "1/3 - Acheteur: Discute avec le vendeur dans l'application, marchande le prix, demande lui les infos sur la qualité. Paye l'article depuis l'application par mobile money, crypto-monnaie ou carte bancaire pour une garantie sécurité. Shouz te livre, c’est satisfait ou remboursé immédiatement et intégralement.", context);
-      await modalForExplain("images/ecommerce.gif", "2/3 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom, des livraisons gratuites, des clients intéressés, des liens de partages, des propositions sur les articles les plus achetés, des discusssions directes avec les clients, une gestion & trésorie optimale de vos ventes.\n", context);
-      await modalForExplain("images/ecommerce.gif", "3/3 - Nous tenons à rappeler que nous affichons uniquement les articles dans SHOUZ en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "1/3 - Acheteur: Discute avec le vendeur dans l'application, marchande le prix, demande lui les infos sur la qualité. Paye l'article depuis l'application par mobile money, crypto-monnaie ou carte bancaire pour une garantie sécurité. Shouz te livre, c’est satisfait ou remboursé immédiatement et intégralement.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "2/3 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom, des livraisons gratuites, des clients intéressés, des liens de partages, des propositions sur les articles les plus achetés, des discusssions directes avec les clients, une gestion & trésorie optimale de tes ventes.\n", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "3/3 - Nous tenons à rappeler que nous affichons uniquement les articles dans SHOUZ en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readDealsModalExplain', true);
     }
   }
