@@ -43,8 +43,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   var body = message.data['bodyNotif'].toString().trim() == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.data['bodyNotif'].toString().trim();
   body = message.data['bodyNotif'].toString().trim() == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
   Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
-  print(body);
-  print(data);
+
   createShouzNotification(message.data['titreNotif'].toString().trim(), body, data);
 }
 
@@ -170,36 +169,29 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in resumed");
+    if(mounted) {
+      switch (state) {
+        case AppLifecycleState.resumed:
 
-        if(client?.ident != "") {
-          appState.setJoinConnected(client?.ident ?? "");
-        }
-        if(idOldConversation != "" && appState.getConversationGetter['room'] != null && client?.name.trim() != appState.getConversationGetter['author'].trim()) {
+          if(client?.ident != "") {
+            appState.setJoinConnected(client?.ident ?? "");
+          }
+          if(idOldConversation != "" && appState.getConversationGetter['room'] != null && client?.name.trim() != appState.getConversationGetter['author'].trim()) {
             appState.ackReadMessage(appState.getConversationGetter['room']);
-        }
-        break;
-      case AppLifecycleState.inactive:
-        if(appState.getIdOldConversation != "") {
-          print("appState.getIdOldConversation");
-          print(appState.getIdOldConversation);
-          idOldConversation = appState.getIdOldConversation;
-          appState.setIdOldConversation('');
-        }
-        break;
-      case AppLifecycleState.paused:
-        if(appState.getIdOldConversation != "") {
-          print("appState.getIdOldConversation");
-          print(appState.getIdOldConversation);
-          idOldConversation = appState.getIdOldConversation;
-          appState.setIdOldConversation('');
-        }
-        break;
-      default :
-        break;
+          }
+          break;
+        case AppLifecycleState.inactive:
+          if(appState.getIdOldConversation != "") {
+            idOldConversation = appState.getIdOldConversation;
+            appState.setIdOldConversation('');
+          }
+          break;
+
+        default :
+          break;
+      }
     }
+
   }
 
   @override

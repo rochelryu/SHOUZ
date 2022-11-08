@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
@@ -19,28 +18,28 @@ import 'package:shouz/Constant/widget_common.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
-import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
 
-class CreateDeals extends StatefulWidget {
-  static String rootName = '/createDeals';
+class UpdateDeals extends StatefulWidget {
+  final DealsSkeletonData dealsDetailsSkeleton;
+  const UpdateDeals({required Key key, required this.dealsDetailsSkeleton});
   @override
-  _CreateDealsState createState() => _CreateDealsState();
+  _UpdateDealsState createState() => _UpdateDealsState();
 }
 
-class _CreateDealsState extends State<CreateDeals> {
+class _UpdateDealsState extends State<UpdateDeals> {
   final formKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
   VideoPlayerController? _controller;
   File? video;
-  List<File> post = [];
-  List<String> base64Image = [];
+  List<dynamic> post = [];
+  List<dynamic> base64Image = [];
   String base64Video = "";
   int priceVip = 0;
-  List<VideoPlayerController> postVideo = [];
+  List<dynamic> postVideo = [];
   List<dynamic> allCategories = [];
   String nameProduct = "";
   TextEditingController nameProductCtrl = new TextEditingController();
@@ -74,13 +73,14 @@ class _CreateDealsState extends State<CreateDeals> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    initialiseData();
     loadCategorie();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
     _scrollController.addListener(() {
       if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-       setState(() {
-         showFloatingAction = false;
-       });
+        setState(() {
+          showFloatingAction = false;
+        });
       } else {
         setState(() {
           showFloatingAction = true;
@@ -89,28 +89,54 @@ class _CreateDealsState extends State<CreateDeals> {
     });
   }
 
+  initialiseData() {
+    nameProductCtrl.text = widget.dealsDetailsSkeleton.title;
+    priceCtrl.text = widget.dealsDetailsSkeleton.price.toString().replaceAll("XOF", "").trim();
+    quantityCtrl.text = widget.dealsDetailsSkeleton.quantity.toString();
+    describeCtrl.text = widget.dealsDetailsSkeleton.describe;
+    numeroCtrl.text = widget.dealsDetailsSkeleton.numero;
+    positionCtrl.text = widget.dealsDetailsSkeleton.lieu;
+
+    setState(() {
+      nameProduct = widget.dealsDetailsSkeleton.title;
+      price = widget.dealsDetailsSkeleton.price.toString().replaceAll("XOF", "").trim();
+      quantity = widget.dealsDetailsSkeleton.quantity.toString();
+      describe = widget.dealsDetailsSkeleton.describe;
+      numero = widget.dealsDetailsSkeleton.numero;
+      position = widget.dealsDetailsSkeleton.lieu;
+      for(int index = 0; index < widget.dealsDetailsSkeleton.imageUrl.length; index++) {
+        post.add({"type": "Network", "content" : widget.dealsDetailsSkeleton.imageUrl[index]});
+        base64Image.add({"type": "Network", "content" : widget.dealsDetailsSkeleton.imageUrl[index]});
+      }
+      if(widget.dealsDetailsSkeleton.video != "") {
+        _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
+        _controller!
+          ..initialize().then((_) {
+            _controller!.setLooping(true);
+          });
+        _controller!
+          ..addListener(() {
+          });
+        postVideo.add(_controller!);
+      }
+    });
+  }
+
   loadCategorie() async {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getAllCategrieWithoutFilter("deal");
-    numeroCtrl.text = newClient.numero;
+    for(int index = 0; index < data['result']["categories"].length ; index++){
+      if(data['result']["categories"][index]['name'] == widget.dealsDetailsSkeleton.categorieName){
+        setState(() {
+          dropdownValue = data['result']["categories"][index]['_id'];
+        });
+      }
+    }
     setState(() {
       allCategories = data['result']["categories"];
       priceVip = data['result']["AMOUNT_FOR_PAY_VIP_DEALS"];
       user = newClient;
-      numero = newClient.numero;
     });
-  }
-
-  verifyIfUserHaveReadModalExplain() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
-    if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/4 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/4 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/4 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/4 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
-      await prefs.setBool('readCreateDealsModalExplain', true);
-    }
   }
 
   @override
@@ -128,10 +154,14 @@ class _CreateDealsState extends State<CreateDeals> {
       final end = (files.length > 6) ? 6 : files.length;
       if(6 - (end + post.length) >= 0) {
         final images = files.sublist(0, end - post.length > 0 ? end - post.length : end  );
-        final newBase64Image = images
-            .map((image) => base64Encode(image.readAsBytesSync()))
+        final imageFormated = [];
+        for(int index = 0; index < images.length; index++) {
+          imageFormated.add({"type": "File", "content" : images[index]});
+        }
+        final newBase64Image = imageFormated
+            .map((image) => base64Encode(image["content"].readAsBytesSync()))
             .toList();
-        final List<File> allImage = List.from(post)..addAll(images);
+        final List<dynamic> allImage = List.from(post)..addAll(imageFormated);
         setState(() {
           post = allImage;
           base64Image = List.from(base64Image)..addAll(newBase64Image);
@@ -176,9 +206,17 @@ class _CreateDealsState extends State<CreateDeals> {
           video = File(videoCompressed.path!);
           base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
         } else {
-          setState((){
-            postVideo = [];
-          });
+          if(widget.dealsDetailsSkeleton.video != "") {
+            _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
+            _controller!
+              ..initialize().then((_) {
+                _controller!.setLooping(false);
+              });
+            _controller!
+              ..addListener(() {
+              });
+            postVideo = [_controller!];
+          }
           showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
         }
 
@@ -203,9 +241,17 @@ class _CreateDealsState extends State<CreateDeals> {
           video = File(videoCompressed.path!);
           base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
         } else {
-          setState((){
-            postVideo = [];
-          });
+          if(widget.dealsDetailsSkeleton.video != "") {
+            _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
+            _controller!
+              ..initialize().then((_) {
+                _controller!.setLooping(false);
+              });
+            _controller!
+              ..addListener(() {
+              });
+            postVideo = [_controller!];
+          }
           showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourde, veuillez choisir une autre si possible");
         }
       }
@@ -240,7 +286,7 @@ class _CreateDealsState extends State<CreateDeals> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                        /*gradient: LinearGradient(
+                      /*gradient: LinearGradient(
                             colors: [Colors.grey[200], Colors.black12],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
@@ -408,7 +454,7 @@ class _CreateDealsState extends State<CreateDeals> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                        /*gradient: LinearGradient(
+                      /*gradient: LinearGradient(
                             colors: [Colors.grey[200], Colors.black12],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight
@@ -488,7 +534,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Charger les images",
+                                      "les images (${post.length}/6)",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
@@ -499,6 +545,7 @@ class _CreateDealsState extends State<CreateDeals> {
                           ),
                         );
                       } else {
+                        final ImageProvider<Object> imageProvider = post[index - 1]['type'] == "Network" ? NetworkImage("${ConsumeAPI.AssetProductServer}${post[index - 1]['content']}") : FileImage(post[index - 1]['content']) as ImageProvider<Object>;
                         return Padding(
                           padding: EdgeInsets.only(right: 25),
                           child: InkWell(
@@ -509,9 +556,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                   base64Image = [];
                                 } else {
                                   base64Image = post
-                                      .map((image) =>
-                                          base64Encode(image.readAsBytesSync()))
-                                      .toList();
+                                      .map((data) => data["type"] == "Network" ? data : { "type" :"File", "content":  base64Encode(data['content'].readAsBytesSync())}).toList();
                                 }
                               });
                             },
@@ -525,7 +570,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     image: DecorationImage(
-                                        image: FileImage(post[index - 1]),
+                                        image: imageProvider,
                                         fit: BoxFit.cover)),
                               ),
                             ),
@@ -620,6 +665,7 @@ class _CreateDealsState extends State<CreateDeals> {
                                 : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: allCategories.length == 0 ? LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2) :  DropdownButtonFormField<String>(
+
                       hint: Text('Veuillez choisir une categorie',
                           style: Style.sousTitre(14)),
                       value: dropdownValue,
@@ -826,9 +872,6 @@ class _CreateDealsState extends State<CreateDeals> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        leading: IconButton(onPressed: (){
-          Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
-        }, icon: Icon(Icons.arrow_back)),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -840,28 +883,9 @@ class _CreateDealsState extends State<CreateDeals> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.only(bottom: 20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("Créer Votre Annonce !",
-                            style: Style.secondTitre(22)),
-                        SizedBox(height: 10.0),
-                        Text(
-                          "Vendez tout ce que vous voulez,",
-                          style: Style.sousTitre(14),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          "c’est sans frais.",
-                          style: Style.sousTitre(14),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+                  Text("Modification de Votre Annonce",
+                      style: Style.secondTitre(22), textAlign: TextAlign.center,),
+                  SizedBox(height: 10.0),
                   Container(
                     width: double.infinity,
                     child: loginForm,
@@ -929,7 +953,7 @@ class _CreateDealsState extends State<CreateDeals> {
     if(ready) {
       setState(() => requestLoading = true);
       List<String> imageListTitle =
-          post.map((image) => image.path.split('/').last).toList();
+      post.map((image) => image.path.split('/').last).toList() as List<String>;
 
       String imageTitle = imageListTitle.join(',');
       String imagesBuffers = base64Image.join(',');
@@ -989,3 +1013,4 @@ class _CreateDealsState extends State<CreateDeals> {
     }
   }
 }
+

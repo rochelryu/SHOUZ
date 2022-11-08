@@ -189,7 +189,6 @@ class AppState with ChangeNotifier {
       "image": imageName,
       "id": id
     };
-    print(imageName);
       _socket!.emit("message", [jsonData]);
       notifyListeners();
   }

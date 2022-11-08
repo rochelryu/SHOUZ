@@ -64,7 +64,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
-            height: 210,
+            height: 180,
             width: double.infinity,
             child: Row(
               children: [
@@ -72,8 +72,8 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                   elevation: 30.0,
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                   child: Container(
-                    width: 150,
-                    height: 200,
+                    width: 140,
+                    height: 170,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       border: Border.all(
@@ -88,7 +88,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                     ),
                   ),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 15),
                 Expanded(child: Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -97,7 +97,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                         animatedTexts: [
                           TypewriterAnimatedText(
                             "Salut à vous et bienvenue dans mon magasin.\nJe suis ${widget.authorName}",
-                            textStyle: Style.titre(20),
+                            textStyle: Style.titre(17),
                             speed: const Duration(milliseconds: 100)
                           ),
                         ],
@@ -133,7 +133,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
             ),
           ),
           Container(
-              height: MediaQuery.of(context).size.height - 360,
+              height: MediaQuery.of(context).size.height - 310,
               child: TabBarView(
                   controller: _controller,
                   children: <Widget>[

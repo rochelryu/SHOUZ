@@ -117,11 +117,11 @@ class _VipDealsState extends State<VipDeals> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
-                      padding: EdgeInsets.only(left: 15.0, top: 8.0),
+                      padding: EdgeInsets.only(left: 12.0, top: 8.0, right: 6.0),
                       child:
                           Text(widget.title, style: Style.titleDealsProduct())),
                   Padding(
-                      padding: EdgeInsets.only(left: 15.0),
+                      padding: EdgeInsets.only(left: 12.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +137,7 @@ class _VipDealsState extends State<VipDeals> {
                         ],
                       )),
                   Padding(
-                    padding: EdgeInsets.only(left: 15.0),
+                    padding: EdgeInsets.only(left: 12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +149,7 @@ class _VipDealsState extends State<VipDeals> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 15.0),
+                    padding: EdgeInsets.only(left: 12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,

@@ -122,7 +122,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
             ),
             Container(
               height: 155,
-              width: MediaQuery.of(context).size.width * 0.52,
+              width: MediaQuery.of(context).size.width * 0.53,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       colors: [backgroundColor, tint],
@@ -162,71 +162,61 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                        padding: EdgeInsets.only(left: 5.0, top: 8.0),
-                        child:
-                        Text(widget.title, style: Style.titleDealsProduct())),
+                        padding: EdgeInsets.only(left: 5.0, top: 8.0, right: 3.0),
+                        child:Text(widget.title, style: Style.titleDealsProduct())),
                     SizedBox(height: 15),
                     Padding(
                       padding: EdgeInsets.only(left: 5.0),
                       child: Text("${widget.price.toString()}",
                           style: Style.priceDealsProduct()),
                     ),
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                height: 40,
-                                width: double.infinity,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      margin: EdgeInsets.only(left: 5.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(afficheDate, style: Style.numberOfLike()),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                        padding: EdgeInsets.only(left: 5.0),
-                                        width: 60,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(widget.numberFavorite.toString(),
-                                                style: Style.numberOfLike()),
-                                            SizedBox(width: 5.0),
-                                            Icon(
-                                              Icons.favorite,
-                                              color: Colors.redAccent,
-                                              size: 13.0,
-                                            )
-                                          ],
-                                        )),
-                                    /*IconButton(
-                                icon: Icon(Icons.call, color: Colors.green),
-                                onPressed: () async {
-                                  await launchUrlString("tel:${widget.numero}");
-                                }),*/
+                    Spacer(),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(left: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(afficheDate, style: Style.numberOfLike()),
+                              ],
+                            ),
+                          ),
+                          Container(
+                              padding: EdgeInsets.only(left: 5.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(widget.numberFavorite.toString(),
+                                      style: Style.numberOfLike()),
+                                  SizedBox(width: 5.0),
+                                  Icon(
+                                    Icons.favorite,
+                                    color: Colors.redAccent,
+                                    size: 13.0,
+                                  ),
+                                  SizedBox(width: 5.0),
+                                ],
+                              )),
+                          /*IconButton(
+                      icon: Icon(Icons.call, color: Colors.green),
+                      onPressed: () async {
+                        await launchUrlString("tel:${widget.numero}");
+                      }),*/
 
 
-                                    /*IconButton(
-                                icon: Icon(Style.social_normal, color: tint),
-                                onPressed: () {
-                                  Share.share("${ConsumeAPI.ProductLink}${widget.id}");
-                                }),*/
-                                  ],
-                                ),
-                              ))
+                          /*IconButton(
+                      icon: Icon(Style.social_normal, color: tint),
+                      onPressed: () {
+                        Share.share("${ConsumeAPI.ProductLink}${widget.id}");
+                      }),*/
                         ],
                       ),
                     )

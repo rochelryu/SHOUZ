@@ -27,7 +27,7 @@ class _ExplainEventState extends State<ExplainEvent> {
   late AppState appState;
   ConsumeAPI consumeAPI = new ConsumeAPI();
   late List<dynamic> displayItem;
-  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': 'images/free.jpeg', 'title': 'FREE'},{'img': 'images/none.jpeg', 'title': 'BASIC'}, {'img': 'images/premiumCard.jpeg', 'title': 'PREMIUM'}, {'img': 'images/masterClass.jpeg', 'title': 'MASTER CLASS'}, {'img': 'images/gold.jpeg', 'title': 'GOLD'},{'img': 'images/platine.jpeg', 'title': 'PLATINE'}, {'img': 'images/diamomd.jpg', 'title': 'DIAMOND'}];
+  List<Map<dynamic, dynamic>> displayItemCarousel = [{'img': '${ConsumeAPI.AssetPublicServer}free.jpeg', 'title': 'FREE'},{'img': '${ConsumeAPI.AssetPublicServer}none.jpeg', 'title': 'BASIC'}, {'img': '${ConsumeAPI.AssetPublicServer}premiumCard.jpeg', 'title': 'PREMIUM'}, {'img': '${ConsumeAPI.AssetPublicServer}masterClass.jpeg', 'title': 'MASTER CLASS'}, {'img': '${ConsumeAPI.AssetPublicServer}gold.jpeg', 'title': 'GOLD'},{'img': '${ConsumeAPI.AssetPublicServer}platine.jpeg', 'title': 'PLATINE'}, {'img': '${ConsumeAPI.AssetPublicServer}diamomd.jpg', 'title': 'DIAMOND'}];
   bool isFinishLoad = false;
   User? newClient;
   late NavigatorState _navigator;
@@ -131,7 +131,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: AssetImage(value['img'])),
+                                    image: NetworkImage(value['img'])),
                                 borderRadius: BorderRadius.circular(4)),
                                 child: Center(
                                         child: Column(

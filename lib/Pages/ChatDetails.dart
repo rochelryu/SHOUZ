@@ -138,10 +138,6 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     });
 
     final room = widget.room == '' ? "${widget.authorId}_${widget.newClient.ident}_${widget.productId}": widget.room;
-    print("widget.authorId-widget.newClient.ident-widget.productId}");
-    print("${widget.authorId}_${widget.newClient.ident}_${widget.productId}");
-    print("widget.room");
-    print(widget.room);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final converse = prefs.getString(room);
 
@@ -154,20 +150,14 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
       appState.getConversation(room);
       final arrayOfId = room.toString().split('_');
       final productInfo = await consumeAPI.getDetailsDeals(arrayOfId[2]);
-      print("productInfo");
-      print(productInfo);
 
       final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == widget.newClient.ident ? arrayOfId[1] : arrayOfId[0]);
-      print("infoOnLine");
-      print(infoOnLine);
       setState(() {
         this.room = room.toString();
         productDetails = productInfo;
         onLine = infoOnLine;
       });
     } catch (e) {
-      print('error pourquoi');
-      print(e);
       _showSnackBar("Aucune connexion internet");
 
     }

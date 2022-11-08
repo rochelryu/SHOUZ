@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/profil_shop.dart';
+import 'package:shouz/Pages/update_deals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -133,6 +135,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
   }
 
   Widget build(BuildContext context) {
+    final key = GlobalObjectKey<ExpandableFabState>(context);
     final register =
         DateTime.parse(widget.dealsDetailsSkeleton.registerDate); //.toString();
     String afficheDate = (DateTime.now()
@@ -491,49 +494,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       style: TextStyle(color: Colors.white, fontSize: 13.5)),
                 ],
               ),
-              if (isMe) Container(
-                height: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    //ICI SE TROUVERA L'icon pour la modification de l'article plutard pour le moment c'est l'archivage seul qui est disponible
-                    ElevatedButton(
-                      style: raisedButtonStyle,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(MyFlutterAppSecond.shop,
-                              size: 17,
-                              color: colorPrimary),
-                          SizedBox(width: 5),
-                          Text("Commandes", style: Style.titre(13)),
-                        ],
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (builder) => ListCommande(
-                                  key: UniqueKey(),
-                                  productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
-                                )));
-                      },
-                    ),
 
-                   if(widget.dealsDetailsSkeleton.quantity > 0) IconButton(
-                      icon: Icon(Icons.delete_sharp, color: colorText, size: 30,),
-                      onPressed: (){
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) => dialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit du Marché ?', 'Oui', () async => await archivateProduct(widget.dealsDetailsSkeleton.id), context),
-                            barrierDismissible: false);
-
-                      },
-                      tooltip: 'Archiver cet article ?',
-                    )
-                  ],
-                ),
-              ),
               if (!isMe && widget.dealsDetailsSkeleton.quantity > 0) ElevatedButton(
                 style: raisedButtonStyle,
                 child: Text("Discuter", style: Style.titre(18)),
@@ -565,6 +526,153 @@ class _DetailsDealsState extends State<DetailsDeals> {
           ),
         ),
       ),
+
+      floatingActionButtonLocation: ExpandableFab.location,
+        floatingActionButton: isMe ? ExpandableFab(
+          key: key,
+          distance: 60,
+          type: ExpandableFabType.up,
+          overlayStyle: ExpandableFabOverlayStyle(
+            // color: Colors.black.withOpacity(0.5),
+            blur: 5,
+          ),
+
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (builder) => ListCommande(
+                          key: UniqueKey(),
+                          productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
+                        )));
+              },
+              child: Row(
+                children: [
+                  Text("Mes commandes", style: Style.titre(15.0),),
+                  Card(
+                    elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0)),
+                    color: colorText,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.lightBlue,
+                          borderRadius: BorderRadius.circular(25.0)
+                      ),
+                      child: Center(
+                        child: Icon(MyFlutterAppSecond.shop,
+                            size: 17,
+                            color: colorPrimary),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (builder) => UpdateDeals(
+                          key: UniqueKey(),
+                          dealsDetailsSkeleton: widget.dealsDetailsSkeleton,
+                        )));
+              },
+              child: Row(
+                children: [
+                  Text("Modifier", style: Style.titre(15.0),),
+                  Card(
+                    elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0)),
+                    color: colorText,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: colorSecondary,
+                          borderRadius: BorderRadius.circular(25.0)
+                      ),
+                      child: Center(
+                        child: Icon(Icons.edit,
+                            size: 17,
+                            color: colorPrimary),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (builder) => ListCommande(
+                          key: UniqueKey(),
+                          productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
+                        )));
+              },
+              child: Row(
+                children: [
+                  Text("Actualiser", style: Style.titre(15.0),),
+                  Card(
+                    elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0)),
+                    color: colorText,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: colorSuccess,
+                          borderRadius: BorderRadius.circular(25.0)
+                      ),
+                      child: Center(
+                        child: Icon(Icons.sync, color: colorPrimary, size: 17),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            if(widget.dealsDetailsSkeleton.quantity > 0) GestureDetector(
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => dialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit du Marché ?', 'Oui', () async => await archivateProduct(widget.dealsDetailsSkeleton.id), context),
+                    barrierDismissible: false);
+              },
+              child: Row(
+                children: [
+                  Text("Archiver", style: Style.titre(15.0),),
+                  Card(
+                    elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0)),
+                    color: colorText,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(25.0)
+                      ),
+                      child: Center(
+                        child: Icon(Icons.archive_outlined, color: colorPrimary, size: 17),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ) : SizedBox(width: 0,),
     );
   }
 }

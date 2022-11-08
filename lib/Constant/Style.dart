@@ -616,7 +616,7 @@ class Style {
 
   static dynamic numberOfLike() {
     return TextStyle(
-      fontSize: 13.0,
+      fontSize: 12.0,
       fontFamily: "Montserrat-Light",
       color: colorSecondary,
     );

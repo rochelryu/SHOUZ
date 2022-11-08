@@ -75,6 +75,7 @@ dependencies:
   flutter_hms_gms_availability: ^2.0.0
   flutter_slidable: ^2.0.0
   ticket_widget: ^0.0.1
+  flutter_expandable_fab: ^1.6.0
 
 
 dev_dependencies:
