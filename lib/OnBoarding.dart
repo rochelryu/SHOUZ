@@ -8,7 +8,6 @@ import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
 
@@ -76,7 +75,17 @@ class _OnBoardingState extends State<OnBoarding> {
                             barrierDismissible: false);
                       }
                       else if(!status && statusPermanent) {
-                        await openSettingApp();
+
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                       }
                     } else {
                       final _permissionGranted = await location.hasPermission();
@@ -95,7 +104,16 @@ class _OnBoardingState extends State<OnBoarding> {
                             barrierDismissible: false);
                       }
                       else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-                        await openSettingApp();
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                       }
                     }
                   } else {
@@ -115,7 +133,16 @@ class _OnBoardingState extends State<OnBoarding> {
                           barrierDismissible: false);
                     }
                     else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-                        await openSettingApp();
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                     }
                   }
                 }
@@ -239,7 +266,16 @@ class _OnBoardingState extends State<OnBoarding> {
                               barrierDismissible: false);
                         }
                         else if(!status && statusPermanent) {
-                        await openSettingApp();
+                          await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                         }
                       } else {
                         final _permissionGranted = await location.hasPermission();
@@ -258,7 +294,16 @@ class _OnBoardingState extends State<OnBoarding> {
                               barrierDismissible: false);
                         }
                         else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-                        await openSettingApp();
+                          await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                         }
                       }
                     } else {
@@ -278,7 +323,16 @@ class _OnBoardingState extends State<OnBoarding> {
                             barrierDismissible: false);
                       }
                       else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-                        await openSettingApp();
+                          await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
                       }
                     }
                     Navigator.push(context, ScaleRoute(widget: Login()));

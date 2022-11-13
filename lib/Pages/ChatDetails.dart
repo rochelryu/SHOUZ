@@ -47,6 +47,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   File? _image;
+  String base64Image = "", imageCover = "";
   final picker = ImagePicker();
   ConsumeAPI consumeAPI = ConsumeAPI();
   Map<dynamic, dynamic>? productDetails;
@@ -56,6 +57,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   String quantity = "";
   TextEditingController quantityCtrl = TextEditingController();
   String displayTime = '00:00';
+  String idConversation = '';
   int historyChangeForConversation = 0;
 
   Timer? _timer;
@@ -74,6 +76,10 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     var image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      base64Image =
+      base64Encode(File(image.path).readAsBytesSync());
+      imageCover =
+          image.path.split('/').last;
       setState(() {
         _image = File(image.path);
       });
@@ -101,6 +107,9 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           _scrollController.animateTo(_scrollController.position.maxScrollExtent,
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut);
+          if(!onLine) {
+            reloadForChangeConnectionUser();
+          }
         }
       }
     });
@@ -133,34 +142,61 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
   getMessage() {}
 
   loadProfil() async {
+
     setState(() {
       onLine = widget.onLine;
     });
 
-    final room = widget.room == '' ? "${widget.authorId}_${widget.newClient.ident}_${widget.productId}": widget.room;
+    final String roomLocal = widget.room == '' ? "${widget.authorId}_${widget.newClient.ident}_${widget.productId}": widget.room.trim();
+    setState(() {
+      this.room = roomLocal;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final converse = prefs.getString(room);
 
     if(converse != null) {
       final conversation = jsonDecode(converse);
       appState.setConversation(conversation);
-      appState.setIdOldConversation(conversation['_id']);
+      appState.setIdOldConversation(conversation['_id'].trim());
+      idConversation = conversation['_id'].trim();
     }
     try {
-      appState.getConversation(room);
-      final arrayOfId = room.toString().split('_');
-      final productInfo = await consumeAPI.getDetailsDeals(arrayOfId[2]);
 
-      final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == widget.newClient.ident ? arrayOfId[1] : arrayOfId[0]);
-      setState(() {
-        this.room = room.toString();
-        productDetails = productInfo;
-        onLine = infoOnLine;
-      });
+      if(roomLocal != "" && roomLocal.indexOf("_") != -1) {
+        appState.getConversation(roomLocal);
+        final arrayOfId = roomLocal.toString().split('_');
+        final productInfo = await consumeAPI.getDetailsDeals(arrayOfId[2]);
+        if(arrayOfId[1] != "" && arrayOfId[0] != "") {
+          final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == widget.newClient.ident ? arrayOfId[1] : arrayOfId[0]);
+          setState(() {
+            onLine = infoOnLine;
+          });
+        }
+        setState(() {
+          productDetails = productInfo;
+        });
+        idConversation = appState.getConversationGetter['_id'];
+      }
+
+
     } catch (e) {
-      _showSnackBar("Aucune connexion internet");
+      print(e);
 
     }
+
+  }
+
+  reloadForChangeConnectionUser() async {
+    final String roomLocal = widget.room == '' ? "${widget.authorId}_${widget.newClient.ident}_${widget.productId}": widget.room.trim();
+
+    if(roomLocal != "" && roomLocal.indexOf("_") != -1) {
+      final arrayOfId = roomLocal.toString().split('_');
+        final infoOnLine = await consumeAPI.verifyClientIsOnLine(arrayOfId[0] == widget.newClient.ident ? arrayOfId[1] : arrayOfId[0]);
+        setState(() {
+          onLine = infoOnLine;
+        });
+    }
+
 
   }
 
@@ -375,7 +411,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                     appState.relanceDeals(
                         destinate: room,
                         content: "Encore moi 👋🏽",
-                        id: appState.getIdOldConversation
+                        id: appState.getIdOldConversation.trim()
                         );
                   },
                   child: Text(
@@ -837,59 +873,59 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 );
                               } else {
                                 appState.updateLoadingToSend(true);
-                                setState(() {
                                   eCtrl.text = "";
-                                  File? imm = _image;
-                                  _image = null;
+
                                   if (appState.getConversationGetter['_id'] == null) {
-                                    if (imm != null) {
-                                      final base64Image =
-                                      base64Encode(imm.readAsBytesSync());
-                                      String imageCover =
-                                          imm.path.split('/').last;
+                                    if (_image != null) {
+
                                       appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
+                                          destinate: room,
                                           base64: base64Image,
                                           imageName: imageCover,
                                           content: message);
                                       inWrite(false, room, widget.newClient.ident);
                                     } else {
                                       appState.createChatMessage(
-                                          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
+                                          destinate: room,
                                           content: message);
                                       inWrite(false, room, widget.newClient.ident);
                                     }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (DateTime.now().hour).toString() +":"+(DateTime.now().minute).toString(), image: imm));
+                                    setState(() {
+                                      _image = null;
+                                      message = '';
+                                      base64Image ='';
+                                      imageCover = '';
+                                    });
                                     _scrollController.animateTo(_scrollController.position.maxScrollExtent,
                                         duration: const Duration(milliseconds: 500),
                                         curve: Curves.easeInOut);
                                   } else {
-                                    if (imm != null) {
-                                      final base64Image =
-                                      base64Encode(imm.readAsBytesSync());
-                                      String imageCover =
-                                          imm.path.split('/').last;
+                                    if (_image != null) {
                                       appState.sendChatMessage(
                                           destinate: room,
                                           base64: base64Image,
                                           imageName: imageCover,
                                           content: message,
-                                          id: appState.getIdOldConversation);
+                                          id: idConversation.trim());
                                       inWrite(false, room, widget.newClient.ident);
                                     } else {
                                       appState.sendChatMessage(
                                           destinate: room,
                                           content: message,
-                                          id: appState.getIdOldConversation);
+                                          id: idConversation.trim());
                                       inWrite(false, room, widget.newClient.ident);
                                     }
-                                    // tabs.add(Bubble(isMe: true,message: message, registerDate: (DateTime.now().hour).toString() +":"+(DateTime.now().minute).toString(), image: imm));
+                                    setState(() {
+                                      _image = null;
+                                      message = '';
+                                      base64Image ='';
+                                      imageCover = '';
+                                    });
                                     _scrollController.animateTo(_scrollController.position.maxScrollExtent,
                                         duration: const Duration(milliseconds: 500),
                                         curve: Curves.easeInOut);
                                   }
-                                  message = '';
-                                });
+
                               }
 
                             },
@@ -955,7 +991,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                       ),
                       Tab(
                         //icon: const Icon(Icons.shopping_cart),
-                        text: (room.split('_')[1] == widget.newClient.ident) ? 'Ma réponse': 'Acheteur',
+                        text: (room.split('')[1] == widget.newClient.ident) ? 'Ma réponse': 'Acheteur',
                       ),
 
                     ],
@@ -1007,7 +1043,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
                                 if (conversation['etatCommunication'] != null && conversation['etatCommunication'] == 'Conversation between users' && room.split('_')[0] == widget.newClient.ident) ElevatedButton(
                               onPressed: () {
                                 if(int.parse(quantity) <= productDetails!['result']['quantity'] && double.parse(price) > 0 && double.parse(quantity) > 0) {
-                                  appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation );
+                                  appState.sendPropositionForDealsByAuteur(price : price, qte: quantity, room: room, id: appState.getIdOldConversation.trim() );
                                   Navigator.pop(context);
                                   Fluttertoast.showToast(
                                       msg: 'Proposition envoyée',
@@ -1090,7 +1126,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
             onPressed: () {
                 final priceFinal = conversation['priceFinal'] != null ? conversation['priceFinal'] : 0;
                 if(widget.newClient.wallet >= priceFinal) {
-                  appState.agreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                  appState.agreeForPropositionForDeals(room: room, id: appState.getIdOldConversation.trim());
                   Navigator.pop(context);
                 } else {
                   Fluttertoast.showToast(
@@ -1121,7 +1157,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           SizedBox(height: 35),
           ElevatedButton(
             onPressed: () {
-                appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation);
+                appState.notAgreeForPropositionForDeals(room: room, id: appState.getIdOldConversation.trim());
                 Navigator.pop(context);
                 Fluttertoast.showToast(
                     msg: 'Reponse envoyée',
@@ -1238,7 +1274,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
     final base64Audio = base64Encode(File(path).readAsBytesSync());
     if(appState.getConversationGetter['_id'] == null) {
       appState.createChatMessage(
-          destinate: "${widget.authorId}_${widget.newClient.ident}_${widget.productId}",
+          destinate: room,
           base64: base64Audio,
           imageName: audioName,
           content: message);
@@ -1248,7 +1284,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
           base64: base64Audio,
           imageName: audioName,
           content: message,
-          id: appState.getIdOldConversation);
+          id: idConversation.trim());
     }
 
   }
@@ -1291,7 +1327,7 @@ class _ChatDetailsState extends State<ChatDetails> with SingleTickerProviderStat
 }
 
 
-class Bubble extends StatefulWidget {
+class Bubble extends StatelessWidget {
   final bool isMe;
   final String message;
   final String registerDate;
@@ -1306,17 +1342,6 @@ class Bubble extends StatefulWidget {
       required this.image,
       required this.isReadByOtherUser,
       required this.idDocument});
-  @override
-  _BubbleState createState() => _BubbleState();
-}
-
-class _BubbleState extends State<Bubble> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Widget sendEtat(etat, isMe) {
     if (isMe) {
       if (etat) {
@@ -1330,15 +1355,13 @@ class _BubbleState extends State<Bubble> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
 
     return Container(
       margin: EdgeInsets.all(10.0),
       padding:
-          widget.isMe ? EdgeInsets.only(left: 40) : EdgeInsets.only(right: 40),
+          isMe ? EdgeInsets.only(left: 40) : EdgeInsets.only(right: 40),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1346,15 +1369,15 @@ class _BubbleState extends State<Bubble> {
           Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment:
-                widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment:
-                widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                    color: widget.isMe ? colorText : Colors.white,
-                    borderRadius: widget.isMe
+                    color: isMe ? colorText : Colors.white,
+                    borderRadius: isMe
                         ? BorderRadius.only(
                             topLeft: Radius.circular(20),
                             bottomRight: Radius.circular(20),
@@ -1369,8 +1392,8 @@ class _BubbleState extends State<Bubble> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    if (widget.image != '') ClipRRect(
-                            borderRadius: widget.isMe
+                    if (image != '') ClipRRect(
+                            borderRadius: isMe
                                     ? BorderRadius.only(
                                   topLeft: Radius.circular(20),
                                   bottomRight: Radius.circular(20),
@@ -1381,19 +1404,19 @@ class _BubbleState extends State<Bubble> {
                               topLeft: Radius.circular(20),
                               bottomRight: Radius.circular(20),
                       ),
-                      child: widget.image.indexOf('.m4a') == -1 ? CachedNetworkImage(
-                        imageUrl: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}",
+                      child: image.indexOf('.m4a') == -1 ? CachedNetworkImage(
+                        imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
                         progressIndicatorBuilder: (context, url, downloadProgress) =>
                             Center(
                                 child: CircularProgressIndicator(value: downloadProgress.progress)),
                         errorWidget: (context, url, error) => notSignal(),
-                      ): LoadAudioAsset(url: "${ConsumeAPI.AssetConversationServer}${widget.idDocument}/${widget.image}", isMe: widget.isMe, key: UniqueKey(),),
+                      ): LoadAudioAsset(url: "${ConsumeAPI.AssetConversationServer}$idDocument/$image", isMe: isMe, key: UniqueKey(),),
                     ),
 
-                    if(widget.message != '') Container(
+                    if(message != '') Container(
                       child: Text(
-                        widget.message,
-                        style: widget.isMe
+                        message,
+                        style: isMe
                             ? Style.chatIsMe(15)
                             : Style.chatOutMe(15.0),
                         textAlign: TextAlign.start,
@@ -1405,16 +1428,16 @@ class _BubbleState extends State<Bubble> {
               Container(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: widget.isMe
+                  mainAxisAlignment: isMe
                       ? MainAxisAlignment.end
                       : MainAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      widget.registerDate,
+                      registerDate,
                       style: Style.chatIsMe(12),
                     ),
                     SizedBox(width: 7),
-                    sendEtat(widget.isReadByOtherUser, widget.isMe),
+                    sendEtat(isReadByOtherUser, isMe),
                   ],
                 ),
               )
@@ -1424,11 +1447,7 @@ class _BubbleState extends State<Bubble> {
       ),
     );
   }
-
-
-
 }
-
 
 class LoadAudioAsset extends StatefulWidget {
   String url;

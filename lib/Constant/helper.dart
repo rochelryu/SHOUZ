@@ -20,7 +20,7 @@ const maxAmountOfTransaction = 1000000;
 const minAmountOfTransaction = 1000;
 const linkAppGalleryForShouz = "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz = "https://play.google.com/store/apps/details?id=com.shouz.app";
-const linkAppleStoreForShouz = "";
+const linkAppleStoreForShouz = "https://www.shouz.network";
 
 void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -50,7 +50,7 @@ String reformatNumberForDisplayOnPrice(dynamic price) {
 double defaultLatitude = 5.4143249;
 double defaultLongitude = -3.9770197;
 
-String descriptionShouz = '''1 - Achete tout au plus bas prix possible en plus on te livre, c’est satisfait ou remboursé.\n2 - Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\n3 - Participe aux évènements qui t’intéressent avec la possibilité de partager tes tickets à tes amis. \n4 - Crée tes propres évènements dans SHOUZ EVENT et vend tes tickets, nous nous occupons de la sécurité des achats et de la vérification des tickets.\n5 - Voyage à tout moment de ville en ville dans une voiture personnel en toute sécurité et avec un prix plus bas.\n6 - Tu es propriétaire d’un véhicule, tu veux voyager mais pas seul ? Avec SHOUZ COVOITURAGE gagne de l’argent en vendant des places de voyage.\n7 - Laissez-vous suivre par les actualités qui vous intéressent, nous vous donnerons aussi des offres d’emploi et appel d’offres selon vos centres d’intérêt.\n https://www.shouz.network
+String descriptionShouz = '''1 - Achete tout au plus bas prix possible en plus on te livre, c’est satisfait ou remboursé.\n2 - Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom.\n3 - Participe aux évènements qui t’intéressent avec la possibilité de partager tes tickets à tes amis. \n4 - Crée tes propres évènements dans SHOUZ EVENT et vend tes tickets, nous nous occupons de la sécurité des achats et de la vérification des tickets.\n5 - Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans un véhicule personnel en toute sécurité et avec un prix plus bas.\n6 - Tu es propriétaire d’un véhicule, tu veux voyager mais pas seul ? Avec SHOUZ COVOITURAGE gagne de l’argent en vendant des places de voyage.\n7 - Laissez-vous suivre par les actualités qui vous intéressent, nous vous donnerons aussi des offres d’emploi et appel d’offres selon vos centres d’intérêt.\n https://www.shouz.network
 ''';
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
@@ -137,6 +137,7 @@ Future getTokenForNotificationProvider() async {
           _token = event;
           final prefs = await SharedPreferences.getInstance();
           final String tokenNotification = prefs.getString('tokenNotification') ?? "";
+
           if(tokenNotification != _token.trim() && _token.trim() != "") {
             final infoSaveToken = await consumeAPI.updateTokenVerification(_token.trim(), "huawei_push");
             if(infoSaveToken['etat'] == "found") {
@@ -167,6 +168,55 @@ Future getTokenForNotificationProvider() async {
     final prefs = await SharedPreferences.getInstance();
     final String tokenNotification = prefs.getString('tokenNotification') ?? "";
     if(tokenNotification != fcmToken.trim() && fcmToken.trim() != "") {
+      final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+      if(infoSaveToken['etat'] == "found") {
+        await prefs.setString('tokenNotification', fcmToken.trim());
+      }
+    }
+
+  }
+}
+
+Future setTokenForNotificationProvider(String tokenOnline) async {
+
+
+  if(Platform.isAndroid){
+    if(await isHms()) {
+      String _token = '';
+      huawei.Push.getToken("");
+      huawei.Push.getTokenStream.listen((String event) async {
+        if(event.isNotEmpty) {
+          _token = event;
+          final prefs = await SharedPreferences.getInstance();
+
+          if(_token.trim() != "" && _token.trim() != tokenOnline) {
+            final infoSaveToken = await consumeAPI.updateTokenVerification(_token.trim(), "huawei_push");
+            if(infoSaveToken['etat'] == "found") {
+              await prefs.setString('tokenNotification', _token.trim());
+            }
+          }
+          await huawei.Push.registerBackgroundMessageHandler(_onHmsMessageReceived);
+        }
+
+      }, onError: (dynamic error) {
+        print("error.message ${error.message}");
+      });
+
+    } else {
+      final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+      final prefs = await SharedPreferences.getInstance();
+      if(fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
+        final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+        if(infoSaveToken['etat'] == "found") {
+          await prefs.setString('tokenNotification', fcmToken.trim());
+        }
+      }
+
+    }
+  } else {
+    final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+    final prefs = await SharedPreferences.getInstance();
+    if(fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
       final infoSaveToken = await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
       if(infoSaveToken['etat'] == "found") {
         await prefs.setString('tokenNotification', fcmToken.trim());

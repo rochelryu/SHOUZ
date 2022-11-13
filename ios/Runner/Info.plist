@@ -62,9 +62,7 @@
 	<string>Shouz a besoin d'avoir accès à votre gallery</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>remote-notification</string>
-		<string>audio</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

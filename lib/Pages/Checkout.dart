@@ -1,4 +1,3 @@
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -197,7 +196,7 @@ class _CheckoutState extends State<Checkout> {
                         toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
                         showCursor: true,
                         cursorWidth: 2,
-                        cursorColor: Colors.red,
+                        cursorColor: Colors.orangeAccent,
                         cursorRadius: const Radius.circular(5),
 
                       ),
@@ -286,7 +285,7 @@ class _CheckoutState extends State<Checkout> {
                         toolbarOptions: const ToolbarOptions(copy: true, selectAll: true),
                         showCursor: true,
                         cursorWidth: 2,
-                        cursorColor: Colors.red,
+                        cursorColor: Colors.blueAccent,
                         cursorRadius: const Radius.circular(5),
 
                       ),
@@ -326,7 +325,7 @@ class _CheckoutState extends State<Checkout> {
                     ),
                     SizedBox(width: 15.0),
                     FloatingActionButton(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: Colors.blue,
                       child: Icon(Icons.check,color: Colors.white),
                       onPressed: () async {
                         if(txHashBtc.trim().length == 66) {

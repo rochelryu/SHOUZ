@@ -1,9 +1,16 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+import '../Constant/Style.dart';
+import '../Constant/helper.dart';
+import '../ServicesWorker/WebSocketHelper.dart';
 
 class AppState with ChangeNotifier {
   IO.Socket? _socket;
@@ -28,7 +35,103 @@ class AppState with ChangeNotifier {
   bool typing = false;
   bool loadingToSend = false;
   dynamic conversation = {};
-  AppState();
+  AppState() {
+    initializeSocket();
+  }
+
+  initializeSocket() async {
+    _socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
+
+    _socket!.onConnect((data) async {
+        final User getClient = await DBProvider.db.getClient();
+        if(getClient.ident != "") {
+          this.setJoinConnected(getClient.ident);
+        }
+    });
+
+    _socket!.on("reponseChangeProfil", (data) async {
+      Fluttertoast.showToast(
+          msg: 'Changé avec succès',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.SNACKBAR,
+          timeInSecForIosWeb: 1,
+          backgroundColor: colorSuccess,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+    });
+
+
+    _socket!.on("getNewToken", (data) async {
+      await setTokenForNotificationProvider(data["tokenNotification"]);
+    });
+
+    _socket!.on("MsToClient", (data) async {
+
+      this.updateLoadingToSend(false);
+      if (this.getIdOldConversation == data['_id']) {
+        this.setConversation(data);
+        final User getClient = await DBProvider.db.getClient();
+        if(getClient.name.trim() != data['author'].trim()) {
+          this.ackReadMessage(data['room']);
+        }
+      }
+    });
+
+    _socket!.on("ackReadMessageComeBack", (data) async {
+
+      if (this.getIdOldConversation == data['_id']) {
+        this.setConversation(data);
+      }
+    });
+
+    _socket!.on("receivedConversation", (data) async {
+      if (data['etat'] == 'found') {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        this.setConversation(data['result']);
+        this.setIdOldConversation(data['result']['_id']);
+        this.ackReadMessage(data['result']['room']);
+        await prefs.setString(data['result']['room'], jsonEncode(data['result']));
+
+      } else {
+        this.setConversation({});
+        this.setIdOldConversation('');
+      }
+    });
+    _socket!.on("receivedNotification", (data) async {
+      if(data['withWallet']) {
+        User newClient = await DBProvider.db.getClient();
+        await DBProvider.db.updateClientWallet(data['wallet'], newClient.ident);
+      }
+      this.setNumberNotif(data['totalNotif']);
+
+    });
+
+    _socket!.on("agreePaiement", (data) async {
+      await DBProvider.db.updateClient(data['recovery'], data['ident']);
+      await DBProvider.db.updateClientWallet(data['wallet'], data['ident']);
+    });
+
+    _socket!.on("roomCreated", (data) async {
+      this.updateLoadingToSend(false);
+      this.setConversation(data);
+      this.setIdOldConversation(data['_id']);
+
+    });
+    _socket!.on("roomCreatedForNotification", (data) async {
+    });
+    _socket!.on("typingResponse", (data) async {
+
+      if (this.getIdOldConversation == data['id']) {
+        this.updateTyping(data['typing'] as bool);
+      }
+    });
+
+    _socket!.on('disconnect', (_) {
+      this.deleteSocket();
+    });
+
+  }
 
   setTyping(bool typing, String id, String identUser) {
     final jsonData = {
@@ -159,11 +262,6 @@ class AppState with ChangeNotifier {
 
 
   String _displayText = "";
-
-  void setSocket(IO.Socket socket) {
-    _socket = _socket ?? socket;
-    notifyListeners();
-  }
 
   void deleteSocket() {
     _socket = null;

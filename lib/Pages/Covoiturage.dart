@@ -88,7 +88,7 @@ class _CovoiturageState extends State<Covoiturage> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readTravelModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "1/4 - Passager: Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans une vehicule personnel ou commercial en toute sécurité et avec un prix plus bas.\nTout nos clients passagers passent d'abord le teste de verification d'identité avant de pouvoir acheter des tickets de voyages.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "1/4 - Passager: Voyage à tout moment de ville en ville, de commune en commune ou dans la même commune dans un vehicule personnel ou commercial en toute sécurité et avec un prix plus bas.\nTout nos clients passagers passent d'abord le teste de verification d'identité avant de pouvoir acheter des tickets de voyages.", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "2/4 - Conducteur: Tu es propriétaire d’un véhicule personnel, tu veux voyager ou aller au travail mais pas seul ? Avec SHOUZ gagne de l’argent en vendant des places libre de ton véhicule à ton prix.\nTout nos conducteurs de vehicule personnel passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "3/4 - Chauffeur: Tu es conduit un véhicule commercial comme activité ? Nous te donnons des clients qui veulent se deplacer dans la ville à notre prix.\nTout nos conducteurs de vehicule commercial passent d'abord le teste de verification d'identité avant de pouvoir créer un voyage.", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}travelModal.png", "4/4 - Service Indisponible: ce service (SHOUZ COVOITURAGE & VTC) sortira bientôt.", context);
@@ -207,7 +207,16 @@ class _CovoiturageState extends State<Covoiturage> {
             });
           } else {
             if(statusPermanent) {
-              await openSettingApp();
+                await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                barrierDismissible: false);
             } else {
               await incrementPermanentDenied();
               await showDialog(
@@ -321,7 +330,16 @@ class _CovoiturageState extends State<Covoiturage> {
             }
           }
           else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-            await openSettingApp();
+            await showDialog(
+              context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+              barrierDismissible: false);
           }
           else {
             _serviceEnabled = await location.serviceEnabled();
@@ -500,7 +518,16 @@ class _CovoiturageState extends State<Covoiturage> {
           }
         }
         else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-          await openSettingApp();
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
         }
         else {
           _serviceEnabled = await location.serviceEnabled();
@@ -690,8 +717,8 @@ class _CovoiturageState extends State<Covoiturage> {
          FlutterMap(
             options: MapOptions(
               center: LatLng(latitude, longitude),
-              minZoom: 7.0,
-              zoom: 17.0,
+              minZoom: 4.0,
+              zoom: 7.0,
               maxZoom: 18.0
             ),
           children: [

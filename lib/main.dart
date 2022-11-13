@@ -5,20 +5,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'Constant/helper.dart';
+import 'Provider/AppState.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/route.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uni_links/uni_links.dart';
 import 'package:shouz/Constant/widget_common.dart';
@@ -30,8 +28,6 @@ import './Pages/CreateProfil.dart';
 import './Pages/LoadHide.dart';
 import './Pages/Login.dart';
 import './Pages/Opt.dart';
-import './ServicesWorker/WebSocketHelper.dart';
-import 'Provider/AppState.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -51,9 +47,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  ByteData data = await PlatformAssetBundle().load('images/lets-encrypt-r3.cer');
-  SecurityContext.defaultContext.setTrustedCertificatesBytes(data.buffer.asUint8List());
-
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -69,8 +62,10 @@ void main() async {
           channelDescription: channelDescription,
           defaultColor: backgroundColor,
           ledColor: Colors.white,
-          importance: NotificationImportance.Max,
+          importance: NotificationImportance.High,
+          groupAlertBehavior: GroupAlertBehavior.Children,
           channelShowBadge: true,
+          playSound: true,
           defaultRingtoneType: DefaultRingtoneType.Ringtone,
           vibrationPattern: lowVibrationPattern
         ),
@@ -138,7 +133,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  late AppState appState;
+  AppState? appState ;
   IO.Socket? socket;
   int level = 15;
   User? client;
@@ -151,12 +146,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if(mounted) {
 
       if(data['room'] != null) {
-        if(appState.getIdOldConversation != data['_id'] || appState.getIdOldConversation == '') {
-          appState.setNumberNotif(appState.getNumberNotif + 1);
+        if(appState?.getIdOldConversation != data['_id'] || appState?.getIdOldConversation == '') {
+          appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
           huaweiMessagingBackgroundHandler(data);
         }
       } else {
-        appState.setNumberNotif(appState.getNumberNotif + 1);
+        appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
         huaweiMessagingBackgroundHandler(data);
       }
     }
@@ -172,21 +167,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if(mounted) {
       switch (state) {
         case AppLifecycleState.resumed:
-
-          if(client?.ident != "") {
-            appState.setJoinConnected(client?.ident ?? "");
+          if(client?.ident != "" && appState != null) {
+            appState?.setJoinConnected(client?.ident ?? "");
           }
-          if(idOldConversation != "" && appState.getConversationGetter['room'] != null && client?.name.trim() != appState.getConversationGetter['author'].trim()) {
-            appState.ackReadMessage(appState.getConversationGetter['room']);
+          if(appState != null && idOldConversation != "" && appState?.getConversationGetter['room'] != null && client?.name.trim() != appState?.getConversationGetter['author'].trim()) {
+            appState?.ackReadMessage(appState?.getConversationGetter['room']);
           }
           break;
         case AppLifecycleState.inactive:
-          if(appState.getIdOldConversation != "") {
-            idOldConversation = appState.getIdOldConversation;
-            appState.setIdOldConversation('');
+          if(appState != null && appState?.getIdOldConversation != "") {
+            idOldConversation = appState?.getIdOldConversation ?? "";
+            appState?.setIdOldConversation('');
           }
           break;
-
         default :
           break;
       }
@@ -221,10 +214,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
     initMessageStream();
     WidgetsBinding.instance.addObserver(this);
-
-
+    appState = Provider.of<AppState>(context, listen: false);
     getNewLevel();
-    initializeSocket();
+
   }
 
   Future<void> initMessageStream() async {
@@ -263,129 +255,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
     if(mounted) {
       if(message.data['room'] != null) {
-        if(appState.getIdOldConversation != message.data['_id'] || appState.getIdOldConversation == '') {
-          appState.setNumberNotif(appState.getNumberNotif + 1);
+        if(appState?.getIdOldConversation != message.data['_id'] || appState?.getIdOldConversation == '') {
+          appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
           _firebaseMessagingBackgroundHandler(message);
         }
       } else {
-        appState.setNumberNotif(appState.getNumberNotif + 1);
+        appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
         _firebaseMessagingBackgroundHandler(message);
       }
     }
-  }
-
-
-
-  void initializeSocket() async {
-    socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
-
-    socket!.onConnect((data) async {
-      if(mounted) {
-        appState = Provider.of<AppState>(context, listen: false);
-        appState.setSocket(socket!);
-
-
-        final User getClient = await DBProvider.db.getClient();
-        if(getClient.ident != "") {
-          appState.setJoinConnected(getClient.ident);
-        }
-      }
-    });
-    socket!.on("reponseChangeProfil", (data) async {
-      Fluttertoast.showToast(
-          msg: 'Changé avec succès',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.SNACKBAR,
-          timeInSecForIosWeb: 1,
-          backgroundColor: colorSuccess,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
-    });
-
-
-
-    socket!.on("MsToClient", (data) async {
-
-      appState.updateLoadingToSend(false);
-      if (appState.getIdOldConversation == data['_id']) {
-        appState.setConversation(data);
-        final User getClient = await DBProvider.db.getClient();
-        if(getClient.name.trim() != data['author'].trim()) {
-          appState.ackReadMessage(data['room']);
-        }
-      }
-    });
-
-    socket!.on("ackReadMessageComeBack", (data) async {
-
-      if (appState.getIdOldConversation == data['_id']) {
-        appState.setConversation(data);
-      }
-    });
-
-    socket!.on("receivedConversation", (data) async {
-      if (data['etat'] == 'found') {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        appState.setConversation(data['result']);
-        appState.setIdOldConversation(data['result']['_id']);
-        appState.ackReadMessage(data['result']['room']);
-        await prefs.setString(data['result']['room'], jsonEncode(data['result']));
-        if(client == null && mounted) {
-          final User getClient = await DBProvider.db.getClient();
-          setState(() {
-            client = getClient;
-          });
-        }
-      } else {
-        appState.setConversation({});
-        appState.setIdOldConversation('');
-      }
-    });
-    socket!.on("receivedNotification", (data) async {
-      if(data['withWallet']) {
-        User newClient = await DBProvider.db.getClient();
-        await DBProvider.db.updateClientWallet(data['wallet'], newClient.ident);
-      }
-      appState.setNumberNotif(data['totalNotif']);
-
-    });
-
-    socket!.on("agreePaiement", (data) async {
-      await DBProvider.db.updateClient(data['recovery'], data['ident']);
-      await DBProvider.db.updateClientWallet(data['wallet'], data['ident']);
-    });
-
-    socket!.on("insufficient balance", (data) {
-      
-      showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Insufficient balance', data, context),
-              barrierDismissible: false);
-
-    });
-
-    socket!.on("roomCreated", (data) async {
-        appState.updateLoadingToSend(false);
-        appState.setConversation(data);
-        appState.setIdOldConversation(data['_id']);
-
-    });
-    socket!.on("roomCreatedForNotification", (data) async {
-    });
-    socket!.on("typingResponse", (data) async {
-
-      if (appState.getIdOldConversation == data['id']) {
-        appState.updateTyping(data['typing'] as bool);
-      }
-    });
-
-    socket!.on('disconnect', (_) {
-
-      appState.deleteSocket();
-    });
-
   }
 
 
@@ -403,7 +281,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    AwesomeNotifications().dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -415,7 +292,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           stream: linkStream,
           builder: (context, streamSnapshot) {
             final link = streamSnapshot.data ?? '';
-
             if (link.isNotEmpty) {
               final arrayInfo = link.split('/');
               final idElement = arrayInfo.last;
@@ -426,17 +302,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               return FutureBuilder<String?>(
                   future: getInitialLink(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return LoadHide(key: UniqueKey());
-                    }
-                    final linkInitial = snapshot.data ?? '';
-                    if(linkInitial.isEmpty) {
-                      return (socket != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      final linkInitial = snapshot.data ?? '';
+                      if(linkInitial.isEmpty) {
+                        return (appState?.getSocketIO != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
+                      } else {
+                        final arrayInfo = linkInitial.split('/');
+                        final idElement = arrayInfo.last;
+                        final categorie = arrayInfo[arrayInfo.length - 2];
+                        return loadDeepLink(categorie, idElement);
+                      }
                     } else {
-                      final arrayInfo = linkInitial.split('/');
-                      final idElement = arrayInfo.last;
-                      final categorie = arrayInfo[arrayInfo.length - 2];
-                      return loadDeepLink(categorie, idElement);
+                      return LoadHide(key: UniqueKey());
                     }
                   });
             }

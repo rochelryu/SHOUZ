@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "270595904509-rn31dnj0ueff8rbfcotsq05vq4vgpveo.apps.googleusercontent.com",
+              "client_id": "270595904509-28ghv8el05uhs4pv1hctre7j5e0stkm0.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.shouz.app"
+                "bundle_id": "com.shouz.network"
               }
             }
           ]

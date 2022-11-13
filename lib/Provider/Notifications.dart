@@ -35,6 +35,7 @@ Future<void> createShouzNotification(String title, String body, Map<String, Stri
           body:body,
           notificationLayout: NotificationLayout.BigPicture,
           bigPicture: payload['pictureNotification'],
+          largeIcon: payload['pictureNotification'],
           payload: payload,
           displayOnBackground: true,
           backgroundColor: backgroundColor,
@@ -76,6 +77,7 @@ class NotificationController {
     // Navigate into pages, avoiding to open the notification details page over another details page already opened
     AwesomeNotifications().getGlobalBadgeCounter()
         .then((value) => AwesomeNotifications().setGlobalBadgeCounter(value - 1));
+    runApp(MyApp());
     if(notification.channelKey == channelKey && notification.payload!['room'] != null) {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) => LoadChat(key: UniqueKey(), room: notification.payload!['room'] ?? '')), (route) => route.isFirst);

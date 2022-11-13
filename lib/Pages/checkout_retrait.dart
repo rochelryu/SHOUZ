@@ -1,4 +1,3 @@
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';

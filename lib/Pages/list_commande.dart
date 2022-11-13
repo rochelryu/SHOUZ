@@ -106,20 +106,7 @@ class _ListCommandeState extends State<ListCommande> {
                               "Aucune commande n'a été enrégistré",
                               textAlign: TextAlign.center,
                               style: Style.sousTitreEvent(15)),
-                          SizedBox(height: 20),
-                          if(widget.level != 3) ElevatedButton(
-                            onPressed: () {
 
-                            },
-                            child: Text('Rendre cet article VIP à 1 000 ${user?.currencies}'),
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: colorPrimary, backgroundColor: colorText,
-                              minimumSize: Size(88, 36),
-                              elevation: 4.0,
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                            ),
-                          )
                         ]));
               }
               return Column(

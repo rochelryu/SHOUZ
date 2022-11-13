@@ -922,9 +922,9 @@ class _CreateDealsState extends State<CreateDeals> {
       ready = false;
       showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
     }
-    if(price.length <= 2 ) {
+    if(price.length <= 2) {
       ready = false;
-      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+      showSnackBar(context, "Prix minimum d'un article doit être 500.");
     }
     if(ready) {
       setState(() => requestLoading = true);

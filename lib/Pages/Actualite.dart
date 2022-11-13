@@ -81,7 +81,16 @@ class _ActualiteState extends State<Actualite> {
             });
           } else {
             if(statusPermanent) {
-              await openSettingApp();
+                await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                            barrierDismissible: false);
             } else {
               await incrementPermanentDenied();
               await showDialog(
@@ -140,7 +149,16 @@ class _ActualiteState extends State<Actualite> {
             }
           }
           else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-            await openSettingApp();
+                await showDialog(
+                      context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+                barrierDismissible: false);
           }
           else {
             _serviceEnabled = await location.serviceEnabled();
@@ -209,7 +227,16 @@ class _ActualiteState extends State<Actualite> {
           }
         }
         else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-          await openSettingApp();
+              await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                dialogCustomForValidateAction(
+                                    'Permission de Localisation importante',
+                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
+                                    "Ouvrir paramètre",
+                                        () async => await openSettingApp(),
+                                    context, true, "Réfuser"),
+              barrierDismissible: false);
         }
         else {
           _serviceEnabled = await location.serviceEnabled();

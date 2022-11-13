@@ -18,7 +18,9 @@ import 'package:shouz/Constant/widget_common.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
+import 'LoadHide.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
 
@@ -36,7 +38,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
   VideoPlayerController? _controller;
   File? video;
   List<dynamic> post = [];
-  List<dynamic> base64Image = [];
+  List<String> base64Image = [];
   String base64Video = "";
   int priceVip = 0;
   List<dynamic> postVideo = [];
@@ -62,10 +64,8 @@ class _UpdateDealsState extends State<UpdateDeals> {
   TextEditingController numeroCtrl = new TextEditingController();
   bool requestLoading = false;
   bool _isCategorie = false;
-  bool monVal = false, showFloatingAction =true;
   User? user;
   ConsumeAPI consumeAPI = new ConsumeAPI();
-  ScrollController _scrollController = ScrollController();
 
 
 
@@ -75,38 +75,26 @@ class _UpdateDealsState extends State<UpdateDeals> {
     super.initState();
     initialiseData();
     loadCategorie();
-    //verifyIfUserHaveReadModalExplain();
-    _scrollController.addListener(() {
-      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-        setState(() {
-          showFloatingAction = false;
-        });
-      } else {
-        setState(() {
-          showFloatingAction = true;
-        });
-      }
-    });
   }
 
   initialiseData() {
     nameProductCtrl.text = widget.dealsDetailsSkeleton.title;
-    priceCtrl.text = widget.dealsDetailsSkeleton.price.toString().replaceAll("XOF", "").trim();
-    quantityCtrl.text = widget.dealsDetailsSkeleton.quantity.toString();
+    priceCtrl.text = widget.dealsDetailsSkeleton.price.toString().replaceAll(new RegExp(r'[^0-9]'),'');
+    quantityCtrl.text = widget.dealsDetailsSkeleton.quantity.toString().replaceAll(new RegExp(r'[^0-9]'),'');
     describeCtrl.text = widget.dealsDetailsSkeleton.describe;
-    numeroCtrl.text = widget.dealsDetailsSkeleton.numero;
+    numeroCtrl.text = widget.dealsDetailsSkeleton.numero.replaceAll(new RegExp(r'[^0-9]'),'');
     positionCtrl.text = widget.dealsDetailsSkeleton.lieu;
 
     setState(() {
       nameProduct = widget.dealsDetailsSkeleton.title;
-      price = widget.dealsDetailsSkeleton.price.toString().replaceAll("XOF", "").trim();
-      quantity = widget.dealsDetailsSkeleton.quantity.toString();
+      price = widget.dealsDetailsSkeleton.price.toString().replaceAll(new RegExp(r'[^0-9]'),'');
+      quantity = widget.dealsDetailsSkeleton.quantity.toString().replaceAll(new RegExp(r'[^0-9]'),'');
       describe = widget.dealsDetailsSkeleton.describe;
-      numero = widget.dealsDetailsSkeleton.numero;
+      numero = widget.dealsDetailsSkeleton.numero.replaceAll(new RegExp(r'[^0-9]'),'');
       position = widget.dealsDetailsSkeleton.lieu;
       for(int index = 0; index < widget.dealsDetailsSkeleton.imageUrl.length; index++) {
         post.add({"type": "Network", "content" : widget.dealsDetailsSkeleton.imageUrl[index]});
-        base64Image.add({"type": "Network", "content" : widget.dealsDetailsSkeleton.imageUrl[index]});
+        base64Image.add(widget.dealsDetailsSkeleton.imageUrl[index]);
       }
       if(widget.dealsDetailsSkeleton.video != "") {
         _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
@@ -118,6 +106,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
           ..addListener(() {
           });
         postVideo.add(_controller!);
+        base64Video = widget.dealsDetailsSkeleton.video;
       }
     });
   }
@@ -141,7 +130,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -199,6 +187,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
             ..addListener(() {
             });
           postVideo.add(_controller!);
+
         });
         final firstMovie = File(movie.path);
         var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
@@ -263,7 +252,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
       child: Text(
-        "Envoyer le produit",
+        "Enregistrer",
         style: Style.sousTitreEvent(15),
       ),
       style: raisedButtonStyle,
@@ -314,7 +303,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           _isNumber = false;
                           requestLoading = false;
                           _isCategorie = false;
-                          monVal = false;
                           nameProduct = text;
                         });
                       },
@@ -371,7 +359,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                     _isNumber = false;
                                     requestLoading = false;
                                     _isCategorie = false;
-                                    monVal = false;
+
                                     price = text.toString();
                                   });
                                 },
@@ -422,7 +410,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                     _isNumber = false;
                                     requestLoading = false;
                                     _isCategorie = false;
-                                    monVal = false;
+
                                     quantity = text.toString();
                                   });
                                 },
@@ -478,7 +466,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           _isNumber = false;
                           requestLoading = false;
                           _isCategorie = false;
-                          monVal = false;
+
                           describe = text;
                         });
                       },
@@ -556,7 +544,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                   base64Image = [];
                                 } else {
                                   base64Image = post
-                                      .map((data) => data["type"] == "Network" ? data : { "type" :"File", "content":  base64Encode(data['content'].readAsBytesSync())}).toList();
+                                      .map((data) => data["type"] == "Network" ? data["content"] as String : base64Encode(data['content'].readAsBytesSync())).toList();
                                 }
                               });
                             },
@@ -686,7 +674,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           _isPosition = false;
                           _isNumber = false;
                           requestLoading = false;
-                          monVal = false;
+
                         });
                       },
                       items: allCategories.map((value) {
@@ -740,7 +728,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                 _isPosition = false;
                                 requestLoading = false;
                                 _isCategorie = false;
-                                monVal = false;
+
                                 numero = text.toString();
                               });
                             },
@@ -797,7 +785,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           requestLoading = false;
                           _isQuantity = false;
                           _isCategorie = false;
-                          monVal = false;
+
                           position = text;
                         });
                       },
@@ -819,46 +807,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 40,
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Checkbox(
-                        value: monVal,
-                        checkColor: Colors.white,
-                        onChanged: (value) {
-                          if(user!.wallet >= priceVip) {
-                            setState(() {
-                              monVal = value!;
-                            });
-                          } else {
-                            Fluttertoast.showToast(
-                                msg: "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: colorError,
-                                textColor: Colors.white,
-                                fontSize: 16.0
-                            );
-                            Timer(const Duration(seconds: 3), () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
-                            });
-                          }
-
-                        },
-                      ),
-                      Text('Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user?.currencies})',
-                          style: Style.warning(11)),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -876,7 +824,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: ListView(
-          controller: _scrollController,
           children: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
@@ -896,24 +843,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
           ],
         ),
       ),
-      floatingActionButton: showFloatingAction ? Container(width: 180,child: ElevatedButton(
-        style: raisedButtonStyle,
-        onPressed: () async {
-          await launchUrl(
-              Uri.parse("https://wa.me/2250564250219?text=Je veux mettre mon article en vente sur SHOUZ E-COMMERCE mais je ne sais pas comment m'y prendre." ),
-              mode: LaunchMode.externalApplication
-          );
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(Icons.support_agent),
-
-            Text("Besoin aide ?", style: Style.simpleTextOnBoard(14, colorPrimary),),
-
-          ],
-        ),
-      )) :null,
 
     );
   }
@@ -946,27 +875,32 @@ class _UpdateDealsState extends State<UpdateDeals> {
       ready = false;
       showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
     }
-    if(price.length <= 2 ) {
+    if(price.length <= 2) {
       ready = false;
-      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+      showSnackBar(context, "Prix minimum d'un article doit être 500.");
     }
     if(ready) {
       setState(() => requestLoading = true);
-      List<String> imageListTitle =
-      post.map((image) => image.path.split('/').last).toList() as List<String>;
+      List<dynamic> imageListTitle =
+      post.map((data) {
+        if(data['type'] == "Network") {
+          return data['content'];
+        } else {
+          return data['content'].path.split('/').last;
+        }
+      }).toList();
 
       String imageTitle = imageListTitle.join(',');
       String imagesBuffers = base64Image.join(',');
-      String videoPub = (video != null) ? video!.path.split('/').last : "";
-      int level = monVal ? 3 : 1;
-      final product = await consumeAPI.setProductDeals(
+      String videoPub = (video != null) ? video!.path.split('/').last : base64Video;
+      final product = await consumeAPI.updateProductDeals(
+        widget.dealsDetailsSkeleton.id,
           nameProduct,
           describe,
           dropdownValue!,
           imageTitle,
           imagesBuffers,
           position,
-          level,
           numero,
           price,
           quantity, videoPub, base64Video);
@@ -986,8 +920,11 @@ class _UpdateDealsState extends State<UpdateDeals> {
         price = "";
 
         await askedToLead(
-            "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
+            "Votre produit a été mis à jour, vous pouvez le manager où que vous soyez",
             true, context);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+            builder: (context) => LoadProduct(key: UniqueKey(), productId: widget.dealsDetailsSkeleton.id)), (route) => route.isFirst);
+
       } else if (product == 'notFound') {
 
         showDialog(
@@ -1007,9 +944,6 @@ class _UpdateDealsState extends State<UpdateDeals> {
             "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
             false, context);
       }
-      setState(() {
-        monVal = false;
-      });
     }
   }
 }

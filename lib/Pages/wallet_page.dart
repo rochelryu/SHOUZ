@@ -134,6 +134,7 @@ class _WalletPageState extends State<WalletPage> {
                           color: Colors.grey[300],
                         ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               height: 50,
@@ -148,7 +149,11 @@ class _WalletPageState extends State<WalletPage> {
                             ),
 
                             Spacer(),
-                            Text("Recharger", style: Style.grandTitreBlack(12),),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text("Recharger", style: Style.grandTitreBlack(12),)
+                            ),
+
                             SizedBox(height: 10),
                           ],
                         ),

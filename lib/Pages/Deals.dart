@@ -98,9 +98,17 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData);
-      setState(() {
-        dealsFull = data;
-      });
+      if(dealsFull.length > 0){
+        if(data[0].length != dealsFull[0].length || data[1].length != dealsFull[1].length ||data[2].length != dealsFull[2].length){
+          setState(() {
+            dealsFull = data;
+          });
+        }
+      } else {
+        setState(() {
+          dealsFull = data;
+        });
+      }
       Timer(const Duration(seconds: 1), changeMenuOptionButton);
       setState(() {
         loadMinim = false;
@@ -137,19 +145,23 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   }
   changeMenuOptionButton() async {
     pref.clear();
-    var deals = dealsFull;
-    for (var i = 0; i < deals[choiceSearch].length; i++) {
-      final item = PopupMenuItem<String>(
-        child: Text(
-          deals[choiceSearch][i]['name'].toString(),
-          style: TextStyle(color: backgroundColorSec),
-        ),
-        value: deals[choiceSearch][i]['name'].toString(),
-      );
-      setState(() {
-        pref.add(item);
-      });
+
+    if(dealsFull.length > 0) {
+      var deals = dealsFull;
+      for (var i = 0; i < deals[choiceSearch].length; i++) {
+        final item = PopupMenuItem<String>(
+          child: Text(
+            deals[choiceSearch][i]['name'].toString(),
+            style: TextStyle(color: backgroundColorSec),
+          ),
+          value: deals[choiceSearch][i]['name'].toString(),
+        );
+        setState(() {
+          pref.add(item);
+        });
+      }
     }
+
   }
 
   @override

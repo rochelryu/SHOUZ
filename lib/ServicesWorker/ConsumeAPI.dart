@@ -80,7 +80,10 @@ class ConsumeAPI {
   static final GET_VERIFY_ITEM_IN_FAVOR_URL = BASE_URL + "/client/verifyIfExistItemInFavor";
   static final ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL = BASE_URL + "/client/addOrRemoveItemInFavorite";
   static final SET_DEALS_URL = BASE_URL + "/products/inside";
-  static final ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
+  static final SET_UPDATE_DEALS_URL = BASE_URL + "/products/update";
+  static final SET_ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
+  static final SET_RENEW_DEALS_URL = BASE_URL + "/products/renew";
+  static final SET_UP_VIP_DEALS_URL = BASE_URL + "/products/setUpVipProduct";
   static final GET_DETAILS_URL = BASE_URL + "/products/getDetailsOfProduct";
   static final GET_DETAILS_DEALS_FOR_LINK_URL = BASE_URL + "/products/getDetailsProductForLink";
   static final GET_SEARCH_ADVANCED_PRODUCTS_URL = BASE_URL + "/products/searchAdvancedProducts";
@@ -687,6 +690,46 @@ class ConsumeAPI {
     });
   }
 
+  updateProductDeals(
+      String idProduct,
+      String name,
+      String describe,
+      String categorie,
+      String imagesTitles,
+      String imagesBuffers,
+      String lieu,
+      String number,
+      String price,
+      String quantity, [String videoProduct = "", String videoProductBase64 = ""]) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'idProduct': idProduct,
+      'recovery': newClient.recovery,
+      'author': newClient.ident,
+      'name': name,
+      'describe': describe,
+      'numero': number,
+      'imagesTitles': imagesTitles,
+      'imagesBuffers': imagesBuffers,
+      'lieu': lieu,
+      'categorie': categorie,
+      'price': price,
+      'quantity': quantity,
+      'videoProduct': videoProduct,
+      'videoProductBase64': videoProductBase64,
+    };
+    return _netUtil.post(SET_UPDATE_DEALS_URL, body: body).then((dynamic res) async {
+
+      if(res['etat'] == 'found') {
+        await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+      } else if(res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res['etat'];
+    });
+  }
+
   archiveProductDeals(String product) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
@@ -695,9 +738,48 @@ class ConsumeAPI {
       'product': product,
     };
 
-    return _netUtil.post(ARCHIVE_DEALS_URL, body: body).then((dynamic res) async {
+    return _netUtil.post(SET_ARCHIVE_DEALS_URL, body: body).then((dynamic res) async {
       if(res['etat'] == 'found') {
         await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+      } else if(res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+
+  renewProductDeals(String product) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'recovery': newClient.recovery,
+      'product': product,
+    };
+
+    return _netUtil.post(SET_RENEW_DEALS_URL, body: body).then((dynamic res) async {
+      if(res['etat'] == 'found') {
+        await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+      } else if(res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+
+  setUpVipProduct(String product) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'recovery': newClient.recovery,
+      'product': product,
+    };
+
+    return _netUtil.post(SET_UP_VIP_DEALS_URL, body: body).then((dynamic res) async {
+      if(res['etat'] == 'found') {
+        await DBProvider.db.updateClient(res['result']['recovery'], newClient.ident);
+        await DBProvider.db.updateClientWallet(res['result']['wallet'], newClient.ident);
       } else if(res['etat'] == 'notFound') {
         await DBProvider.db.delClient();
         setLevel(1);

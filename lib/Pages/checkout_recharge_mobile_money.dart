@@ -535,7 +535,7 @@ class _CheckoutRechargeMobileMoneyState
                                 _controller.clear();
                                 Navigator.pushNamed(context, MenuDrawler.rootName);
                               } else if(rechargeCrypto['etat'] == 'inWait') {
-                                final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
+                                final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                 await askedToLead(titleAlert, true, context);
                                 _controller.clear();
                                 Navigator.pushNamed(context, Notifications.rootName);
@@ -801,7 +801,7 @@ class _CheckoutRechargeMobileMoneyState
                                   _controller.clear();
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
-                                  final titleAlert = "Nous analysons cette transaction au près de Wave, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  final titleAlert = "Nous analysons cette transaction au près de Wave, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte.";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
                                   Navigator.pushNamed(context, Notifications.rootName);
@@ -1095,7 +1095,7 @@ class _CheckoutRechargeMobileMoneyState
                                   _controller.clear();
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
-                                  final titleAlert = "Nous analysons cette transaction au près de Orange, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte.";
+                                  final titleAlert = "Nous analysons cette transaction au près de Orange, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte.";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
                                   Navigator.pushNamed(context, Notifications.rootName);
@@ -1346,7 +1346,7 @@ class _CheckoutRechargeMobileMoneyState
                                   _controller.clear();
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
-                                  final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
+                                  final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
                                   Navigator.pushNamed(context, Notifications.rootName);

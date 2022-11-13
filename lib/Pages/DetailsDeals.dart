@@ -114,7 +114,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
       final archivage = await consumeAPI.archiveProductDeals(productId);
       if(archivage['etat'] == "found") {
         await askedToLead(
-            "Votre produit est archivé, il n'apparaîtra plus sur le marché",
+            "Votre article est archivé, il n'apparaîtra plus sur le marché",
             true, context);
       } else if (archivage['etat'] == "notFound") {
         showDialog(
@@ -130,6 +130,64 @@ class _DetailsDealsState extends State<DetailsDeals> {
       }
     } else {
       await askedToLead("Le stock de ce produit est 0 vous ne pouvez plus l'archiver", false, context);
+    }
+
+  }
+  Future renewProduct(String productId) async {
+
+    if(widget.dealsDetailsSkeleton.level == 3) {
+
+      final renewArticle = await consumeAPI.renewProductDeals(productId);
+      if(renewArticle['etat'] == "found") {
+        await askedToLead(
+            "Votre article est rémonté en tête sur le marché",
+            true, context);
+      } else if (renewArticle['etat'] == "notFound") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+            barrierDismissible: false);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => Login()));
+      } else {
+        await askedToLead(
+            renewArticle['error'], false, context);
+      }
+    }
+    else {
+      if(widget.dealsDetailsSkeleton.quantity == 0) {
+      } else {
+        await askedToLead("Pour faire remonter votre article dans la liste il faut que l'article soit VIP.\nAussi si vous essayez de créer un autre article avec les informations similaires de cet article sachant que cet article n'est pas encore épuisé nous serons obligé de vous rétirer le votre compte vendeur.", false, context);
+      }
+    }
+
+  }
+
+  Future setUpVipProduct(String productId) async {
+
+    if(widget.dealsDetailsSkeleton.level != 3) {
+
+      final renewArticle = await consumeAPI.setUpVipProduct(productId);
+      if(renewArticle['etat'] == "found") {
+        await askedToLead(
+            "Votre article est VIP. Bravo à vous 👏👏",
+            true, context);
+      } else if (renewArticle['etat'] == "notFound") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+            barrierDismissible: false);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => Login()));
+      } else {
+        await askedToLead(
+            renewArticle['error'], false, context);
+      }
+    }
+    else {
+      await askedToLead("Cet article est déjà VIP.", false, context);
     }
 
   }
@@ -609,14 +667,8 @@ class _DetailsDealsState extends State<DetailsDeals> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (builder) => ListCommande(
-                          key: UniqueKey(),
-                          productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
-                        )));
+              onTap: () async {
+                await renewProduct(widget.dealsDetailsSkeleton.id);
               },
               child: Row(
                 children: [
@@ -666,6 +718,36 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       child: Center(
                         child: Icon(Icons.archive_outlined, color: colorPrimary, size: 17),
                       ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            if(widget.dealsDetailsSkeleton.level != 3 && newClient != null && newClient!.wallet >= 1000) GestureDetector(
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => dialogCustomForValidateAction('Promotion VIP', 'Rendez cet article VIP est maximisé vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?', 'Ok', () async => await setUpVipProduct(widget.dealsDetailsSkeleton.id), context),
+                    barrierDismissible: false);
+              },
+              child: Row(
+                children: [
+                  Text("Rendre l'article VIP", style: Style.titre(15.0),),
+                  Card(
+                    elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0)),
+                    color: colorText,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.yellow[700],
+                          borderRadius: BorderRadius.circular(25.0)
+                      ),
+                      child: Center(
+                        child: Icon(Icons.star_border_purple500_sharp, color: colorPrimary, size: 17),
+                      )
                     ),
                   )
                 ],

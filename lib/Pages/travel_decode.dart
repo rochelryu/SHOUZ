@@ -247,9 +247,9 @@ class _TravelDecodeState extends State<TravelDecode> {
                             mainAxisAlignment:
                             MainAxisAlignment.center,
                             children: <Widget>[
-                              SvgPicture.asset(
-                                "images/surveillance.svg",
-                                semanticsLabel: 'NotNotificationDeals',
+                              SvgPicture.network(
+                                "${ConsumeAPI.AssetPublicServer}surveillance.svg",
+                                semanticsLabel: 'NotSurveillance',
                                 height:
                                 MediaQuery.of(context).size.height *
                                     0.39,

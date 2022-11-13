@@ -578,6 +578,7 @@ class _ProfilState extends State<Profil> {
                                           ),
                                           child: CachedNetworkImage(
                                             imageUrl: "${ConsumeAPI.AssetProductServer}${item['images'][0]}",
+                                            errorWidget: (context, url, error) => notSignal(),
                                             imageBuilder: (context, imageProvider) => Container(
                                               height: 100,
                                               width: 200,
@@ -591,6 +592,9 @@ class _ProfilState extends State<Profil> {
                                                       fit: BoxFit
                                                           .cover)),
                                             ),
+                                            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                Center(
+                                                    child: CircularProgressIndicator(value: downloadProgress.progress)),
                                           ),
                                         ),
                                         SizedBox(height: 5.0),
