@@ -245,6 +245,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                                       onLine: item['onLine'],
                                       authorName: item['authorName'],
                                       categorieName: item['categorieName'],
+                                      approved: item['approved'],
                                     );
                                     return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                   })));

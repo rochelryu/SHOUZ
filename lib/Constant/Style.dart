@@ -25,6 +25,7 @@ final Color colorError = Color(0xFFB71C1C);
 final Color colorWarning = Color(0xFFDEB31C);
 final Color colorSuccess = Color(0xFF4CAF50);
 const Color colorPrimary = Colors.white;
+const Color colorBlack = Colors.black;
 const Color colorSecondary = Colors.grey;
 const Color colorWelcome = Colors.white70;
 final Color secondColor =
@@ -56,6 +57,7 @@ class DealsSkeletonData {
   var level;
   var categorieName;
   var video;
+  var approved;
   DealsSkeletonData(
       {required this.imageUrl,
         required this.title,
@@ -71,7 +73,7 @@ class DealsSkeletonData {
         required this.quantity,
         required this.archive,
         required this.level,
-        required this.onLine, required this.authorName, required this.categorieName, required this.video});
+        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved});
 }
 
 int channelId() {

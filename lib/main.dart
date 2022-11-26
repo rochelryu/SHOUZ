@@ -31,18 +31,22 @@ import './Pages/Opt.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  var body = message.data['bodyNotif'].toString().trim() == "images" ? "${Emojis.art_framed_picture} Une image a été envoyé..." : message.data['bodyNotif'].toString().trim();
-  body = message.data['bodyNotif'].toString().trim() == "audio" ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..." : body;
-  Map<String, String> data = message.data.map((key, value) => MapEntry(key, value.toString()));
+  var body = message.data['bodyNotif'].toString().trim() == "images"
+      ? "${Emojis.art_framed_picture} Une image a été envoyé..."
+      : message.data['bodyNotif'].toString().trim();
+  body = message.data['bodyNotif'].toString().trim() == "audio"
+      ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
+      : body;
+  Map<String, String> data =
+      message.data.map((key, value) => MapEntry(key, value.toString()));
 
-  createShouzNotification(message.data['titreNotif'].toString().trim(), body, data);
+  createShouzNotification(
+      message.data['titreNotif'].toString().trim(), body, data);
 }
-
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -53,29 +57,25 @@ void main() async {
   );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  AwesomeNotifications().initialize(
-      'resource://drawable/icon_notif',
-      [NotificationChannel(
-          icon: 'resource://drawable/icon_notif',
-          channelKey: channelKey,
-          channelName: channelName,
-          channelDescription: channelDescription,
-          defaultColor: backgroundColor,
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          groupAlertBehavior: GroupAlertBehavior.Children,
-          channelShowBadge: true,
-          playSound: true,
-          defaultRingtoneType: DefaultRingtoneType.Ringtone,
-          vibrationPattern: lowVibrationPattern
-        ),
-      ]);
+  AwesomeNotifications().initialize('resource://drawable/icon_notif', [
+    NotificationChannel(
+        icon: 'resource://drawable/icon_notif',
+        channelKey: channelKey,
+        channelName: channelName,
+        channelDescription: channelDescription,
+        defaultColor: backgroundColor,
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        groupAlertBehavior: GroupAlertBehavior.Children,
+        channelShowBadge: true,
+        playSound: true,
+        defaultRingtoneType: DefaultRingtoneType.Ringtone,
+        vibrationPattern: lowVibrationPattern),
+  ]);
   Intl.defaultLocale = 'fr_FR';
   initializeDateFormatting();
 
-
-  await FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
     sound: true,
@@ -100,7 +100,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AppState?>(
@@ -108,23 +109,28 @@ class MyApp extends StatelessWidget {
       lazy: false,
       child: MaterialApp(
           navigatorKey: navigatorKey,
-        title: 'Shouz',
-        initialRoute: '/',
-        routes: routes,
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            primarySwatch: Colors.blue,
-            primaryColor: backgroundColor,
-            primaryColorDark: Colors.blue),
-        home: MyHomePage(title: 'Shouz', key: UniqueKey(), navigatorKey: navigatorKey,)
-      ),
+          title: 'Shouz',
+          initialRoute: '/',
+          routes: routes,
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              primarySwatch: Colors.blue,
+              primaryColor: backgroundColor,
+              primaryColorDark: Colors.blue),
+          home: MyHomePage(
+            title: 'Shouz',
+            key: UniqueKey(),
+            navigatorKey: navigatorKey,
+          )),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   GlobalKey<NavigatorState> navigatorKey;
-  MyHomePage({required Key key, required this.title, required this.navigatorKey}) : super(key: key);
+  MyHomePage(
+      {required Key key, required this.title, required this.navigatorKey})
+      : super(key: key);
 
   final String title;
 
@@ -133,7 +139,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  AppState? appState ;
+  AppState? appState;
   IO.Socket? socket;
   int level = 15;
   User? client;
@@ -143,10 +149,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
     final dataString = remoteMessage.data ?? "";
     final data = jsonDecode(dataString);
-    if(mounted) {
-
-      if(data['room'] != null) {
-        if(appState?.getIdOldConversation != data['_id'] || appState?.getIdOldConversation == '') {
+    if (mounted) {
+      if (data['room'] != null) {
+        if (appState?.getIdOldConversation != data['_id'] ||
+            appState?.getIdOldConversation == '') {
           appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
           huaweiMessagingBackgroundHandler(data);
         }
@@ -164,27 +170,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(mounted) {
+    if (mounted) {
       switch (state) {
         case AppLifecycleState.resumed:
-          if(client?.ident != "" && appState != null) {
+          if (client?.ident != "" && appState != null) {
             appState?.setJoinConnected(client?.ident ?? "");
           }
-          if(appState != null && idOldConversation != "" && appState?.getConversationGetter['room'] != null && client?.name.trim() != appState?.getConversationGetter['author'].trim()) {
+          if (appState != null &&
+              idOldConversation != "" &&
+              appState?.getConversationGetter['room'] != null && appState?.getConversationGetter['author']  != null &&
+              client?.name.trim() !=
+                  appState?.getConversationGetter['author'].trim()) {
             appState?.ackReadMessage(appState?.getConversationGetter['room']);
           }
           break;
         case AppLifecycleState.inactive:
-          if(appState != null && appState?.getIdOldConversation != "") {
+          if (appState != null && appState?.getIdOldConversation != "") {
             idOldConversation = appState?.getIdOldConversation ?? "";
             appState?.setIdOldConversation('');
           }
           break;
-        default :
+        default:
           break;
       }
     }
-
   }
 
   @override
@@ -193,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     FlutterNativeSplash.remove();
     WidgetsBinding.instance.addObserver(this);
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if(!isAllowed) {
+      if (!isAllowed) {
         showDialog(
             context: context,
             builder: (BuildContext context) =>
@@ -201,41 +210,41 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     'Permission de Notifications',
                     "Shouz a besoin que vous lui accordiez la permission d'afficher vos notifications que vous alliez recevoir dans l'application.",
                     "D'accord",
-                    ()=> AwesomeNotifications().requestPermissionToSendNotifications(),
+                    () => AwesomeNotifications()
+                        .requestPermissionToSendNotifications(),
                     context),
             barrierDismissible: false);
       }
     });
     AwesomeNotifications().setListeners(
-        onActionReceivedMethod:         NotificationController.onActionReceivedMethod,
-        onNotificationCreatedMethod:    NotificationController.onNotificationCreatedMethod,
-        onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
-    );
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     initMessageStream();
     WidgetsBinding.instance.addObserver(this);
     appState = Provider.of<AppState>(context, listen: false);
     getNewLevel();
-
   }
 
   Future<void> initMessageStream() async {
     if (!mounted) {
       return;
     } else {
-      if(Platform.isAndroid){
-        if(await isHms()) {
-          huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived, onError: _onHmsMessageReceiveError);
+      if (Platform.isAndroid) {
+        if (await isHms()) {
+          huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived,
+              onError: _onHmsMessageReceiveError);
         } else {
           listenFirebase();
         }
-      }
-      else {
+      } else {
         listenFirebase();
       }
-
     }
-
   }
 
   void listenFirebase() async {
@@ -248,14 +257,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
   }
 
-
   Future<void> firebaseMessagingInOpenHandler(RemoteMessage message) async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    if(mounted) {
-      if(message.data['room'] != null) {
-        if(appState?.getIdOldConversation != message.data['_id'] || appState?.getIdOldConversation == '') {
+    if (mounted) {
+      if (message.data['room'] != null) {
+        if (appState?.getIdOldConversation != message.data['_id'] ||
+            appState?.getIdOldConversation == '') {
           appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
           _firebaseMessagingBackgroundHandler(message);
         }
@@ -265,8 +274,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
     }
   }
-
-
 
   Future getNewLevel() async {
     try {
@@ -297,15 +304,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               final idElement = arrayInfo.last;
               final categorie = arrayInfo[arrayInfo.length - 2];
               return loadDeepLink(categorie, idElement);
-            }
-            else {
+            } else {
               return FutureBuilder<String?>(
                   future: getInitialLink(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       final linkInitial = snapshot.data ?? '';
-                      if(linkInitial.isEmpty) {
-                        return (appState?.getSocketIO != null) ? levelUser(level) : LoadHide(key: UniqueKey(),);
+                      if (linkInitial.isEmpty) {
+                        return (appState?.getSocketIO != null)
+                            ? levelUser(level)
+                            : LoadHide(
+                                key: UniqueKey(),
+                              );
                       } else {
                         final arrayInfo = linkInitial.split('/');
                         final idElement = arrayInfo.last;
@@ -341,7 +351,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Widget loadDeepLink(String categorie, String id) {
-
     switch (categorie) {
       case 'deals':
         return LoadProduct(key: UniqueKey(), productId: id);

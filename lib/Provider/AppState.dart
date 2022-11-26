@@ -15,7 +15,7 @@ import '../ServicesWorker/WebSocketHelper.dart';
 class AppState with ChangeNotifier {
   IO.Socket? _socket;
   String priceTicketTotal = '';
-  String priceUnityTicket= '';
+  String priceUnityTicket = '';
   String idEvent = '';
   String idVoyage = '';
   int maxPlace = 0;
@@ -40,13 +40,14 @@ class AppState with ChangeNotifier {
   }
 
   initializeSocket() async {
-    _socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE", IO.OptionBuilder().setTransports(['websocket']).build());
+    _socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE",
+        IO.OptionBuilder().setTransports(['websocket']).build());
 
     _socket!.onConnect((data) async {
-        final User getClient = await DBProvider.db.getClient();
-        if(getClient.ident != "") {
-          this.setJoinConnected(getClient.ident);
-        }
+      final User getClient = await DBProvider.db.getClient();
+      if (getClient.ident != "") {
+        this.setJoinConnected(getClient.ident);
+      }
     });
 
     _socket!.on("reponseChangeProfil", (data) async {
@@ -57,29 +58,25 @@ class AppState with ChangeNotifier {
           timeInSecForIosWeb: 1,
           backgroundColor: colorSuccess,
           textColor: Colors.white,
-          fontSize: 16.0
-      );
+          fontSize: 16.0);
     });
-
 
     _socket!.on("getNewToken", (data) async {
       await setTokenForNotificationProvider(data["tokenNotification"]);
     });
 
     _socket!.on("MsToClient", (data) async {
-
       this.updateLoadingToSend(false);
       if (this.getIdOldConversation == data['_id']) {
         this.setConversation(data);
         final User getClient = await DBProvider.db.getClient();
-        if(getClient.name.trim() != data['author'].trim()) {
+        if (getClient.name.trim() != data['author'].trim()) {
           this.ackReadMessage(data['room']);
         }
       }
     });
 
     _socket!.on("ackReadMessageComeBack", (data) async {
-
       if (this.getIdOldConversation == data['_id']) {
         this.setConversation(data);
       }
@@ -91,20 +88,19 @@ class AppState with ChangeNotifier {
         this.setConversation(data['result']);
         this.setIdOldConversation(data['result']['_id']);
         this.ackReadMessage(data['result']['room']);
-        await prefs.setString(data['result']['room'], jsonEncode(data['result']));
-
+        await prefs.setString(
+            data['result']['room'], jsonEncode(data['result']));
       } else {
         this.setConversation({});
         this.setIdOldConversation('');
       }
     });
     _socket!.on("receivedNotification", (data) async {
-      if(data['withWallet']) {
+      if (data['withWallet']) {
         User newClient = await DBProvider.db.getClient();
         await DBProvider.db.updateClientWallet(data['wallet'], newClient.ident);
       }
       this.setNumberNotif(data['totalNotif']);
-
     });
 
     _socket!.on("agreePaiement", (data) async {
@@ -116,12 +112,9 @@ class AppState with ChangeNotifier {
       this.updateLoadingToSend(false);
       this.setConversation(data);
       this.setIdOldConversation(data['_id']);
-
     });
-    _socket!.on("roomCreatedForNotification", (data) async {
-    });
+    _socket!.on("roomCreatedForNotification", (data) async {});
     _socket!.on("typingResponse", (data) async {
-
       if (this.getIdOldConversation == data['id']) {
         this.updateTyping(data['typing'] as bool);
       }
@@ -130,24 +123,41 @@ class AppState with ChangeNotifier {
     _socket!.on('disconnect', (_) {
       this.deleteSocket();
     });
-
   }
 
-  setTyping(bool typing, String id, String identUser) {
+  setTyping(bool typing, String id, String identUser) async {
     final jsonData = {
       "id": this.getIdOldConversation,
       "typing": typing,
       "room": id,
       "identUser": identUser,
     };
-
+    if (_socket == null) {
+      await initializeSocket();
+    }
     _socket!.emit("typing", [jsonData]);
   }
 
-  ackReadMessage(String room) {
+  deleteMessage(int indexContent, String room, String identUser) async {
+    final jsonData = {
+      "id": this.getIdOldConversation,
+      "indexContent": indexContent,
+      "room": room,
+      "identUser": identUser,
+    };
+    if (_socket == null) {
+      await initializeSocket();
+    }
+    _socket!.emit("deleteMessage", [jsonData]);
+  }
+
+  ackReadMessage(String room) async {
     final jsonData = {
       "room": room,
     };
+    if (_socket == null) {
+      await initializeSocket();
+    }
     _socket!.emit("ackReadMessage", [jsonData]);
     notifyListeners();
   }
@@ -166,6 +176,7 @@ class AppState with ChangeNotifier {
     priceTicketTotal = priceTicket;
     notifyListeners();
   }
+
   setPriceUnityTicket(String priceUnityTicket) {
     this.priceUnityTicket = priceUnityTicket;
     notifyListeners();
@@ -218,14 +229,18 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  setTypingUser(String id) {
+  setTypingUser(String id) async {
+    if (_socket == null) {
+      await initializeSocket();
+    }
     _socket!.emit("typing", [id]);
     notifyListeners();
   }
 
-  setJoinConnected(String id) {
-    //if(_socket )
-
+  setJoinConnected(String id) async {
+    if (_socket == null) {
+      await initializeSocket();
+    }
     _socket!.emit("joinConnected", [id]);
     _socket!.emit("loadNotif", [id]);
     //notifyListeners();
@@ -255,11 +270,11 @@ class AppState with ChangeNotifier {
     choiceForTravel = plce;
     notifyListeners();
   }
+
   setTravelId(String travel) {
     travelId = travel;
     notifyListeners();
   }
-
 
   String _displayText = "";
 
@@ -287,16 +302,21 @@ class AppState with ChangeNotifier {
       "image": imageName,
       "id": id
     };
-      _socket!.emit("message", [jsonData]);
-      notifyListeners();
+
+    if (_socket == null) {
+      await initializeSocket();
+    }
+    _socket!.emit("message", [jsonData]);
+    notifyListeners();
   }
 
-  void relanceDeals(
-      {required String destinate,
-        required String id,
-        String content = '',
-        String imageName = '',
-        String base64 = '',}) async {
+  void relanceDeals({
+    required String destinate,
+    required String id,
+    String content = '',
+    String imageName = '',
+    String base64 = '',
+  }) async {
     User newClient = await DBProvider.db.getClient();
     final jsonData = {
       "content": content,
@@ -307,11 +327,16 @@ class AppState with ChangeNotifier {
       "id": id
     };
 
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
     _socket!.emit("relanceDeals", [jsonData]);
     notifyListeners();
   }
 
-  void changeProfilPicture({required String imageName, required String base64}) async {
+  void changeProfilPicture(
+      {required String imageName, required String base64}) async {
     User newClient = await DBProvider.db.getClient();
     final jsonData = {
       "image": imageName,
@@ -320,8 +345,12 @@ class AppState with ChangeNotifier {
       "recovery": newClient.recovery
     };
 
-      _socket!.emit("changeProfil", [jsonData]);
-      notifyListeners();
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
+    _socket!.emit("changeProfil", [jsonData]);
+    notifyListeners();
   }
 
   void createChatMessage(
@@ -337,15 +366,19 @@ class AppState with ChangeNotifier {
       "base64": base64,
       "image": imageName
     };
-      _socket!.emit("createRoom", [jsonData]);
-      notifyListeners();
+
+    if (_socket == null) {
+      await initializeSocket();
+    }
+    _socket!.emit("createRoom", [jsonData]);
+    notifyListeners();
   }
 
   void sendPropositionForDealsByAuteur(
       {required String price,
-        required String id,
-        required String qte,
-        required String room}) async {
+      required String id,
+      required String qte,
+      required String room}) async {
     final jsonData = {
       "price": price,
       "room": room,
@@ -353,34 +386,42 @@ class AppState with ChangeNotifier {
       "id": id,
     };
 
-      _socket!.emit("sendPropositionForDealsByAuteur", [jsonData]);
-      notifyListeners();
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
+    _socket!.emit("sendPropositionForDealsByAuteur", [jsonData]);
+    notifyListeners();
   }
 
   void notAgreeForPropositionForDeals(
-      {
-        required String id,
-        required String room}) async {
+      {required String id, required String room}) async {
     final jsonData = {
       "room": room,
       "id": id,
     };
 
-      _socket!.emit("notAgreeForPropositionForDeals", [jsonData]);
-      notifyListeners();
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
+    _socket!.emit("notAgreeForPropositionForDeals", [jsonData]);
+    notifyListeners();
   }
 
   void agreeForPropositionForDeals(
-      {
-        required String id,
-        required String room}) async {
+      {required String id, required String room}) async {
     final jsonData = {
       "room": room,
       "id": id,
     };
 
-      _socket!.emit("agreeForPropositionForDeals", [jsonData]);
-      notifyListeners();
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
+    _socket!.emit("agreeForPropositionForDeals", [jsonData]);
+    notifyListeners();
   }
 
   clearConversation() {
@@ -403,7 +444,11 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  getConversation(String foreign) {
+  getConversation(String foreign) async {
+    if (_socket == null) {
+      await initializeSocket();
+    }
+
     _socket!.emit('getConversation', [foreign]);
     notifyListeners();
   }

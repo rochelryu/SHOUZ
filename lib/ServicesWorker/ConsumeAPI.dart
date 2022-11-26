@@ -41,6 +41,7 @@ class ConsumeAPI {
   static final DEMANDE_CONDUCTEUR_URL = BASE_URL + "/client/demandeConducteur";
   static final DEMANDE_VOYAGEUR_URL = BASE_URL + "/client/demandeVoyageur";
   static final ALL_NOTIFICATION_URL = BASE_URL + "/client/getAllNotif";
+  static final GET_VIEW_FILLEUL = BASE_URL + "/client/getViewFilleul";
   static final ALL_NUMBER_NOTIFICATION_BY_CATEGORIE_URL = BASE_URL + "/client/getAllNumberNotifByCategorie";
   static final PERCENTAGE_METHOD_PAYEMENT_URL = BASE_URL + "/client/getPercentageModePayement";
   static final GET_MOBILE_MONEY_AVALAIBLE_URL = BASE_URL + "/client/getMobileMoneyAvalaible";
@@ -272,6 +273,12 @@ class ConsumeAPI {
   Future<Map<String, dynamic>> getStatsOfEvent(String idEvent) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
+    return res;
+  }
+
+  Future<dynamic> getViewFilleul() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_VIEW_FILLEUL/${newClient.ident}?credentials=${newClient.recovery}');
     return res;
   }
 

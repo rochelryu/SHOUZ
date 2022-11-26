@@ -26,8 +26,9 @@ class PopulaireDeals extends StatefulWidget {
   var categorieName;
   var video;
   String id;
+  var approved;
   List<String> PersonneLike = [];
-  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video});
+  PopulaireDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved});
   @override
   _PopulaireDealsState createState() => _PopulaireDealsState();
 }
@@ -45,7 +46,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
           Navigator.of(context).push((
               MaterialPageRoute(
                   builder: (context){
-                    DealsSkeletonData item = DealsSkeletonData(level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
+                    DealsSkeletonData item = DealsSkeletonData(approved: widget.approved,level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
                     return DetailsDeals(dealsDetailsSkeleton:item, comeBack: 0);
                   }
               )));

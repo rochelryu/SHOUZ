@@ -51,15 +51,15 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Shouz veut utiliser votre appareil photo</string>
+	<string>Shouz veut utiliser votre appareil photo pour prendre une photo directement</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Shouz à besoin de récupérer votre position en temps réel</string>
+	<string>Shouz a besoin de récupérer votre position pour permettre à votre chauffeur de vous retrouver plus rapidement sur notre service de vehicule à la demande et du covoiturage.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Shouz à besoin de récupérer votre position</string>
+	<string>Shouz a besoin de récupérer votre position pour permettre à votre chauffeur de vous retrouver plus rapidement sur notre service de vehicule à la demande et du covoiturage. Mais aussi cela nous permet de vous presenter les actulités les plus pertinentes en fonction de votre region.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Shouz à besoin d'avoir accès à votre microphone</string>
+	<string>Shouz a besoin d&apos;avoir accès à votre microphone pour vous permettre d&apos;envoyer des notes vocales lors de vos discussions</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Shouz a besoin d'avoir accès à votre gallery</string>
+	<string>Shouz a besoin d&apos;avoir accès à votre Librairie Photo pour vous permettre d&apos;envoyer des images dans l&apos;application</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

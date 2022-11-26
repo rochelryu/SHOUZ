@@ -8,6 +8,7 @@ import '../Constant/widget_common.dart';
 import 'Login.dart';
 import 'choice_categorie_scan.dart';
 import 'choice_method_payement.dart';
+import 'list_filleul.dart';
 
 class WidgetPage extends StatefulWidget {
 
@@ -36,6 +37,14 @@ class _WidgetPageState extends State<WidgetPage> {
                   "desc": "Décrypter le code reçu par vos invités"
                 }
              ,
+
+          (info['result']['myCodeParrain'] != "") ? {
+            "icon": "Liste filleul",
+            "desc": "Vos commissions spossoring et filleul"
+          } : {
+            "icon": "",
+            "desc": ""
+          },
           /*{
             "icon": "pharmacie de garde",
             "desc": "Disponible pour votre localité"
@@ -88,7 +97,7 @@ class _WidgetPageState extends State<WidgetPage> {
   Widget block(context, item) {
     Widget block;
     switch (item['icon']) {
-      case "pharmacie de garde":
+      case "Liste filleul":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
@@ -98,7 +107,7 @@ class _WidgetPageState extends State<WidgetPage> {
             decoration: BoxDecoration(
                 color: Colors.deepPurple[200],
                 borderRadius: BorderRadius.circular(50.0)),
-            child: Icon(prefix1.MyFlutterAppSecond.pharmacy,
+            child: Icon(Icons.account_circle_outlined,
                 color: Colors.deepPurple[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
@@ -106,8 +115,8 @@ class _WidgetPageState extends State<WidgetPage> {
           subtitle: Text(item['desc'].toString().toUpperCase(),
               style: prefix0.Style.sousTitre(11.0)),
           onTap: () {
-            Navigator.of(context).push((MaterialPageRoute(
-                builder: (BuildContext context) => Login())));
+            Navigator.of(context)
+                .push((MaterialPageRoute(builder: (context) => ListFilleul(key: UniqueKey(),))));
           },
         );
         break;

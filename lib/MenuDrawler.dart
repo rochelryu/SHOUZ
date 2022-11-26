@@ -103,20 +103,20 @@ class _MenuDrawlerState extends State<MenuDrawler>
         else {
           if(Platform.isAndroid) {
             if(await isHms()) {
-              if("1.0.9" != getLatestVersionApp['appGallery']) {
+              if("1.0.16" != getLatestVersionApp['appGallery']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
               }
             } else {
-              if("1.0.9" != getLatestVersionApp['playstore']) {
+              if("1.0.16" != getLatestVersionApp['playstore']) {
                 await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
                 await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
               }
             }
           } else {
-            if("1.0.9" != getLatestVersionApp['appleStore']){
+            if("1.0.16" != getLatestVersionApp['appleStore']){
               await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
               await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
               await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);

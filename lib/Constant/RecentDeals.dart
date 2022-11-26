@@ -24,9 +24,10 @@ class RecentDeals extends StatefulWidget {
   var level;
   var categorieName;
   var video;
+  var approved;
   String id;
   List<String> PersonneLike = [];
-  RecentDeals({this.imageUrl, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video });
+  RecentDeals({this.imageUrl, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved });
   @override
   _RecentDeals createState() => _RecentDeals();
 }
@@ -69,7 +70,7 @@ class _RecentDeals extends State<RecentDeals> {
                     onLine: widget.onLine,
                     authorName: widget.authorName,
                     archive: widget.archive,
-                    categorieName: widget.categorieName,
+                    categorieName: widget.categorieName, approved: widget.approved
                   );
                   return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                 })));

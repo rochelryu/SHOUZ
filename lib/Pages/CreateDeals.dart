@@ -105,10 +105,11 @@ class _CreateDealsState extends State<CreateDeals> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/4 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/4 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/4 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/4 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/5 - Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/5 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/5 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/5 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "5/5 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
       await prefs.setBool('readCreateDealsModalExplain', true);
     }
   }
@@ -902,7 +903,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
       showSnackBar(context, "Le nom du produit est trop court.");
     }
-    if(describe.length < 7) {
+    if(describe.length < 25) {
       ready = false;
       showSnackBar(context, "Veuillez donner plus de détails dans le champs details articles.");
     }
@@ -925,6 +926,10 @@ class _CreateDealsState extends State<CreateDeals> {
     if(price.length <= 2) {
       ready = false;
       showSnackBar(context, "Prix minimum d'un article doit être 500.");
+    }
+    if(base64Image.length < 2) {
+      ready = false;
+      showSnackBar(context, "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
     }
     if(ready) {
       setState(() => requestLoading = true);
@@ -961,8 +966,8 @@ class _CreateDealsState extends State<CreateDeals> {
         describe = "";
         price = "";
 
-        await askedToLead(
-            "Votre produit est en ligne, vous pouvez le manager où que vous soyez",
+        await askedToLead( level == 3 ?
+            "Votre produit est en ligne, vous pouvez le manager où que vous soyez" : "Votre produit est en attente d'approbation par notre service de régularisation, vous recevrez une notification si votre article a été approuvé ou pas",
             true, context);
       } else if (product == 'notFound') {
 

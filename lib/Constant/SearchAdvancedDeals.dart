@@ -27,8 +27,9 @@ class SearchAdvancedDeals extends StatefulWidget {
   var video;
   String id;
   bool displayProfilAuthor;
+  var approved;
   List<String> PersonneLike = [];
-  SearchAdvancedDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video});
+  SearchAdvancedDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video, this.approved});
   @override
   _SearchAdvancedDealsState createState() => _SearchAdvancedDealsState();
 }
@@ -85,6 +86,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                         authorName: widget.authorName,
                         archive: widget.archive,
                         categorieName: widget.categorieName,
+                        approved: widget.approved
                       );
                       return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                     })));
@@ -154,6 +156,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                       authorName: widget.authorName,
                       archive: widget.archive,
                       categorieName: widget.categorieName,
+                      approved: widget.approved
                     );
                     return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                   })));
@@ -315,7 +318,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                         onLine: widget.onLine,
                         authorName: widget.authorName,
                         archive: widget.archive,
-                        categorieName: widget.categorieName,
+                        categorieName: widget.categorieName,approved: widget.approved
                       );
                       return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                     })));
@@ -357,7 +360,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                       onLine: widget.onLine,
                       authorName: widget.authorName,
                       archive: widget.archive,
-                      categorieName: widget.categorieName,
+                      categorieName: widget.categorieName, approved: widget.approved
                     );
                     return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                   })));

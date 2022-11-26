@@ -35,6 +35,7 @@ class _ActualiteState extends State<Actualite> {
   late Future<Map<String, dynamic>> topActualite;
   late Future<Map<String, dynamic>> contentActulite;
   User? newClient;
+  bool notPermission = false;
 
   ConsumeAPI consumeAPI = ConsumeAPI();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
@@ -47,7 +48,6 @@ class _ActualiteState extends State<Actualite> {
         try {
 
           bool status = await permissionsLocation();
-          bool statusPermanent = await permissionsPermanentDenied();
           if(status) {
             huawei_location.FusedLocationProviderClient locationService = huawei_location.FusedLocationProviderClient();
             huawei_location.LocationRequest locationRequest = huawei_location.LocationRequest();
@@ -56,7 +56,7 @@ class _ActualiteState extends State<Actualite> {
               needBle: true,
               alwaysShow: true,
             );
-            await locationService.checkLocationSettings(locationSettingsRequest);
+            final setting = await locationService.checkLocationSettings(locationSettingsRequest);
             huawei_location.Location locations = await locationService.getLastLocation();
             setState(() {
               locationData = LocationData.fromMap(
@@ -80,32 +80,15 @@ class _ActualiteState extends State<Actualite> {
               );
             });
           } else {
-            if(statusPermanent) {
-                await showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                dialogCustomForValidateAction(
-                                    'Permission de Localisation importante',
-                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
-                                    "Ouvrir paramètre",
-                                        () async => await openSettingApp(),
-                                    context, true, "Réfuser"),
-                            barrierDismissible: false);
-            } else {
-              await incrementPermanentDenied();
-              await showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      dialogCustomForValidatePermissionNotification(
-                          'Permission de Localisation importante',
-                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
-                          "D'accord",
-                              () async => await permission.Permission.locationWhenInUse.request(),
-                          context),
-                  barrierDismissible: false);
-              getPositionCurrent();
-            }
+              final resultPermission = await permission.Permission.locationWhenInUse.request();
 
+              if(resultPermission.isGranted) {
+                getPositionCurrent();
+              } else {
+                setState(() {
+                  notPermission = true;
+                });
+              }
           }
         } catch (e) {
           print(e);
@@ -113,21 +96,16 @@ class _ActualiteState extends State<Actualite> {
       } else {
         try {
           _permissionGranted = await location.hasPermission();
-          bool statusPermanent = await permissionsPermanentDenied();
-          if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
-            _permissionGranted = await location.requestPermission();
-            if (_permissionGranted != PermissionStatus.granted) {
-              await incrementPermanentDenied();
-              await showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      dialogCustomForValidatePermissionNotification(
-                          'Permission de Localisation importante',
-                          "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
-                          "D'accord",
-                              () async => await location.requestPermission(),
-                          context),
-                  barrierDismissible: false);
+
+          if (_permissionGranted == PermissionStatus.denied) {
+
+
+            final resultPermission = await location.requestPermission();
+
+            if (resultPermission != PermissionStatus.granted) {
+              setState(() {
+                notPermission = true;
+              });
             } else {
               _serviceEnabled = await location.serviceEnabled();
               if (!_serviceEnabled) {
@@ -148,18 +126,7 @@ class _ActualiteState extends State<Actualite> {
               }
             }
           }
-          else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-                await showDialog(
-                      context: context,
-                            builder: (BuildContext context) =>
-                                dialogCustomForValidateAction(
-                                    'Permission de Localisation importante',
-                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
-                                    "Ouvrir paramètre",
-                                        () async => await openSettingApp(),
-                                    context, true, "Réfuser"),
-                barrierDismissible: false);
-          }
+
           else {
             _serviceEnabled = await location.serviceEnabled();
             if (!_serviceEnabled) {
@@ -185,33 +152,31 @@ class _ActualiteState extends State<Actualite> {
           }
 
         } catch (e) {
-          print("nous avons une erreur ${e.toString()}");
+          print("nous avons une erreur $e");
         }
       }
     } else {
       try {
         _permissionGranted = await location.hasPermission();
-        bool statusPermanent = await permissionsPermanentDenied();
-        if (_permissionGranted == PermissionStatus.denied && !statusPermanent) {
-          _permissionGranted = await location.requestPermission();
-          if (_permissionGranted != PermissionStatus.granted) {
-            await incrementPermanentDenied();
-            showDialog(
-                context: context,
-                builder: (BuildContext context) =>
-                    dialogCustomForValidatePermissionNotification(
-                        'Permission de Localisation importante',
-                        "Shouz doit avoir cette autorisation pour vous presenter le covoiturage dans votre localité mais aussi pour la conversion appropriée de votre monnaie locale",
-                        "D'accord",
-                            () async => await location.requestPermission(),
-                        context),
-                barrierDismissible: false);
+
+        if (_permissionGranted == PermissionStatus.denied) {
+
+
+          final resultPermission = await location.requestPermission();
+
+          if (resultPermission != PermissionStatus.granted) {
+            setState(() {
+              notPermission = true;
+            });
           } else {
             _serviceEnabled = await location.serviceEnabled();
+
             if (!_serviceEnabled) {
               _serviceEnabled = await location.requestService();
               if (!_serviceEnabled) {
-                return;
+                setState(() {
+                  notPermission = true;
+                });
               } else {
                 var test = await location.getLocation();
                 setState(() {
@@ -226,18 +191,7 @@ class _ActualiteState extends State<Actualite> {
             }
           }
         }
-        else if(_permissionGranted == PermissionStatus.denied && statusPermanent) {
-              await showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                dialogCustomForValidateAction(
-                                    'Permission de Localisation importante',
-                                    "Sans cette autorisation vous ne pourriez pas bénéficier de certains services comme le covoiturage et vtc",
-                                    "Ouvrir paramètre",
-                                        () async => await openSettingApp(),
-                                    context, true, "Réfuser"),
-              barrierDismissible: false);
-        }
+
         else {
           _serviceEnabled = await location.serviceEnabled();
           if (!_serviceEnabled) {
@@ -256,10 +210,7 @@ class _ActualiteState extends State<Actualite> {
               locationData = test;
             });
           }
-          var test = await location.getLocation();
-          setState(() {
-            locationData = test;
-          });
+
         }
 
       } catch (e) {
@@ -340,7 +291,7 @@ class _ActualiteState extends State<Actualite> {
     topActualite = consumeAPI.getActualite();
     contentActulite = topActualite;
     verifyIfUserHaveReadModalExplain();
-    Timer(const Duration(seconds: 5), cityFromCoord);
+    Timer(const Duration(seconds: 7), cityFromCoord);
   }
   loadInfo() async {
     User user = await DBProvider.db.getClient();
@@ -414,7 +365,7 @@ class _ActualiteState extends State<Actualite> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-            child: Container(
+            child: notPermission ? isNotPermissionLocationActuality(context, MediaQuery.of(context).size.height * 0.8) :  Container(
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),

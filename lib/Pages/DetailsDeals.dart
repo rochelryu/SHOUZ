@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -18,6 +20,7 @@ import 'package:video_player/video_player.dart';
 import '../Constant/my_flutter_app_second_icons.dart';
 import './ChatDetails.dart';
 import 'Login.dart';
+import 'choice_method_payement.dart';
 import 'list_commande.dart';
 
 class DetailsDeals extends StatefulWidget {
@@ -165,25 +168,28 @@ class _DetailsDealsState extends State<DetailsDeals> {
   }
 
   Future setUpVipProduct(String productId) async {
-
     if(widget.dealsDetailsSkeleton.level != 3) {
-
-      final renewArticle = await consumeAPI.setUpVipProduct(productId);
-      if(renewArticle['etat'] == "found") {
-        await askedToLead(
-            "Votre article est VIP. Bravo à vous 👏👏",
-            true, context);
-      } else if (renewArticle['etat'] == "notFound") {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-            barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
+      if(newClient!.wallet >= 1000) {
+        final renewArticle = await consumeAPI.setUpVipProduct(productId);
+        if(renewArticle['etat'] == "found") {
+          await askedToLead(
+              "Votre article est VIP. Bravo à vous 👏👏",
+              true, context);
+        } else if (renewArticle['etat'] == "notFound") {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+              barrierDismissible: false);
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (builder) => Login()));
+        } else {
+          await askedToLead(
+              renewArticle['error'], false, context);
+        }
       } else {
-        await askedToLead(
-            renewArticle['error'], false, context);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
       }
     }
     else {
@@ -548,7 +554,9 @@ class _DetailsDealsState extends State<DetailsDeals> {
                           color: Colors.white,
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold)),
-                  Text("(Prix discutable)",
+                  if(!isMe) Text("(Prix discutable)",
+                      style: TextStyle(color: Colors.white, fontSize: 13.5)),
+                  if(isMe && !widget.dealsDetailsSkeleton.approved) Text("(En attente de validation par Shouz)",
                       style: TextStyle(color: Colors.white, fontSize: 13.5)),
                 ],
               ),
@@ -723,11 +731,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
                 ],
               ),
             ),
-            if(widget.dealsDetailsSkeleton.level != 3 && newClient != null && newClient!.wallet >= 1000) GestureDetector(
+            if(widget.dealsDetailsSkeleton.level != 3 && newClient != null) GestureDetector(
               onTap: () {
                 showDialog(
                     context: context,
-                    builder: (BuildContext context) => dialogCustomForValidateAction('Promotion VIP', 'Rendez cet article VIP est maximisé vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?', 'Ok', () async => await setUpVipProduct(widget.dealsDetailsSkeleton.id), context),
+                    builder: (BuildContext context) => dialogCustomForValidateAction('Promotion VIP', 'Rendez cet article VIP et maximisez vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?', 'Ok', () async => await setUpVipProduct(widget.dealsDetailsSkeleton.id), context),
                     barrierDismissible: false);
               },
               child: Row(

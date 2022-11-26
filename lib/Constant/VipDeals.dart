@@ -27,6 +27,7 @@ class VipDeals extends StatefulWidget {
   var level;
   var categorieName;
   var video;
+  var approved;
   String id;
   List<String> personneLike = [];
   VipDeals(
@@ -46,7 +47,7 @@ class VipDeals extends StatefulWidget {
       this.registerDate,
       this.quantity,
       this.archive,
-      this.authorName, this.categorieName, this.video});
+      this.authorName, this.categorieName, this.video, required this.approved});
   @override
   _VipDealsState createState() => _VipDealsState();
 }
@@ -96,6 +97,7 @@ class _VipDealsState extends State<VipDeals> {
                   archive: widget.archive,
                   categorieName: widget.categorieName,
                   video: widget.video,
+                  approved: widget.approved
                 );
                 return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
               })));
@@ -234,6 +236,7 @@ class _VipDealsState extends State<VipDeals> {
                             archive: widget.archive,
                           categorieName: widget.categorieName,
                           video: widget.video,
+                            approved: widget.approved
                         );
                         return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                       })));

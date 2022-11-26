@@ -98,8 +98,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData);
+
       if(dealsFull.length > 0){
-        if(data[0].length != dealsFull[0].length || data[1].length != dealsFull[1].length ||data[2].length != dealsFull[2].length){
+        if(data[0][0]['body'].length != dealsFull[0][0]['body'].length || data[1][0]['body'].length != dealsFull[1][0]['body'].length ||data[2][0]['body'].length != dealsFull[2][0]['body'].length){
           setState(() {
             dealsFull = data;
           });
@@ -350,6 +351,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
                                             lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
                                             registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
+                                            approved: populaireActu[0][choiceItemSearch]['body'][index]['approved'],
                                             quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
                                       },
                                     ),
@@ -460,6 +462,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
                                           lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
                                           registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
+                                          approved: populaireActu[0][choiceItemSearch]['body'][index]['approved'],
                                           quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
                                     },
                                   ),
@@ -521,6 +524,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
                                           lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
                                           registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
+                                          approved: populaireActu[1][choiceItemSearch]['body'][index]['approved'],
                                           quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
 
                                     ),
@@ -621,6 +625,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
                                                 lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
                                                 registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
+                                                approved: populaireActu[1][choiceItemSearch]['body'][index]['approved'],
                                                 quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
 
                                           ),
@@ -679,6 +684,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             numberFavorite: populaireActu[2][choiceItemSearch]['body'][index]['numberFavorite'],
                                             lieu: populaireActu[2][choiceItemSearch]['body'][index]['lieu'],
                                             registerDate: populaireActu[2][choiceItemSearch]['body'][index]['registerDate'],
+                                            approved: populaireActu[2][choiceItemSearch]['body'][index]['approved'],
                                             quantity: populaireActu[2][choiceItemSearch]['body'][index]['quantity']),
 
                                       ),
@@ -778,6 +784,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                                 numberFavorite: populaireActu[2][choiceItemSearch]['body'][index]['numberFavorite'],
                                                 lieu: populaireActu[2][choiceItemSearch]['body'][index]['lieu'],
                                                 registerDate: populaireActu[2][choiceItemSearch]['body'][index]['registerDate'],
+                                                approved: populaireActu[2][choiceItemSearch]['body'][index]['approved'],
                                                 quantity: populaireActu[2][choiceItemSearch]['body'][index]['quantity']),
 
                                           ),

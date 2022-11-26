@@ -560,7 +560,9 @@ class _ProfilState extends State<Profil> {
                                           describe: item['describe'],
                                           onLine: item['onLine'],
                                           authorName: item['authorName'],
-                                          categorieName: item['categorieName'], archive: item['archive'],
+                                          categorieName: item['categorieName'],
+                                          archive: item['archive'],
+                                          approved: item['approved']
                                         );
                                         return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                       })));
@@ -665,7 +667,7 @@ class _ProfilState extends State<Profil> {
                                         describe: item['describe'],
                                         onLine: item['onLine'],
                                         authorName: item['authorName'],
-                                        categorieName: item['categorieName'],
+                                        categorieName: item['categorieName'],approved: item['approved']
                                       );
                                       return DetailsDeals(dealsDetailsSkeleton: element, comeBack: 0);
                                     })));

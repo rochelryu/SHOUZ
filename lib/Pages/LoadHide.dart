@@ -169,6 +169,7 @@ class _LoadEventState extends State<LoadEvent> {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getDetailsForEvent(widget.eventId);
     if(data['etat'] == 'found') {
+
       final item = data['result'];
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (builder) => EventDetails(
@@ -307,6 +308,7 @@ class _LoadProductState extends State<LoadProduct> {
           onLine: productInfo['result']['onLine'],
           authorName: productInfo['result']['authorName'],
           archive: productInfo['result']['archive'],
+          approved: productInfo['result']['approved'],
           categorieName: productInfo['result']['categorieName'],
         );
         return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 1);

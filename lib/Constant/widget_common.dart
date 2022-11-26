@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:location/location.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 
@@ -12,10 +15,12 @@ import '../MenuDrawler.dart';
 import '../Models/User.dart';
 import '../Pages/share_ticket.dart';
 import '../Pages/ticket_detail.dart';
+import '../Provider/Audio.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Style.dart';
 import 'helper.dart';
 
+Location location = Location();
 
 Widget loadDataSkeletonOfActuality (BuildContext context) {
   return Padding(
@@ -837,6 +842,95 @@ Widget isErrorSubscribe(BuildContext context, [double height = 0]) {
   );
 }
 
+Widget isNotPermissionLocationActuality(BuildContext context, [double height = 0]) {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 15.0),
+    height: height == 0 ? MediaQuery.of(context).size.height : height,
+    width: MediaQuery.of(context).size.width,
+    child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SvgPicture.network(
+            "${ConsumeAPI.AssetPublicServer}news_permission.svg",
+            semanticsLabel: 'Not Permission',
+            height: height == 0 ? MediaQuery.of(context).size.height * 0.39 : height * 0.5,
+          ),
+          Text(
+              "Suivez l'actualité et soyez informé des dernières offres d'emploi et appel d'offres de votre localité.",
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(13)),
+          SizedBox(height: 15,),
+          ElevatedButton(
+            onPressed: () async {
+              if(Platform.isIOS) {
+                await location.requestPermission();
+              } else {
+                await openSettingApp();
+              }
+
+            },
+            child: Text('Autoriser la localisation'),
+            style: raisedButtonStyle,
+          ),
+          SizedBox(height: 15,),
+          SizedBox(height: 15,),
+          Text(
+              "Votre position exacte est nécessaire pour vous présenter les actualités et offres d'emploi de votre localité.",
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(11)),
+          SizedBox(height: 15,),
+          Text(messageForActivatePermissionNotification(),
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(11)),
+
+        ]),
+  );
+}
+
+Widget isNotPermissionLocationTravel(BuildContext context, [double height = 0]) {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 15.0),
+    height: height == 0 ? MediaQuery.of(context).size.height : height,
+    width: MediaQuery.of(context).size.width,
+    child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SvgPicture.network(
+            "${ConsumeAPI.AssetPublicServer}driving.svg",
+            semanticsLabel: 'Not Permission',
+            height: height == 0 ? MediaQuery.of(context).size.height * 0.39 : height * 0.5,
+          ),
+          Text(
+              "Payez 2 fois plus moins chers, avec des tarifs qui se reduisent au lieu d'augmenter.",
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(13)),
+          SizedBox(height: 15,),
+          ElevatedButton(
+            onPressed: () async {
+              if(Platform.isIOS) {
+                await location.requestPermission();
+              } else {
+                await openSettingApp();
+              }
+
+            },
+            child: Text('Autoriser la localisation'),
+            style: raisedButtonStyleSuccess,
+          ),
+          SizedBox(height: 15,),
+          Text(
+              "Votre position exacte est nécessaire pour que le chauffeur puisse vous prendre là où vous êtes.",
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(11)),
+          SizedBox(height: 15,),
+          Text(messageForActivatePermissionNotification(),
+              textAlign: TextAlign.center,
+              style: Style.sousTitreEvent(11)),
+
+        ]),
+  );
+}
+
 Widget isErrorLoadInfoBecauseNewPermissionAccording(BuildContext context, String text) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 15.0),
@@ -862,6 +956,231 @@ Widget isErrorLoadInfoBecauseNewPermissionAccording(BuildContext context, String
 Widget notSignal() {
   return Center(
     child: Icon(Icons.signal_cellular_connected_no_internet_4_bar_rounded, color: colorText,),
+  );
+}
+
+//Discussion
+Widget sendEtatForChat(etat, isMe) {
+  if (isMe) {
+    if (etat) {
+      return Icon(Icons.check_circle_outline,
+          color: Colors.white, size: 12.0);
+    } else {
+      return Icon(Icons.check, color: Colors.white, size: 12.0);
+    }
+  } else {
+    return SizedBox(width: 1.0);
+  }
+}
+
+Widget boxMessage({
+  required BuildContext context,
+  required bool isMe,
+  required String message,
+  required bool isReadByOtherUser,
+  required callback,
+  required int indexContent,
+  required String room,
+  required String ident,
+  required String image,
+  required String registerDate,
+  required String idDocument,
+}) {
+  return Container(
+    margin: EdgeInsets.all(10.0),
+    padding:
+    isMe ? EdgeInsets.only(left: 40) : EdgeInsets.only(right: 40),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment:
+          isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                  color: isMe ? colorText : Colors.white,
+                  borderRadius: isMe
+                      ? BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                  )
+                      : BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  )),
+              child: InkWell(
+                onLongPress: () {
+                  if(isMe) {
+                    showAdaptiveActionSheet(
+                      context: context,
+                      title: Text('Plus d\'options', style: Style.simpleTextInContainer(Colors.black54),),
+                      androidBorderRadius: 30,
+                      actions: <BottomSheetAction>[
+                        if(message != '') BottomSheetAction(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.copy, color: colorText,),
+                                Text('Copier', style: Style.sousTitre(15, colorText),),
+                              ],
+                            ), onPressed: (context) {
+                          Navigator.pop(context);
+                          Clipboard.setData(ClipboardData(text: message))
+                              .then((value) { //only if ->
+                            displaySnackBar(context, "Texte copié avec succès");
+                          });
+                        }),
+                        BottomSheetAction(title: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.delete_outline, color: colorError,),
+                            Text('Supprimer', style: Style.sousTitre(15, colorError),),
+                          ],
+                        ), onPressed: (context) {
+                          Navigator.pop(context);
+                          if(isReadByOtherUser) {
+                            displaySnackBar(context, "Message déjà lu par le destinataire donc nous ne pouvons le supprimer.");
+                          } else {
+                            callback(indexContent, room, ident);
+                          }
+                        }),
+                      ],
+                      cancelAction: CancelAction(title: Text('Retour', style: Style.sousTitre(15, colorBlack),)),// onPressed parameter is optional by default will dismiss the ActionSheet
+                    );
+                  }
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (image != '') ClipRRect(
+                      borderRadius: isMe
+                          ? BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                      )
+                          : BorderRadius.only(
+                        topRight: Radius.circular(20),
+                        topLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: image.indexOf('.m4a') == -1 ? CachedNetworkImage(
+                        imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
+                        progressIndicatorBuilder: (context, url, downloadProgress) =>
+                            Center(
+                                child: CircularProgressIndicator(value: downloadProgress.progress)),
+                        errorWidget: (context, url, error) => notSignal(),
+                      ): LoadAudioAsset(
+                        url:
+                        "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
+                        isMe: isMe,
+                        key: UniqueKey(),
+                      ),
+                    ),
+
+                    if(message != '') Container(
+                      child: Text(
+                        message,
+                        style: isMe
+                            ? Style.chatIsMe(15)
+                            : Style.chatOutMe(15.0),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: isMe
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    registerDate,
+                    style: Style.chatIsMe(12),
+                  ),
+                  SizedBox(width: 7),
+                  sendEtatForChat(isReadByOtherUser, isMe),
+                ],
+              ),
+            )
+          ],
+        )
+      ],
+    ),
+  );
+}
+
+Widget loadAudioAsset({required BuildContext context, required bool isMe, required pause, required play, required resume, required changeToSecond, required Duration position, required Duration duration, required bool isListenSound, required bool firstListeen, required AnimationController controller}) {
+  return Container(
+    height: 35,
+    width: MediaQuery.of(context).size.width,
+    child: Row(
+      children: [
+        GestureDetector (
+          onTap: () async {
+            if(isListenSound && !firstListeen) {
+              await pause();
+            } else if(firstListeen && !isListenSound) {
+              await play();
+            } else {
+              await resume();
+            }
+            /*setState(() {
+              isListenSound = !isListenSound;
+            });*/
+          },
+          child: AnimatedIcon(
+            icon: AnimatedIcons.play_pause,
+            progress: controller,
+            color: isMe ? Colors.white: colorText,
+            size: 30,
+          ),
+        ),
+        SizedBox(width: 2),
+        Expanded(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 45,
+                child: Text(position.toString().substring(2).split('.')[0], style: isMe
+                    ? Style.chatIsMe(13.0)
+                    : Style.chatOutMe(13.0)),
+              ),
+              Expanded(child: Slider(
+                inactiveColor: isMe ? Colors.white.withOpacity(0.4) : colorText.withOpacity(0.4),
+                activeColor: isMe ? Colors.white: colorText,
+                value: position.inMilliseconds.toDouble(),
+                max: duration.inMilliseconds.toDouble(),
+                min: 0.0,
+                onChanged: (value) {
+                  changeToSecond(value.toInt());
+                },
+              )),
+
+              SizedBox(
+                width: 50,
+                child: Text(duration.toString().substring(2).split('.')[0], style: isMe
+                    ? Style.chatIsMe(13.0)
+                    : Style.chatOutMe(13.0), textAlign: TextAlign.start),
+              )
+            ],
+          ),
+        )
+      ],
+    ),
   );
 }
 
