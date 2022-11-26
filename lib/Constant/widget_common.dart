@@ -1123,67 +1123,6 @@ Widget boxMessage({
   );
 }
 
-Widget loadAudioAsset({required BuildContext context, required bool isMe, required pause, required play, required resume, required changeToSecond, required Duration position, required Duration duration, required bool isListenSound, required bool firstListeen, required AnimationController controller}) {
-  return Container(
-    height: 35,
-    width: MediaQuery.of(context).size.width,
-    child: Row(
-      children: [
-        GestureDetector (
-          onTap: () async {
-            if(isListenSound && !firstListeen) {
-              await pause();
-            } else if(firstListeen && !isListenSound) {
-              await play();
-            } else {
-              await resume();
-            }
-            /*setState(() {
-              isListenSound = !isListenSound;
-            });*/
-          },
-          child: AnimatedIcon(
-            icon: AnimatedIcons.play_pause,
-            progress: controller,
-            color: isMe ? Colors.white: colorText,
-            size: 30,
-          ),
-        ),
-        SizedBox(width: 2),
-        Expanded(
-          child: Row(
-            children: [
-              SizedBox(
-                width: 45,
-                child: Text(position.toString().substring(2).split('.')[0], style: isMe
-                    ? Style.chatIsMe(13.0)
-                    : Style.chatOutMe(13.0)),
-              ),
-              Expanded(child: Slider(
-                inactiveColor: isMe ? Colors.white.withOpacity(0.4) : colorText.withOpacity(0.4),
-                activeColor: isMe ? Colors.white: colorText,
-                value: position.inMilliseconds.toDouble(),
-                max: duration.inMilliseconds.toDouble(),
-                min: 0.0,
-                onChanged: (value) {
-                  changeToSecond(value.toInt());
-                },
-              )),
-
-              SizedBox(
-                width: 50,
-                child: Text(duration.toString().substring(2).split('.')[0], style: isMe
-                    ? Style.chatIsMe(13.0)
-                    : Style.chatOutMe(13.0), textAlign: TextAlign.start),
-              )
-            ],
-          ),
-        )
-      ],
-    ),
-  );
-}
-
 CachedNetworkImage buildImageInCachedNetworkWithSizeManual(String urlImage, double width, double height, BoxFit fit ) {
   return CachedNetworkImage(
     imageUrl: urlImage,
