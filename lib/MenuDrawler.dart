@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,90 +48,123 @@ class _MenuDrawlerState extends State<MenuDrawler>
   User? newClient;
   late String statusPermission;
   List<Widget> menus = [Actualite(), Deals(), EventInter(), Covoiturage()];
-  List<String> titleDomain = ['Actualité', 'E-commerce', 'Événementiel', 'Covoiturage'];
+  List<String> titleDomain = [
+    'Actualité',
+    'E-commerce',
+    'Événementiel',
+    'Covoiturage'
+  ];
 
   int numberConnected = 0;
-  ConsumeAPI consumeAPI =new ConsumeAPI();
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
   void initState() {
     super.initState();
     loadInfo();
-    getTokenForNotificationProvider();
-    _controller =
-        AnimationController(vsync: this, duration: transitionMedium);
+
+    _controller = AnimationController(vsync: this, duration: transitionMedium);
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
-
   }
 
   loadInfo() async {
     User user = await DBProvider.db.getClient();
-    setState(() {
-      newClient = user;
-      id = newClient!.ident;
-    });
+    if (user.numero != 'null') {
+      setState(() {
+        newClient = user;
+        id = newClient!.ident;
+      });
+      await getTokenForNotificationProvider();
+    }
     try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
-      if(getLatestVersionApp['playstore'] != null) {
+      if (getLatestVersionApp['playstore'] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         final versionning = prefs.getString("versionning");
-        if(versionning != null) {
+        if (versionning != null) {
           final versionInApp = jsonDecode(versionning) as dynamic;
-          if(Platform.isAndroid) {
-            if(await isHms()) {
-              if(versionInApp['appGallery'] != getLatestVersionApp['appGallery']) {
-                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-                await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
+          if (Platform.isAndroid) {
+            if (await isHms()) {
+              if (versionInApp['appGallery'] !=
+                  getLatestVersionApp['appGallery']) {
+                await prefs.setString(
+                    'versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain(
+                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    context);
+                await launchUrl(Uri.parse(linkAppGalleryForShouz),
+                    mode: LaunchMode.externalApplication);
               }
             } else {
-              if(versionInApp['playstore'] != getLatestVersionApp['playstore']) {
-                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-                await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
+              if (versionInApp['playstore'] !=
+                  getLatestVersionApp['playstore']) {
+                await prefs.setString(
+                    'versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain(
+                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    context);
+                await launchUrl(Uri.parse(linkPlayStoreForShouz),
+                    mode: LaunchMode.externalApplication);
               }
             }
           } else {
-            if(versionInApp["appleStore"] != getLatestVersionApp['appleStore']){
-              await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-              await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
+            if (versionInApp["appleStore"] !=
+                getLatestVersionApp['appleStore']) {
+              await prefs.setString(
+                  'versionning', jsonEncode(getLatestVersionApp));
+              await modalForExplain(
+                  "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                  "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                  context);
+              await launchUrl(Uri.parse(linkAppleStoreForShouz),
+                  mode: LaunchMode.externalApplication);
             }
           }
-        }
-        else {
-          if(Platform.isAndroid) {
-            if(await isHms()) {
-              if("1.0.16" != getLatestVersionApp['appGallery']) {
-                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-                await launchUrl(Uri.parse(linkAppGalleryForShouz), mode: LaunchMode.externalApplication);
+        } else {
+          if (Platform.isAndroid) {
+            if (await isHms()) {
+              if ("1.0.19" != getLatestVersionApp['appGallery']) {
+                await prefs.setString(
+                    'versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain(
+                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    context);
+                await launchUrl(Uri.parse(linkAppGalleryForShouz),
+                    mode: LaunchMode.externalApplication);
               }
             } else {
-              if("1.0.16" != getLatestVersionApp['playstore']) {
-                await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-                await launchUrl(Uri.parse(linkPlayStoreForShouz), mode: LaunchMode.externalApplication);
+              if ("1.0.19" != getLatestVersionApp['playstore']) {
+                await prefs.setString(
+                    'versionning', jsonEncode(getLatestVersionApp));
+                await modalForExplain(
+                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    context);
+                await launchUrl(Uri.parse(linkPlayStoreForShouz),
+                    mode: LaunchMode.externalApplication);
               }
             }
           } else {
-            if("1.0.16" != getLatestVersionApp['appleStore']){
-              await prefs.setString('versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain("${ConsumeAPI.AssetPublicServer}updateApp.png", "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.", context);
-              await launchUrl(Uri.parse(linkAppleStoreForShouz), mode: LaunchMode.externalApplication);
+            if ("1.0.19" != getLatestVersionApp['appleStore']) {
+              await prefs.setString(
+                  'versionning', jsonEncode(getLatestVersionApp));
+              await modalForExplain(
+                  "${ConsumeAPI.AssetPublicServer}updateApp.png",
+                  "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                  context);
+              await launchUrl(Uri.parse(linkAppleStoreForShouz),
+                  mode: LaunchMode.externalApplication);
             }
           }
         }
       }
-
-    } catch(e) {
-
-    }
+    } catch (e) {}
   }
-
-
 
   @override
   void dispose() {
@@ -149,7 +183,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     return Scaffold(
       backgroundColor: backgroundColor,
       body: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Stack(
@@ -176,25 +210,28 @@ class _MenuDrawlerState extends State<MenuDrawler>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-            newClient != null ? Container(
-                  width: 105,
-                  height: 105,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100.00),
-                      image: DecorationImage(
-                        image: NetworkImage("${ConsumeAPI.AssetProfilServer}${newClient!.images}"),
-                        fit: BoxFit.cover,
-                      )),
-                ) : Container(
-                      width: 105,
-                      height: 105,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100.00),
-                        image: DecorationImage(
-                            image: AssetImage("images/logos.png"),
-                        fit: BoxFit.cover,
-                      )),
-                ),
+                newClient != null
+                    ? Container(
+                        width: 105,
+                        height: 105,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100.00),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  "${ConsumeAPI.AssetProfilServer}${newClient!.images}"),
+                              fit: BoxFit.cover,
+                            )),
+                      )
+                    : Container(
+                        width: 105,
+                        height: 105,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100.00),
+                            image: DecorationImage(
+                              image: AssetImage("images/logos.png"),
+                              fit: BoxFit.cover,
+                            )),
+                      ),
                 SizedBox(height: 10),
                 Container(
                   width: 150,
@@ -210,52 +247,96 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 SizedBox(height: 40),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
-                    Navigator.of(context).push(
-                        (MaterialPageRoute(builder: (context) => Profil())));
+                  onTap: () async {
+                    if (newClient != null && newClient?.numero.length == 10) {
+                      Navigator.of(context).push(
+                          (MaterialPageRoute(builder: (context) => Profil())));
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
                   },
-                  leading: Icon(Icons.account_circle_outlined, color: Colors.white),
-                  title:
-                      Text("Profil", style: Style.menuStyleItem(16.0)),
+                  leading:
+                      Icon(Icons.account_circle_outlined, color: Colors.white),
+                  title: Text("Profil", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
-                    Navigator.pushNamed(context, WalletPage.rootName);
+                  onTap: () async {
+                    if (newClient != null && newClient?.numero.length == 10) {
+                      Navigator.pushNamed(context, WalletPage.rootName);
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
                   },
-                  leading: Icon(MyFlutterAppSecond.credit_card, color: Colors.white),
-                  title: Text("Portefeuille",
-                      style: Style.menuStyleItem(16.0)),
+                  leading:
+                      Icon(MyFlutterAppSecond.credit_card, color: Colors.white),
+                  title: Text("Portefeuille", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
-                    Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
+                  onTap: () async {
+                    if (newClient != null && newClient?.numero.length == 10) {
+                      Navigator.of(context).push((MaterialPageRoute(
+                          builder: (context) => ChoiceOtherHobieSecond(
+                                key: UniqueKey(),
+                              ))));
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
                   },
                   leading: Icon(Icons.favorite_outline, color: Colors.white),
-                  title: Text("Préférences",
-                      style: Style.menuStyleItem(16.0)),
+                  title: Text("Préférences", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
-                    Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => WidgetPage())));
+                  onTap: () async {
+                    if (newClient != null && newClient?.numero.length == 10) {
+                      Navigator.of(context).push((MaterialPageRoute(
+                          builder: (context) => WidgetPage())));
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
                   },
                   leading: Icon(Icons.widgets_outlined, color: Colors.white),
-                  title:
-                      Text("Outils", style: Style.menuStyleItem(16.0)),
+                  title: Text("Outils", style: Style.menuStyleItem(16.0)),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.all(0.0),
-                  onTap: () {
-                    Navigator.of(context).push(
-                        (MaterialPageRoute(builder: (context) => Setting())));
+                  onTap: () async {
+                    if (newClient != null && newClient?.numero.length == 10) {
+                      Navigator.of(context).push(
+                          (MaterialPageRoute(builder: (context) => Setting())));
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
                   },
                   leading: Icon(Icons.settings_outlined, color: Colors.white),
-                  title: Text("Paramètres",
-                      style: Style.menuStyleItem(16.0)),
+                  title: Text("Paramètres", style: Style.menuStyleItem(16.0)),
                 ),
               ],
             ),
@@ -270,8 +351,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
     if (numberConnected <= 2) {
       final appState = Provider.of<AppState>(context);
       try {
-        appState.setJoinConnected(id);
-          numberConnected++;
+        if (id != "" && id != 'ident') {
+          appState.setJoinConnected(id);
+        }
+        numberConnected++;
       } catch (e) {
         print(e);
       }
@@ -312,16 +395,30 @@ class _MenuDrawlerState extends State<MenuDrawler>
               Badge(
                   position: BadgePosition(top: 0, start: 0),
                   badgeColor: colorText,
-                  badgeContent: Text(numberNotif.toString(),style: TextStyle(color: Colors.white),),
+                  badgeContent: Text(
+                    numberNotif.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
                   showBadge: numberNotif != 0,
                   child: IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push((MaterialPageRoute(
-                          builder: (context) => Notifications())));
-                    },
-                    icon: Icon(numberNotif > 0 ? Icons.notifications_active :Icons.notifications_none, color: Colors.white)
-                  )
-              ),
+                      onPressed: () async {
+                        if(newClient != null && newClient!.numero != "null") {
+                          Navigator.of(context).push((MaterialPageRoute(
+                              builder: (context) => Notifications())));
+                        } else {
+                          await modalForExplain(
+                              "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                              "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                              context,
+                              true);
+                          Navigator.pushNamed(context, Login.rootName);
+                        }
+                      },
+                      icon: Icon(
+                          numberNotif > 0
+                              ? Icons.notifications_active
+                              : Icons.notifications_none,
+                          color: Colors.white))),
             ],
           ),
           body: menus[appState.getIndexBottomBar],
@@ -340,16 +437,24 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   items: <Widget>[
                     Icon(prefix1.MyFlutterAppSecond.newspaper,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 0) ? tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 0)
+                            ? tint
+                            : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.shop,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 1) ? tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 1)
+                            ? tint
+                            : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.calendar,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 2) ? tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 2)
+                            ? tint
+                            : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.destination,
                         size: 30,
-                        color: (appState.getIndexBottomBar == 3) ? tint : Colors.white),
+                        color: (appState.getIndexBottomBar == 3)
+                            ? tint
+                            : Colors.white),
                   ],
                 )
               : null,

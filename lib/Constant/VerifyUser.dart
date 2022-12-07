@@ -311,10 +311,10 @@ class _VerifyUserState extends State<VerifyUser> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
                               border:
-                                  Border.all(color: Colors.white, width: 1.0)),
+                                  Border.all(color: colorSuccess, width: 1.0)),
                           child: Center(
                               child: Icon(Icons.check,
-                                  color: Colors.white, size: 25)),
+                                  color: colorSuccess, size: 25)),
                         ),
                       ),
                     );

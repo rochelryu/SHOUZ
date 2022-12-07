@@ -15,6 +15,7 @@ import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import '../Constant/helper.dart';
+import 'Login.dart';
 import 'choice_method_payement.dart';
 
 class ExplainEvent extends StatefulWidget {
@@ -294,8 +295,8 @@ class _ExplainEventState extends State<ExplainEvent> {
                   margin: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(15)),
                   child: ListTile(
-                    onTap: () {
-                      if (newClient!.wallet >= element['priceLocalCurrencies']) {
+                    onTap: () async {
+                      if (newClient!.numero != 'null' && newClient!.wallet >= element['priceLocalCurrencies']) {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) => dialogCustomForValidateAction('FORFAIT ${element['title'].toString().replaceAll(',', ' ')}', "Votre compte SHOUZPAY sera débité de ${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.currencies}.\nÊtes vous d'accord ?", 'Oui', () async {
@@ -304,7 +305,17 @@ class _ExplainEventState extends State<ExplainEvent> {
                             barrierDismissible: false);
 
                       } else {
-                        _askedToInsufisanceWallet();
+                        if(newClient!.numero != 'null') {
+                          _askedToInsufisanceWallet();
+                        }
+                        else {
+                          await modalForExplain(
+                              "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                              "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                              context,
+                              true);
+                          Navigator.pushNamed(context, Login.rootName);
+                        }
                       }
                     },
                     title: titleOfPackage(element['title']),
@@ -318,7 +329,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                           height: 30,
                           width: double.infinity,
                           child: Center(
-                          child: Text("${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.currencies}",
+                          child: Text("${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.numero != 'null' ? newClient!.currencies: 'XOF'}",
                               style: Style.titre(15)),
                           ),
                         )

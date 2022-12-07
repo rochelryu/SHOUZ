@@ -5,7 +5,6 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -58,7 +57,6 @@ class _ChatDetailsState extends State<ChatDetails>
   final picker = ImagePicker();
   ConsumeAPI consumeAPI = ConsumeAPI();
   Map<dynamic, dynamic>? productDetails;
-  AudioPlayer audioPlayer = AudioPlayer();
 
   String price = "";
   TextEditingController priceCtrl = TextEditingController();

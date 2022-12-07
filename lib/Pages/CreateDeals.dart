@@ -92,7 +92,7 @@ class _CreateDealsState extends State<CreateDeals> {
   loadCategorie() async {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getAllCategrieWithoutFilter("deal");
-    numeroCtrl.text = newClient.numero;
+    numeroCtrl.text = newClient.numero != "null" ? newClient.numero: "";
     setState(() {
       allCategories = data['result']["categories"];
       priceVip = data['result']["AMOUNT_FOR_PAY_VIP_DEALS"];
@@ -785,30 +785,40 @@ class _CreateDealsState extends State<CreateDeals> {
                       Checkbox(
                         value: monVal,
                         checkColor: Colors.white,
-                        onChanged: (value) {
-                          if(user!.wallet >= priceVip) {
+                        onChanged: (value) async {
+                          if(user!.numero != 'null' && user!.wallet >= priceVip) {
                             setState(() {
                               monVal = value!;
                             });
                           } else {
-                            Fluttertoast.showToast(
-                                msg: "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: colorError,
-                                textColor: Colors.white,
-                                fontSize: 16.0
-                            );
-                            Timer(const Duration(seconds: 3), () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
-                            });
+                            if(user!.numero != 'null') {
+                              Fluttertoast.showToast(
+                                  msg: "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: colorError,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0
+                              );
+                              Timer(const Duration(seconds: 2), () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                              });
+                            } else {
+                              await modalForExplain(
+                                  "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                  "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                  context,
+                                  true);
+                              Navigator.pushNamed(context, Login.rootName);
+                            }
+
                           }
 
                         },
                       ),
-                      Text('Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user?.currencies})',
+                      Text('Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user != null && user?.numero != 'null' ? user?.currencies: 'XOF'})',
                           style: Style.warning(11)),
                     ],
                   ),
@@ -932,6 +942,10 @@ class _CreateDealsState extends State<CreateDeals> {
       showSnackBar(context, "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
     }
     if(ready) {
+
+      if(user!.numero != "null") {
+
+
       setState(() => requestLoading = true);
       List<String> imageListTitle =
           post.map((image) => image.path.split('/').last).toList();
@@ -991,6 +1005,15 @@ class _CreateDealsState extends State<CreateDeals> {
       setState(() {
         monVal = false;
       });
+      }
+      else {
+        await modalForExplain(
+            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+            "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+            context,
+            true);
+        Navigator.pushNamed(context, Login.rootName);
+      }
     }
   }
 }

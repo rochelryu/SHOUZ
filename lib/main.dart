@@ -23,11 +23,8 @@ import 'package:shouz/Constant/widget_common.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import './MenuDrawler.dart';
 import './OnBoarding.dart';
-import './Pages/ChoiceHobie.dart';
-import './Pages/CreateProfil.dart';
+
 import './Pages/LoadHide.dart';
-import './Pages/Login.dart';
-import './Pages/Opt.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -336,13 +333,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       case 0:
         return OnBoarding();
       case 1:
-        return Login();
       case 2:
-        return Otp(key: UniqueKey());
       case 3:
-        return CreateProfil();
       case 4:
-        return ChoiceHobie();
       case 5:
         return MenuDrawler();
       default:

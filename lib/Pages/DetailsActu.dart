@@ -11,6 +11,7 @@ import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
+import 'Login.dart';
 import 'comment_actu.dart';
 
 class DetailsActu extends StatefulWidget {
@@ -27,7 +28,7 @@ class DetailsActu extends StatefulWidget {
   DetailsActu(
       {required this.title,
       required this.id,
-        required this.comeBack,
+      required this.comeBack,
       this.autherName,
       this.authorProfil,
       this.comment,
@@ -43,6 +44,7 @@ class _DetailsActuState extends State<DetailsActu> {
   int _currentItem = 0;
   bool lastPage = false, favorite = false, error = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  User? user;
 
   late PageController _controller;
 
@@ -62,20 +64,21 @@ class _DetailsActuState extends State<DetailsActu> {
   }
 
   LoadInfo() async {
-
     try {
-      User newClient = await DBProvider.db.getClient();
-      final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
-      await consumeAPI.addView(newClient.ident, widget.id);
-      setState(() {
-        favorite = result;
-      });
-    } catch(e) {
+      final User newClient = await DBProvider.db.getClient();
+      if (newClient.numero != 'null') {
+        final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
+        await consumeAPI.addView(newClient.ident, widget.id);
+        setState(() {
+          favorite = result;
+          user = newClient;
+        });
+      }
+    } catch (e) {
       setState(() {
         error = true;
       });
     }
-
   }
 
   @override
@@ -104,8 +107,8 @@ class _DetailsActuState extends State<DetailsActu> {
                   width: MediaQuery.of(context).size.width,
                   child: Stack(
                     children: <Widget>[
-                      buildImageInCachedNetworkWithSizeManual(widget.imageCover,double.infinity, double.infinity,BoxFit.cover),
-
+                      buildImageInCachedNetworkWithSizeManual(widget.imageCover,
+                          double.infinity, double.infinity, BoxFit.cover),
                       Positioned(
                           bottom: 0,
                           left: 0,
@@ -153,8 +156,11 @@ class _DetailsActuState extends State<DetailsActu> {
                         double y = 1.0;
 
                         if (_controller.position.haveDimensions) {
-                          delta = _controller.page! - double.parse(index.toString());
-                          y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
+                          delta = _controller.page! -
+                              double.parse(index.toString());
+                          y = 1 -
+                              double.parse(
+                                  delta.abs().clamp(0.0, 1.0).toString());
                         }
                         return SingleChildScrollView(
                           padding: EdgeInsets.only(
@@ -172,28 +178,47 @@ class _DetailsActuState extends State<DetailsActu> {
               }
             },
           ),
-          if(lastPage && !error) Positioned(
-              right: 30.0,
-              bottom: 30.0,
-              child: FloatingActionButton(
-                    backgroundColor: colorText,
-                    child: Badge(
-                      position: BadgePosition(top: -23, end: -15),
-                      badgeColor: colorPrimary,
-                      badgeContent: Text(widget.comment.length.toString(),style: TextStyle(color: backgroundColor),),
-                      showBadge: widget.comment.length > 0,
-                      child: Icon(
-                        Icons.message,
-                        color: colorPrimary,
-                        size: 22.0,
-                      ),
+          if (lastPage && !error)
+            Positioned(
+                right: 30.0,
+                bottom: 30.0,
+                child: FloatingActionButton(
+                  backgroundColor: colorText,
+                  child: Badge(
+                    position: BadgePosition(top: -23, end: -15),
+                    badgeColor: colorPrimary,
+                    badgeContent: Text(
+                      widget.comment.length.toString(),
+                      style: TextStyle(color: backgroundColor),
                     ),
-                    onPressed: () {
+                    showBadge: widget.comment.length > 0,
+                    child: Icon(
+                      Icons.message,
+                      color: colorPrimary,
+                      size: 22.0,
+                    ),
+                  ),
+
+                  onPressed: () async {
+                    if (user != null) {
                       Navigator.of(context).push((MaterialPageRoute(
-                          builder: (context) => CommentActu(id: widget.id, title: widget.title,comment: widget.comment, imageCover: widget.imageCover, key: UniqueKey(),))));
-                    },
-                  )
-          )
+                          builder: (context) => CommentActu(
+                                id: widget.id,
+                                title: widget.title,
+                                comment: widget.comment,
+                                imageCover: widget.imageCover,
+                                key: UniqueKey(),
+                              ))));
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
+                  },
+                ))
         ],
       ),
       bottomNavigationBar: Material(
@@ -209,7 +234,7 @@ class _DetailsActuState extends State<DetailsActu> {
                 child: IconButton(
                   icon: Icon(Icons.chevron_left),
                   onPressed: () {
-                    if(widget.comeBack == 0) {
+                    if (widget.comeBack == 0) {
                       Navigator.pop(context);
                     } else {
                       Navigator.pushNamed(context, MenuDrawler.rootName);
@@ -230,11 +255,20 @@ class _DetailsActuState extends State<DetailsActu> {
                       IconButton(
                         icon: Icon(Icons.favorite),
                         onPressed: () async {
-                          setState(() {
-                            favorite = !favorite;
-                          });
-                          await consumeAPI.addOrRemoveItemInFavorite(widget.id, 0);
-
+                          if (user != null) {
+                            setState(() {
+                              favorite = !favorite;
+                            });
+                            await consumeAPI.addOrRemoveItemInFavorite(
+                                widget.id, 0);
+                          } else {
+                            await modalForExplain(
+                                "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                context,
+                                true);
+                            Navigator.pushNamed(context, Login.rootName);
+                          }
                         },
                         color: favorite ? colorError : Colors.white,
                       ),
@@ -283,9 +317,10 @@ class _DetailsActuState extends State<DetailsActu> {
                   borderRadius: BorderRadius.circular(5.0),
                   child: CachedNetworkImage(
                     imageUrl: page['inImage'],
-                    progressIndicatorBuilder: (context, url, downloadProgress) =>
-                        Center(
-                            child: CircularProgressIndicator(value: downloadProgress.progress)),
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => Center(
+                            child: CircularProgressIndicator(
+                                value: downloadProgress.progress)),
                     errorWidget: (context, url, error) => notSignal(),
                   ),
                 ),
@@ -325,7 +360,11 @@ class _DetailsActuState extends State<DetailsActu> {
             ]);
 
       case 'only_picture':
-        return buildImageInCachedNetworkWithSizeManual(page['inImage'], MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,BoxFit.cover);
+        return buildImageInCachedNetworkWithSizeManual(
+            page['inImage'],
+            MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height,
+            BoxFit.cover);
       default:
         return Column(
             mainAxisAlignment: MainAxisAlignment.center,

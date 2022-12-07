@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
-import 'package:shouz/Pages/Login.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
@@ -139,7 +139,8 @@ class _OnBoardingState extends State<OnBoarding> {
                         size: 22.0,
                       ),
                       onPressed: () {
-                        Navigator.push(context, ScaleRoute(widget: Login()));
+                        setLevel(1);
+                        Navigator.push(context, ScaleRoute(widget: MenuDrawler()));
                       },
                     )
             ),
@@ -147,9 +148,9 @@ class _OnBoardingState extends State<OnBoarding> {
                 right: 15.0,
                 bottom: 20.0,
                 child: TextButton(
-                  onPressed: () async {
-
-                    Navigator.push(context, ScaleRoute(widget: Login()));
+                  onPressed: () {
+                    setLevel(1);
+                    Navigator.push(context, ScaleRoute(widget: MenuDrawler()));
 
                   },
                   child: Text("TOUT IGNORER", style: Style.skipedMessage(13, colorError),),

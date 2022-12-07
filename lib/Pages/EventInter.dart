@@ -65,9 +65,11 @@ class _EventInterState extends State<EventInter> {
 
   getUser() async {
     User newClient = await DBProvider.db.getClient();
-    setState(() {
-      user = newClient;
-    });
+    if(newClient.numero != 'null') {
+      setState(() {
+        user = newClient;
+      });
+    }
   }
 
   @override
@@ -153,12 +155,12 @@ class _EventInterState extends State<EventInter> {
                                   ['authorId'],
                                   event['listEventsWithFilter'][index]
                                   ['cumulGain'],
-                                  event['listEventsWithFilter'][index]
-                                  ['authorId'] == user!.ident,
+                                  user != null ? event['listEventsWithFilter'][index]
+                                  ['authorId'] == user!.ident : false,
                                   event['listEventsWithFilter'][index]
                                   ['state'],
-                                  event['listEventsWithFilter'][index]
-                                  ['favorie'],
+                                  user != null ? event['listEventsWithFilter'][index]
+                                  ['favorie']: false,
                                 )));
                           },
                           child: Container(
@@ -383,12 +385,12 @@ class _EventInterState extends State<EventInter> {
                                 ['authorId'],
                                 event['listEventsWithFilter'][index]
                                 ['cumulGain'],
-                                event['listEventsWithFilter'][index]
-                                ['authorId'] == user!.ident,
+                                user != null ? event['listEventsWithFilter'][index]
+                                ['authorId'] == user!.ident : false,
                                 event['listEventsWithFilter'][index]
                                 ['state'],
-                                event['listEventsWithFilter'][index]
-                                ['favorie'],
+                                user != null ? event['listEventsWithFilter'][index]
+                                ['favorie'] : false,
                               )));
                         },
                         child: Container(
@@ -534,7 +536,7 @@ class _EventInterState extends State<EventInter> {
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
         onPressed: () {
-          if(user!.isActivateForfait != 0) {
+          if(user!= null && user!.isActivateForfait != 0) {
             Navigator.pushNamed(context, CreateEvent.rootName);
           } else {
             if(level == 0){

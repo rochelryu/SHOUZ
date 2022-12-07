@@ -121,55 +121,58 @@ class _CovoiturageState extends State<Covoiturage> {
   void internetCheck() async {
     User user = await DBProvider.db.getClient();
 
-    setState(() {
-      newClient = user;
-    });
-    try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final data = await consumeAPI.verifyIfClientIsActivateForCovoiturage();
-        if (data['etat'] == 'found') {
-          if (data['result']['isActivateCovoiturage']) {
-            setState(() {
-              isActivateCovoiturage = true;
-            });
+    if(user.numero != 'null') {
+      setState(() {
+        newClient = user;
+      });
+      try {
+        final result = await InternetAddress.lookup('google.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          final data = await consumeAPI.verifyIfClientIsActivateForCovoiturage();
+          if (data['etat'] == 'found') {
+            if (data['result']['isActivateCovoiturage']) {
+              setState(() {
+                isActivateCovoiturage = true;
+              });
+            }
+            if (data['result']['isActivateForBuyTravel'] == 2 &&
+                newClient!.isActivateForBuyTravel != 2) {
+              await DBProvider.db
+                  .updateClientIsActivateForBuyTravel(2, newClient!.ident);
+              user = await DBProvider.db.getClient();
+              setState(() {
+                newClient = user;
+              });
+            } else if (data['result']['isActivateForBuyTravel'] != 2 &&
+                newClient!.isActivateForBuyTravel == 2) {
+              await DBProvider.db.updateClientIsActivateForBuyTravel(
+                  data['result']['isActivateForBuyTravel'], newClient!.ident);
+              user = await DBProvider.db.getClient();
+              setState(() {
+                newClient = user;
+              });
+            }
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => dialogCustomError(
+                    'Plusieurs connexions à ce compte',
+                    "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                    context),
+                barrierDismissible: false);
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (builder) => Login()));
           }
-          if (data['result']['isActivateForBuyTravel'] == 2 &&
-              newClient!.isActivateForBuyTravel != 2) {
-            await DBProvider.db
-                .updateClientIsActivateForBuyTravel(2, newClient!.ident);
-            user = await DBProvider.db.getClient();
-            setState(() {
-              newClient = user;
-            });
-          } else if (data['result']['isActivateForBuyTravel'] != 2 &&
-              newClient!.isActivateForBuyTravel == 2) {
-            await DBProvider.db.updateClientIsActivateForBuyTravel(
-                data['result']['isActivateForBuyTravel'], newClient!.ident);
-            user = await DBProvider.db.getClient();
-            setState(() {
-              newClient = user;
-            });
-          }
-        } else {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) => dialogCustomError(
-                  'Plusieurs connexions à ce compte',
-                  "Pour une question de sécurité nous allons devoir vous déconnecter.",
-                  context),
-              barrierDismissible: false);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (builder) => Login()));
         }
+      } on SocketException catch (_) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => dialogCustomError(
+                'Echec', 'Veuillez Verifier votre connexion internet', context),
+            barrierDismissible: false);
       }
-    } on SocketException catch (_) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) => dialogCustomError(
-              'Echec', 'Veuillez Verifier votre connexion internet', context),
-          barrierDismissible: false);
     }
+
   }
 
   getPositionCurrent() async {
@@ -195,7 +198,7 @@ class _CovoiturageState extends State<Covoiturage> {
             huawei_location.Location locations =
                 await locationService.getLastLocation();
             if (locations.latitude == null) {
-              if (newClient!.lagitude != 0.0) {
+              if (newClient!= null && newClient!.lagitude != 0.0) {
                 locations.latitude = newClient!.lagitude;
                 locations.longitude = newClient!.longitude;
               } else {
@@ -260,10 +263,10 @@ class _CovoiturageState extends State<Covoiturage> {
                   if (test.latitude == null) {
                     setState(() {
                       locationData = LocationData.fromMap({
-                        "latitude": newClient!.lagitude != 0.0
+                        "latitude": newClient!= null && newClient!.lagitude != 0.0
                             ? newClient!.lagitude
                             : defaultLatitude,
-                        "longitude": newClient!.longitude != 0.0
+                        "longitude": newClient!= null && newClient!.longitude != 0.0
                             ? newClient!.longitude
                             : defaultLongitude,
                         "accuracy": 0.0,
@@ -295,10 +298,10 @@ class _CovoiturageState extends State<Covoiturage> {
                 if (test.latitude == null) {
                   setState(() {
                     locationData = LocationData.fromMap({
-                      "latitude": newClient!.lagitude != 0.0
+                      "latitude": newClient!= null && newClient!.lagitude != 0.0
                           ? newClient!.lagitude
                           : defaultLatitude,
-                      "longitude": newClient!.longitude != 0.0
+                      "longitude": newClient!= null && newClient!.longitude != 0.0
                           ? newClient!.longitude
                           : defaultLongitude,
                       "accuracy": 0.0,
@@ -337,10 +340,10 @@ class _CovoiturageState extends State<Covoiturage> {
                 if (test.latitude == null) {
                   setState(() {
                     locationData = LocationData.fromMap({
-                      "latitude": newClient!.lagitude != 0.0
+                      "latitude": newClient!= null && newClient!.lagitude != 0.0
                           ? newClient!.lagitude
                           : defaultLatitude,
-                      "longitude": newClient!.longitude != 0.0
+                      "longitude": newClient!= null && newClient!.longitude != 0.0
                           ? newClient!.longitude
                           : defaultLongitude,
                       "accuracy": 0.0,
@@ -371,10 +374,10 @@ class _CovoiturageState extends State<Covoiturage> {
               if (test.latitude == null) {
                 setState(() {
                   locationData = LocationData.fromMap({
-                    "latitude": newClient!.lagitude != 0.0
+                    "latitude": newClient!= null && newClient!.lagitude != 0.0
                         ? newClient!.lagitude
                         : defaultLatitude,
-                    "longitude": newClient!.longitude != 0.0
+                    "longitude": newClient!= null && newClient!.longitude != 0.0
                         ? newClient!.longitude
                         : defaultLongitude,
                     "accuracy": 0.0,
@@ -429,10 +432,10 @@ class _CovoiturageState extends State<Covoiturage> {
                 if (test.latitude == null) {
                   setState(() {
                     locationData = LocationData.fromMap({
-                      "latitude": newClient!.lagitude != 0.0
+                      "latitude": newClient!= null && newClient!.lagitude != 0.0
                           ? newClient!.lagitude
                           : defaultLatitude,
-                      "longitude": newClient!.longitude != 0.0
+                      "longitude": newClient!= null && newClient!.longitude != 0.0
                           ? newClient!.longitude
                           : defaultLongitude,
                       "accuracy": 0.0,
@@ -464,10 +467,10 @@ class _CovoiturageState extends State<Covoiturage> {
               if (test.latitude == null) {
                 setState(() {
                   locationData = LocationData.fromMap({
-                    "latitude": newClient!.lagitude != 0.0
+                    "latitude": newClient!= null && newClient!.lagitude != 0.0
                         ? newClient!.lagitude
                         : defaultLatitude,
-                    "longitude": newClient!.longitude != 0.0
+                    "longitude": newClient!= null && newClient!.longitude != 0.0
                         ? newClient!.longitude
                         : defaultLongitude,
                     "accuracy": 0.0,
@@ -506,10 +509,10 @@ class _CovoiturageState extends State<Covoiturage> {
               if (test.latitude == null) {
                 setState(() {
                   locationData = LocationData.fromMap({
-                    "latitude": newClient!.lagitude != 0.0
+                    "latitude": newClient!= null && newClient!.lagitude != 0.0
                         ? newClient!.lagitude
                         : defaultLatitude,
-                    "longitude": newClient!.longitude != 0.0
+                    "longitude": newClient!= null && newClient!.longitude != 0.0
                         ? newClient!.longitude
                         : defaultLongitude,
                     "accuracy": 0.0,
@@ -540,10 +543,10 @@ class _CovoiturageState extends State<Covoiturage> {
             if (test.latitude == null) {
               setState(() {
                 locationData = LocationData.fromMap({
-                  "latitude": newClient!.lagitude != 0.0
+                  "latitude": newClient!= null && newClient!.lagitude != 0.0
                       ? newClient!.lagitude
                       : defaultLatitude,
-                  "longitude": newClient!.longitude != 0.0
+                  "longitude": newClient!= null && newClient!.longitude != 0.0
                       ? newClient!.longitude
                       : defaultLongitude,
                   "accuracy": 0.0,

@@ -681,9 +681,50 @@ Widget dialogCustomForValidateAction(String title, String message, String titleV
           }),
       TextButton(
           child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError()),
-          onPressed: () {
-            callback();
+          onPressed: () async  {
+            await callback();
             Navigator.of(context).pop();
+          }),
+    ],
+  );
+}
+
+Widget dialogCustomForNotChangeProfil(String title, String message, String titleValidateMessage, callback, BuildContext context, [bool withBackButton = true, String titleBackButton = "Annuler"]) {
+  bool isIos = Platform.isIOS;
+  return isIos
+      ? CupertinoAlertDialog(
+    title: Text(title),
+    content: Text(message),
+    actions: <Widget>[
+      if(withBackButton) CupertinoDialogAction(
+          child: Text(titleBackButton, style: Style.chatOutMe(15),),
+          onPressed: () {
+            Navigator.of(context).pop();
+          }),
+      CupertinoDialogAction(
+          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError(),),
+          onPressed: () async {
+            await callback();
+
+          }),
+    ],
+  )
+      : AlertDialog(
+    title: Text(title),
+    content: Text(message),
+    elevation: 20.0,
+    shape:
+    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    actions: <Widget>[
+      if(withBackButton) TextButton(
+          child: Text(titleBackButton, style: Style.chatOutMe(15),),
+          onPressed: () {
+            Navigator.of(context).pop();
+          }),
+      TextButton(
+          child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError()),
+          onPressed: () async  {
+            await callback();
           }),
     ],
   );

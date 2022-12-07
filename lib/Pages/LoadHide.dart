@@ -127,7 +127,7 @@ class _LoadTravelState extends State<LoadTravel> {
                 item['userPayCheck'],
                 item['infoAuthor'],
                 item['commentPayCheck'],
-                item['authorId'] == newClient.ident,
+                newClient.numero != 'null' ? item['authorId'] == newClient.ident: false,
                 item['state'],
               )
           ),(Route<dynamic> route) => false);
@@ -190,7 +190,7 @@ class _LoadEventState extends State<LoadEvent> {
             item['allTicket'],
             item['authorId'],
             item['cumulGain'],
-            item['authorId'] == newClient.ident,
+            newClient.numero != 'null' ? item['authorId'] == newClient.ident: false,
             item['state'],
             item['favorie'],
           )), (Route<dynamic> route) => false);
@@ -282,7 +282,9 @@ class _LoadProductState extends State<LoadProduct> {
     User user = await DBProvider.db.getClient();
     final appState = Provider.of<AppState>(context, listen: false);
     try {
-      appState.setJoinConnected(user.ident);
+      if(user.numero != "null") {
+        appState.setJoinConnected(user.ident);
+      }
     } catch (e) {
       print(e);
     }

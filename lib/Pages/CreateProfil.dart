@@ -78,14 +78,14 @@ class _CreateProfil extends State<CreateProfil> {
             final prefs = await SharedPreferences.getInstance();
             await prefs.setString('codeParrain', codeParrain);
             if (tmpFile == null) {
-              showDialog(
+              await showDialog(
                   context: context,
-                  builder: (BuildContext context) => dialogCustomForValidateAction(
+                  builder: (BuildContext context) => dialogCustomForNotChangeProfil(
                       "Aucune photo de profil",
                       "Vous n'avez pas choisi d'image de profil pour votre compte.\nVoulez vous vraiment continuer sans cela ?",
                       "Oui",
                           () async {
-                            final fileName = profil["data"];
+                            final fileName = "images/boss.png";
                             await DBProvider.db.newProfil(fileName, '');
                             prefix0.setLevel(4);
                             Navigator.of(context)

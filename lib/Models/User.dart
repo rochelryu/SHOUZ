@@ -27,7 +27,7 @@ class User {
   int inscriptionIsDone  = 0;
   int isActivateForfait  = 0;
   int isActivateForBuyTravel = 0;
-  User(this.numero, this.prefix);
+  User(this.numero, this.prefix, this.ident);
 
   Map<String, dynamic> toMap() => {
         "ident": ident,

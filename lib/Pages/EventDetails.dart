@@ -22,6 +22,7 @@ import 'package:shouz/Constant/widget_common.dart';
 
 import '../Constant/helper.dart';
 import '../Models/User.dart';
+import 'Login.dart';
 
 class EventDetails extends StatefulWidget {
   var imageUrl;
@@ -59,15 +60,20 @@ class EventDetails extends StatefulWidget {
       this.enventDate,
       this.title,
       this.positionRecently,
-      this.videoPub, this.allTicket, this.authorId, this.cumulGain, this.isMeAuthor, this.stateEvent, this.favorite) {
+      this.videoPub,
+      this.allTicket,
+      this.authorId,
+      this.cumulGain,
+      this.isMeAuthor,
+      this.stateEvent,
+      this.favorite) {
     this.prixTicket = prixTicket
         .map((value) => value['price'].toString().trim() == "GRATUIT"
             ? {"price": "GRATUIT", "choice": 0}
             : {"price": int.parse(value['price']), "choice": 0})
         .toList();
-    this.placeTicket = prixTicket
-        .map((value) => value['numberPlace'].toString())
-        .toList();
+    this.placeTicket =
+        prixTicket.map((value) => value['numberPlace'].toString()).toList();
   }
 
   @override
@@ -86,20 +92,18 @@ class _EventDetailsState extends State<EventDetails> {
   bool gratuitPass = false;
   bool loadForRecupGain = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
-  late User user = new User('', '');
+  late User user = new User('null', 'null', 'ident');
   late DateTime eventDate;
 
   late int placeTotal;
   int eventDateAlreadySkiped = -1;
 
   Future getInfo() async {
-    try {
-      final me = await DBProvider.db.getClient();
+    final User me = await DBProvider.db.getClient();
+    if (me.numero != 'null') {
       setState(() {
         user = me;
       });
-    } catch (e) {
-      print("Erreur $e");
     }
   }
 
@@ -138,10 +142,12 @@ class _EventDetailsState extends State<EventDetails> {
                       clipper: CircularClipper(),
                       shadow: Shadow(blurRadius: 20.0),
                       child: CachedNetworkImage(
-                        imageUrl: "${ConsumeAPI.AssetEventServer}${widget.imageUrl}",
-                        progressIndicatorBuilder: (context, url, downloadProgress) =>
-                            Center(
-                                child: CircularProgressIndicator(value: downloadProgress.progress)),
+                        imageUrl:
+                            "${ConsumeAPI.AssetEventServer}${widget.imageUrl}",
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) => Center(
+                                child: CircularProgressIndicator(
+                                    value: downloadProgress.progress)),
                         errorWidget: (context, url, error) => notSignal(),
                         fit: BoxFit.cover,
                         height: 400,
@@ -164,10 +170,9 @@ class _EventDetailsState extends State<EventDetails> {
                           end: Alignment.bottomRight),
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.close,
-                          color: Colors.white, size: 22.0),
+                      icon: Icon(Icons.close, color: Colors.white, size: 22.0),
                       onPressed: () {
-                        if(widget.comeBack == 0) {
+                        if (widget.comeBack == 0) {
                           Navigator.pop(context);
                         } else {
                           Navigator.pushNamed(context, MenuDrawler.rootName);
@@ -175,56 +180,66 @@ class _EventDetailsState extends State<EventDetails> {
                       },
                     ),
                   ),
-                  if(!widget.isMeAuthor) Container(
-                    margin: EdgeInsets.only(right: 10.0),
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      gradient: LinearGradient(
-                          colors: [Color(0x00000000), tint],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight),
+                  if (!widget.isMeAuthor)
+                    Container(
+                      margin: EdgeInsets.only(right: 10.0),
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        gradient: LinearGradient(
+                            colors: [Color(0x00000000), tint],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight),
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.favorite,
+                            color: favorite ? Colors.redAccent : Colors.grey,
+                            size: 22.0),
+                        onPressed: () async {
+                          if (user.numero != 'null') {
+                            setState(() {
+                              favorite = !favorite;
+                            });
+                            await consumeAPI.addOrRemoveItemInFavorite(
+                                widget.id, 2);
+                          } else {
+                            await modalForExplain(
+                                "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                context,
+                                true);
+                            Navigator.pushNamed(context, Login.rootName);
+                          }
+                        },
+                      ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.favorite,
-                          color: favorite ? Colors.redAccent : Colors.grey,
-                          size: 22.0),
-                      onPressed: () async {
-                        setState(() {
-                          favorite = !favorite;
-                        });
-                        await consumeAPI.addOrRemoveItemInFavorite(widget.id, 2);
-
-                      },
-                    ),
-                  ),
                 ],
               ),
-              if (widget.videoPub != 'null') Positioned.fill(
-                bottom: 20,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: RawMaterialButton(
-                    padding: EdgeInsets.all(10.0),
-                    elevation: 12.0,
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push((MaterialPageRoute(builder: (context) {
-                        return ViewerEvent(
-                            videoUrl: widget.videoPub);
-                      })));
-                    },
-                    shape: CircleBorder(),
-                    fillColor: Colors.white,
-                    child: Icon(
-                      Icons.play_arrow,
-                      color: backgroundColorSec,
-                      size: 40.0,
+              if (widget.videoPub != 'null')
+                Positioned.fill(
+                  bottom: 20,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: RawMaterialButton(
+                      padding: EdgeInsets.all(10.0),
+                      elevation: 12.0,
+                      onPressed: () {
+                        Navigator.of(context)
+                            .push((MaterialPageRoute(builder: (context) {
+                          return ViewerEvent(videoUrl: widget.videoPub);
+                        })));
+                      },
+                      shape: CircleBorder(),
+                      fillColor: Colors.white,
+                      child: Icon(
+                        Icons.play_arrow,
+                        color: backgroundColorSec,
+                        size: 40.0,
+                      ),
                     ),
                   ),
                 ),
-              ),
               Positioned(
                 bottom: 0.0,
                 right: 10.0,
@@ -244,8 +259,7 @@ class _EventDetailsState extends State<EventDetails> {
               children: <Widget>[
                 Container(
                     child: Text(widget.title.toUpperCase(),
-                        style: Style.titre(17.0),
-                        textAlign: TextAlign.center)),
+                        style: Style.titre(17.0), textAlign: TextAlign.center)),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 15.0),
                   child: Row(
@@ -253,7 +267,8 @@ class _EventDetailsState extends State<EventDetails> {
                     children: <Widget>[
                       Icon(MyFlutterAppSecond.pin,
                           color: Colors.white, size: 18.0),
-                      Flexible(child: Text(
+                      Flexible(
+                          child: Text(
                         widget.position,
                         maxLines: 2,
                         style: Style.sousTitre(12.0),
@@ -303,9 +318,15 @@ class _EventDetailsState extends State<EventDetails> {
                         Text('Lieu', style: Style.sousTitre(15)),
                         GestureDetector(
                             onTap: () async {
-                              await launchUrl(Uri.parse("https://www.google.com/search?q=${widget.position}"), mode: LaunchMode.externalApplication);
+                              await launchUrl(
+                                  Uri.parse(
+                                      "https://www.google.com/search?q=${widget.position}"),
+                                  mode: LaunchMode.externalApplication);
                             },
-                            child: Text("Map", style: Style.titreBlue(19), maxLines: 2, overflow: TextOverflow.ellipsis))
+                            child: Text("Map",
+                                style: Style.titreBlue(19),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis))
                         /*Text(
                             (widget.positionRecently['longitude'] == 0)
                                 ? 'N/A'
@@ -328,7 +349,9 @@ class _EventDetailsState extends State<EventDetails> {
               ],
             ),
           ),
-          if (widget.allTicket.length > 0) componentForDisplayTicketByEvent(widget.allTicket, widget.title, user),
+          if (widget.allTicket.length > 0 && user.numero != 'null')
+            componentForDisplayTicketByEvent(
+                widget.allTicket, widget.title, user),
           Row(
             children: <Widget>[
               SizedBox(
@@ -348,7 +371,8 @@ class _EventDetailsState extends State<EventDetails> {
                 return InkWell(
                   onTap: () {
                     var newTable = [];
-                    if(int.parse(checkPlacePros[i]) >= place && int.parse(checkPlacePros[i]) > 0){
+                    if (int.parse(checkPlacePros[i]) >= place &&
+                        int.parse(checkPlacePros[i]) > 0) {
                       widget.prixTicket.forEach((value) {
                         newTable.add({"choice": 0, "price": value["price"]});
                       });
@@ -361,9 +385,9 @@ class _EventDetailsState extends State<EventDetails> {
                             : newTable[i]["price"] * place;
                       });
                     } else {
-                      displaySnackBar(context, "Pas assez de tickets disponible pour cette categorie");
+                      displaySnackBar(context,
+                          "Pas assez de tickets disponible pour cette categorie");
                     }
-
                   },
                   child: Card(
                     elevation: 4.0,
@@ -375,7 +399,8 @@ class _EventDetailsState extends State<EventDetails> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text('${checkPros[i]['price'].toString() == 'GRATUIT' ? checkPros[i]['price'].toString(): reformatNumberForDisplayOnPrice(checkPros[i]['price']) +' '+user.currencies}',
+                          Text(
+                              '${checkPros[i]['price'].toString() == 'GRATUIT' ? checkPros[i]['price'].toString() : reformatNumberForDisplayOnPrice(checkPros[i]['price']) + ' ' + (user.numero != "null" ? user.currencies : "XOF")}',
                               style: TextStyle(
                                   color: (checkPros[i]['choice'] == 0)
                                       ? Colors.white
@@ -435,87 +460,92 @@ class _EventDetailsState extends State<EventDetails> {
                   ],
                 ),
               ),
-              if(!widget.isMeAuthor) Container(
-                height: 40,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.do_not_disturb_on,
-                          color: colorText),
-                      onPressed: () {
-                        var normal = (place > 0) ? place - 1 : 0;
+              if (!widget.isMeAuthor)
+                Container(
+                  height: 40,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.do_not_disturb_on, color: colorText),
+                        onPressed: () {
+                          var normal = (place > 0) ? place - 1 : 0;
 
-                        if(choice.length > 1) {
-                          setState(() {
-                            placeTotal =
-                            (place != 0) ? placeTotal + 1 : placeTotal;
-                            place = normal;
-                            priceItem = (choice == "GRATUIT")
-                                ? 0
-                                : normal * int.parse(choice);
-                          });
-                        }
-                        else {
-                        displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
-                        }
-                      },
-                    ),
-                    Text(place.toString(), style: Style.titre(29)),
-                    IconButton(
-                      icon: Icon(Icons.add_circle, color: colorText),
-                      onPressed: () {
-                        var normal = 0;
-
-                        var totalTicket = 0;
-                        for (var ticket in widget.allTicket) {
-                          totalTicket += ticket['placeTotal'] as int;
-                        }
-                        if(placeTotal > place) {
-                          normal = (placeTotal > place) ? place + 1 : placeTotal;
-                        } else {
-                          if(placeTotal > 0) {
-                            normal = place + 1;
+                          if (choice.length > 1) {
+                            setState(() {
+                              placeTotal =
+                                  (place != 0) ? placeTotal + 1 : placeTotal;
+                              place = normal;
+                              priceItem = (choice == "GRATUIT")
+                                  ? 0
+                                  : normal * int.parse(choice);
+                            });
                           } else {
-                            normal = place;
+                            displaySnackBar(context,
+                                'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
                           }
-                        }
-                        if(totalTicket + normal <= 5 && choice.length > 1) {
-                          setState(() {
-                            place = normal;
-                            placeTotal =
-                            (placeTotal > 0) ? placeTotal - 1 : placeTotal;
-                            priceItem = (choice == "GRATUIT")
-                                ? 0
-                                : normal * int.parse(choice);
-                          });
-                        } else if(choice.length <= 1 && totalTicket + normal <= 5) {
-                          displaySnackBar(context, 'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
-                        } else {
-                          displaySnackBar(context, 'Le nombre de place maximum pour une personne est 5');
-                        }
+                        },
+                      ),
+                      Text(place.toString(), style: Style.titre(29)),
+                      IconButton(
+                        icon: Icon(Icons.add_circle, color: colorText),
+                        onPressed: () {
+                          var normal = 0;
 
-                      },
-                    )
-                  ],
+                          var totalTicket = 0;
+                          for (var ticket in widget.allTicket) {
+                            totalTicket += ticket['placeTotal'] as int;
+                          }
+                          if (placeTotal > place) {
+                            normal =
+                                (placeTotal > place) ? place + 1 : placeTotal;
+                          } else {
+                            if (placeTotal > 0) {
+                              normal = place + 1;
+                            } else {
+                              normal = place;
+                            }
+                          }
+                          if (totalTicket + normal <= 5 && choice.length > 1) {
+                            setState(() {
+                              place = normal;
+                              placeTotal = (placeTotal > 0)
+                                  ? placeTotal - 1
+                                  : placeTotal;
+                              priceItem = (choice == "GRATUIT")
+                                  ? 0
+                                  : normal * int.parse(choice);
+                            });
+                          } else if (choice.length <= 1 &&
+                              totalTicket + normal <= 5) {
+                            displaySnackBar(context,
+                                'Choisissez d\'abord le type de ticket avant de choisir le nombre de place');
+                          } else {
+                            displaySnackBar(context,
+                                'Le nombre de place maximum pour une personne est 5');
+                          }
+                        },
+                      )
+                    ],
+                  ),
                 ),
-              ),
               SizedBox(height: 20),
             ],
           ),
-          if(widget.isMeAuthor) Container(
-              padding: EdgeInsets.only(left: 5),
-              margin: EdgeInsets.only(left: 5),
-              decoration: BoxDecoration(
-
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Cumul Gain: ${reformatNumberForDisplayOnPrice(widget.cumulGain)} ${user.currencies}", style: Style.sousTitre(17),),
-                ],
-              )
-          ),
+          if (widget.isMeAuthor)
+            Container(
+                padding: EdgeInsets.only(left: 5),
+                margin: EdgeInsets.only(left: 5),
+                decoration: BoxDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Cumul Gain: ${reformatNumberForDisplayOnPrice(widget.cumulGain)} ${user.currencies}",
+                      style: Style.sousTitre(17),
+                    ),
+                  ],
+                )),
           Container(
             margin: EdgeInsets.all(10),
             height: 60,
@@ -525,40 +555,67 @@ class _EventDetailsState extends State<EventDetails> {
             decoration: BoxDecoration(
                 color: backgroundColorSec,
                 borderRadius: BorderRadius.circular(30)),
-            child: widget.isMeAuthor ? reformatStateAuthor(state) : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  priceItem.toString(),
-                  style: Style.titre(28),
-                ),
-                if(state < 3 && state>0 && widget.numberTicket > 0 && eventDateAlreadySkiped > 0) ElevatedButton(
-                  style: raisedButtonStyle,
-                  child: Text("Acheter", style: Style.titre(18)),
-                  onPressed: () {
-                    if ((priceItem != 0 || choice == "GRATUIT") && priceItem <= user.wallet) {
-                      appState.setIdEvent(widget.id);
-                      appState.setNumberTicket(place);
-                      appState.setPriceTicketTotal(priceItem.toString());
-                      appState.setPriceUnityTicket(choice);
+            child: widget.isMeAuthor
+                ? reformatStateAuthor(state)
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        priceItem.toString(),
+                        style: Style.titre(28),
+                      ),
+                      if (state < 3 &&
+                          state > 0 &&
+                          widget.numberTicket > 0 &&
+                          eventDateAlreadySkiped > 0)
+                        ElevatedButton(
+                          style: raisedButtonStyle,
+                          child: Text("Acheter", style: Style.titre(18)),
+                          onPressed: () async {
+                            if ((priceItem != 0 || choice == "GRATUIT") &&
+                                user.numero != "null" &&
+                                priceItem <= user.wallet) {
+                              appState.setIdEvent(widget.id);
+                              appState.setNumberTicket(place);
+                              appState
+                                  .setPriceTicketTotal(priceItem.toString());
+                              appState.setPriceUnityTicket(choice);
 
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (builder) => VerifyUser(
-                            redirect: ResultBuyEvent.rootName, key: UniqueKey(),)));
-                    } else if(priceItem > user.wallet) {
-                      displaySnackBar(context, 'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
-                      Timer(Duration(seconds: 3), () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
-                      });
-                    } else{
-                      displaySnackBar(context, 'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',);
-                    }
-
-                  },
-                ),
-              ],
-            ),
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (builder) => VerifyUser(
+                                        redirect: ResultBuyEvent.rootName,
+                                        key: UniqueKey(),
+                                      )));
+                            } else if (user.numero != "null" &&
+                                priceItem > user.wallet) {
+                              displaySnackBar(context,
+                                  'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
+                              Timer(Duration(seconds: 3), () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (builder) => ChoiceMethodPayement(
+                                          key: UniqueKey(),
+                                          isRetrait: false,
+                                        )));
+                              });
+                            } else if ((priceItem != 0 ||
+                                    choice == "GRATUIT") &&
+                                user.numero == "null") {
+                              await modalForExplain(
+                                  "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                  "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                  context,
+                                  true);
+                              Navigator.pushNamed(context, Login.rootName);
+                            } else {
+                              displaySnackBar(
+                                context,
+                                'Pour acheter des tickets il vous faut imperativement sélectionner un prix et un nombre de place',
+                              );
+                            }
+                          },
+                        ),
+                    ],
+                  ),
           )
         ],
       ),
@@ -566,43 +623,47 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   Widget reformatStateAuthor(int state) {
-    if(state == 1) {
+    if (state == 1) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
-          ElevatedButton(onPressed: (){
-            Navigator.of(context)
-                .push((MaterialPageRoute(builder: (context) {
-              return AddDecodeur(
-                  key: UniqueKey(),
-                  eventId: widget.id);
-            })));
-          }, style: raisedButtonStyle,
-            child: Text('Attribuer décodeur'),),
-          ElevatedButton(onPressed: (){
-            Navigator.of(context)
-                .push((MaterialPageRoute(builder: (context) {
-              return StatsEvent(
-                  key: UniqueKey(),
-                  imageUrl: widget.imageUrl,
-                  title: widget.title,
-                  eventId: widget.id);
-            })));
-          }, style: raisedButtonStyle,
-            child: Text('Statistiques'),),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push((MaterialPageRoute(builder: (context) {
+                return AddDecodeur(key: UniqueKey(), eventId: widget.id);
+              })));
+            },
+            style: raisedButtonStyle,
+            child: Text('Attribuer décodeur'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push((MaterialPageRoute(builder: (context) {
+                return StatsEvent(
+                    key: UniqueKey(),
+                    imageUrl: widget.imageUrl,
+                    title: widget.title,
+                    eventId: widget.id);
+              })));
+            },
+            style: raisedButtonStyle,
+            child: Text('Statistiques'),
+          ),
         ],
       );
     } else if (state == 2) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
           ElevatedButton(
             style: raisedButtonStyleSuccess,
-            child: loadForRecupGain ? CircularProgressIndicator(color: colorPrimary,) : Text("Recuperer Gain"),
+            child: loadForRecupGain
+                ? CircularProgressIndicator(
+                    color: colorPrimary,
+                  )
+                : Text("Recuperer Gain"),
             onPressed: () async {
-              if(!loadForRecupGain) {
+              if (!loadForRecupGain) {
                 setState(() {
                   loadForRecupGain = true;
                 });
@@ -610,7 +671,7 @@ class _EventDetailsState extends State<EventDetails> {
                 setState(() {
                   loadForRecupGain = false;
                 });
-                if(data['etat'] == 'found') {
+                if (data['etat'] == 'found') {
                   setState(() {
                     this.state = 3;
                   });
@@ -621,41 +682,46 @@ class _EventDetailsState extends State<EventDetails> {
               }
             },
           ),
-          ElevatedButton(onPressed: (){
-            Navigator.of(context)
-                .push((MaterialPageRoute(builder: (context) {
-              return StatsEvent(
-                  key: UniqueKey(),
-                  imageUrl: widget.imageUrl,
-                  title: widget.title,
-                  eventId: widget.id);
-            })));
-          }, style: raisedButtonStyle,
-            child: Text('Statistiques'),),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push((MaterialPageRoute(builder: (context) {
+                return StatsEvent(
+                    key: UniqueKey(),
+                    imageUrl: widget.imageUrl,
+                    title: widget.title,
+                    eventId: widget.id);
+              })));
+            },
+            style: raisedButtonStyle,
+            child: Text('Statistiques'),
+          ),
         ],
       );
     } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Gain déjà rétiré', style: Style.titleDealsProduct(),),
-          ElevatedButton(onPressed: (){
-            Navigator.of(context)
-                .push((MaterialPageRoute(builder: (context) {
-              return StatsEvent(
-                  key: UniqueKey(),
-                  imageUrl: widget.imageUrl,
-                  title: widget.title,
-                  eventId: widget.id);
-            })));
-          }, style: raisedButtonStyle,
-            child: Text('Statistiques'),),
+          Text(
+            'Gain déjà rétiré',
+            style: Style.titleDealsProduct(),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push((MaterialPageRoute(builder: (context) {
+                return StatsEvent(
+                    key: UniqueKey(),
+                    imageUrl: widget.imageUrl,
+                    title: widget.title,
+                    eventId: widget.id);
+              })));
+            },
+            style: raisedButtonStyle,
+            child: Text('Statistiques'),
+          ),
         ],
       );
     }
   }
-
-
 }
 
 class ViewerEvent extends StatefulWidget {
@@ -698,73 +764,72 @@ class _ViewerEventState extends State<ViewerEvent> {
           elevation: 0.0,
         ),
         floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    _controller.value.isPlaying
-                        ? _controller.pause()
-                        : _controller.play();
-                  });
-                },
-                child: Icon(
-                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                ),
-              ),
+          onPressed: () {
+            setState(() {
+              _controller.value.isPlaying
+                  ? _controller.pause()
+                  : _controller.play();
+            });
+          },
+          child: Icon(
+            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+          ),
+        ),
         body: Center(
           child: FutureBuilder(
-                  future: _initialiseVideoFlutter,
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                        return Column(
-                          children: <Widget>[
-                            Expanded(
-                                child: Center(
-                              child: Text("Echec de connexion",
-                                  style: Style.titreEvent(18)),
-                            )),
-                          ],
-                        );
-                      case ConnectionState.waiting:
-                        return Column(
-                          children: <Widget>[
-                            Expanded(
-                                child: Center(
-                              child: Text("Chargement en cours...",
-                                  style: Style.titreEvent(18)),
-                            )),
-                          ],
-                        );
-                      case ConnectionState.active:
-                        return Column(
-                          children: <Widget>[
-                            Expanded(
-                                child: Center(
-                              child: Text("50%...",
-                                  style: Style.titreEvent(18)),
-                            )),
-                          ],
-                        );
-                      case ConnectionState.done:
-                        if (snapshot.hasError) {
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Center(
-                                child: Text("Echec de connexion",
-                                    style: Style.titreEvent(18)),
-                              )),
-                            ],
-                          );
-                        }
-                        return Container(
-                          width: double.infinity,
-                          child: AspectRatio(
-                            aspectRatio: _controller.value.aspectRatio,
-                            child: VideoPlayer(_controller),
-                          ),
-                        );
+              future: _initialiseVideoFlutter,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return Column(
+                      children: <Widget>[
+                        Expanded(
+                            child: Center(
+                          child: Text("Echec de connexion",
+                              style: Style.titreEvent(18)),
+                        )),
+                      ],
+                    );
+                  case ConnectionState.waiting:
+                    return Column(
+                      children: <Widget>[
+                        Expanded(
+                            child: Center(
+                          child: Text("Chargement en cours...",
+                              style: Style.titreEvent(18)),
+                        )),
+                      ],
+                    );
+                  case ConnectionState.active:
+                    return Column(
+                      children: <Widget>[
+                        Expanded(
+                            child: Center(
+                          child: Text("50%...", style: Style.titreEvent(18)),
+                        )),
+                      ],
+                    );
+                  case ConnectionState.done:
+                    if (snapshot.hasError) {
+                      return Column(
+                        children: <Widget>[
+                          Expanded(
+                              child: Center(
+                            child: Text("Echec de connexion",
+                                style: Style.titreEvent(18)),
+                          )),
+                        ],
+                      );
                     }
-                  }),
+                    return Container(
+                      width: double.infinity,
+                      child: AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        child: VideoPlayer(_controller),
+                      ),
+                    );
+                }
+              }),
         ));
   }
 }

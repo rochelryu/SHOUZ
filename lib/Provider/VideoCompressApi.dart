@@ -8,7 +8,7 @@ class VideoCompressApi {
     try {
       return VideoCompress.compressVideo(
         file.path,
-        quality: VideoQuality.LowQuality,
+        quality: VideoQuality.MediumQuality,
         includeAudio: includeAudio,
       );
     } catch(e) {

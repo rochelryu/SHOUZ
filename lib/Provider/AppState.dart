@@ -45,7 +45,7 @@ class AppState with ChangeNotifier {
 
     _socket!.onConnect((data) async {
       final User getClient = await DBProvider.db.getClient();
-      if (getClient.ident != "") {
+      if (getClient.numero != "null") {
         this.setJoinConnected(getClient.ident);
       }
     });

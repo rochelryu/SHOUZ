@@ -88,6 +88,7 @@ class _ProfilState extends State<Profil> {
                   flexibleSpace: FlexibleSpaceBar(
                       background: Stack(
                     children: <Widget>[
+
                       CachedNetworkImage(
                         imageUrl: (newClient != null)
                             ? "${ConsumeAPI.AssetProfilServer}${newClient!.images}"
@@ -149,7 +150,25 @@ class _ProfilState extends State<Profil> {
                             Center(
                                 child: CircularProgressIndicator(value: downloadProgress.progress)),
                         errorWidget: (context, url, error) => notSignal(),
-                      )
+                      ),
+                      Positioned(
+                        top: 25,
+                          left: 10,
+                          child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  color: Colors.black26),
+                              child: Center(
+                                child: IconButton(
+                                  icon: Icon(Icons.close,
+                                      color: Colors.white, size: 22.0),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              )))
                     ],
                   )),
                   bottom: TabBar(
@@ -554,7 +573,7 @@ class _ProfilState extends State<Profil> {
                                           profil: item['profil'],
                                           imageUrl: item['images'],
                                           title: item['name'],
-                                          price: item['price'],
+                                          price: item['price'].toString() + ' XOF',
                                           autor: item['author'],
                                           numero: item['numero'],
                                           describe: item['describe'],
@@ -661,7 +680,7 @@ class _ProfilState extends State<Profil> {
                                         profil: item['profil'],
                                         imageUrl: item['images'],
                                         title: item['name'],
-                                        price: item['price'],
+                                        price: item['price'].toString() + ' XOF',
                                         autor: item['author'],
                                         numero: item['numero'],
                                         describe: item['describe'],

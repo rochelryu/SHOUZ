@@ -82,7 +82,7 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Client");
     List<User> list = res.map((c) => User.fromJsonLite(c)).toList();
-    return list.length > 0 ? list[list.length - 1]: new User("null", "null");
+    return list.length > 0 ? list[list.length - 1]: new User("null", "null", 'ident');
   }
 
   getProfil() async {

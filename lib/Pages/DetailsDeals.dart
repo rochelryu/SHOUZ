@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -26,7 +25,8 @@ import 'list_commande.dart';
 class DetailsDeals extends StatefulWidget {
   final int comeBack;
   final DealsSkeletonData dealsDetailsSkeleton;
-  const DetailsDeals({required this.dealsDetailsSkeleton, required this.comeBack});
+  const DetailsDeals(
+      {required this.dealsDetailsSkeleton, required this.comeBack});
   @override
   _DetailsDealsState createState() => _DetailsDealsState();
 }
@@ -45,8 +45,8 @@ class _DetailsDealsState extends State<DetailsDeals> {
   @override
   void initState() {
     super.initState();
-    if(widget.dealsDetailsSkeleton.video != "") {
-      _controller =  VideoPlayerController.network(
+    if (widget.dealsDetailsSkeleton.video != "") {
+      _controller = VideoPlayerController.network(
           "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
 
       _controller.setLooping(false);
@@ -62,35 +62,46 @@ class _DetailsDealsState extends State<DetailsDeals> {
 
   verifyIfUserHaveReadModalExplain() async {
     final prefs = await SharedPreferences.getInstance();
-    final bool asRead = prefs.getBool('readViewDetailDealsAndDiscutModalExplain') ?? false;
-    if(!asRead && !isMe) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png", "1/4 - Si vous voulez acheter cet article vous pouvez discutez avec le vendeur directement dans l'application.\nVous pouvez négocier le prix avec lui afin d'obtenir une diminution et/ou de vous assurer de la qualité de l'article avant achat.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}accordPayDirect.png", "2/4 - SHOUZPAY: Tout achat d'article se fait directement dans l'application en rechargeant son compte SHOUZ par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}guardMoney.png", "3/4 - Attention: Ne vous laissez pas anarquer si le vendeur vous propose d'aller discuter sur une autre application ou de faire un paiement ailleurs.\nNous assurons toutes les garanties de votre sécurité quand vous restez sur SHOUZ pour toutes vos actions.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}guardMoney.png", "4/4 - Vous pouvez acheter en toute sécurité à partir de votre compte SHOUZPAY, nous vous livrerons l'article et en cas d'insatisfication nous vous remboursons votre argent, c'est ça la garantie avec SHOUZ.", context);
+    final bool asRead =
+        prefs.getBool('readViewDetailDealsAndDiscutModalExplain') ?? false;
+    if (!asRead && !isMe) {
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
+          "1/4 - Si vous voulez acheter cet article vous pouvez discutez avec le vendeur directement dans l'application.\nVous pouvez négocier le prix avec lui afin d'obtenir une diminution et/ou de vous assurer de la qualité de l'article avant achat.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
+          "2/4 - SHOUZPAY: Tout achat d'article se fait directement dans l'application en rechargeant son compte SHOUZ par mobile money, crypto-monnaie ou carte bancaire.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}guardMoney.png",
+          "3/4 - Attention: Ne vous laissez pas anarquer si le vendeur vous propose d'aller discuter sur une autre application ou de faire un paiement ailleurs.\nNous assurons toutes les garanties de votre sécurité quand vous restez sur SHOUZ pour toutes vos actions.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}guardMoney.png",
+          "4/4 - Vous pouvez acheter en toute sécurité à partir de votre compte SHOUZPAY, nous vous livrerons l'article et en cas d'insatisfication nous vous remboursons votre argent, c'est ça la garantie avec SHOUZ.",
+          context);
       await prefs.setBool('readViewDetailDealsAndDiscutModalExplain', true);
     }
-
   }
 
-
-  void checkVideo(){
-    if(_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0) || _controller.value.position >= _controller.value.duration) {
+  void checkVideo() {
+    if (_controller.value.position ==
+            Duration(seconds: 0, minutes: 0, hours: 0) ||
+        _controller.value.position >= _controller.value.duration) {
       setState(() {
         isPlaying = false;
       });
-    }
-    else {
+    } else {
       setState(() {
         isPlaying = true;
       });
     }
-
   }
 
   @override
-  void dispose(){
-    if(widget.dealsDetailsSkeleton.video != "") {
+  void dispose() {
+    if (widget.dealsDetailsSkeleton.video != "") {
       _controller.removeListener(() {});
       _controller.dispose();
     }
@@ -103,99 +114,108 @@ class _DetailsDealsState extends State<DetailsDeals> {
     setState(() {
       id = user.ident;
       isMe = (widget.dealsDetailsSkeleton.autor != id) ? false : true;
-      newClient = user;
+      if (user.numero != 'null') {
+        newClient = user;
+      }
     });
-    final result = await consumeAPI.verifyIfExistItemInFavor(widget.dealsDetailsSkeleton.id, 1);
-    setState(() {
-      favorite = result;
-    });
+    if (user.numero != 'null') {
+      final result = await consumeAPI.verifyIfExistItemInFavor(
+          widget.dealsDetailsSkeleton.id, 1);
+      setState(() {
+        favorite = result;
+      });
+    }
   }
 
   Future archivateProduct(String productId) async {
-
-    if(widget.dealsDetailsSkeleton.quantity > 0) {
+    if (widget.dealsDetailsSkeleton.quantity > 0) {
       final archivage = await consumeAPI.archiveProductDeals(productId);
-      if(archivage['etat'] == "found") {
+      if (archivage['etat'] == "found") {
         await askedToLead(
             "Votre article est archivé, il n'apparaîtra plus sur le marché",
-            true, context);
+            true,
+            context);
       } else if (archivage['etat'] == "notFound") {
         showDialog(
             context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
             barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
       } else {
-        await askedToLead(
-            archivage['error'], false, context);
+        await askedToLead(archivage['error'], false, context);
       }
     } else {
-      await askedToLead("Le stock de ce produit est 0 vous ne pouvez plus l'archiver", false, context);
+      await askedToLead(
+          "Le stock de ce produit est 0 vous ne pouvez plus l'archiver",
+          false,
+          context);
     }
-
   }
+
   Future renewProduct(String productId) async {
-
-    if(widget.dealsDetailsSkeleton.level == 3) {
-
+    if (widget.dealsDetailsSkeleton.level == 3) {
       final renewArticle = await consumeAPI.renewProductDeals(productId);
-      if(renewArticle['etat'] == "found") {
+      if (renewArticle['etat'] == "found") {
         await askedToLead(
-            "Votre article est rémonté en tête sur le marché",
-            true, context);
+            "Votre article est rémonté en tête sur le marché", true, context);
       } else if (renewArticle['etat'] == "notFound") {
         showDialog(
             context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
             barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
+      } else {
+        await askedToLead(renewArticle['error'], false, context);
+      }
+    } else {
+      if (widget.dealsDetailsSkeleton.quantity == 0) {
       } else {
         await askedToLead(
-            renewArticle['error'], false, context);
+            "Pour faire remonter votre article dans la liste il faut que l'article soit VIP.\nAussi si vous essayez de créer un autre article avec les informations similaires de cet article sachant que cet article n'est pas encore épuisé nous serons obligé de vous rétirer le votre compte vendeur.",
+            false,
+            context);
       }
     }
-    else {
-      if(widget.dealsDetailsSkeleton.quantity == 0) {
-      } else {
-        await askedToLead("Pour faire remonter votre article dans la liste il faut que l'article soit VIP.\nAussi si vous essayez de créer un autre article avec les informations similaires de cet article sachant que cet article n'est pas encore épuisé nous serons obligé de vous rétirer le votre compte vendeur.", false, context);
-      }
-    }
-
   }
 
   Future setUpVipProduct(String productId) async {
-    if(widget.dealsDetailsSkeleton.level != 3) {
-      if(newClient!.wallet >= 1000) {
+    if (widget.dealsDetailsSkeleton.level != 3) {
+      if (newClient!.wallet >= 1000) {
         final renewArticle = await consumeAPI.setUpVipProduct(productId);
-        if(renewArticle['etat'] == "found") {
+        if (renewArticle['etat'] == "found") {
           await askedToLead(
-              "Votre article est VIP. Bravo à vous 👏👏",
-              true, context);
+              "Votre article est VIP. Bravo à vous 👏👏", true, context);
         } else if (renewArticle['etat'] == "notFound") {
           showDialog(
               context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+              builder: (BuildContext context) => dialogCustomError(
+                  'Plusieurs connexions à ce compte',
+                  "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                  context),
               barrierDismissible: false);
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (builder) => Login()));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (builder) => Login()));
         } else {
-          await askedToLead(
-              renewArticle['error'], false, context);
+          await askedToLead(renewArticle['error'], false, context);
         }
       } else {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+            builder: (builder) => ChoiceMethodPayement(
+                  key: UniqueKey(),
+                  isRetrait: false,
+                )));
       }
-    }
-    else {
+    } else {
       await askedToLead("Cet article est déjà VIP.", false, context);
     }
-
   }
 
   Widget build(BuildContext context) {
@@ -231,12 +251,16 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         _currentItem = value;
                       });
                     },
-                    itemCount: widget.dealsDetailsSkeleton.video == "" ? widget.dealsDetailsSkeleton.imageUrl.length: widget.dealsDetailsSkeleton.imageUrl.length +1,
+                    itemCount: widget.dealsDetailsSkeleton.video == ""
+                        ? widget.dealsDetailsSkeleton.imageUrl.length
+                        : widget.dealsDetailsSkeleton.imageUrl.length + 1,
                     itemBuilder: (context, index) {
-                      if(widget.dealsDetailsSkeleton.video != "" && index == 0) {
+                      if (widget.dealsDetailsSkeleton.video != "" &&
+                          index == 0) {
                         return FutureBuilder(
                             future: _initialiseVideoFlutter,
-                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
                               switch (snapshot.connectionState) {
                                 case ConnectionState.none:
                                   return Center(
@@ -252,7 +276,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                         borderRadius: BorderRadius.circular(50),
                                         color: Colors.white,
                                       ),
-                                      child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
+                                      child: LoadingIndicator(
+                                          indicatorType:
+                                              Indicator.ballRotateChase,
+                                          colors: [colorText],
+                                          strokeWidth: 2),
                                     ),
                                   );
                                 case ConnectionState.active:
@@ -264,7 +292,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                         borderRadius: BorderRadius.circular(50),
                                         color: Colors.white,
                                       ),
-                                      child: LoadingIndicator(indicatorType: Indicator.ballRotateChase,colors: [colorText], strokeWidth: 2),
+                                      child: LoadingIndicator(
+                                          indicatorType:
+                                              Indicator.ballRotateChase,
+                                          colors: [colorText],
+                                          strokeWidth: 2),
                                     ),
                                   );
                                 case ConnectionState.done:
@@ -273,9 +305,9 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                       children: <Widget>[
                                         Expanded(
                                             child: Center(
-                                              child: Text("Vidéo non chargé",
-                                                  style: Style.titreEvent(18)),
-                                            )),
+                                          child: Text("Vidéo non chargé",
+                                              style: Style.titreEvent(18)),
+                                        )),
                                       ],
                                     );
                                   }
@@ -285,7 +317,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                         width: double.infinity,
                                         height: double.infinity,
                                         child: GestureDetector(
-                                          onTap: (){
+                                          onTap: () {
                                             setState(() {
                                               _controller.value.isPlaying
                                                   ? _controller.pause()
@@ -293,36 +325,59 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                             });
                                           },
                                           child: AspectRatio(
-                                            aspectRatio: _controller.value.aspectRatio,
+                                            aspectRatio:
+                                                _controller.value.aspectRatio,
                                             child: VideoPlayer(_controller),
                                           ),
                                         ),
                                       ),
                                       Positioned(
                                           height: 50,
-                                          bottom:50,
-                                          left:50,
-                                          right:50,
+                                          bottom: 50,
+                                          left: 50,
+                                          right: 50,
                                           child: Container(
                                             height: double.infinity,
-                                            padding:EdgeInsets.symmetric(horizontal: 10),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10),
                                             decoration: BoxDecoration(
-                                              color: backgroundColorSec.withOpacity(0.25),
-                                              borderRadius: BorderRadius.circular(30),
-
+                                              color: backgroundColorSec
+                                                  .withOpacity(0.25),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
                                             ),
                                             child: Row(
                                               children: [
-                                                IconButton(onPressed: () {
-                                                  setState(() {
-                                                    _controller.value.isPlaying
-                                                        ? _controller.pause()
-                                                        : _controller.play();
-                                                  });
-                                                }, icon: Icon(_controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: _controller.value.isPlaying ? colorText: colorPrimary,)),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _controller
+                                                                .value.isPlaying
+                                                            ? _controller
+                                                                .pause()
+                                                            : _controller
+                                                                .play();
+                                                      });
+                                                    },
+                                                    icon: Icon(
+                                                      _controller
+                                                              .value.isPlaying
+                                                          ? Icons.pause
+                                                          : Icons.play_arrow,
+                                                      color: _controller
+                                                              .value.isPlaying
+                                                          ? colorText
+                                                          : colorPrimary,
+                                                    )),
                                                 Expanded(
-
-                                                    child: VideoProgressIndicator(_controller, allowScrubbing: true, padding: EdgeInsets.zero, colors: VideoProgressColors(playedColor: colorText),))
+                                                    child:
+                                                        VideoProgressIndicator(
+                                                  _controller,
+                                                  allowScrubbing: true,
+                                                  padding: EdgeInsets.zero,
+                                                  colors: VideoProgressColors(
+                                                      playedColor: colorText),
+                                                ))
                                               ],
                                             ),
                                           ))
@@ -330,27 +385,30 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                   );
                               }
                             });
-                      }
-                      else {
+                      } else {
                         return InkWell(
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (builder) => ViewerProduct(
-                                      index: widget.dealsDetailsSkeleton.video != "" ? index - 1: index,
+                                      index:
+                                          widget.dealsDetailsSkeleton.video !=
+                                                  ""
+                                              ? index - 1
+                                              : index,
                                       level: widget.dealsDetailsSkeleton.level,
-                                      imgUrl: widget.dealsDetailsSkeleton.imageUrl)),
+                                      imgUrl: widget
+                                          .dealsDetailsSkeleton.imageUrl)),
                             );
                           },
                           child: Container(
                             height: MediaQuery.of(context).size.height / 2,
                             width: MediaQuery.of(context).size.width,
                             child: buildImageInCachedNetworkWithSizeManual(
-                              "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[widget.dealsDetailsSkeleton.video != "" ? _currentItem - 1 == -1 ? 0:_currentItem - 1:_currentItem]}",
-                              double.infinity,
-                              double.infinity,
-                              BoxFit.cover
-                            ),
+                                "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.imageUrl[widget.dealsDetailsSkeleton.video != "" ? _currentItem - 1 == -1 ? 0 : _currentItem - 1 : _currentItem]}",
+                                double.infinity,
+                                double.infinity,
+                                BoxFit.cover),
                           ),
                         );
                       }
@@ -369,18 +427,18 @@ class _DetailsDealsState extends State<DetailsDeals> {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.circular(50.0),
+                                  borderRadius: BorderRadius.circular(50.0),
                                   color: Colors.black26),
                               child: Center(
                                 child: IconButton(
                                   icon: Icon(Icons.close,
                                       color: Colors.white, size: 22.0),
                                   onPressed: () {
-                                    if(widget.comeBack == 0) {
+                                    if (widget.comeBack == 0) {
                                       Navigator.pop(context);
                                     } else {
-                                      Navigator.pushNamed(context, MenuDrawler.rootName);
+                                      Navigator.pushNamed(
+                                          context, MenuDrawler.rootName);
                                     }
                                   },
                                 ),
@@ -395,8 +453,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
                   bottom: 45.0,
                   child: Container(
                     width: 100.0,
-                    child: PageIndicator(_currentItem,
-                        widget.dealsDetailsSkeleton.video != "" ? widget.dealsDetailsSkeleton.imageUrl.length+ 1:widget.dealsDetailsSkeleton.imageUrl.length),
+                    child: PageIndicator(
+                        _currentItem,
+                        widget.dealsDetailsSkeleton.video != ""
+                            ? widget.dealsDetailsSkeleton.imageUrl.length + 1
+                            : widget.dealsDetailsSkeleton.imageUrl.length),
                   ),
                 ),
               ],
@@ -431,20 +492,33 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                 Text(afficheDate,
                                     textAlign: TextAlign.center,
                                     style: Style.titre(10.0)),
-                                if(!isMe) IconButton(
-                                  icon: Icon(Icons.favorite,
-                                      color: favorite
-                                          ? Colors.redAccent
-                                          : Colors.grey,
-                                      size: 22.0),
-                                  onPressed: () async {
-                                    setState(() {
-                                      favorite = !favorite;
-                                    });
-                                    await consumeAPI.addOrRemoveItemInFavorite(widget.dealsDetailsSkeleton.id, 1);
-
-                                  },
-                                ),
+                                if (!isMe)
+                                  IconButton(
+                                    icon: Icon(Icons.favorite,
+                                        color: favorite
+                                            ? Colors.redAccent
+                                            : Colors.grey,
+                                        size: 22.0),
+                                    onPressed: () async {
+                                      if (id != '' && id != 'ident') {
+                                        setState(() {
+                                          favorite = !favorite;
+                                        });
+                                        await consumeAPI
+                                            .addOrRemoveItemInFavorite(
+                                                widget.dealsDetailsSkeleton.id,
+                                                1);
+                                      } else {
+                                        await modalForExplain(
+                                            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                            "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                            context,
+                                            true);
+                                        Navigator.pushNamed(
+                                            context, Login.rootName);
+                                      }
+                                    },
+                                  ),
                               ],
                             ),
                           )
@@ -460,8 +534,9 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         children: <Widget>[
                           Icon(MyFlutterAppSecond.pin, color: colorText),
                           SizedBox(width: 3),
-                          Flexible(child: Text(widget.dealsDetailsSkeleton.lieu,
-                              style: Style.priceOldDealsProductBiggest()))
+                          Flexible(
+                              child: Text(widget.dealsDetailsSkeleton.lieu,
+                                  style: Style.priceOldDealsProductBiggest()))
                         ],
                       ),
                       SizedBox(height: 10.0),
@@ -469,7 +544,8 @@ class _DetailsDealsState extends State<DetailsDeals> {
                         children: <Widget>[
                           Icon(Icons.local_mall, color: colorText),
                           SizedBox(width: 5),
-                          Text("${widget.dealsDetailsSkeleton.quantity} disponible${widget.dealsDetailsSkeleton.quantity > 1 ? 's':''}",
+                          Text(
+                              "${widget.dealsDetailsSkeleton.quantity} disponible${widget.dealsDetailsSkeleton.quantity > 1 ? 's' : ''}",
                               style: Style.priceOldDealsProductBiggest())
                         ],
                       ),
@@ -482,7 +558,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
                               style: Style.priceOldDealsProductBiggest())
                         ],
                       ),
-                      /*if(widget.dealsDetailsSkeleton.level == 3) */Container(
+                      /*if(widget.dealsDetailsSkeleton.level == 3) */ Container(
                         child: TextButton(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -493,33 +569,41 @@ class _DetailsDealsState extends State<DetailsDeals> {
                               ],
                             ),
                             onPressed: () {
-                              Share.share("${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.id}");
+                              Share.share(
+                                  "${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.id}");
                             }),
                         width: 200,
                       ),
-                      if(widget.dealsDetailsSkeleton.level == 3) Container(
-                        width: 275,
-                        child: TextButton(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(MyFlutterAppSecond.shop, color: colorText),
-                                SizedBox(width: 5),
-                                Text("Voir la boutique du vendeur")
-                              ],
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (builder) => ProfilShop(
-                                          key: UniqueKey(),
-                                          comeBack: 0,
-                                          authorName: widget.dealsDetailsSkeleton.authorName,
-                                          onLine: widget.dealsDetailsSkeleton.onLine,
-                                          profil: widget.dealsDetailsSkeleton.profil,
-                                          autor: widget.dealsDetailsSkeleton.autor)));
-                            })),
+                      if (widget.dealsDetailsSkeleton.level == 3)
+                        Container(
+                            width: 275,
+                            child: TextButton(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(MyFlutterAppSecond.shop,
+                                        color: colorText),
+                                    SizedBox(width: 5),
+                                    Text("Voir la boutique du vendeur")
+                                  ],
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (builder) => ProfilShop(
+                                              key: UniqueKey(),
+                                              comeBack: 0,
+                                              authorName: widget
+                                                  .dealsDetailsSkeleton
+                                                  .authorName,
+                                              onLine: widget
+                                                  .dealsDetailsSkeleton.onLine,
+                                              profil: widget
+                                                  .dealsDetailsSkeleton.profil,
+                                              autor: widget.dealsDetailsSkeleton
+                                                  .autor)));
+                                })),
                       SizedBox(height: 10.0),
                     ],
                   ),
@@ -554,215 +638,259 @@ class _DetailsDealsState extends State<DetailsDeals> {
                           color: Colors.white,
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold)),
-                  if(!isMe) Text("(Prix discutable)",
-                      style: TextStyle(color: Colors.white, fontSize: 13.5)),
-                  if(isMe && !widget.dealsDetailsSkeleton.approved) Text("(En attente de validation par Shouz)",
-                      style: TextStyle(color: Colors.white, fontSize: 13.5)),
+                  if (!isMe || widget.dealsDetailsSkeleton.approved)
+                    Text("(Prix discutable)",
+                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
+                  if (isMe && !widget.dealsDetailsSkeleton.approved)
+                    Text("(En attente de validation par Shouz)",
+                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
                 ],
               ),
-
-              if (!isMe && widget.dealsDetailsSkeleton.quantity > 0) ElevatedButton(
-                style: raisedButtonStyle,
-                child: Text("Discuter", style: Style.titre(18)),
-                onPressed: () {
-                  if(widget.dealsDetailsSkeleton.archive == 0) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => ChatDetails(
-                              newClient: newClient!,
-                                comeBack: 0,
-                                room: '',
-                                productId: widget.dealsDetailsSkeleton.id,
-                                name: widget.dealsDetailsSkeleton.authorName,
-                                onLine: widget.dealsDetailsSkeleton.onLine,
-                                profil: widget.dealsDetailsSkeleton.profil,
-                                authorId: widget.dealsDetailsSkeleton.autor)));
-
-                  } else {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) =>
-                            dialogCustomError('Discussion impossible', "Désolé vous ne pouvez pas marchander ce produit car il est archivé", context),
-                        barrierDismissible: false);
-                  }
-                },
-              )
+              if (!isMe && widget.dealsDetailsSkeleton.quantity > 0)
+                ElevatedButton(
+                  style: raisedButtonStyle,
+                  child: Text("Discuter", style: Style.titre(18)),
+                  onPressed: () async {
+                    if (newClient != null && newClient?.numero != "null") {
+                      if (widget.dealsDetailsSkeleton.archive == 0) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (builder) => ChatDetails(
+                                    newClient: newClient!,
+                                    comeBack: 0,
+                                    room: '',
+                                    productId: widget.dealsDetailsSkeleton.id,
+                                    name:
+                                        widget.dealsDetailsSkeleton.authorName,
+                                    onLine: widget.dealsDetailsSkeleton.onLine,
+                                    profil: widget.dealsDetailsSkeleton.profil,
+                                    authorId:
+                                        widget.dealsDetailsSkeleton.autor)));
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) => dialogCustomError(
+                                'Discussion impossible',
+                                "Désolé vous ne pouvez pas marchander ce produit car il est archivé",
+                                context),
+                            barrierDismissible: false);
+                      }
+                    } else {
+                      await modalForExplain(
+                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                          context,
+                          true);
+                      Navigator.pushNamed(context, Login.rootName);
+                    }
+                  },
+                )
             ],
           ),
         ),
       ),
-
       floatingActionButtonLocation: ExpandableFab.location,
-        floatingActionButton: isMe ? ExpandableFab(
-          key: key,
-          distance: 60,
-          type: ExpandableFabType.up,
-          overlayStyle: ExpandableFabOverlayStyle(
-            // color: Colors.black.withOpacity(0.5),
-            blur: 5,
-          ),
-
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (builder) => ListCommande(
-                          key: UniqueKey(),
-                          productId: widget.dealsDetailsSkeleton.id, level: widget.dealsDetailsSkeleton.level,
-                        )));
-              },
-              child: Row(
-                children: [
-                  Text("Mes commandes", style: Style.titre(15.0),),
-                  Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0)),
-                    color: colorText,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.lightBlue,
-                          borderRadius: BorderRadius.circular(25.0)
-                      ),
-                      child: Center(
-                        child: Icon(MyFlutterAppSecond.shop,
-                            size: 17,
-                            color: colorPrimary),
-                      ),
-                    ),
-                  )
-                ],
+      floatingActionButton: isMe
+          ? ExpandableFab(
+              key: key,
+              distance: 60,
+              type: ExpandableFabType.up,
+              overlayStyle: ExpandableFabOverlayStyle(
+                // color: Colors.black.withOpacity(0.5),
+                blur: 5,
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (builder) => UpdateDeals(
-                          key: UniqueKey(),
-                          dealsDetailsSkeleton: widget.dealsDetailsSkeleton,
-                        )));
-              },
-              child: Row(
-                children: [
-                  Text("Modifier", style: Style.titre(15.0),),
-                  Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0)),
-                    color: colorText,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: colorSecondary,
-                          borderRadius: BorderRadius.circular(25.0)
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => ListCommande(
+                                  key: UniqueKey(),
+                                  productId: widget.dealsDetailsSkeleton.id,
+                                  level: widget.dealsDetailsSkeleton.level,
+                                )));
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        "Mes commandes",
+                        style: Style.titre(15.0),
                       ),
-                      child: Center(
-                        child: Icon(Icons.edit,
-                            size: 17,
-                            color: colorPrimary),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: () async {
-                await renewProduct(widget.dealsDetailsSkeleton.id);
-              },
-              child: Row(
-                children: [
-                  Text("Actualiser", style: Style.titre(15.0),),
-                  Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0)),
-                    color: colorText,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: colorSuccess,
-                          borderRadius: BorderRadius.circular(25.0)
-                      ),
-                      child: Center(
-                        child: Icon(Icons.sync, color: colorPrimary, size: 17),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            if(widget.dealsDetailsSkeleton.quantity > 0) GestureDetector(
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) => dialogCustomForValidateAction('ARCHIVER PRODUIT', 'Êtes vous sûr de vouloir archiver ce produit du Marché ?', 'Oui', () async => await archivateProduct(widget.dealsDetailsSkeleton.id), context),
-                    barrierDismissible: false);
-              },
-              child: Row(
-                children: [
-                  Text("Archiver", style: Style.titre(15.0),),
-                  Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0)),
-                    color: colorText,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(25.0)
-                      ),
-                      child: Center(
-                        child: Icon(Icons.archive_outlined, color: colorPrimary, size: 17),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            if(widget.dealsDetailsSkeleton.level != 3 && newClient != null) GestureDetector(
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) => dialogCustomForValidateAction('Promotion VIP', 'Rendez cet article VIP et maximisez vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?', 'Ok', () async => await setUpVipProduct(widget.dealsDetailsSkeleton.id), context),
-                    barrierDismissible: false);
-              },
-              child: Row(
-                children: [
-                  Text("Rendre l'article VIP", style: Style.titre(15.0),),
-                  Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0)),
-                    color: colorText,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.yellow[700],
-                          borderRadius: BorderRadius.circular(25.0)
-                      ),
-                      child: Center(
-                        child: Icon(Icons.star_border_purple500_sharp, color: colorPrimary, size: 17),
+                      Card(
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: colorText,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: BorderRadius.circular(25.0)),
+                          child: Center(
+                            child: Icon(MyFlutterAppSecond.shop,
+                                size: 17, color: colorPrimary),
+                          ),
+                        ),
                       )
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => UpdateDeals(
+                                  key: UniqueKey(),
+                                  dealsDetailsSkeleton:
+                                      widget.dealsDetailsSkeleton,
+                                )));
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        "Modifier",
+                        style: Style.titre(15.0),
+                      ),
+                      Card(
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: colorText,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: colorSecondary,
+                              borderRadius: BorderRadius.circular(25.0)),
+                          child: Center(
+                            child:
+                                Icon(Icons.edit, size: 17, color: colorPrimary),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    await renewProduct(widget.dealsDetailsSkeleton.id);
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        "Actualiser",
+                        style: Style.titre(15.0),
+                      ),
+                      Card(
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: colorText,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: colorSuccess,
+                              borderRadius: BorderRadius.circular(25.0)),
+                          child: Center(
+                            child:
+                                Icon(Icons.sync, color: colorPrimary, size: 17),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                if (widget.dealsDetailsSkeleton.quantity > 0)
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              dialogCustomForValidateAction(
+                                  'ARCHIVER PRODUIT',
+                                  'Êtes vous sûr de vouloir archiver ce produit du Marché ?',
+                                  'Oui',
+                                  () async => await archivateProduct(
+                                      widget.dealsDetailsSkeleton.id),
+                                  context),
+                          barrierDismissible: false);
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          "Archiver",
+                          style: Style.titre(15.0),
+                        ),
+                        Card(
+                          elevation: 4.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0)),
+                          color: colorText,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                borderRadius: BorderRadius.circular(25.0)),
+                            child: Center(
+                              child: Icon(Icons.archive_outlined,
+                                  color: colorPrimary, size: 17),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                if (widget.dealsDetailsSkeleton.level != 3 && newClient != null)
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              dialogCustomForValidateAction(
+                                  'Promotion VIP',
+                                  'Rendez cet article VIP et maximisez vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?',
+                                  'Ok',
+                                  () async => await setUpVipProduct(
+                                      widget.dealsDetailsSkeleton.id),
+                                  context),
+                          barrierDismissible: false);
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          "Rendre l'article VIP",
+                          style: Style.titre(15.0),
+                        ),
+                        Card(
+                          elevation: 4.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0)),
+                          color: colorText,
+                          child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                  color: Colors.yellow[700],
+                                  borderRadius: BorderRadius.circular(25.0)),
+                              child: Center(
+                                child: Icon(Icons.star_border_purple500_sharp,
+                                    color: colorPrimary, size: 17),
+                              )),
+                        )
+                      ],
+                    ),
+                  ),
+              ],
+            )
+          : SizedBox(
+              width: 0,
             ),
-          ],
-        ) : SizedBox(width: 0,),
     );
   }
 }
@@ -772,7 +900,8 @@ class ViewerProduct extends StatefulWidget {
   final int index;
   final List<dynamic> imgUrl;
 
-  const ViewerProduct({required this.index, required this.imgUrl, required this.level});
+  const ViewerProduct(
+      {required this.index, required this.imgUrl, required this.level});
   @override
   _ViewerProductState createState() => _ViewerProductState();
 }
@@ -794,19 +923,17 @@ class _ViewerProductState extends State<ViewerProduct> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        
       ),
       body: PageView.builder(
-        itemCount: widget.imgUrl.length,
-        controller:controller,
-        itemBuilder: (context, index) {
-          return Center(
-            child: buildImageInCachedNetworkSimpleWithSizeAuto(
-                "${ConsumeAPI.AssetProductServer}${widget.imgUrl[index]}",
-                BoxFit.contain),
-          );
-        }
-      ),
+          itemCount: widget.imgUrl.length,
+          controller: controller,
+          itemBuilder: (context, index) {
+            return Center(
+              child: buildImageInCachedNetworkSimpleWithSizeAuto(
+                  "${ConsumeAPI.AssetProductServer}${widget.imgUrl[index]}",
+                  BoxFit.contain),
+            );
+          }),
     );
   }
 }

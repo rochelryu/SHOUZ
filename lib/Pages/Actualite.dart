@@ -233,8 +233,8 @@ class _ActualiteState extends State<Actualite> {
   cityFromCoord() async {
     try{
 
-      final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
-      final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
+      final latitude = (locationData == null || locationData!.latitude == null) ? (newClient != null && newClient!.numero != "" && newClient!.lagitude != 0.0) ? newClient!.lagitude : defaultLatitude : locationData!.latitude;
+      final longitude = (locationData == null || locationData!.longitude == null) ? (newClient != null && newClient!.numero != "" && newClient!.longitude != 0.0) ? newClient!.longitude : defaultLongitude : locationData!.longitude;
 
       final addresses =
       await geocoding.placemarkFromCoordinates(latitude!, longitude!);
@@ -247,22 +247,24 @@ class _ActualiteState extends State<Actualite> {
       }
       finalPosition = finalPosition.trim();
       final speedAccuracy = locationData != null ? locationData!.speedAccuracy ?? 0.0 : 0.0;
-      final user = await consumeAPI.updatePosition(
-          finalPosition,
-          latitude,
-          longitude,
-          speedAccuracy);
-      if (user['etat'] == 'found') {
-        await DBProvider.db.delClient();
-        await DBProvider.db.newClient(user['user']);
-      } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-            barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
+      if(newClient != null && newClient?.numero != 'null') {
+        final user = await consumeAPI.updatePosition(
+            finalPosition,
+            latitude,
+            longitude,
+            speedAccuracy);
+        if (user['etat'] == 'found') {
+          await DBProvider.db.delClient();
+          await DBProvider.db.newClient(user['user']);
+        } else {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+              barrierDismissible: false);
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (builder) => Login()));
+        }
       }
       final meteo = await consumeAPI
           .getMeteo(latitude, longitude);
@@ -295,9 +297,11 @@ class _ActualiteState extends State<Actualite> {
   }
   loadInfo() async {
     User user = await DBProvider.db.getClient();
-    setState(() {
-      newClient = user;
-    });
+    if(user.numero != 'null') {
+      setState(() {
+        newClient = user;
+      });
+    }
   }
 
   Future loadActualite() async {
