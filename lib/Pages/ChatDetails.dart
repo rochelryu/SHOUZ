@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:record/record.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'LoadHide.dart';
 import 'choice_method_payement.dart';
 
 class ChatDetails extends StatefulWidget {
@@ -118,12 +119,14 @@ class _ChatDetailsState extends State<ChatDetails>
           }
         }
         if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 50 && showFloatingAction) {
+                _scrollController.position.maxScrollExtent - 50 &&
+            showFloatingAction) {
           setState(() {
             showFloatingAction = false;
           });
         } else if (_scrollController.position.pixels <
-            _scrollController.position.maxScrollExtent - 100 && !showFloatingAction) {
+                _scrollController.position.maxScrollExtent - 100 &&
+            !showFloatingAction) {
           setState(() {
             showFloatingAction = true;
           });
@@ -229,19 +232,19 @@ class _ChatDetailsState extends State<ChatDetails>
       if (!asRead) {
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "1/4 - Shouz est votre boutique, discuttez avec le client, vous pouvez lui envoyer d'autres images de cet article et uniquement de cet article.",
+            "1/4 - 💁 Shouz est votre boutique, discuttez avec le client, vous pouvez lui envoyer d'autres images de cet article et uniquement de cet article.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
-            "2/4 - Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour faire une offre.",
+            "2/4 - 💁 Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour faire une offre.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "3/4 - Attention: Nous n'acceptons pas que vous donnez votre contact à l'acheteur pour une conversation ailleurs ou que vous lui demandez de vous faire une quelconque transaction ailleurs.",
+            "3/4 - ⚠️ Attention: Nous n'acceptons pas que vous donnez votre contact à l'acheteur pour une conversation ailleurs ou que vous lui demandez de vous faire une quelconque transaction ailleurs.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "4/4 - Si votre stock est epuisé, veuillez le notifier au client et marquer sur la fiche de votre article qu'il est épuisé.\nSi votre article n'est pas encore disponible ou qu'il doit être importé, veuillez le notifier au client et lui dire quand cela pourra être disponible avant de lui faire une offre de prix.",
+            "4/4 - ⚠️ Si votre stock est epuisé, veuillez le notifier au client et marquer sur la fiche de votre article qu'il est épuisé.\nSi votre article n'est pas encore disponible ou qu'il doit être importé, veuillez le notifier au client et lui dire quand cela pourra être disponible avant de lui faire une offre de prix.",
             context);
         await prefs.setBool('readViewFirstDealsForSellerModalExplain', true);
       }
@@ -251,19 +254,19 @@ class _ChatDetailsState extends State<ChatDetails>
       if (!asRead) {
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "1/4 - Shouz est votre assurance garantie, discuttez avec le vendeur, vous pouvez lui demander d'autres images de cet article et de vous donner plus d'informations sur l'article pour vous assurer du type de qualité.",
+            "1/4 - 🙋‍♂️ Shouz est votre assurance garantie, discuttez avec le vendeur, vous pouvez lui demander d'autres images de cet article et de vous donner plus d'informations sur l'article pour vous assurer du type de qualité.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
-            "2/4 - Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour voir l'offre.",
+            "2/4 - 🧑‍🏫 Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour voir l'offre.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "3/4 - Attention: N'acceptez pas que le vendeur vous donne son contact pour une conversation ailleurs ou qu'il vous demande de faire une transaction ailleurs. Tant que vous restez ici vous bénéficiez des garanties.",
+            "3/4 - ⚠️ Attention: N'acceptez pas que le vendeur vous donne son contact pour une conversation ailleurs ou qu'il vous demande de faire une transaction ailleurs. Tant que vous restez ici vous bénéficiez des garanties.",
             context);
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "4/4 - Il y a certains vendeurs qui ont des articles en cours d'importation, donc veuillez leur demander si l'article est disponible actuelement ou il prendra combien de temps avant d'arriver chez eux.",
+            "4/4 - ⛔️ Il y a certains vendeurs qui ont des articles en cours d'importation, donc veuillez leur demander si l'article est disponible actuelement ou il prendra combien de temps avant d'arriver chez eux.",
             context);
         await prefs.setBool('readViewFirstDealsForBuyerModalExplain', true);
       }
@@ -275,7 +278,6 @@ class _ChatDetailsState extends State<ChatDetails>
     bool againToday = false;
     List<Widget> tabs = [];
     if (conversation['content'] != null) {
-
       for (int index = 0; index < conversation['content'].length; index++) {
         final value = conversation['content'][index];
         final date = DateTime.now()
@@ -301,7 +303,8 @@ class _ChatDetailsState extends State<ChatDetails>
               registerDate: value['date'].substring(11, 16).toString(),
               idDocument: conversation['_id'],
               isReadByOtherUser: value['isReadByOtherUser'],
-              image: value['image'], context: context));
+              image: value['image'],
+              context: context));
         } else if (date < 1) {
           if (!againToday) {
             tabs.add(Text("Aujourd'hui",
@@ -318,7 +321,8 @@ class _ChatDetailsState extends State<ChatDetails>
               registerDate: value['date'].substring(11, 16).toString(),
               idDocument: conversation['_id'],
               isReadByOtherUser: value['isReadByOtherUser'],
-              image: value['image'], context: context));
+              image: value['image'],
+              context: context));
         } else {
           tabs.add(boxMessage(
               indexContent: index,
@@ -333,7 +337,8 @@ class _ChatDetailsState extends State<ChatDetails>
                   .toString()
                   .replaceAll(RegExp('T'), ' à '),
               idDocument: conversation['_id'],
-              image: value['image'], context: context));
+              image: value['image'],
+              context: context));
         }
       }
     }
@@ -1206,6 +1211,22 @@ class _ChatDetailsState extends State<ChatDetails>
                                           "${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
                                       fit: BoxFit.cover)),
                             ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (builder) => LoadProduct(
+                                            key: UniqueKey(),
+                                            productId: widget.productId,
+                                            doubleComeBack: 2,
+                                          )));
+                            },
+                            child: Text("Voir l'article"),
                           ),
                         ),
                         Container(

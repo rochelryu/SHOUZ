@@ -152,7 +152,7 @@ class _ProfilState extends State<Profil> {
                         errorWidget: (context, url, error) => notSignal(),
                       ),
                       Positioned(
-                        top: 25,
+                        top: 35,
                           left: 10,
                           child: Container(
                               height: 40,

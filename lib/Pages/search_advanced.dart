@@ -41,7 +41,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
       });
     } else {
       Fluttertoast.showToast(
-          msg: 'Mot recherché trop court',
+          msg: "Le nom de l'article que vous recherchez est trop court. Veuillez donnez plus d'information",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 5,
@@ -166,6 +166,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                         authorName: dealsFull[index]['authorName'],
                         id: dealsFull[index]['_id'],
                         profil: dealsFull[index]['profil'],
+                        approved: dealsFull[index]['approved'],
                         categorieName: dealsFull[index]['categorieName'],
                         onLine: dealsFull[index]['onLine'],
                         describe: dealsFull[index]['describe'],

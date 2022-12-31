@@ -346,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Widget loadDeepLink(String categorie, String id) {
     switch (categorie) {
       case 'deals':
-        return LoadProduct(key: UniqueKey(), productId: id);
+        return LoadProduct(key: UniqueKey(), productId: id, doubleComeBack: 1,);
       case 'event':
         return LoadEvent(key: UniqueKey(), eventId: id);
       case 'new':

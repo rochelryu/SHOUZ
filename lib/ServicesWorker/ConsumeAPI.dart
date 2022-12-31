@@ -90,6 +90,7 @@ class ConsumeAPI {
   static final GET_SEARCH_ADVANCED_PRODUCTS_URL = BASE_URL + "/products/searchAdvancedProducts";
   static final GET_DETAILS_FOR_CHAT_URL = BASE_URL + "/products/getDetailsOfProductForChat";
   static final GET_PRODUCT_URL = BASE_URL + "/products/getProduct";
+  static final GET_CATEGORIE_PRODUCT_URL = BASE_URL + "/products/getCategorieProduct";
   static final GET_ALL_COMMANDES_PRODUCT_URL = BASE_URL + "/products/getAllCommandesProduct";
 
 
@@ -612,9 +613,16 @@ class ConsumeAPI {
   }
 
   // For Deals
-  Future<List<dynamic>> getDeals(int numberItemVip, int numberItemRecent, int numberItemPopulaire, [String searchData = ""]) async {
+  Future<List<dynamic>> getDeals(int numberItemVip, int numberItemRecent, int numberItemPopulaire, [String searchData = "", String categorie =""]) async {
     User newClient = await DBProvider.db.getClient();
-    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}?numberItemVip=${numberItemVip.toString()}&numberItemRecent=${numberItemRecent.toString()}&numberItemPopulaire=${numberItemPopulaire.toString()}&searchData=${searchData.trim()}');
+    final res = await _netUtil.get('$GET_PRODUCT_URL/${newClient.ident}?numberItemVip=${numberItemVip.toString()}&numberItemRecent=${numberItemRecent.toString()}&numberItemPopulaire=${numberItemPopulaire.toString()}&searchData=${searchData.trim()}&categorie=${categorie.trim()}');
+    return res;
+  }
+
+
+  Future<List<dynamic>> getCategoriesAndNumbersItemsDeals() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
     return res;
   }
 
@@ -667,6 +675,7 @@ class ConsumeAPI {
       String price,
       String quantity, [String videoProduct = "", String videoProductBase64 = ""]) async {
     User newClient = await DBProvider.db.getClient();
+    print("$videoProduct ${videoProductBase64.length}");
     final body = {
       'id': newClient.ident,
       'recovery': newClient.recovery,

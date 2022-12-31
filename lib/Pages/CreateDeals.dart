@@ -17,6 +17,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
 import '../MenuDrawler.dart';
@@ -104,12 +105,14 @@ class _CreateDealsState extends State<CreateDeals> {
   verifyIfUserHaveReadModalExplain() async {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
-    if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/5 - Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.", context);
+    if(asRead) {
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}premium.svg", "💁🏽‍♂️ Si vous enregistrez plus de 25 différents articles nous vous offrons une publication d'article en mode VIP gratuitement 🤝.\n(Le mode VIP vous permet d'avoir plus de publicité, de fonctionnalité et de visibilité).", context, true);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/5 - ⚠️ Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images ou la description de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.", context);
+
       await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/5 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/5 - Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/5 - Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "5/5 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/5 - ⚠️ Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/5 - ⚠️ Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "5/5 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client. C'est Shouz qui s'occupera de la livraison et non vous.", context);
       await prefs.setBool('readCreateDealsModalExplain', true);
     }
   }
@@ -171,11 +174,13 @@ class _CreateDealsState extends State<CreateDeals> {
             });
           postVideo.add(_controller!);
         });
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
-        if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+
+        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+
+       if(videoCompressed!.filesize! / 1000000 < 10) {
+
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
+
         } else {
           setState((){
             postVideo = [];
@@ -198,11 +203,11 @@ class _CreateDealsState extends State<CreateDeals> {
 
           postVideo[0] = _controller!;
         });
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        MediaInfo? videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+
         if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+          video = videoCompressed.file!;
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
           setState((){
             postVideo = [];
@@ -838,7 +843,7 @@ class _CreateDealsState extends State<CreateDeals> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         leading: IconButton(onPressed: (){
-          Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+          Navigator.pop(context);
         }, icon: Icon(Icons.arrow_back)),
       ),
       body: GestureDetector(

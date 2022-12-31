@@ -19,6 +19,7 @@ import 'package:video_player/video_player.dart';
 import '../Constant/my_flutter_app_second_icons.dart';
 import './ChatDetails.dart';
 import 'Login.dart';
+import 'Notifications.dart';
 import 'choice_method_payement.dart';
 import 'list_commande.dart';
 
@@ -67,19 +68,19 @@ class _DetailsDealsState extends State<DetailsDeals> {
     if (!asRead && !isMe) {
       await modalForExplain(
           "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-          "1/4 - Si vous voulez acheter cet article vous pouvez discutez avec le vendeur directement dans l'application.\nVous pouvez négocier le prix avec lui afin d'obtenir une diminution et/ou de vous assurer de la qualité de l'article avant achat.",
+          "1/4 - 1️⃣ Si vous voulez acheter cet article vous pouvez discutez avec le vendeur directement dans l'application.\nVous pouvez négocier le prix avec lui afin d'obtenir une réduction et/ou de vous assurer de la qualité de l'article avant achat.",
           context);
       await modalForExplain(
           "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
-          "2/4 - SHOUZPAY: Tout achat d'article se fait directement dans l'application en rechargeant son compte SHOUZ par mobile money, crypto-monnaie ou carte bancaire.",
+          "2/4 - 2️⃣ SHOUZPAY: Tout achat d'article se fait directement dans l'application en rechargeant son compte SHOUZ par mobile money, crypto-monnaie ou carte bancaire.",
           context);
       await modalForExplain(
           "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-          "3/4 - Attention: Ne vous laissez pas anarquer si le vendeur vous propose d'aller discuter sur une autre application ou de faire un paiement ailleurs.\nNous assurons toutes les garanties de votre sécurité quand vous restez sur SHOUZ pour toutes vos actions.",
+          "3/4 - ⛔️ Attention: Ne vous laissez pas anarquer si le vendeur vous propose d'aller discuter sur une autre application ou de faire un paiement ailleurs.\nNous assurons toutes les garanties de votre sécurité quand vous restez sur SHOUZ pour toutes vos actions.",
           context);
       await modalForExplain(
           "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-          "4/4 - Vous pouvez acheter en toute sécurité à partir de votre compte SHOUZPAY, nous vous livrerons l'article et en cas d'insatisfication nous vous remboursons votre argent, c'est ça la garantie avec SHOUZ.",
+          "4/4 - 💝 Vous pouvez acheter en toute sécurité à partir de votre compte SHOUZPAY, nous vous livrerons l'article et en cas d'insatisfication nous vous remboursons votre argent, c'est ça la garantie avec SHOUZ.",
           context);
       await prefs.setBool('readViewDetailDealsAndDiscutModalExplain', true);
     }
@@ -207,6 +208,10 @@ class _DetailsDealsState extends State<DetailsDeals> {
           await askedToLead(renewArticle['error'], false, context);
         }
       } else {
+        await askedToLead(
+            "Pour rendre un article VIP il vous faut avoir au moins 1.000 XOF sur votre compte ShouzPay",
+            false,
+            context);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (builder) => ChoiceMethodPayement(
                   key: UniqueKey(),
@@ -436,9 +441,16 @@ class _DetailsDealsState extends State<DetailsDeals> {
                                   onPressed: () {
                                     if (widget.comeBack == 0) {
                                       Navigator.pop(context);
-                                    } else {
+                                    } else if (widget.comeBack == 1) {
                                       Navigator.pushNamed(
                                           context, MenuDrawler.rootName);
+                                    } else if (widget.comeBack == 2) {
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Notifications()),
+                                          (route) => route.isFirst);
                                     }
                                   },
                                 ),
@@ -848,18 +860,8 @@ class _DetailsDealsState extends State<DetailsDeals> {
                   ),
                 if (widget.dealsDetailsSkeleton.level != 3 && newClient != null)
                   GestureDetector(
-                    onTap: () {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) =>
-                              dialogCustomForValidateAction(
-                                  'Promotion VIP',
-                                  'Rendez cet article VIP et maximisez vos ventes de par notre publicité.\nVous serez débité de 1 000 XOF ?',
-                                  'Ok',
-                                  () async => await setUpVipProduct(
-                                      widget.dealsDetailsSkeleton.id),
-                                  context),
-                          barrierDismissible: false);
+                    onTap: () async {
+                      await setUpVipProduct(widget.dealsDetailsSkeleton.id);
                     },
                     child: Row(
                       children: [

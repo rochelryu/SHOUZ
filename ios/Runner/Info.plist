@@ -45,6 +45,10 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MBXAccessToken</key>
+	<string>pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg</string>
+	<key>MGLMapboxAccessToken</key>
+	<string>pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -57,11 +61,12 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Shouz a besoin de récupérer votre position pour permettre à votre chauffeur de vous retrouver plus rapidement sur notre service de vehicule à la demande et du covoiturage. Mais aussi cela nous permet de vous presenter les actulités les plus pertinentes en fonction de votre region.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Shouz a besoin d&apos;avoir accès à votre microphone pour vous permettre d&apos;envoyer des notes vocales lors de vos discussions</string>
+	<string>Shouz a besoin d'avoir accès à votre microphone pour vous permettre d'envoyer des notes vocales lors de vos discussions</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Shouz a besoin d&apos;avoir accès à votre Librairie Photo pour vous permettre d&apos;envoyer des images dans l&apos;application</string>
+	<string>Shouz a besoin d'avoir accès à votre Librairie Photo pour vous permettre d'envoyer des images dans l'application</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

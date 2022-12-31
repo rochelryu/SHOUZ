@@ -258,7 +258,8 @@ class _LoadNewState extends State<LoadNew> {
 
 class LoadProduct extends StatefulWidget {
   final String productId;
-  LoadProduct({required Key key, required this.productId}) : super(key: key);
+  final int doubleComeBack;
+  LoadProduct({required Key key, required this.productId, required this.doubleComeBack}) : super(key: key);
 
   @override
   _LoadProductState createState() => _LoadProductState();
@@ -313,7 +314,7 @@ class _LoadProductState extends State<LoadProduct> {
           approved: productInfo['result']['approved'],
           categorieName: productInfo['result']['categorieName'],
         );
-        return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 1);
+        return DetailsDeals(dealsDetailsSkeleton: item, comeBack: widget.doubleComeBack);
       }), (Route<dynamic> route) => false);
     }
   }

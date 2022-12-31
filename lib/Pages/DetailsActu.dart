@@ -289,96 +289,44 @@ class _DetailsActuState extends State<DetailsActu> {
   }
 
   Widget choiceDisposition(page, double y) {
-    switch (page['isContentType']) {
-      case 'only_text':
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Transform(
-                transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
-                child: Text(
-                  page['inContent'],
-                  style: Style.simpleTextOnNews(),
-                ),
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if(page['inImage'] !='') Material(
+            elevation: 25.0,
+            borderRadius: BorderRadius.circular(5.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5.0),
+              child: CachedNetworkImage(
+                imageUrl: page['inImage'],
+                progressIndicatorBuilder:
+                    (context, url, downloadProgress) => Center(
+                    child: CircularProgressIndicator(
+                        value: downloadProgress.progress)),
+                errorWidget: (context, url, error) => notSignal(),
               ),
-            ]);
-      case 'picture_text':
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Material(
-                elevation: 25.0,
-                borderRadius: BorderRadius.circular(5.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5.0),
-                  child: CachedNetworkImage(
-                    imageUrl: page['inImage'],
-                    progressIndicatorBuilder:
-                        (context, url, downloadProgress) => Center(
-                            child: CircularProgressIndicator(
-                                value: downloadProgress.progress)),
-                    errorWidget: (context, url, error) => notSignal(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 18.0),
-              Transform(
-                transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
-                child: Text(
-                  page['inContent'],
-                  style: Style.simpleTextOnNews(),
-                ),
-              ),
-            ]);
-      case 'subtitle_text':
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 27.0),
-                child: GradientText(
-                  page['inTitle'],
-                  textAlign: TextAlign.center,
-                  colors: gradient[1],
-                  style: Style.titleNews(),
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Transform(
-                transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
-                child: Text(
-                  page['inContent'],
-                  style: Style.simpleTextOnNews(),
-                ),
-              ),
-            ]);
-
-      case 'only_picture':
-        return buildImageInCachedNetworkWithSizeManual(
-            page['inImage'],
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-            BoxFit.cover);
-      default:
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Transform(
-                transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
-                child: Text(
-                  page['inContent'],
-                  style: Style.simpleTextOnNews(),
-                ),
-              ),
-            ]);
-    }
+            ),
+          ),
+          if(page['inImage'] !='') SizedBox(height: 18.0),
+          if(page['inTitle'] !='') Padding(
+            padding: const EdgeInsets.only(top: 27.0),
+            child: GradientText(
+              page['inTitle'],
+              textAlign: TextAlign.center,
+              colors: gradient[1],
+              style: Style.titleNews(),
+            ),
+          ),
+          if(page['inTitle'] !='') SizedBox(height: 20.0),
+          Transform(
+            transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
+            child: Text(
+              page['inContent'],
+              style: Style.simpleTextOnNews(),
+            ),
+          ),
+        ]);
   }
 }

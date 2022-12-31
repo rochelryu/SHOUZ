@@ -5,7 +5,6 @@ import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 import '../Constant/widget_common.dart';
-import 'Login.dart';
 import 'choice_categorie_scan.dart';
 import 'choice_method_payement.dart';
 import 'list_filleul.dart';
@@ -67,6 +66,21 @@ class _WidgetPageState extends State<WidgetPage> {
                   "icon": "Modifier information Conducteur",
                   "desc": "Modifier Si elles ne sont plus d'actualité"
                 },
+          (info['result']['isActivateCovoiturage']) ? {
+            "icon": "Statistique Covoiturage",
+            "desc": "Bilan sur vos voyages extra-villes effectués"
+          } : {
+            "icon": "",
+            "desc": ""
+          },
+
+          (info['result']['isActivateCovoiturage']) ? {
+            "icon": "Statistique VTC",
+            "desc": "Bilan sur vos voyages intra-villes effectués"
+          } : {
+            "icon": "",
+            "desc": ""
+          },
         ];
       });
     }
@@ -120,7 +134,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "prix des médicaments":
+      case "Statistique VTC":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
@@ -130,7 +144,7 @@ class _WidgetPageState extends State<WidgetPage> {
             decoration: BoxDecoration(
                 color: Colors.green[200],
                 borderRadius: BorderRadius.circular(50.0)),
-            child: Icon(prefix1.MyFlutterAppSecond.medicine,
+            child: Icon(Icons.stacked_bar_chart,
                 color: Colors.green[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
@@ -231,7 +245,7 @@ class _WidgetPageState extends State<WidgetPage> {
           },
         );
         break;
-      case "Récharger son ShouzPay":
+      case "Statistique Covoiturage":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
@@ -241,7 +255,7 @@ class _WidgetPageState extends State<WidgetPage> {
             decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(50.0)),
-            child: Icon(prefix1.MyFlutterAppSecond.money,
+            child: Icon(Icons.stacked_bar_chart,
                 color: Colors.grey[700], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),

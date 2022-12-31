@@ -174,6 +174,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                                   archive: dealsFull["arrayProductAvailable"][index]['archive'],
                                   title: dealsFull["arrayProductAvailable"][index]['name'],
                                   favorite: false,
+                                  approved: dealsFull["arrayProductAvailable"][index]['approved'],
                                   price: dealsFull["arrayProductAvailable"][index]['price'].toString() + ' XOF',
                                   numero: dealsFull["arrayProductAvailable"][index]['numero'],
                                   autor: dealsFull["arrayProductAvailable"][index]['author'],

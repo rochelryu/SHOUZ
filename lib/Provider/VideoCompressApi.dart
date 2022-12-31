@@ -1,15 +1,13 @@
-
-import 'dart:io';
-
 import 'package:video_compress/video_compress.dart';
 
 class VideoCompressApi {
-  static Future<MediaInfo?> compressVideo(File file, [bool includeAudio = false]) async {
+  static Future<MediaInfo?> compressVideo(String filePath) async {
     try {
       return VideoCompress.compressVideo(
-        file.path,
+        filePath,
         quality: VideoQuality.MediumQuality,
-        includeAudio: includeAudio,
+        deleteOrigin: false,
+        includeAudio: true,
       );
     } catch(e) {
       await VideoCompress.deleteAllCache();
