@@ -56,8 +56,8 @@ class _EventInterState extends State<EventInter> {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readEventModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}Events.gif", "1/3 - Acheteur: Participe à des évènements en achetant des tickets directement dans l'application par mobile money, crypto-monnaie ou carte bancaire, tu as la possibilité de partager tes tickets à tes amis ou de demander un rembourssement en cas d'indisponibilité de ta part.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}Events.gif", "2/3 - Promotteur: Crée tes propres évènements nous générons tes tickets. Nous assurons la gestion et la vente des tickets, les statistiques de ventes, la sécurité des achats, la vérifications des tickets lors de l'évènement.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}Events.gif", "1/3 - Acheteur: 1️⃣ Participe à des évènements en achetant des tickets directement dans l'application par mobile money, crypto-monnaie ou carte bancaire, tu as la possibilité de partager tes tickets à tes amis ou de demander un rembourssement en cas d'indisponibilité de ta part.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}Events.gif", "2/3 - Promotteur: 2️⃣ Crée tes propres évènements nous générons tes tickets. Nous assurons la gestion et la vente des tickets, les statistiques de ventes, la sécurité des achats, la vérifications des tickets lors de l'évènement.", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}Events.gif", "3/3 - Nous tenons à rappeler que nous affichons uniquement les évènements dans SHOUZ en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readEventModalExplain', true);
     }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -24,7 +25,9 @@ import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
 import 'Constant/my_flutter_app_second_icons.dart';
+import 'Pages/all_categorie_deals_choice.dart';
 import 'Pages/choice_other_hobie_second.dart';
+import 'Pages/not_available.dart';
 import 'Pages/wallet_page.dart';
 import 'Provider/AppState.dart';
 
@@ -47,12 +50,21 @@ class _MenuDrawlerState extends State<MenuDrawler>
   late Animation<double> _scaleAnimation;
   User? newClient;
   late String statusPermission;
-  List<Widget> menus = [Actualite(), Deals(), EventInter(), Covoiturage()];
+  List<Widget> menus = [
+    Actualite(),
+    AllCategorieDealsChoice(
+      key: UniqueKey(),
+    ),
+    EventInter(),
+    NotAvailable(
+      key: UniqueKey(),
+    )
+  ];
   List<String> titleDomain = [
     'Actualité',
     'E-commerce',
     'Événementiel',
-    'Covoiturage'
+    'Covoiturage & VTC'
   ];
 
   int numberConnected = 0;
@@ -67,6 +79,8 @@ class _MenuDrawlerState extends State<MenuDrawler>
     _slideAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
         .animate(_controller);
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    //WidgetsBinding.instance.addPostFrameCallback((timeStamp) {(_) => showOverLayDealsBasic();});
   }
 
   loadInfo() async {
@@ -93,7 +107,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
                     "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                     context);
                 await launchUrl(Uri.parse(linkAppGalleryForShouz),
                     mode: LaunchMode.externalApplication);
@@ -105,7 +119,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
                     "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                     context);
                 await launchUrl(Uri.parse(linkPlayStoreForShouz),
                     mode: LaunchMode.externalApplication);
@@ -118,7 +132,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   'versionning', jsonEncode(getLatestVersionApp));
               await modalForExplain(
                   "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                  "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                  "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                   context);
               await launchUrl(Uri.parse(linkAppleStoreForShouz),
                   mode: LaunchMode.externalApplication);
@@ -127,35 +141,35 @@ class _MenuDrawlerState extends State<MenuDrawler>
         } else {
           if (Platform.isAndroid) {
             if (await isHms()) {
-              if ("1.0.19" != getLatestVersionApp['appGallery']) {
+              if ("1.0.22" != getLatestVersionApp['appGallery']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
                     "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                     context);
                 await launchUrl(Uri.parse(linkAppGalleryForShouz),
                     mode: LaunchMode.externalApplication);
               }
             } else {
-              if ("1.0.19" != getLatestVersionApp['playstore']) {
+              if ("1.0.22" != getLatestVersionApp['playstore']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
                     "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                     context);
                 await launchUrl(Uri.parse(linkPlayStoreForShouz),
                     mode: LaunchMode.externalApplication);
               }
             }
           } else {
-            if ("1.0.19" != getLatestVersionApp['appleStore']) {
+            if ("1.0.22" != getLatestVersionApp['appleStore']) {
               await prefs.setString(
                   'versionning', jsonEncode(getLatestVersionApp));
               await modalForExplain(
                   "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                  "Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
+                  "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
                   context);
               await launchUrl(Uri.parse(linkAppleStoreForShouz),
                   mode: LaunchMode.externalApplication);
@@ -402,7 +416,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   showBadge: numberNotif != 0,
                   child: IconButton(
                       onPressed: () async {
-                        if(newClient != null && newClient!.numero != "null") {
+                        if (newClient != null && newClient!.numero != "null") {
                           Navigator.of(context).push((MaterialPageRoute(
                               builder: (context) => Notifications())));
                         } else {

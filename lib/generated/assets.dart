@@ -31,6 +31,7 @@ class Assets {
   static const String imagesLetsgoevent = 'images/letsgoevent.gif';
   static const String imagesLogos = 'images/logos.png';
   static const String imagesLogos1 = 'images/logos1.png';
+  static const String imagesMarqueurBegin = 'images/marqueur_begin.png';
   static const String imagesMaster = 'images/master.png';
   static const String imagesMobileMoney = 'images/mobile_money.jpg';
   static const String imagesMomo = 'images/momo.jpeg';

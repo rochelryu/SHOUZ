@@ -105,7 +105,7 @@ class NotificationController {
     }
     else if(notification.channelKey == channelKey && notification.payload!['emitName'] == "innerdeals" && notification.payload!['room'] == null) {
       MyApp.navigatorKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
-          builder: (context) => LoadProduct(key: UniqueKey(), productId: notification.payload!['productId'] ?? '')), (route) => route.isFirst);
+          builder: (context) => LoadProduct(key: UniqueKey(), productId: notification.payload!['productId'] ?? '', doubleComeBack: 1,)), (route) => route.isFirst);
     }
   }
 }

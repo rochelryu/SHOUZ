@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -15,14 +14,11 @@ import 'package:shouz/Models/User.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
-import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 import 'LoadHide.dart';
 import 'Login.dart';
-import 'choice_method_payement.dart';
 
 class UpdateDeals extends StatefulWidget {
   final DealsSkeletonData dealsDetailsSkeleton;
@@ -189,11 +185,10 @@ class _UpdateDealsState extends State<UpdateDeals> {
           postVideo.add(_controller!);
 
         });
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+          video = videoCompressed.file!;
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
           if(widget.dealsDetailsSkeleton.video != "") {
             _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
@@ -224,11 +219,10 @@ class _UpdateDealsState extends State<UpdateDeals> {
 
           postVideo[0] = _controller!;
         });
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+          video = videoCompressed.file!;
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
           if(widget.dealsDetailsSkeleton.video != "") {
             _controller = VideoPlayerController.network("${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.video}");
@@ -923,7 +917,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
             "Votre produit a été mis à jour, vous pouvez le manager où que vous soyez",
             true, context);
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-            builder: (context) => LoadProduct(key: UniqueKey(), productId: widget.dealsDetailsSkeleton.id)), (route) => route.isFirst);
+            builder: (context) => LoadProduct(key: UniqueKey(), productId: widget.dealsDetailsSkeleton.id, doubleComeBack: 1,)), (route) => route.isFirst);
 
       } else if (product == 'notFound') {
 

@@ -293,11 +293,10 @@ class _CreateEventState extends State<CreateEvent> {
           postVideo.add(_controller!);
         });
 
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie, true);
+        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+          video = videoCompressed.file!;
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
           setState((){
             postVideo = [];
@@ -316,11 +315,10 @@ class _CreateEventState extends State<CreateEvent> {
             });
           postVideo[0] = _controller!;
         });
-        final firstMovie = File(movie.path);
-        var videoCompressed = await VideoCompressApi.compressVideo(firstMovie);
+        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
-          video = File(videoCompressed.path!);
-          base64Video = base64Encode(File(videoCompressed.path!).readAsBytesSync());
+          video = videoCompressed.file!;
+          base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
           setState((){
             postVideo = [];

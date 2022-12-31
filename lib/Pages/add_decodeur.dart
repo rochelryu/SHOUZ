@@ -36,36 +36,54 @@ class _AddDecodeurState extends State<AddDecodeur> {
   Future getInfo() async {
     try {
       final data = await consumeAPI.getDecodeur(widget.eventId);
-      if(data['etat'] == 'found') {
+      if (data['etat'] == 'found') {
         final list = data['result'] as List<dynamic>;
         setState(() {
           decodeur = list;
         });
       } else {
         showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-              barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
+            context: context,
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
+            barrierDismissible: false);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
       }
     } catch (e) {
       print("Erreur $e");
     }
   }
+
   verifyIfUserHaveReadModalExplain() async {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readAddDecodeModalExplain') ?? false;
-    if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}surveillance.svg", "1/4 - Choisissé qui aura le privilège de decoder vos tickets de cet évènement, vous pouvez choisir plusieurs personnes si vous le voulez.\nPar defaut vous êtes vous même le premier décodeur de votre évènement.", context, true);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}surveillance.svg", "2/4 - Les décodeurs pourront commencer leurs activités dès qu'il resterar 3H avant le debut de l'évènement.\nToute tentative avant ça sera nulle et sans effet et en plus vous serrez alerté.", context, true);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}surveillance.svg", "3/4 - Les décodeurs doivent avoir l'application Shouz pour decoder, il leur suffit de se rendre dans le menu <<Outils>> puis ils veront l'option <<Vérification Tickets>>.", context, true);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}surveillance.svg", "4/4 - Si un client a son téléphone déchargé et qu'il est dans l'incapacité de presenter son ticket, il peut donner son numero de compte Shouz pour vérification.", context, true);
+    if (!asRead) {
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}surveillance.svg",
+          "1/4 - 🧑‍🏫 Choisissé qui aura le privilège de decoder vos tickets de cet évènement, vous pouvez choisir plusieurs personnes si vous le voulez.\nPar defaut vous êtes vous même le premier décodeur de votre évènement.",
+          context,
+          true);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}surveillance.svg",
+          "2/4 - 🧑‍🏫 Les décodeurs pourront commencer leurs activités dès qu'il restera 3H avant le debut de l'évènement.\nToute tentative avant ça sera nulle et sans effet et en plus vous serrez alerté.",
+          context,
+          true);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}surveillance.svg",
+          "3/4 - 💁 Les décodeurs doivent avoir l'application Shouz pour decoder, il leur suffit de se rendre dans le menu <<Outils>> puis ils veront l'option <<Vérification Tickets>>.",
+          context,
+          true);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}surveillance.svg",
+          "4/4 - 💁 Si un client a son téléphone déchargé et qu'il est dans l'incapacité de presenter son ticket, il peut donner son numero de compte Shouz pour vérification.",
+          context,
+          true);
       await prefs.setBool('readAddDecodeModalExplain', true);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +110,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
           children: <Widget>[
             SizedBox(height: 15.0),
             Padding(
-                padding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
                 child: Container(
                   height: 70,
                   width: double.infinity,
@@ -102,7 +119,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
                       itemCount: decodeur.length,
                       itemBuilder: (context, index) {
                         return Container(
-                          width: MediaQuery.of(context).size.width*0.75,
+                          width: MediaQuery.of(context).size.width * 0.75,
                           child: ListTile(
                             leading: Container(
                               height: 50,
@@ -111,22 +128,20 @@ class _AddDecodeurState extends State<AddDecodeur> {
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
                                       fit: BoxFit.cover,
-                                      image: NetworkImage("${ConsumeAPI.AssetProfilServer}${decodeur[index]['images']}")
-                                  )
-                              ),
+                                      image: NetworkImage(
+                                          "${ConsumeAPI.AssetProfilServer}${decodeur[index]['images']}"))),
                             ),
                             title: Text(decodeur[index]['name'],
                                 style: Style.priceDealsProduct(), maxLines: 2),
-                            subtitle: Text("${decodeur[index]['prefix']} ${decodeur[index]['numero']}",
+                            subtitle: Text(
+                                "${decodeur[index]['prefix']} ${decodeur[index]['numero']}",
                                 style: Style.simpleTextOnBoard()),
                           ),
                         );
                       }),
-                )
-            ),
+                )),
             Padding(
-                padding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 child: Card(
                   elevation: 10.0,
                   child: Container(
@@ -140,13 +155,11 @@ class _AddDecodeurState extends State<AddDecodeur> {
                         keyboardType: TextInputType.number,
                         controller: eCtrl,
                         style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w300),
+                            color: Colors.black87, fontWeight: FontWeight.w300),
 
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText:
-                          "Recherche par son numero",
+                          hintText: "Recherche par son numero",
                           hintStyle: TextStyle(
                               fontWeight: FontWeight.w300,
                               color: Colors.grey[500],
@@ -155,10 +168,11 @@ class _AddDecodeurState extends State<AddDecodeur> {
                       ),
                       hideOnEmpty: true,
                       suggestionsCallback: (pattern) async {
-                        return consumeAPI.getAllUser(pattern.length >= 8 ? pattern :'');
+                        return consumeAPI
+                            .getAllUser(pattern.length >= 8 ? pattern : '');
                       },
                       itemBuilder: (context, suggestion) {
-                        final user = suggestion as Map<dynamic,dynamic>;
+                        final user = suggestion as Map<dynamic, dynamic>;
                         return ListTile(
                           leading: Container(
                             height: 50,
@@ -167,9 +181,8 @@ class _AddDecodeurState extends State<AddDecodeur> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: NetworkImage("${ConsumeAPI.AssetProfilServer}${user['images']}")
-                                )
-                            ),
+                                    image: NetworkImage(
+                                        "${ConsumeAPI.AssetProfilServer}${user['images']}"))),
                           ),
                           title: Text(user['name'],
                               style: Style.priceDealsProduct()),
@@ -178,10 +191,10 @@ class _AddDecodeurState extends State<AddDecodeur> {
                         );
                       },
                       onSuggestionSelected: (suggestion) async {
-                        final user = suggestion as Map<dynamic,dynamic>;
+                        final user = suggestion as Map<dynamic, dynamic>;
                         eCtrl.text = user['prefix'] + ' ' + user['numero'];
                         setState(() {
-                          decodeur.insert(0,user);
+                          decodeur.insert(0, user);
                         });
                       },
                     ),
@@ -191,41 +204,54 @@ class _AddDecodeurState extends State<AddDecodeur> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                loadingForCliqueSendTicket ? Container(
-                  height: 60,
-                  width: 60,
-                  child: LoadingIndicator(indicatorType: Indicator.ballRotate,colors: [colorText], strokeWidth: 2),
-                ) : ElevatedButton(
-                  onPressed: () async {
-
-                    if(decodeur.isNotEmpty) {
-                      setState(() {
-                        loadingForCliqueSendTicket = true;
-                      });
-                      final stringfyDecodeur = decodeur.map((e) => "${e['prefix']}:${e['numero']}").toList().toString();
-                      final AddDecodeur = await consumeAPI.shareDecodeur(widget.eventId,stringfyDecodeur);
-                      if(AddDecodeur['etat'] == 'found') {
-                        await askedToLead(
-                            "${decodeur.length > 1 ? 'Les décodeurs ont été enregistré avec succès ils sont maintenant éligibles pour décoder cet évènement': 'Le décodeur a été enregistré avec succès il est maintenant éligible pour décoder cet évènement'}",
-                            true, context);
-                        setState(() {
-                          loadingForCliqueSendTicket = false;
-                        });
-                        Navigator.pushNamed(context, MenuDrawler.rootName);
-                      }
-                      else {
-                        await askedToLead(AddDecodeur['error'], false, context);
-                      }
-                      setState(() {
-                        loadingForCliqueSendTicket = false;
-                      });
-                    } else {
-                      await askedToLead("Il doit avoir au moins un décodeur pour pouvoir lancer un enregistrement", false, context);
-                    }
-                  },
-                  child: Text('ENREGISTRER'),
-                  style: raisedButtonStyle,
-                )
+                loadingForCliqueSendTicket
+                    ? Container(
+                        height: 60,
+                        width: 60,
+                        child: LoadingIndicator(
+                            indicatorType: Indicator.ballRotate,
+                            colors: [colorText],
+                            strokeWidth: 2),
+                      )
+                    : ElevatedButton(
+                        onPressed: () async {
+                          if (decodeur.isNotEmpty) {
+                            setState(() {
+                              loadingForCliqueSendTicket = true;
+                            });
+                            final stringfyDecodeur = decodeur
+                                .map((e) => "${e['prefix']}:${e['numero']}")
+                                .toList()
+                                .toString();
+                            final AddDecodeur = await consumeAPI.shareDecodeur(
+                                widget.eventId, stringfyDecodeur);
+                            if (AddDecodeur['etat'] == 'found') {
+                              await askedToLead(
+                                  "${decodeur.length > 1 ? 'Les décodeurs ont été enregistré avec succès ils sont maintenant éligibles pour décoder cet évènement' : 'Le décodeur a été enregistré avec succès il est maintenant éligible pour décoder cet évènement'}",
+                                  true,
+                                  context);
+                              setState(() {
+                                loadingForCliqueSendTicket = false;
+                              });
+                              Navigator.pushNamed(
+                                  context, MenuDrawler.rootName);
+                            } else {
+                              await askedToLead(
+                                  AddDecodeur['error'], false, context);
+                            }
+                            setState(() {
+                              loadingForCliqueSendTicket = false;
+                            });
+                          } else {
+                            await askedToLead(
+                                "Il doit avoir au moins un décodeur pour pouvoir lancer un enregistrement",
+                                false,
+                                context);
+                          }
+                        },
+                        child: Text('ENREGISTRER'),
+                        style: raisedButtonStyle,
+                      )
               ],
             )
           ],

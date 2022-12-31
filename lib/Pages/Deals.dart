@@ -19,6 +19,9 @@ import './CreateDeals.dart';
 import 'choice_other_hobie_second.dart';
 
 class Deals extends StatefulWidget {
+  String categorie;
+  String categorieName;
+  Deals({ required Key key, required this.categorie, required this.categorieName}) : super(key: key);
   @override
   _DealsState createState() => _DealsState();
 }
@@ -52,7 +55,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       if(_scrollControllerVip.position.pixels >= _scrollControllerVip.position.maxScrollExtent && !loadMinim) {
         setState(() {
           loadMinim = true;
-          numberItemVip += 10;
+          numberItemVip += 17;
         });
         await loadProduct();
       }
@@ -61,7 +64,16 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       if(_scrollControllerRecent.position.pixels >= _scrollControllerRecent.position.maxScrollExtent && !loadMinim) {
         setState(() {
           loadMinim = true;
-          numberItemRecent += 8;
+          numberItemRecent += 17;
+        });
+        await loadProduct();
+      }
+    });
+    _scrollControllerPopulaire.addListener(() async {
+      if(_scrollControllerPopulaire.position.pixels >= _scrollControllerPopulaire.position.maxScrollExtent && !loadMinim) {
+        setState(() {
+          loadMinim = true;
+          numberItemPopulaire += 17;
         });
         await loadProduct();
       }
@@ -97,10 +109,15 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   Future loadProduct() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData);
+
+      final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData, widget.categorie);
 
       if(dealsFull.length > 0){
-        if(data[0][0]['body'].length != dealsFull[0][0]['body'].length || data[1][0]['body'].length != dealsFull[1][0]['body'].length ||data[2][0]['body'].length != dealsFull[2][0]['body'].length){
+        if(
+        data[0][0]['body'].length != dealsFull[0][0]['body'].length
+            || data[1][0]['body'].length != dealsFull[1][0]['body'].length
+            || data[2][0]['body'].length != dealsFull[2][0]['body'].length
+        ){
           setState(() {
             dealsFull = data;
           });
@@ -117,6 +134,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       });
       await prefs.setString('dealsFull', jsonEncode(data));
     }catch (e) {
+      print(e);
       final dealsFullString = prefs.getString("dealsFull");
       if(dealsFullString != null) {
         if(mounted) {
@@ -138,7 +156,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readDealsModalExplain') ?? false;
     if(!asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "1/3 - Acheteur: Discute avec le vendeur dans l'application, marchande le prix, demande lui les infos sur la qualité. Paye l'article depuis l'application par mobile money, crypto-monnaie ou carte bancaire pour une garantie sécurité. Shouz te livre, c’est satisfait ou remboursé immédiatement et intégralement.", context);
+      await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "1/3 - Acheteur: 🤳🏽 Discute avec le vendeur dans l'application, marchande le prix 📉, demande lui les infos sur la qualité 💁🏽‍♂️️. Paye l'article depuis l'application par mobile money, crypto-monnaie ou carte bancaire pour une garantie sécurité. Shouz te livre, c’est satisfait ou remboursé immédiatement et intégralement.", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "2/3 - Vendeur: Vends tout article déplaçable sans frais et bénéficie d’une boutique spéciale à ton nom, des livraisons gratuites, des clients intéressés, des liens de partages, des propositions sur les articles les plus achetés, des discusssions directes avec les clients, une gestion & trésorie optimale de tes ventes.\n", context);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}ecommerce.gif", "3/3 - Nous tenons à rappeler que nous affichons uniquement les articles dans SHOUZ en fonction de vos préférences, alors si vous voulez plus de contenu vous pouvez allez compléter vos centres d'intérêts dans l'onglet Préférences.", context);
       await prefs.setBool('readDealsModalExplain', true);
@@ -190,11 +208,18 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
           }
         });
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: Stack(
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        title: Text(widget.categorieName),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Stack(
           children: <Widget>[
             ListView(
               children: <Widget>[
@@ -234,7 +259,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                     cursorColor: colorText,
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
-                                        hintText: "Entrer ce que vous chercher",
+                                        hintText: "Entrez ce que vous cherchez",
                                         hintStyle: TextStyle(color: colorPrimary),
                                         labelStyle: TextStyle(
                                           color: Colors.white,
@@ -244,7 +269,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                         searchData = text;
                                       });
                                       if(searchData.length == 0) {
-                                        final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire);
+                                        final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire, widget.categorie);
                                         setState(() {
                                           dealsFull = data;
                                         });
@@ -284,33 +309,141 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                     indicatorColor: colorText,
                     tabs: [
                       Tab(
-                        //icon: const Icon(Icons.stars),
-                        text: 'VIP',
+                        text: 'Articles VIP',
                       ),
                       Tab(
-                        //icon: const Icon(Icons.shopping_cart),
-                        text: 'RECENT',
+                        text: 'Derniers articles',
                       ),
                       Tab(
-                        //icon: const Icon(Icons.star_half),
-                        text: 'POPULAIRE',
+                        text: 'Les plus aimés',
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  height: MediaQuery.of(context).size.height - 230,
+                  height: MediaQuery.of(context).size.height - 190,
                   child: TabBarView(
                     physics: NeverScrollableScrollPhysics(),
                     controller: _controller,
                     children: <Widget>[
                       RefreshIndicator(
-                        key: _refreshIndicatorKeyVip,
-                        onRefresh: loadProduct,
-                        child: LayoutBuilder( builder: (context,contraints) {
-                          if(loadingFull){
-                            if(dealsFull.length > 0 && dealsFull[0][choiceItemSearch]['body'].length > 0) {
+                          key: _refreshIndicatorKeyVip,
+                          onRefresh: loadProduct,
+                          child: LayoutBuilder( builder: (context,contraints) {
+                            if(loadingFull){
+                              if(dealsFull.length > 0 && dealsFull[0][choiceItemSearch]['body'].length > 0) {
+                                var populaireActu = dealsFull;
+                                return Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: ListView.builder(
+                                        controller: _scrollControllerVip,
+                                        itemCount: populaireActu[0]
+                                        [choiceItemSearch]['body']
+                                            .length,
+                                        itemBuilder: (context, index) {
+                                          return VipDeals(
+                                              level: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['level'],
+                                              video: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['video'],
+                                              imageUrl: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['images'],
+                                              archive: populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['archive'],
+                                              title: populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['name'],
+                                              favorite: false,
+                                              price: reformatNumberForDisplayOnPrice(populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['price']) + ' XOF',
+                                              numero: populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['numero'],
+                                              autor: populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['author'],
+                                              authorName: populaireActu[0][choiceItemSearch]['body'][index]['authorName'],
+                                              id: populaireActu[0][choiceItemSearch]
+                                              ['body'][index]['_id'],
+                                              profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
+                                              categorieName: populaireActu[0][choiceItemSearch]['body'][index]['categorieName'],
+                                              onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
+                                              describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
+                                              numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
+                                              lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
+                                              registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
+                                              approved: populaireActu[0][choiceItemSearch]['body'][index]['approved'],
+                                              quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                );
+                              }
+                              return Column(children: <Widget>[
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: 2,
+                                    itemBuilder: (context, index) {
+                                      return loadDataSkeletonOfDeals(context);
+                                    },
+                                  ),
+                                )
+                              ]);
+                            } else if(!loadingFull && isError && dealsFull.length == 0) {
+                              return isErrorSubscribe(context);
+                            } else {
                               var populaireActu = dealsFull;
+                              if (populaireActu[0][choiceItemSearch]['body']
+                                  .length ==
+                                  0) {
+                                return Center(
+                                    child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          SvgPicture.asset(
+                                            "images/empty.svg",
+                                            semanticsLabel: 'Shouz Pay',
+                                            height:
+                                            MediaQuery.of(context).size.height *
+                                                0.39,
+                                          ),
+                                          Text(
+                                              searchData == "" ? "Aucun Deals Vip pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
+                                              textAlign: TextAlign.center,
+                                              style: Style.sousTitreEvent(15)),
+                                          SizedBox(height: 20),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if(searchData == "") {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                              } else {
+                                                if(!isError) {
+                                                  Navigator.of(context).push((MaterialPageRoute(
+                                                      builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                                } else {
+                                                  Fluttertoast.showToast(
+                                                      msg: 'Aucune connexion internet, désolé',
+                                                      toastLength: Toast.LENGTH_LONG,
+                                                      gravity: ToastGravity.CENTER,
+                                                      timeInSecForIosWeb: 1,
+                                                      backgroundColor: colorError,
+                                                      textColor: Colors.white,
+                                                      fontSize: 16.0
+                                                  );
+                                                }
+
+                                              }
+
+                                            },
+                                            child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                            style: raisedButtonStyle,
+                                          )
+                                        ]));
+                              }
                               return Column(
                                 children: <Widget>[
                                   Expanded(
@@ -359,121 +492,10 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                 ],
                               );
                             }
-                            return Column(children: <Widget>[
-                                  Expanded(
-                                    child: ListView.builder(
-                                    itemCount: 2,
-                                    itemBuilder: (context, index) {
-                                      return loadDataSkeletonOfDeals(context);
-                                      },
-                                    ),
-                                  )
-                            ]);
-                          } else if(!loadingFull && isError && dealsFull.length == 0) {
-                              return isErrorSubscribe(context);
-                          } else {
-                            var populaireActu = dealsFull;
-                            if (populaireActu[0][choiceItemSearch]['body']
-                                .length ==
-                                0) {
-                              return Center(
-                                  child: Column(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        SvgPicture.asset(
-                                          "images/empty.svg",
-                                          semanticsLabel: 'Shouz Pay',
-                                          height:
-                                          MediaQuery.of(context).size.height *
-                                              0.39,
-                                        ),
-                                        Text(
-                                            searchData == "" ? "Aucun Deals Vip pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
-                                            textAlign: TextAlign.center,
-                                            style: Style.sousTitreEvent(15)),
-                                        SizedBox(height: 20),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            if(searchData == "") {
-                                              Navigator.of(context).push((MaterialPageRoute(
-                                                  builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
-                                            } else {
-                                              if(!isError) {
-                                                Navigator.of(context).push((MaterialPageRoute(
-                                                    builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
-                                              } else {
-                                                Fluttertoast.showToast(
-                                                    msg: 'Aucune connexion internet, désolé',
-                                                    toastLength: Toast.LENGTH_LONG,
-                                                    gravity: ToastGravity.CENTER,
-                                                    timeInSecForIosWeb: 1,
-                                                    backgroundColor: colorError,
-                                                    textColor: Colors.white,
-                                                    fontSize: 16.0
-                                                );
-                                              }
-
-                                            }
-
-                                          },
-                                          child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
-                                          style: raisedButtonStyle,
-                                        )
-                                      ]));
-                            }
-                            return Column(
-                              children: <Widget>[
-                                Expanded(
-                                  child: ListView.builder(
-                                    controller: _scrollControllerVip,
-                                    itemCount: populaireActu[0]
-                                    [choiceItemSearch]['body']
-                                        .length,
-                                    itemBuilder: (context, index) {
-                                      return VipDeals(
-                                          level: populaireActu[0]
-                                          [choiceItemSearch]['body']
-                                          [index]['level'],
-                                          video: populaireActu[0]
-                                          [choiceItemSearch]['body']
-                                          [index]['video'],
-                                          imageUrl: populaireActu[0]
-                                          [choiceItemSearch]['body']
-                                          [index]['images'],
-                                          archive: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['archive'],
-                                          title: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['name'],
-                                          favorite: false,
-                                          price: reformatNumberForDisplayOnPrice(populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['price']) + ' XOF',
-                                          numero: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['numero'],
-                                          autor: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['author'],
-                                          authorName: populaireActu[0][choiceItemSearch]['body'][index]['authorName'],
-                                          id: populaireActu[0][choiceItemSearch]
-                                          ['body'][index]['_id'],
-                                          profil: populaireActu[0][choiceItemSearch]['body'][index]['profil'],
-                                          categorieName: populaireActu[0][choiceItemSearch]['body'][index]['categorieName'],
-                                          onLine: populaireActu[0][choiceItemSearch]['body'][index]['onLine'],
-                                          describe: populaireActu[0][choiceItemSearch]['body'][index]['describe'],
-                                          numberFavorite: populaireActu[0][choiceItemSearch]['body'][index]['numberFavorite'],
-                                          lieu: populaireActu[0][choiceItemSearch]['body'][index]['lieu'],
-                                          registerDate: populaireActu[0][choiceItemSearch]['body'][index]['registerDate'],
-                                          approved: populaireActu[0][choiceItemSearch]['body'][index]['approved'],
-                                          quantity: populaireActu[0][choiceItemSearch]['body'][index]['quantity']);
-                                    },
-                                  ),
-                                )
-                              ],
-                            );
-                          }
 
                           }
 
-                        )
+                          )
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyRecent,
@@ -483,6 +505,107 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                               if(dealsFull.length > 0 && dealsFull[1][choiceItemSearch]['body'].length > 0) {
                                 var populaireActu = dealsFull;
                                 return Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: MasonryGridView.count(
+                                        controller: _scrollControllerRecent,
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10,
+                                        padding: EdgeInsets.all(10.0),
+                                        itemCount: populaireActu[1]
+                                        [choiceItemSearch]['body']
+                                            .length,
+                                        itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                            level: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['level'],
+                                            video: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['video'],
+                                            imageUrl: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['images'],
+                                            archive: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['archive'],
+                                            title: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['name'],
+                                            favorite: false,
+                                            price: reformatNumberForDisplayOnPrice(populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['price']) + ' XOF',
+                                            numero: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['numero'],
+                                            autor: populaireActu[1][choiceItemSearch]
+                                            ['body'][index]['author'],
+                                            authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
+                                            categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
+                                            id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
+                                            profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
+                                            onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
+                                            describe: populaireActu[1][choiceItemSearch]['body'][index]['describe'],
+                                            numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
+                                            lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
+                                            registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
+                                            approved: populaireActu[1][choiceItemSearch]['body'][index]['approved'],
+                                            quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
+
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                              return Column(children: <Widget>[
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: 2,
+                                    itemBuilder: (context, index) {
+                                      return loadDataSkeletonOfDeals(context);
+                                    },
+                                  ),
+                                )
+                              ]);
+                            } else if(!loadingFull && isError && dealsFull.length == 0) {
+                              return isErrorSubscribe(context);
+                            } else {
+                              var populaireActu = dealsFull;
+                              if (populaireActu[1][choiceItemSearch]['body']
+                                  .length ==
+                                  0) {
+                                return Center(
+                                    child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          SvgPicture.asset(
+                                            "images/empty.svg",
+                                            semanticsLabel: 'Shouz Pay',
+                                            height:
+                                            MediaQuery.of(context).size.height *
+                                                0.39,
+                                          ),
+                                          Text(
+                                              searchData == "" ? "Aucun Deals Récents pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
+                                              textAlign: TextAlign.center,
+                                              style: Style.sousTitreEvent(15)),
+                                          SizedBox(height: 20),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if(searchData == "") {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                              } else {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+
+                                              }
+
+                                            },
+                                            child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                            style: raisedButtonStyle,
+                                          )
+                                        ]));
+                              }
+                              return Column(
                                 children: <Widget>[
                                   Expanded(
                                     child: MasonryGridView.count(
@@ -530,110 +653,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                 ],
-                                  );
-                              }
-                              return Column(children: <Widget>[
-                                Expanded(
-                                  child: ListView.builder(
-                                    itemCount: 2,
-                                    itemBuilder: (context, index) {
-                                      return loadDataSkeletonOfDeals(context);
-                                    },
-                                  ),
-                                )
-                              ]);
-                            } else if(!loadingFull && isError && dealsFull.length == 0) {
-                              return isErrorSubscribe(context);
-                            } else {
-                              var populaireActu = dealsFull;
-                                    if (populaireActu[1][choiceItemSearch]['body']
-                                        .length ==
-                                        0) {
-                                      return Center(
-                                          child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                SvgPicture.asset(
-                                                  "images/empty.svg",
-                                                  semanticsLabel: 'Shouz Pay',
-                                                  height:
-                                                  MediaQuery.of(context).size.height *
-                                                      0.39,
-                                                ),
-                                                Text(
-                                                    searchData == "" ? "Aucun Deals Récents pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
-                                                    textAlign: TextAlign.center,
-                                                    style: Style.sousTitreEvent(15)),
-                                                SizedBox(height: 20),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    if(searchData == "") {
-                                                      Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
-                                                    } else {
-                                                      Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
-
-                                                    }
-
-                                                  },
-                                                  child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
-                                                  style: raisedButtonStyle,
-                                                )
-                                              ]));
-                                    }
-                                    return Column(
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: MasonryGridView.count(
-                                            controller: _scrollControllerRecent,
-                                            crossAxisCount: 2,
-                                            mainAxisSpacing: 10,
-                                            crossAxisSpacing: 10,
-                                            padding: EdgeInsets.all(10.0),
-                                            itemCount: populaireActu[1]
-                                            [choiceItemSearch]['body']
-                                                .length,
-                                            itemBuilder: (BuildContext context, int index) => PopulaireDeals(
-                                                level: populaireActu[1]
-                                                [choiceItemSearch]['body']
-                                                [index]['level'],
-                                                video: populaireActu[1]
-                                                [choiceItemSearch]['body']
-                                                [index]['video'],
-                                                imageUrl: populaireActu[1]
-                                                [choiceItemSearch]['body']
-                                                [index]['images'],
-                                                archive: populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['archive'],
-                                                title: populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['name'],
-                                                favorite: false,
-                                                price: reformatNumberForDisplayOnPrice(populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['price']) + ' XOF',
-                                                numero: populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['numero'],
-                                                autor: populaireActu[1][choiceItemSearch]
-                                                ['body'][index]['author'],
-                                                authorName: populaireActu[1][choiceItemSearch]['body'][index]['authorName'],
-                                                categorieName: populaireActu[1][choiceItemSearch]['body'][index]['categorieName'],
-                                                id: populaireActu[1][choiceItemSearch]['body'][index]['_id'],
-                                                profil: populaireActu[1][choiceItemSearch]['body'][index]['profil'],
-                                                onLine: populaireActu[1][choiceItemSearch]['body'][index]['onLine'],
-                                                describe: populaireActu[1][choiceItemSearch]['body'][index]['describe'],
-                                                numberFavorite: populaireActu[1][choiceItemSearch]['body'][index]['numberFavorite'],
-                                                lieu: populaireActu[1][choiceItemSearch]['body'][index]['lieu'],
-                                                registerDate: populaireActu[1][choiceItemSearch]['body'][index]['registerDate'],
-                                                approved: populaireActu[1][choiceItemSearch]['body'][index]['approved'],
-                                                quantity: populaireActu[1][choiceItemSearch]['body'][index]['quantity']),
-
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                }
-                              })
+                              );
+                            }
+                          })
                       ),
                       RefreshIndicator(
                           key: _refreshIndicatorKeyPopular,
@@ -706,112 +728,98 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                               return isErrorSubscribe(context);
                             } else {
                               var populaireActu = dealsFull;
-                                    if (populaireActu[2][choiceItemSearch]['body']
-                                        .length ==
-                                        0) {
-                                      return Center(
-                                          child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                SvgPicture.asset(
-                                                  "images/empty.svg",
-                                                  semanticsLabel: 'Shouz Pay',
-                                                  height:
-                                                  MediaQuery.of(context).size.height *
-                                                      0.39,
-                                                ),
-                                                Text(
-                                                    searchData == "" ? "Aucun Deals Populaire pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
-                                                    textAlign: TextAlign.center,
-                                                    style: Style.sousTitreEvent(15)),
-                                                SizedBox(height: 20),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    if(searchData == "") {
-                                                      Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
-                                                    } else {
-                                                      Navigator.of(context).push((MaterialPageRoute(
-                                                          builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
-                                                    }
-
-                                                  },
-                                                  child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
-                                                  style: raisedButtonStyle,
-                                                )
-                                              ]));
-                                    }
-                                    return Column(
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: MasonryGridView.count(
-                                            controller: _scrollControllerPopulaire,
-                                            crossAxisCount: 2,
-                                            mainAxisSpacing: 10,
-                                            crossAxisSpacing: 10,
-                                            padding: EdgeInsets.all(10.0),
-                                            itemCount: populaireActu[2]
-                                            [choiceItemSearch]['body']
-                                                .length,
-                                            itemBuilder: (BuildContext context, int index) => PopulaireDeals(
-                                                level: populaireActu[2]
-                                                [choiceItemSearch]['body']
-                                                [index]['level'],
-                                                video: populaireActu[2]
-                                                [choiceItemSearch]['body']
-                                                [index]['video'],
-                                                imageUrl: populaireActu[2]
-                                                [choiceItemSearch]['body']
-                                                [index]['images'],
-                                                archive: populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['archive'],
-                                                title: populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['name'],
-                                                favorite: false,
-                                                price: reformatNumberForDisplayOnPrice(populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['price']) + ' XOF',
-                                                numero: populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['numero'],
-                                                autor: populaireActu[2][choiceItemSearch]
-                                                ['body'][index]['author'],
-                                                authorName: populaireActu[2][choiceItemSearch]['body'][index]['authorName'],
-                                                categorieName: populaireActu[2][choiceItemSearch]['body'][index]['categorieName'],
-                                                id: populaireActu[2][choiceItemSearch]['body'][index]['_id'],
-                                                profil: populaireActu[2][choiceItemSearch]['body'][index]['profil'],
-                                                onLine: populaireActu[2][choiceItemSearch]['body'][index]['onLine'],
-                                                describe: populaireActu[2][choiceItemSearch]['body'][index]['describe'],
-                                                numberFavorite: populaireActu[2][choiceItemSearch]['body'][index]['numberFavorite'],
-                                                lieu: populaireActu[2][choiceItemSearch]['body'][index]['lieu'],
-                                                registerDate: populaireActu[2][choiceItemSearch]['body'][index]['registerDate'],
-                                                approved: populaireActu[2][choiceItemSearch]['body'][index]['approved'],
-                                                quantity: populaireActu[2][choiceItemSearch]['body'][index]['quantity']),
-
+                              if (populaireActu[2][choiceItemSearch]['body']
+                                  .length ==
+                                  0) {
+                                return Center(
+                                    child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          SvgPicture.asset(
+                                            "images/empty.svg",
+                                            semanticsLabel: 'Shouz Pay',
+                                            height:
+                                            MediaQuery.of(context).size.height *
+                                                0.39,
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                }
-                              })
+                                          Text(
+                                              searchData == "" ? "Aucun Deals Populaire pour le moment selon vos centres d'intérêts": "Aucun resultat trouvé pour \"$searchData\" dans la recherche directe.\nVous pouvez lancer une recherche avancée",
+                                              textAlign: TextAlign.center,
+                                              style: Style.sousTitreEvent(15)),
+                                          SizedBox(height: 20),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if(searchData == "") {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey(),))));
+                                              } else {
+                                                Navigator.of(context).push((MaterialPageRoute(
+                                                    builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                                              }
+
+                                            },
+                                            child: Text(searchData == "" ? 'Ajouter Préférence': 'Lancer la recherche avancée'),
+                                            style: raisedButtonStyle,
+                                          )
+                                        ]));
+                              }
+                              return Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: MasonryGridView.count(
+                                      controller: _scrollControllerPopulaire,
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      padding: EdgeInsets.all(10.0),
+                                      itemCount: populaireActu[2]
+                                      [choiceItemSearch]['body']
+                                          .length,
+                                      itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                          level: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['level'],
+                                          video: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['video'],
+                                          imageUrl: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['images'],
+                                          archive: populaireActu[2][choiceItemSearch]
+                                          ['body'][index]['archive'],
+                                          title: populaireActu[2][choiceItemSearch]
+                                          ['body'][index]['name'],
+                                          favorite: false,
+                                          price: reformatNumberForDisplayOnPrice(populaireActu[2][choiceItemSearch]
+                                          ['body'][index]['price']) + ' XOF',
+                                          numero: populaireActu[2][choiceItemSearch]
+                                          ['body'][index]['numero'],
+                                          autor: populaireActu[2][choiceItemSearch]
+                                          ['body'][index]['author'],
+                                          authorName: populaireActu[2][choiceItemSearch]['body'][index]['authorName'],
+                                          categorieName: populaireActu[2][choiceItemSearch]['body'][index]['categorieName'],
+                                          id: populaireActu[2][choiceItemSearch]['body'][index]['_id'],
+                                          profil: populaireActu[2][choiceItemSearch]['body'][index]['profil'],
+                                          onLine: populaireActu[2][choiceItemSearch]['body'][index]['onLine'],
+                                          describe: populaireActu[2][choiceItemSearch]['body'][index]['describe'],
+                                          numberFavorite: populaireActu[2][choiceItemSearch]['body'][index]['numberFavorite'],
+                                          lieu: populaireActu[2][choiceItemSearch]['body'][index]['lieu'],
+                                          registerDate: populaireActu[2][choiceItemSearch]['body'][index]['registerDate'],
+                                          approved: populaireActu[2][choiceItemSearch]['body'][index]['approved'],
+                                          quantity: populaireActu[2][choiceItemSearch]['body'][index]['quantity']),
+
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                          })
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
-            Positioned(
-              bottom: 16.0,
-              right: 16.0,
-              child: FloatingActionButton(
-                elevation: 20.0,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (builder) => CreateDeals()),
-                  );
-                },
-                backgroundColor: colorText,
-                child: Icon(Icons.add, color: Colors.white, size: 22.0),
-              ),
             ),
 
             if(loadMinim) Positioned(
@@ -832,6 +840,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 ))
           ],
         ),
+      ),
     );
   }
 

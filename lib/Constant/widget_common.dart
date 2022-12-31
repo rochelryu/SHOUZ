@@ -1212,3 +1212,24 @@ CachedNetworkImage buildImageInCachedNetworkSimpleWithSizeAuto(String urlImage,B
       ));
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
+
+Widget customSwitch(bool value, callback) {
+  if(Platform.isIOS) {
+    return CupertinoSwitch(
+      value: value,
+      activeColor: colorText,
+      onChanged: (bool value) {
+        callback();
+      },
+    );
+  }
+  else {
+    return Switch(
+      value: value,
+      activeColor: colorText,
+      onChanged: (bool value) {
+        callback();
+      },
+    );
+  }
+}
