@@ -28,8 +28,9 @@ class SearchAdvancedDeals extends StatefulWidget {
   String id;
   bool displayProfilAuthor;
   var approved;
+  var comments;
   List<String> PersonneLike = [];
-  SearchAdvancedDeals({this.imageUrl, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video, this.approved});
+  SearchAdvancedDeals({this.imageUrl,this.comments, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video, this.approved});
   @override
   _SearchAdvancedDealsState createState() => _SearchAdvancedDealsState();
 }
@@ -68,6 +69,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
                       DealsSkeletonData item = DealsSkeletonData(
+                          comments: widget.comments,
                         level: widget.level,
                         video: widget.video,
                         quantity: widget.quantity,
@@ -138,6 +140,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   Navigator.of(context)
                       .push((MaterialPageRoute(builder: (context) {
                     DealsSkeletonData item = DealsSkeletonData(
+                        comments: widget.comments,
                       level: widget.level,
                       video: widget.video,
                       quantity: widget.quantity,
@@ -166,7 +169,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   children: <Widget>[
                     Padding(
                         padding: EdgeInsets.only(left: 5.0, top: 8.0, right: 3.0),
-                        child:Text(widget.title, style: Style.titleDealsProduct())),
+                        child:Text(widget.title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis,)),
                     SizedBox(height: 15),
                     Padding(
                       padding: EdgeInsets.only(left: 5.0),
@@ -301,6 +304,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                     Navigator.of(context)
                         .push((MaterialPageRoute(builder: (context) {
                       DealsSkeletonData item = DealsSkeletonData(
+                          comments: widget.comments,
                         level: widget.level,
                         video: widget.video,
                         quantity: widget.quantity,
@@ -343,6 +347,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                   Navigator.of(context)
                       .push((MaterialPageRoute(builder: (context) {
                     DealsSkeletonData item = DealsSkeletonData(
+                        comments: widget.comments,
                       level: widget.level,
                       video: widget.video,
                       quantity: widget.quantity,
@@ -371,7 +376,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                     Padding(
                         padding: EdgeInsets.only(left: 5.0, top: 8.0),
                         child:
-                        Text(widget.title, style: Style.titleDealsProduct())),
+                        Text(widget.title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis)),
                     SizedBox(height: 15),
                     Padding(
                       padding: EdgeInsets.only(left: 5.0),

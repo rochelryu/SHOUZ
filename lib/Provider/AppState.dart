@@ -20,8 +20,8 @@ class AppState with ChangeNotifier {
   String idVoyage = '';
   int maxPlace = 0;
   double percentageRecharge = 0.0;
-  int amountTvaWithdraw = 300;
-  int indexBottomBar = new Random().nextInt(3);
+  int amountTvaWithdraw = 200;
+  int indexBottomBar = 1;//new Random().nextInt(3);
   String idOldConversation = '';
   String priceVoyageTotal = '';
   String forfaitEventEnum = "NOT FORFAIT";
@@ -307,6 +307,28 @@ class AppState with ChangeNotifier {
       await initializeSocket();
     }
     _socket!.emit("message", [jsonData]);
+    notifyListeners();
+  }
+
+  void refreshChatMessage(
+      {required String room,
+        required String id,
+        String imageName = '',
+        String base64 = '',
+        String content = ''}) async {
+    User newClient = await DBProvider.db.getClient();
+    final jsonData = {
+      "content": content,
+      "ident": newClient.ident,
+      "room": room,
+      "base64": base64,
+      "image": imageName,
+      "id": id
+    };
+    if (_socket == null) {
+      await initializeSocket();
+    }
+    _socket!.emit("refreshMessage", [jsonData]);
     notifyListeners();
   }
 

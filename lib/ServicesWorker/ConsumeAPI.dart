@@ -85,6 +85,7 @@ class ConsumeAPI {
   static final SET_ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
   static final SET_RENEW_DEALS_URL = BASE_URL + "/products/renew";
   static final SET_UP_VIP_DEALS_URL = BASE_URL + "/products/setUpVipProduct";
+  static final POST_FILE_IN_CONVERSATION_URL = BASE_URL + "/products/postFileInConversation";
   static final GET_DETAILS_URL = BASE_URL + "/products/getDetailsOfProduct";
   static final GET_DETAILS_DEALS_FOR_LINK_URL = BASE_URL + "/products/getDetailsProductForLink";
   static final GET_SEARCH_ADVANCED_PRODUCTS_URL = BASE_URL + "/products/searchAdvancedProducts";
@@ -96,6 +97,8 @@ class ConsumeAPI {
 
 
   static final GET_TRAVEL_URL = BASE_URL + "/travel/getTravel";
+  static final GET_PROPOSITION_AUTO_COMPLETE_URL = BASE_URL + "/travel/getPropositionAutoCompleteAddress";
+  static final GET_ITINERAIRE_URL = BASE_URL + "/travel/getItineraire";
   static final VERIFY_ELIGBLE_FOR_CREATE_TRAVEL_URL = BASE_URL + "/travel/verifyIfEligible";
   static final DETAILS_TRAVEL_URL = BASE_URL + "/travel/detailsTravel";
   static final GET_ALL_TRAVEL_WHEN_VERIFY_SCAN_URL = BASE_URL + "/travel/getAllTravelWhenVerifyScan";
@@ -656,6 +659,24 @@ class ConsumeAPI {
     return res;
   }
 
+  postFileOfConversation(String content, String room,String base64, String imageName,String id ) async {
+    User newClient = await DBProvider.db.getClient();
+
+    final body = {
+      "content": content.trim(),
+      "ident": newClient.ident,
+      "room": room.trim(),
+      "base64": base64.trim(),
+      "image": imageName.trim(),
+      "id": id.trim()
+    };
+    return _netUtil.post(POST_FILE_IN_CONVERSATION_URL, body: body).then((dynamic res) async {
+
+      return res;
+
+    });
+  }
+
 
 
   List<dynamic> updateDealFullForFutur(List<dynamic> dealFullForFutur) {
@@ -675,23 +696,22 @@ class ConsumeAPI {
       String price,
       String quantity, [String videoProduct = "", String videoProductBase64 = ""]) async {
     User newClient = await DBProvider.db.getClient();
-    print("$videoProduct ${videoProductBase64.length}");
     final body = {
       'id': newClient.ident,
       'recovery': newClient.recovery,
       'author': newClient.ident,
-      'name': name,
-      'describe': describe,
-      'numero': number,
-      'imagesTitles': imagesTitles,
-      'imagesBuffers': imagesBuffers,
-      'lieu': lieu,
-      'categorie': categorie,
-      'price': price,
-      'quantity': quantity,
+      'name': name.trim(),
+      'describe': describe.trim(),
+      'numero': number.trim(),
+      'imagesTitles': imagesTitles.trim(),
+      'imagesBuffers': imagesBuffers.trim(),
+      'lieu': lieu.trim(),
+      'categorie': categorie.trim(),
+      'price': price.trim(),
+      'quantity': quantity.trim(),
       'level': level.toString(),
-      'videoProduct': videoProduct,
-      'videoProductBase64': videoProductBase64,
+      'videoProduct': videoProduct.trim(),
+      'videoProductBase64': videoProductBase64.trim(),
     };
     return _netUtil.post(SET_DEALS_URL, body: body).then((dynamic res) async {
 
@@ -1102,6 +1122,20 @@ class ConsumeAPI {
     return res;
   }
 
+  Future<List<dynamic>> getAutoComplete(String search) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_PROPOSITION_AUTO_COMPLETE_URL/${newClient.ident}?address=${search.trim()}');
+    return res;
+  }
+
+  Future<Map<String, dynamic>> getItineraire(double longitudeOrigin,double latitudeOrigin,double longitudeDestinate,double latitudeDestinate) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_ITINERAIRE_URL/${newClient.ident}?longitudeOrigin=$longitudeOrigin&latitudeOrigin=$latitudeOrigin&longitudeDestinate=$longitudeDestinate&latitudeDestinate=$latitudeDestinate');
+    return res;
+  }
+
   Future<Map<dynamic, dynamic>> getAllTravelFor() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$GET_ALL_TRAVEL_WHEN_VERIFY_SCAN_URL/${newClient.ident}?credentials=${newClient.recovery}');
@@ -1249,6 +1283,8 @@ class ConsumeAPI {
 
     });
   }
+
+
 
   decodeTicketTravelByNumero( String travelId, String numberClient) async {
     User newClient = await DBProvider.db.getClient();

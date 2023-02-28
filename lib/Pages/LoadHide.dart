@@ -9,6 +9,7 @@ import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 
+import '../Constant/helper.dart';
 import 'ChatDetails.dart';
 import 'DetailsActu.dart';
 
@@ -54,6 +55,7 @@ class _LoadChatState extends State<LoadChat> {
     final appState = Provider.of<AppState>(context, listen: false);
     try {
       appState.setJoinConnected(user.ident);
+      await getTokenForNotificationProvider(true);
     } catch (e) {
       print(e);
     }
@@ -169,7 +171,9 @@ class _LoadEventState extends State<LoadEvent> {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getDetailsForEvent(widget.eventId);
     if(data['etat'] == 'found') {
-
+      if (newClient.numero != 'null') {
+        await getTokenForNotificationProvider(true);
+      }
       final item = data['result'];
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (builder) => EventDetails(
@@ -231,7 +235,11 @@ class _LoadNewState extends State<LoadNew> {
   Future loadInfo() async {
     final data = await consumeAPI.getActualitiesDetailsById(widget.actualityId);
     if(data['etat'] == 'found') {
+      User user = await DBProvider.db.getClient();
       final item = data['result'];
+      if (user.numero != 'null') {
+        await getTokenForNotificationProvider(true);
+      }
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (BuildContext context) => DetailsActu(
             comeBack: 1,
@@ -284,7 +292,9 @@ class _LoadProductState extends State<LoadProduct> {
     final appState = Provider.of<AppState>(context, listen: false);
     try {
       if(user.numero != "null") {
+
         appState.setJoinConnected(user.ident);
+        await getTokenForNotificationProvider(true);
       }
     } catch (e) {
       print(e);
@@ -294,6 +304,7 @@ class _LoadProductState extends State<LoadProduct> {
       Navigator.of(context)
           .pushAndRemoveUntil(MaterialPageRoute(builder: (context) {
         DealsSkeletonData item = DealsSkeletonData(
+          comments: productInfo['result']['comments'],
           video: productInfo['result']['video'],
           level: productInfo['result']['level'],
           quantity: productInfo['result']['quantity'],
@@ -304,7 +315,7 @@ class _LoadProductState extends State<LoadProduct> {
           profil: productInfo['result']['profil'],
           imageUrl: productInfo['result']['images'],
           title: productInfo['result']['name'],
-          price: productInfo['result']['price'],
+          price: "${productInfo['result']['price'].toString()} ${user.numero != "null" ? user.currencies: ""}",
           autor: productInfo['result']['author'],
           numero: productInfo['result']['numero'],
           describe: productInfo['result']['describe'],

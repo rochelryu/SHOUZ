@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart'  as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Pages/Covoiturage.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
@@ -16,8 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import './Constant/my_flutter_app_second_icons.dart' as prefix1;
 import './Pages/Actualite.dart';
-import './Pages/Covoiturage.dart';
-import './Pages/Deals.dart';
+
 import './Pages/EventInter.dart';
 import './Pages/Notifications.dart';
 import './Pages/Profil.dart';
@@ -49,6 +49,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
   User? newClient;
+  int logged = 0;
   late String statusPermission;
   List<Widget> menus = [
     Actualite(),
@@ -56,9 +57,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
       key: UniqueKey(),
     ),
     EventInter(),
+    //Covoiturage()
     NotAvailable(
       key: UniqueKey(),
-    )
+    ),
   ];
   List<String> titleDomain = [
     'Actualité',
@@ -90,8 +92,13 @@ class _MenuDrawlerState extends State<MenuDrawler>
         newClient = user;
         id = newClient!.ident;
       });
-      await getTokenForNotificationProvider();
     }
+    else {
+      setState(() {
+        logged = -1;
+      });
+    }
+
     try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
@@ -141,7 +148,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
         } else {
           if (Platform.isAndroid) {
             if (await isHms()) {
-              if ("1.0.22" != getLatestVersionApp['appGallery']) {
+              if ("1.0.24" != getLatestVersionApp['appGallery']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
@@ -152,7 +159,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     mode: LaunchMode.externalApplication);
               }
             } else {
-              if ("1.0.22" != getLatestVersionApp['playstore']) {
+              if ("1.0.24" != getLatestVersionApp['playstore']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
@@ -164,7 +171,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
               }
             }
           } else {
-            if ("1.0.22" != getLatestVersionApp['appleStore']) {
+            if ("1.0.24" != getLatestVersionApp['appleStore']) {
               await prefs.setString(
                   'versionning', jsonEncode(getLatestVersionApp));
               await modalForExplain(
@@ -406,9 +413,9 @@ class _MenuDrawlerState extends State<MenuDrawler>
             title: Text(titleDomain[appState.getIndexBottomBar]),
             centerTitle: true,
             actions: [
-              Badge(
-                  position: BadgePosition(top: 0, start: 0),
-                  badgeColor: colorText,
+              if(newClient != null) badges.Badge(
+                  position: badges.BadgePosition.topStart(top: 0, start: 0),
+                  badgeStyle: badges.BadgeStyle(badgeColor: colorText,),
                   badgeContent: Text(
                     numberNotif.toString(),
                     style: TextStyle(color: Colors.white),
@@ -416,23 +423,37 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   showBadge: numberNotif != 0,
                   child: IconButton(
                       onPressed: () async {
-                        if (newClient != null && newClient!.numero != "null") {
-                          Navigator.of(context).push((MaterialPageRoute(
-                              builder: (context) => Notifications())));
-                        } else {
-                          await modalForExplain(
-                              "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-                              "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
-                              context,
-                              true);
-                          Navigator.pushNamed(context, Login.rootName);
-                        }
+                        Navigator.of(context).push((MaterialPageRoute(
+                            builder: (context) => Notifications())));
                       },
                       icon: Icon(
                           numberNotif > 0
                               ? Icons.notifications_active
                               : Icons.notifications_none,
-                          color: Colors.white))),
+                          color: Colors.white, size: 25,))),
+              if(logged == -1 ) Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: badges.Badge(
+                      position: badges.BadgePosition.topStart(top: 0, start: 0),
+                      badgeStyle: badges.BadgeStyle(badgeColor: colorError,shape: badges.BadgeShape.twitter),
+                      badgeContent: Text(
+                        ' ! ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+
+                      child: IconButton(
+                          onPressed: () async {
+                            await modalForExplain(
+                                "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                "Nous allons créer votre compte ensemble et vous allez commencer à avoir accès à tous les avantages de SHOUZ.",
+                                context,
+                                true);
+                            Navigator.pushNamed(context, Login.rootName);
+                          },
+                          icon: Icon(Icons.account_circle_outlined,
+                            color: Colors.white, size: 30,))),
+              ),
+
             ],
           ),
           body: menus[appState.getIndexBottomBar],

@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
+import 'Utils/Database.dart';
+import 'Utils/network_util.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +49,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-
+  HttpOverrides.global = new MyHttpOverrides();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -77,6 +79,7 @@ void main() async {
     badge: true,
     sound: true,
   );
+
   final _messaging = FirebaseMessaging.instance;
 
   await _messaging.requestPermission(
@@ -146,7 +149,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
     final dataString = remoteMessage.data ?? "";
     final data = jsonDecode(dataString);
-    if (mounted) {
       if (data['room'] != null) {
         if (appState?.getIdOldConversation != data['_id'] ||
             appState?.getIdOldConversation == '') {
@@ -157,11 +159,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
         huaweiMessagingBackgroundHandler(data);
       }
-    }
   }
 
   void _onHmsMessageReceiveError(Object error) {
-    print("error message _onHmsMessageReceiveError");
     print(error);
   }
 
@@ -233,6 +233,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } else {
       if (Platform.isAndroid) {
         if (await isHms()) {
+
           huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived,
               onError: _onHmsMessageReceiveError);
         } else {
@@ -275,6 +276,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Future getNewLevel() async {
     try {
       int levelLocal = await getLevel();
+      User user = await DBProvider.db.getClient();
+      if (user.numero != 'null') {
+        await getTokenForNotificationProvider(true);
+      }
       setState(() {
         level = levelLocal;
       });

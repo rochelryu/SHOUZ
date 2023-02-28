@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -184,9 +184,9 @@ class _DetailsActuState extends State<DetailsActu> {
                 bottom: 30.0,
                 child: FloatingActionButton(
                   backgroundColor: colorText,
-                  child: Badge(
-                    position: BadgePosition(top: -23, end: -15),
-                    badgeColor: colorPrimary,
+                  child: badges.Badge(
+                    position: badges.BadgePosition.topEnd(top: -23, end: -15),
+                    badgeStyle: badges.BadgeStyle(badgeColor: colorPrimary,),
                     badgeContent: Text(
                       widget.comment.length.toString(),
                       style: TextStyle(color: backgroundColor),

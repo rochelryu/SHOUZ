@@ -15,6 +15,7 @@ import '../MenuDrawler.dart';
 import '../Models/User.dart';
 import '../Pages/share_ticket.dart';
 import '../Pages/ticket_detail.dart';
+import '../Pages/view_picture.dart';
 import '../Provider/Audio.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import 'Style.dart';
@@ -1114,12 +1115,20 @@ Widget boxMessage({
                         topLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
-                      child: image.indexOf('.m4a') == -1 ? CachedNetworkImage(
-                        imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
-                        progressIndicatorBuilder: (context, url, downloadProgress) =>
-                            Center(
-                                child: CircularProgressIndicator(value: downloadProgress.progress)),
-                        errorWidget: (context, url, error) => notSignal(),
+                      child: image.indexOf('.m4a') == -1 ? GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => ViewPicture(key: UniqueKey(), linkPicture: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",)));
+                        },
+                        child: CachedNetworkImage(
+                          imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
+                          progressIndicatorBuilder: (context, url, downloadProgress) =>
+                              Center(
+                                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+                          errorWidget: (context, url, error) => notSignal(),
+                        ),
                       ): LoadAudioAsset(
                         url:
                         "${ConsumeAPI.AssetConversationServer}$idDocument/$image",

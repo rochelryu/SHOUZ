@@ -60,7 +60,13 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
   bool firstItemOpen = false;
   bool secondItemOpen = false;
   List<LatLng> global = [];
+  List<dynamic> originItems = [];
+  List<double> originChoice = [];//long,lat
+  List<dynamic> destinateItmens = [];
+  List<double> destinateChoice = [];//long,lat
   String origine = '';
+  double distance = 0;
+  double duration = 0;
   String destination = '';
   late Location location;
   LocationData? locationData;
@@ -92,7 +98,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
     super.initState();
     _controller = TabController(length: 3, vsync: this);
     location = Location();
-    _initialCameraPosition = mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(centerPositionLatitude, centerPositionLongitude), zoom: 15);
+    _initialCameraPosition = mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(centerPositionLatitude, centerPositionLongitude), zoom: 7);
     internetCheck();
     getExplainCovoiturageMethod();
     verifyIfUserHaveReadModalExplain();
@@ -216,7 +222,6 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
 
   cityFromCoord() async {
     try{
-
       setState(() {
         centerPositionLongitude = locationData!.longitude!;
         centerPositionLatitude = locationData!.latitude!;
@@ -562,6 +567,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
       try {
         _permissionGranted = await location.hasPermission();
         if (_permissionGranted == PermissionStatus.denied) {
+
           final resultPermission = await location.requestPermission();
 
           if (resultPermission != PermissionStatus.granted) {
@@ -648,9 +654,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
             }
           }
         } else {
-          print('permission accordé');
           _serviceEnabled = await location.serviceEnabled();
-          print('_serviceEnabled $_serviceEnabled');
           if (!_serviceEnabled) {
             _serviceEnabled = await location.requestService();
             if (!_serviceEnabled) {
@@ -691,7 +695,6 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
               await cityFromCoord();
             }
           } else {
-
             var test = await location.getLocation();
             if (test.latitude == null) {
               setState(() {
@@ -721,6 +724,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
               setState(() {
                 locationData = test;
               });
+
             }
             await cityFromCoord();
           }
@@ -733,55 +737,14 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
   }
 
   _addSourceAndLineLayer() async {
-
+    final getItineraire = await consumeAPI.getItineraire(originChoice[0], originChoice[1], destinateChoice[0], destinateChoice[1]);
     // Add a polyLine between source and destination
+    setState(() {
+      distance = (getItineraire['distance']/1000);
+      duration = getItineraire['duration'];
+    });
     Map geometry = {
-      "coordinates": [
-        [
-          -3.940271,
-          5.389718
-        ],
-        [
-          -3.940548,
-          5.389801
-        ],
-        [
-          -3.940261,
-          5.39143
-        ],
-        [
-          -3.939468,
-          5.397476
-        ],
-        [
-          -3.956363,
-          5.399841
-        ],
-        [
-          -3.956287,
-          5.400379
-        ],
-        [
-          -3.956603,
-          5.400422
-        ],
-        [
-          -3.956535,
-          5.400886
-        ],
-        [
-          -3.95731,
-          5.40099
-        ],
-        [
-          -3.957272,
-          5.401197
-        ],
-        [
-          -3.957527,
-          5.401233
-        ]
-      ],
+      "coordinates": getItineraire['coordinates'],
       "type": "LineString"
     };
     final _fills = {
@@ -800,8 +763,12 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
       await controller.removeLayer("lines");
       await controller.removeSource("fills");
 
+      await controller.removeLayer("times");
+      await controller.removeSource("times");
+
     // Add new source and lineLayer
     await controller.addSource("fills", mapbox_gl.GeojsonSourceProperties(data: _fills));
+
     await controller.addLineLayer(
         "fills",
         "lines",
@@ -810,6 +777,29 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
             lineCap: "round",
             lineJoin: "round",
             lineWidth: 5));
+
+    await controller.addSymbolLayer(
+      "times",
+      "vehicles",
+      mapbox_gl.SymbolLayerProperties(
+        textField: "${getItineraire['distance']/1000} Km / ${formatedTime(seconds: getItineraire['duration'])}",
+      ),
+    );
+
+    Map<String, dynamic> featureCollection = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": getItineraire['coordinates'][getItineraire['coordinates'].length - 1],
+          }
+        }
+      ]
+    };
+
+    await controller.addGeoJsonSource("times", featureCollection);
     setState(() {
       showBottom = true;
     });
@@ -890,9 +880,8 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
               bottom: 56,
                 left: 10,
                 child: GestureDetector(
-                  onTap: (){
-                    controller.animateCamera(
-                        mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(centerPositionLatitude, centerPositionLongitude), zoom: 17)));
+                  onTap: () async {
+                    await getPositionCurrent();
                   },
                   child: Card(
                     elevation: 7,
@@ -996,15 +985,27 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                                       color: Colors.grey[800],
                                       fontSize: 12.0),
                                 ),
-                                onChanged: (text) {
+                                onChanged: (text) async {
                                   setState(() {
                                     origine = text;
                                   });
+                                  if(origine.length > 4) {
+                                    final itemOriginServer = await consumeAPI.getAutoComplete(origine);
+                                    setState(() {
+                                      originItems = itemOriginServer;
+                                    });
+                                  }
                                 },
-                                onSubmitted: (text) {
+                                onSubmitted: (text) async {
                                   setState(() {
                                     origine = text;
                                   });
+                                  if(origine.length > 4) {
+                                    final itemOriginServer = await consumeAPI.getAutoComplete(origine);
+                                    setState(() {
+                                      originItems = itemOriginServer;
+                                    });
+                                  }
                                 },
                               ),
                             ),
@@ -1051,16 +1052,19 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                                         color: Colors.grey[800],
                                         fontSize: 12.0),
                                   ),
-                                  onChanged: (text) {
+                                  onChanged: (text) async {
                                     setState(() {
                                       destination = text;
                                     });
                                     if(text.length > 3) {
+                                      final itemDestinationServer = await consumeAPI.getAutoComplete(destination);
                                       setState(() {
+                                        destinateItmens = itemDestinationServer;
                                         firstItemOpen = false;
                                         secondItemOpen = true;
                                         showBottom = false;
                                       });
+
                                     }else {
                                       setState(() {
                                         firstItemOpen = false;
@@ -1069,10 +1073,26 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                                       });
                                     }
                                   },
-                                  onSubmitted: (text) {
+                                  onSubmitted: (text) async {
                                     setState(() {
                                       destination = text;
                                     });
+                                    if(text.length > 3) {
+                                      final itemDestinationServer = await consumeAPI.getAutoComplete(destination);
+                                      setState(() {
+                                        destinateItmens = itemDestinationServer;
+                                        firstItemOpen = false;
+                                        secondItemOpen = true;
+                                        showBottom = false;
+                                      });
+
+                                    }else {
+                                      setState(() {
+                                        firstItemOpen = false;
+                                        showBottom = false;
+                                        secondItemOpen = false;
+                                      });
+                                    }
                                   },
                                 ),
                               ),
@@ -1086,77 +1106,109 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                 top: 46.0,
                 right: 32.0,
                 left: 32.0,
+                height: 200,
                 child: Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        onTap: () {
-                          setState(() {
-                            firstItemOpen = false;
-                          });
-                          eCtrl.text = "Position actuelle";
-                          FocusScope.of(context).requestFocus(FocusNode());
+                  child: ListView.builder(
+                      itemCount: originItems.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return ListTile(
+                            onTap: () async {
+                              setState(() {
+                                firstItemOpen = false;
+                              });
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              eCtrl.text = "Position actuelle";
+                              /*await controller.addSymbolLayer(
+                              "scooter25_layer",
+                              "vehicles",
+                              const mapbox_gl.SymbolLayerProperties(
+                              iconImage: "images/marqueur_begin.png",
+                              iconAllowOverlap: true,
+                              ),
+                              );*/
+                              if(locationData != null) {
+                                await controller.addSymbol(
+                                  mapbox_gl.SymbolOptions(
+                                    geometry: mapbox_gl.LatLng(locationData!.latitude!, locationData!.longitude!),
+                                    iconImage: "images/marqueur_begin.png",
+                                    iconSize: 0.3,
+                                  ),
+                                );
+                                originChoice = [locationData!.longitude!, locationData!.latitude!];
+                              }
+                              await getPositionCurrent();
+                              originChoice = [locationData!.longitude!, locationData!.latitude!];
 
-                        },
-                        leading: Icon(Icons.location_searching, color: colorText, size: 20,),
-                        title: Text("Choisir ma position actuelle", style: Style.simpleTextOnBoard(14)),
-                      )
-                    ],
+
+                            },
+                            leading: Icon(Icons.location_searching, color: colorText, size: 20,),
+                            title: Text("Choisir ma position actuelle", style: Style.simpleTextOnBoard(14)),
+                          );
+                        } else {
+                          return ListTile(
+                            onTap: () async {
+                              setState(() {
+                                firstItemOpen = false;
+                              });
+                              eCtrl.text = originItems[index]['title'].trim();
+                              originChoice = [originItems[index+1]['longitude'], originItems[index+1]['latitude']];
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              controller.animateCamera(
+                                  mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']), zoom: 15)));
+                              controller.addSymbol(
+                                mapbox_gl.SymbolOptions(
+                                  geometry: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']),
+                                  iconImage: "images/marqueur_begin.png",
+                                  iconSize: 0.3,
+
+                                ),
+                              );
+                              //await _addSourceAndLineLayer();
+                            },
+                            leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
+                            title: Text(originItems[index+1]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
+                            subtitle: Text(originItems[index+1]['info'].trim(), style: Style.simpleTextOnBoard(12)),
+                          );
+                        }
+                      }
                   ),
-                )),
+                )
+            ),
             if(secondItemOpen) Positioned(
                 top: 106.0,
                 right: 32.0,
                 left: 32.0,
+                height: 200,
                 child: Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        onTap: () async {
-                          setState(() {
-                            secondItemOpen = false;
-                          });
-                          FocusScope.of(context).requestFocus(FocusNode());
-                          controller.animateCamera(
-                              mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(5.4012929636628435, -3.9575183470596507), zoom: 15)));
-                          controller.addSymbol(
-                            mapbox_gl.SymbolOptions(
-                                geometry: mapbox_gl.LatLng(5.4012929636628435, -3.9575183470596507),
-                                iconImage: "images/marqueur_begin.png",
-                                iconSize: 0.9,
+                  child: ListView.builder(
+                      itemCount: destinateItmens.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () async {
+                            setState(() {
+                              secondItemOpen = false;
+                            });
+                            eCtrl2.text = destinateItmens[index]['title'].trim();
+                            destinateChoice = [destinateItmens[index]['longitude'], destinateItmens[index]['latitude']];
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            controller.animateCamera(
+                                mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(destinateItmens[index]['latitude'], destinateItmens[index]['longitude']), zoom: 15)));
+                            controller.addSymbol(
+                              mapbox_gl.SymbolOptions(
+                                geometry: mapbox_gl.LatLng(destinateItmens[index]['latitude'], destinateItmens[index]['longitude']),
+                                iconImage: "images/marqueur_end.png",
+                                iconSize: 0.3,
 
-                            ),
-                          );
-                          await _addSourceAndLineLayer();
-                        },
-                        leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
-                        title: Text("Angré nouveau CHU", style: Style.simpleTextOnBoard(14, colorBlack)),
-                        subtitle: Text("Abidjan, La commune Cocody, Rue S95", style: Style.simpleTextOnBoard(12)),
-                      ),
-                      ListTile(
-                        onTap: () {
-                          setState(() {
-                            secondItemOpen = false;
-                          });
-                          FocusScope.of(context).requestFocus(FocusNode());
-                        },
-                        leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
-                        title: Text("Pharmacie cité Maroc Yopougon maroc", style: Style.simpleTextOnBoard(14, colorBlack)),
-                        subtitle: Text("Abidjan, La commune Yopougon, Rue T27", style: Style.simpleTextOnBoard(12)),
-                      ),
-                      ListTile(
-                        onTap: () {
-                          setState(() {
-                            secondItemOpen = false;
-                          });
-                          FocusScope.of(context).requestFocus(FocusNode());
-                        },
-                        leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
-                        title: Text("Pharmacie Saint Paul de Yopougon", style: Style.simpleTextOnBoard(14, colorBlack)),
-                        subtitle: Text("Abidjan, La commune Yopougon, Rue P92", style: Style.simpleTextOnBoard(12)),
-                      ),
-
-                    ],
+                              ),
+                            );
+                            await _addSourceAndLineLayer();
+                          },
+                          leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
+                          title: Text(destinateItmens[index]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
+                          subtitle: Text(destinateItmens[index]['info'].trim(), style: Style.simpleTextOnBoard(12)),
+                        );
+                      }
                   ),
                 )),
             if(showBottom) Positioned(
@@ -1202,7 +1254,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
     return DraggableScrollableSheet(builder: (_, controller) {
       return Container(
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color: backgroundColor.withOpacity(0.96),
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
         ),
         child: Column(
@@ -1237,7 +1289,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                       SizedBox(height: 5,),
                       Container(
                         decoration: BoxDecoration(
-                          color: selectMutualise ? backgroundColorSec: backgroundColor
+                          color: selectMutualise ? backgroundColorSec: Colors.transparent
                         ),
                         child: ListTile(
                           leading: Container(
@@ -1252,7 +1304,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("${700 + ((place - 1) * 100)}", style: Style.titre(20),),
+                                Text(priceMutualise(place, distance), style: Style.titre(20),),
                                 Text("XOF", style: Style.titre(8),)
                               ],
                             ),
@@ -1270,7 +1322,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                       SizedBox(height: 5,),
                       Container(
                         decoration: BoxDecoration(
-                            color: selectConfort ? backgroundColorSec: backgroundColor
+                            color: selectConfort ? backgroundColorSec: Colors.transparent
                         ),
                         child: ListTile(
                           leading: Container(
@@ -1285,7 +1337,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("1200", style: Style.titre(20),),
+                                Text(priceConfort(distance), style: Style.titre(20),),
                                 Text("XOF", style: Style.titre(8),)
                               ],
                             ),

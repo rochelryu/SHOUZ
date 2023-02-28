@@ -9,6 +9,7 @@ import 'package:shouz/Utils/Database.dart';
 
 import '../Constant/helper.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import 'Notifications.dart';
 
 class CheckoutRetrait extends StatefulWidget {
   static String rootName = '/checkoutRetrait';
@@ -258,6 +259,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                           if(demandeRetrait['etat'] == 'found') {
                             final titleAlert = "Super! votre demande est en cours de traitement";
                             await askedToLead(titleAlert, true, context);
+
                           } else if( demandeRetrait['etat'] == "badLevel") {
                             final titleAlert = "Vous avez rechargé votre compte il y a moins de 24H, c'est 24H après un rechargement qu'il peut y avoir un possible retrait";
                             await askedToLead(titleAlert, false, context);

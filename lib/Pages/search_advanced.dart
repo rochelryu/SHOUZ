@@ -173,6 +173,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                         numberFavorite: dealsFull[index]['numberFavorite'],
                         lieu: dealsFull[index]['lieu'],
                         registerDate: dealsFull[index]['registerDate'],
+                        comments: dealsFull[index]['comments'],
                         quantity: dealsFull[index]['quantity']);
                   });
                 }

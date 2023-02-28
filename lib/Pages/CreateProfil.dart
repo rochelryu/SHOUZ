@@ -338,7 +338,7 @@ class _CreateProfil extends State<CreateProfil> {
                             border: InputBorder.none,
                             suffixIcon: Icon(Icons.local_activity_outlined,
                                 color: Colors.grey[500]),
-                            hintText: "Code parrain (facultatif)",
+                            hintText: "Code promo (facultatif)",
                             hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 color: Colors.grey[500],

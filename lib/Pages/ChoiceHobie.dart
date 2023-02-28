@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,9 +148,9 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
                       final placeHolderAvatarArray = categorie.name.toString().replaceAll(RegExp('[^A-ZŒÉÈÊ]'), '').trim();//.split('.');
                       final placeHolderAvatar = placeHolderAvatarArray.length > 1 ? '${placeHolderAvatarArray[0].trim().substring(0,1)}${placeHolderAvatarArray[placeHolderAvatarArray.length - 1].trim().substring(0,1)}': placeHolderAvatarArray[0].trim().substring(0,1);
                       return ListTile(
-                        leading: Badge(
+                        leading: badges.Badge(
                           showBadge: categorie.popularity == 1,
-                          badgeColor: colorText,
+                          badgeStyle: badges.BadgeStyle(badgeColor: colorText,),
                           badgeContent: Icon(Icons.star_border_purple500_outlined, color: colorPrimary, size: 15,),
                           child: CircleAvatar(
                               backgroundColor: backgroundColorSec,

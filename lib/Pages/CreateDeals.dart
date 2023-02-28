@@ -20,7 +20,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
-import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
@@ -105,7 +104,7 @@ class _CreateDealsState extends State<CreateDeals> {
   verifyIfUserHaveReadModalExplain() async {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
-    if(asRead) {
+    if(!asRead) {
       await modalForExplain("${ConsumeAPI.AssetPublicServer}premium.svg", "💁🏽‍♂️ Si vous enregistrez plus de 25 différents articles nous vous offrons une publication d'article en mode VIP gratuitement 🤝.\n(Le mode VIP vous permet d'avoir plus de publicité, de fonctionnalité et de visibilité).", context, true);
       await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/5 - ⚠️ Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images ou la description de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.", context);
 
@@ -175,7 +174,7 @@ class _CreateDealsState extends State<CreateDeals> {
           postVideo.add(_controller!);
         });
 
-        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        var videoCompressed = await VideoCompressApi.getMediaInfo(movie.path);
 
        if(videoCompressed!.filesize! / 1000000 < 10) {
 
@@ -203,7 +202,7 @@ class _CreateDealsState extends State<CreateDeals> {
 
           postVideo[0] = _controller!;
         });
-        MediaInfo? videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        MediaInfo? videoCompressed = await VideoCompressApi.getMediaInfo(movie.path);
 
         if(videoCompressed!.filesize! / 1000000 < 10) {
           video = videoCompressed.file!;
@@ -917,6 +916,11 @@ class _CreateDealsState extends State<CreateDeals> {
       ready = false;
 
       showSnackBar(context, "Le nom du produit est trop court.");
+    }
+    if(quantity.length > 0 && int.parse(quantity) > 100) {
+      ready = false;
+
+      showSnackBar(context, "La quantité maximal qu'un article peut avoir dans Shouz est de 100");
     }
     if(describe.length < 25) {
       ready = false;

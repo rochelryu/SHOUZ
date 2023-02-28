@@ -58,6 +58,7 @@ class DealsSkeletonData {
   var categorieName;
   var video;
   var approved;
+  var comments;
   DealsSkeletonData(
       {required this.imageUrl,
         required this.title,
@@ -73,7 +74,7 @@ class DealsSkeletonData {
         required this.quantity,
         required this.archive,
         required this.level,
-        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved});
+        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved, required this.comments});
 }
 
 int channelId() {

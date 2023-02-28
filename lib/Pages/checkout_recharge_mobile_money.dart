@@ -248,7 +248,7 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      /*GestureDetector(
                         onTap: () {
                           setState(() { _character = TypePayement.wave; indexStepper = 0; });
                         },
@@ -290,7 +290,7 @@ class _CheckoutRechargeMobileMoneyState
                             ),
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   )
               ),
@@ -399,7 +399,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
                           height: 35,
@@ -451,7 +451,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                        if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
 
                                         } else {
@@ -485,7 +485,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000) {
+                                        if (amount >= 500) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
                                           } else {
@@ -647,7 +647,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer le montant de votre réchargement (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        Text("Faites entrer le montant de votre réchargement (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
                             child: Row(
@@ -673,7 +673,7 @@ class _CheckoutRechargeMobileMoneyState
                                 onChanged: (value) {
                                   if(value.length > 3) {
                                     final amount = int.parse(value);
-                                    if (amount >= 1000 && amount % 100 == 0 ) {
+                                    if (amount >= 500 && amount % 100 == 0 ) {
                                       _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
 
                                     } else {
@@ -707,7 +707,7 @@ class _CheckoutRechargeMobileMoneyState
                                 onChanged: (value) {
                                   if(value.length > 3) {
                                     final amount = int.parse(value);
-                                    if (amount >= 1000 ) {
+                                    if (amount >= 500 ) {
                                       if(amount % 100 == 0) {
                                         _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
                                       } else {
@@ -926,7 +926,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
                           height: 35,
@@ -978,7 +978,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                        if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
 
                                         } else {
@@ -1012,7 +1012,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 ) {
+                                        if (amount >= 500 ) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
                                           } else {
@@ -1208,7 +1208,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 1000)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
 
                         Container(
@@ -1261,7 +1261,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 && amount % 100 == 0 ) {
+                                        if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
 
                                         } else {
@@ -1296,7 +1296,7 @@ class _CheckoutRechargeMobileMoneyState
                                     onChanged: (value) {
                                       if(value.length > 3) {
                                         final amount = int.parse(value);
-                                        if (amount >= 1000 ) {
+                                        if (amount >= 500 ) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
                                           } else {

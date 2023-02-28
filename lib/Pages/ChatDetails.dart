@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -131,6 +131,10 @@ class _ChatDetailsState extends State<ChatDetails>
             showFloatingAction = true;
           });
         }
+        if(appState.getConversationGetter['_id'] == "" && productDetails != null) {
+          loadProfil();
+
+        }
       }
     });
     loadProfil();
@@ -139,6 +143,7 @@ class _ChatDetailsState extends State<ChatDetails>
 
   @override
   dispose() {
+
     perodicScroll?.cancel();
     _timer?.cancel();
     _ampTimer?.cancel();
@@ -305,6 +310,26 @@ class _ChatDetailsState extends State<ChatDetails>
               isReadByOtherUser: value['isReadByOtherUser'],
               image: value['image'],
               context: context));
+          if(!isMe && value['content'].toString().indexOf("Je viens d'enregistrer une offre.") != -1 && room.split('_')[0] != widget.newClient.ident &&
+              conversation['etatCommunication'] ==
+                  'Seller Purpose price final at buyer') {
+            tabs.add(
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+
+                    },
+                    child: Text(
+                      "Payer par Shouz",
+                      style: Style.sousTitreEvent(15),
+                    ),
+                    style: raisedButtonStyleSuccess,
+                  ),
+                ],
+              )
+            );
+          }
         } else if (date < 1) {
           if (!againToday) {
             tabs.add(Text("Aujourd'hui",
@@ -323,6 +348,72 @@ class _ChatDetailsState extends State<ChatDetails>
               isReadByOtherUser: value['isReadByOtherUser'],
               image: value['image'],
               context: context));
+          final lastMessage = conversation['content'].length == index + 1;
+          if(!isMe && value['content'].toString().indexOf("Je viens d'enregistrer une offre.") != -1 && room.split('_')[0] != widget.newClient.ident &&
+              conversation['etatCommunication'] == 'Seller Purpose price final at buyer'  && lastMessage) {
+            tabs.add(
+                SingleChildScrollView(
+                  child: Row(
+                    children: [
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final priceFinal = conversation['priceFinal'] != null
+                              ? conversation['priceFinal']
+                              : 0;
+                          if (widget.newClient.wallet >= priceFinal) {
+                            appState.agreeForPropositionForDeals(
+                                room: room, id: idConversation);
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: 'Solde Insuffisant pensez à vous recharger',
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: colorError,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+
+                            Timer(const Duration(milliseconds: 2000), () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (builder) => ChoiceMethodPayement(
+                                    key: UniqueKey(),
+                                    isRetrait: false,
+                                  )));
+                            });
+                          }
+                        },
+                        child: Text(
+                          "👉 Accepter l'offre",
+                          style: Style.sousTitreEvent(12),
+                        ),
+                        style: raisedButtonStyleSuccess,
+                      ),
+                      SizedBox(width: 15),
+                      ElevatedButton(
+                        onPressed: () async {
+                          appState.notAgreeForPropositionForDeals(
+                              room: room, id: idConversation);
+                          Fluttertoast.showToast(
+                              msg: 'Reponse envoyée',
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: colorText,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        },
+                        child: Text(
+                          "Refuser l'offre 👈",
+                          style: Style.sousTitreEvent(12),
+                        ),
+                        style: raisedButtonStyleError,
+                      ),
+                    ],
+                  ),
+                )
+            );
+          }
         } else {
           tabs.add(boxMessage(
               indexContent: index,
@@ -339,6 +430,26 @@ class _ChatDetailsState extends State<ChatDetails>
               idDocument: conversation['_id'],
               image: value['image'],
               context: context));
+          if(!isMe && value['content'].toString().indexOf("Je viens d'enregistrer une offre.") != -1 && room.split('_')[0] != widget.newClient.ident &&
+              conversation['etatCommunication'] ==
+                  'Seller Purpose price final at buyer') {
+            tabs.add(
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+
+                      },
+                      child: Text(
+                        "Payer par Shouz",
+                        style: Style.sousTitreEvent(15),
+                      ),
+                      style: raisedButtonStyleSuccess,
+                    ),
+                  ],
+                )
+            );
+          }
         }
       }
     }
@@ -514,7 +625,7 @@ class _ChatDetailsState extends State<ChatDetails>
                 appState.relanceDeals(
                     destinate: room,
                     content: "Encore moi 👋🏽",
-                    id: appState.getIdOldConversation.trim());
+                    id: idConversation);
               },
               child: Text(
                 "Oui, je suis intéressé.",
@@ -765,12 +876,12 @@ class _ChatDetailsState extends State<ChatDetails>
               },
               icon: Icon(Icons.arrow_back)),
           actions: [
-            Badge(
+            badges.Badge(
               showBadge: room.split('_')[0] != widget.newClient.ident &&
                   conversation['etatCommunication'] ==
                       'Seller Purpose price final at buyer',
-              position: BadgePosition(top: 0, start: 0),
-              badgeColor: colorText,
+              position: badges.BadgePosition.topStart(top: 0, start: 0),
+              badgeStyle: badges.BadgeStyle(badgeColor: colorText),
               badgeContent: Text(
                 '!',
                 style: TextStyle(color: Colors.white),
@@ -1016,7 +1127,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                                         .sentences,
                                                 style: Style.chatOutMe(14),
                                                 keyboardType:
-                                                    TextInputType.text,
+                                                    TextInputType.multiline,
                                                 maxLines: null,
                                                 decoration: InputDecoration(
                                                     hintText:
@@ -1068,7 +1179,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                         IconButton(
                                           icon: Icon(MyFlutterAppSecond.email,
                                               color: colorText),
-                                          onPressed: () {
+                                          onPressed: () async {
                                             if (_image == null &&
                                                 message == "") {
                                               Fluttertoast.showToast(
@@ -1118,15 +1229,25 @@ class _ChatDetailsState extends State<ChatDetails>
                                                     curve: Curves.easeInOut);
                                               } else {
                                                 if (_image != null) {
-                                                  appState.sendChatMessage(
-                                                      destinate: room,
-                                                      base64: base64Image,
-                                                      imageName: imageCover,
-                                                      content: message,
-                                                      id: idConversation
-                                                          .trim());
+                                                  final setFile = await consumeAPI.postFileOfConversation(message,room,base64Image,imageCover,idConversation.trim());
+                                                  if(setFile['etat'] == 'found') {
+                                                    appState.refreshChatMessage(
+                                                        room: room,
+                                                        id: idConversation
+                                                            .trim());
+                                                  } else {
+                                                    Fluttertoast.showToast(
+                                                        msg: 'Problème de reseau',
+                                                        toastLength: Toast.LENGTH_SHORT,
+                                                        gravity: ToastGravity.CENTER,
+                                                        timeInSecForIosWeb: 1,
+                                                        backgroundColor: colorError,
+                                                        textColor: Colors.white,
+                                                        fontSize: 16.0);
+                                                  }
                                                   inWrite(false, room,
                                                       widget.newClient.ident);
+
                                                 } else {
                                                   appState.sendChatMessage(
                                                       destinate: room,
@@ -1256,8 +1377,8 @@ class _ChatDetailsState extends State<ChatDetails>
                         ),
                         Expanded(
                           child:
-                              TabBarView(controller: _tabController, children: <
-                                  Widget>[
+                              TabBarView(controller: _tabController,
+                                  children: <Widget>[
                             SingleChildScrollView(
                               child: Padding(
                                 padding: EdgeInsets.all(10),
@@ -1274,6 +1395,22 @@ class _ChatDetailsState extends State<ChatDetails>
                                               style: Style.chatIsMe(15)),
                                           Text(
                                               productDetails!['result']['price']
+                                                  .toString(),
+                                              style: Style.titleNews()),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      width: double.infinity,
+                                      height: 50,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Prix Livraison',
+                                              style: Style.chatIsMe(15)),
+                                          Text(
+                                              productDetails!['result']['priceDelivery']
                                                   .toString(),
                                               style: Style.titleNews()),
                                         ],
@@ -1342,9 +1479,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                                     price: price,
                                                     qte: quantity,
                                                     room: room,
-                                                    id: appState
-                                                        .getIdOldConversation
-                                                        .trim());
+                                                    id: idConversation);
                                             Navigator.pop(context);
                                             Fluttertoast.showToast(
                                                 msg: 'Proposition envoyée',
@@ -1461,7 +1596,7 @@ class _ChatDetailsState extends State<ChatDetails>
               }
             },
             child: Text(
-              "Je suis d'accord",
+              "Accepter l'offre",
               style: Style.sousTitreEvent(15),
             ),
             style: raisedButtonStyle,
@@ -1482,7 +1617,7 @@ class _ChatDetailsState extends State<ChatDetails>
                   fontSize: 16.0);
             },
             child: Text(
-              "Non, Je ne suis pas d'accord",
+              "Refuser l'offre",
               style: Style.sousTitreEvent(15),
               textAlign: TextAlign.center,
             ),
