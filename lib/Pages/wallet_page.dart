@@ -283,7 +283,7 @@ class _WalletPageState extends State<WalletPage> {
               children: [
                 if(transaction["state"] == 1) SlidableAction(
                   onPressed: (context) async {
-                    await consumeAPI.removeTransaction(transaction["_id"]);
+                    await consumeAPI.removeTransaction(transaction["_id"], transaction["typeTransaction"]);
                     setState(() {
                       arrayOfAllTransaction.removeAt(index);
                     });
@@ -354,7 +354,7 @@ class _WalletPageState extends State<WalletPage> {
                 ),
                 if(transaction["state"] == 1) SlidableAction(
                   onPressed: (context) async {
-                    await consumeAPI.removeTransaction(transaction["_id"]);
+                    await consumeAPI.removeTransaction(transaction["_id"], transaction["typeTransaction"]);
                     setState(() {
                       arrayOfAllTransaction.removeAt(index);
                     });

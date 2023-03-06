@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
 import '../Provider/Notifications.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
@@ -23,6 +22,7 @@ const amountMutialiseVTCUnity = 220;
 const amountConfortVTCUnity = 260;
 const minMutialiseVTCPrice = 600;
 const minConfortVTCUnity = 1000;
+const versionApp = "1.0.25";
 const linkAppGalleryForShouz =
     "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz =
@@ -148,14 +148,17 @@ void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
 }
 
 Future<void> huaweiMessagingBackgroundHandler(dynamic message) async {
-  var body = message['bodyNotif'].toString().trim() == "images"
-      ? "${Emojis.art_framed_picture} Une image a été envoyé..."
-      : message['bodyNotif'].toString().trim();
-  body = message['bodyNotif'].toString().trim() == "audio"
-      ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
-      : body;
-  Map<String, String> data = Map<String, String>.from(message);
-  createShouzNotification(message['titreNotif'].toString().trim(), body, data);
+  if(message.data['bodyNotif'] != null) {
+    var body = message['bodyNotif'].toString().trim() == "images"
+        ? "${Emojis.art_framed_picture} Une image a été envoyé..."
+        : message['bodyNotif'].toString().trim();
+    body = message['bodyNotif'].toString().trim() == "audio"
+        ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
+        : body;
+    Map<String, String> data = Map<String, String>.from(message);
+    createShouzNotification(message['titreNotif'].toString().trim(), body, data);
+  }
+
 }
 
 Future getTokenForNotificationProvider(bool isConnected) async {
@@ -180,7 +183,7 @@ Future getTokenForNotificationProvider(bool isConnected) async {
           await huawei.Push.registerBackgroundMessageHandler(
               _onHmsMessageReceived);
           final infoSaveToken = await consumeAPI.updateTokenVerification(
-              _token.trim(), "huawei_push");
+              _token.trim(), "huawei_push", isConnected);
         }
       }, onError: (dynamic error) {
         print("error.message ${error.message}");
@@ -192,7 +195,7 @@ Future getTokenForNotificationProvider(bool isConnected) async {
           prefs.getString('tokenNotification') ?? "";*/
       if (fcmToken.trim() != "") {
         await consumeAPI.updateTokenVerification(
-            fcmToken.trim(), "firebase");
+            fcmToken.trim(), "firebase", isConnected);
       }
     }
   } else {
@@ -200,7 +203,7 @@ Future getTokenForNotificationProvider(bool isConnected) async {
     /*final prefs = await SharedPreferences.getInstance();
     final String tokenNotification = prefs.getString('tokenNotification') ?? "";*/
     if (fcmToken.trim() != "") {
-      await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
+      await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase", isConnected);
 
     }
   }
@@ -214,14 +217,10 @@ Future setTokenForNotificationProvider(String tokenOnline) async {
       huawei.Push.getTokenStream.listen((String event) async {
         if (event.isNotEmpty) {
           _token = event;
-          final prefs = await SharedPreferences.getInstance();
-
           if (_token.trim() != "" && _token.trim() != tokenOnline) {
             final infoSaveToken = await consumeAPI.updateTokenVerification(
-                _token.trim(), "huawei_push");
-            if (infoSaveToken['etat'] == "found") {
-              await prefs.setString('tokenNotification', _token.trim());
-            }
+                _token.trim(), "huawei_push", true);
+
           }
         }
       }, onError: (dynamic error) {
@@ -229,24 +228,18 @@ Future setTokenForNotificationProvider(String tokenOnline) async {
       });
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-      final prefs = await SharedPreferences.getInstance();
       if (fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
         final infoSaveToken = await consumeAPI.updateTokenVerification(
-            fcmToken.trim(), "firebase");
-        if (infoSaveToken['etat'] == "found") {
-          await prefs.setString('tokenNotification', fcmToken.trim());
-        }
+            fcmToken.trim(), "firebase", true);
+
       }
     }
   } else {
     final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-    final prefs = await SharedPreferences.getInstance();
     if (fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
       final infoSaveToken =
-          await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase");
-      if (infoSaveToken['etat'] == "found") {
-        await prefs.setString('tokenNotification', fcmToken.trim());
-      }
+          await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase", true);
+
     }
   }
 }

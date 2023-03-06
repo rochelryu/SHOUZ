@@ -1,15 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shouz/Constant/Painture.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
-import 'package:shouz/Pages/ChoiceHobie.dart';
+import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Utils/Database.dart';
 
 import '../Constant/my_flutter_app_second_icons.dart' as prefix1;
 import '../Constant/widget_common.dart';
+import '../MenuDrawler.dart';
+import '../ServicesWorker/ConsumeAPI.dart';
 
 class CreateProfil extends StatefulWidget {
   static String rootName = '/createProfil';
@@ -21,9 +24,13 @@ class CreateProfil extends StatefulWidget {
 class _CreateProfil extends State<CreateProfil> {
   String value = '';
   String codeParrain = '';
-  String? imagePath;
+  Map<String, dynamic> profilParrain = {"images": '', 'name': ''};
+  bool error = false;
+  String base64Image = "";
   final picker = ImagePicker();
   File? tmpFile;
+
+  bool changeLoading = false;
 
   Future getImage(BuildContext context) async {
     var image = await picker.pickImage(source: ImageSource.gallery);
@@ -32,11 +39,9 @@ class _CreateProfil extends State<CreateProfil> {
       setState(() {
         profil = {"type": 2, "data": File(image.path)};
       });
+      base64Image = base64Encode(File(image.path).readAsBytesSync());
+      tmpFile = File(image.path);
       Navigator.pop(context);
-      setState(() {
-        tmpFile = File(image.path);
-        imagePath = image.path;
-      });
     }
   }
 
@@ -46,11 +51,9 @@ class _CreateProfil extends State<CreateProfil> {
       setState(() {
         profil = {"type": 2, "data": File(image.path)};
       });
+      base64Image = base64Encode(File(image.path).readAsBytesSync());
+      tmpFile = File(image.path);
       Navigator.pop(context);
-      setState(() {
-        tmpFile = File(image.path);
-        imagePath = image.path;
-      });
     }
   }
 
@@ -73,10 +76,9 @@ class _CreateProfil extends State<CreateProfil> {
           if (value.length >= 5) {
             setState(() {
               heigth = 0;
+              changeLoading = true;
             });
             await DBProvider.db.updateName(value);
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('codeParrain', codeParrain);
             if (tmpFile == null) {
               await showDialog(
                   context: context,
@@ -86,20 +88,59 @@ class _CreateProfil extends State<CreateProfil> {
                       "Oui",
                           () async {
                             final fileName = "images/boss.png";
-                            await DBProvider.db.newProfil(fileName, '');
-                            prefix0.setLevel(4);
-                            Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (builder) => ChoiceHobie()));
+                            final signinUser = await consumeAPI.signinSecondStep(fileName, '', [], codeParrain);
+                            if (signinUser['etat'] == 'found') {
+                              await DBProvider.db.delClient();
+                              await DBProvider.db.newClient(signinUser['user']);
+                              await DBProvider.db.delProfil();
+                              prefix0.setLevel(5);
+                              setState(() {
+                                changeLoading = false;
+                              });
+                              Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+                            } else {
+                              Navigator.pop(context);
+                              setState(() {
+                                changeLoading = false;
+                              });
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      dialogCustomError(
+                                          'Echec',
+                                          'Veuillez ressayer ulterieurement',
+                                          context),
+                                  barrierDismissible: false);
+                            }
 
                       }, context, true, "Non"),
                   barrierDismissible: false);
 
             } else {
               final fileName = tmpFile?.path.split('/').last;
-              await DBProvider.db.newProfil(fileName!, imagePath!);
-              prefix0.setLevel(4);
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (builder) => ChoiceHobie()));
+              final signinUser = await consumeAPI.signinSecondStep(fileName, base64Image, [], codeParrain);
+              if (signinUser['etat'] == 'found') {
+                await DBProvider.db.delClient();
+                await DBProvider.db.newClient(signinUser['user']);
+                await DBProvider.db.delProfil();
+                prefix0.setLevel(5);
+                setState(() {
+                  changeLoading = false;
+                });
+                Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+              } else {
+                setState(() {
+                  changeLoading = false;
+                });
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomError(
+                            'Echec',
+                            'Veuillez ressayer ulterieurement',
+                            context),
+                    barrierDismissible: false);
+              }
             }
 
           } else
@@ -107,7 +148,7 @@ class _CreateProfil extends State<CreateProfil> {
         },
         disabledElevation: 0.0,
         backgroundColor: prefix0.colorText,
-        child: Icon(Icons.arrow_forward, color: Colors.white),
+        child: changeLoading ? LoadingIndicator(indicatorType: Indicator.ballClipRotateMultiple,colors: [prefix0.colorPrimary], strokeWidth: 2) : Icon(Icons.arrow_forward, color: Colors.white),
       ),
       body: GestureDetector(
         onTap: () {
@@ -344,14 +385,52 @@ class _CreateProfil extends State<CreateProfil> {
                                 color: Colors.grey[500],
                                 fontSize: 15.0),
                           ),
-                          onChanged: (text) {
+                          onChanged: (text) async {
                             setState(() {
                               codeParrain = text;
                             });
+                            if(text.trim().length == 6) {
+                              final verifyCodeParrain = await consumeAPI.verifyCodeParrain(text);
+                              if(verifyCodeParrain['etat'] == 'found'){
+                                setState(() {
+                                  error = false;
+                                  profilParrain = verifyCodeParrain['result'];
+                                });
+                              }else {
+                                setState(() {
+                                  error = true;
+                                  profilParrain = {"images": '', 'name': ''};
+                                });
+                              }
+                            }
+                            else{
+                              setState(() {
+                                error = false;
+                                profilParrain = {"images": '', 'name': ''};
+                              });
+                            }
                           },
                         ),
                       ),
                     )),
+                if(profilParrain["name"] != "") Container(
+                  height: 80,
+                  padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 20.0),
+                  width: double.infinity,
+                  child: ListTile(
+                    leading: Container(
+                      height: 55,
+                      width: 55,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          image: DecorationImage(image: NetworkImage("${ConsumeAPI.AssetProfilServer}${profilParrain["images"]}"), fit: BoxFit.cover)
+                      ),
+                    ),
+                    title: Text(profilParrain["name"]!, style: prefix0.Style.sousTitre(14, prefix0.colorPrimary),),
+                    subtitle: Text("Est le propriétaire de ce code.", style: prefix0.Style.simpleTextOnBoard(12),),
+                  ),
+                ),
+                if(error) Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 20.0), child: Text("Aucun Utilisateur n'a se code promo", style: prefix0.Style.titleInSegmentInTypeError(),))
               ],
             ),
           ]),

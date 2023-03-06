@@ -16,6 +16,7 @@ import '../MenuDrawler.dart';
 class Otp extends StatefulWidget {
   static String rootName = '/otp';
 
+
   const Otp({
     required Key key,
   }) : super(key: key);
@@ -87,7 +88,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: Text(
-        "Veuillez entrer le code de confirmation qui a été envoyé au ${newClient == null ? '': newClient!.numero}",
+        "Veuillez entrer le code de confirmation qui a été envoyé au ${newClient == null ? '': newClient!.numero == "null" ? "numero de téléphone": newClient!.numero}",
         textAlign: TextAlign.center,
         style: TextStyle(
             fontSize: 16.0,
@@ -408,6 +409,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
   loadInfo() async {
     final user = await DBProvider.db.getClient();
+    print(user.numero);
     setState(() {
       newClient = user;
     });

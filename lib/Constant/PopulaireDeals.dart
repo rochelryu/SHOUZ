@@ -28,8 +28,9 @@ class PopulaireDeals extends StatefulWidget {
   String id;
   var approved;
   var comments;
+  var numberVue;
   List<String> PersonneLike = [];
-  PopulaireDeals({this.imageUrl,this.comments, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved});
+  PopulaireDeals({this.imageUrl,this.comments, this.numberVue, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved});
   @override
   _PopulaireDealsState createState() => _PopulaireDealsState();
 }
@@ -47,7 +48,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
           Navigator.of(context).push((
               MaterialPageRoute(
                   builder: (context){
-                    DealsSkeletonData item = DealsSkeletonData(comments: widget.comments,approved: widget.approved,level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
+                    DealsSkeletonData item = DealsSkeletonData(comments: widget.comments,numberVue:widget.numberVue,approved: widget.approved,level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
                     return DetailsDeals(dealsDetailsSkeleton:item, comeBack: 0);
                   }
               )));
@@ -77,7 +78,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(widget.title, style: Style.titleDealsProduct()),
+                    Text(widget.title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis,),
                     SizedBox(height: 10.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

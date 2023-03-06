@@ -43,6 +43,28 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     notificationsFull = consumeAPI.getAllNotif();
   }
 
+  Future removeNotification(String notificationId, int type) async {
+      final remove = await consumeAPI.removeNotification(notificationId, type.toString());
+
+      if (remove == "notFound") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
+            barrierDismissible: false);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
+      } else {
+        await getInfo();
+        final allNotif = consumeAPI.getAllNotif();
+        setState(() {
+          notificationsFull = allNotif;
+        });
+      }
+
+  }
 
   Future getInfo() async {
     User user = await DBProvider.db.getClient();
@@ -1265,7 +1287,20 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
         shrinkWrap: true,
           itemCount: atMoment.length,
           itemBuilder: (context, index){
+          final isCampagne = atMoment[index]['room'].toString().split('_').length != 3;
             return InkWell(
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomForValidateAction(
+                            'SUPPRIMER NOTIFICATION',
+                            'Êtes vous sûr de vouloir supprimer cette notification ?',
+                            'Oui',
+                                () async => await removeNotification(atMoment[index]['notificationId'], 1),
+                            context),
+                    barrierDismissible: false);
+              },
               onTap: () async {
                 if(!atMoment[index]['isAlreadyRead']) {
                   final appState = Provider.of<AppState>(context, listen: false);
@@ -1276,19 +1311,25 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                   });
                   await consumeAPI.viewNotif(atMoment[index]['notificationId'], "DEALS");
                 }
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (builder) => ChatDetails(
-                            newClient:newClient!,
-                            comeBack: 0,
-                            room: atMoment[index]['room'],
-                            productId: atMoment[index]['productId'],
-                            name: atMoment[index]['name'],
-                            onLine: atMoment[index]['onLine'],
-                            profil: atMoment[index]['imageOtherUser'],
-                            //authorId prend la valeur de idOtherUser
-                            authorId: atMoment[index]['idOtherUser'])));
+                if(isCampagne){
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      builder: (context) => LoadProduct(key: UniqueKey(), productId: atMoment[index]['productId'] ?? '', doubleComeBack: 1,)), (route) => route.isFirst);
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (builder) => ChatDetails(
+                              newClient:newClient!,
+                              comeBack: 0,
+                              room: atMoment[index]['room'],
+                              productId: atMoment[index]['productId'],
+                              name: atMoment[index]['name'],
+                              onLine: atMoment[index]['onLine'],
+                              profil: atMoment[index]['imageOtherUser'],
+                              //authorId prend la valeur de idOtherUser
+                              authorId: atMoment[index]['idOtherUser'])));
+                }
+
               },
               child: Container(
                 color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
@@ -1304,7 +1345,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                           border: Border.all(color: colorText, width: 1.0),
                           borderRadius: BorderRadius.circular(50.0),
                           image: DecorationImage(
-                            image: NetworkImage("${ConsumeAPI.AssetProfilServer}${atMoment[index]['imageOtherUser']}"),
+                            image: isCampagne ? NetworkImage("${ConsumeAPI.AssetPublicServer}campagne.jpeg") : NetworkImage("${ConsumeAPI.AssetProfilServer}${atMoment[index]['imageOtherUser']}"),
                             fit: BoxFit.cover,
                           )
                       ),
@@ -1349,6 +1390,18 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemCount: atMoment.length,
           itemBuilder: (context, index){
             return InkWell(
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomForValidateAction(
+                            'SUPPRIMER NOTIFICATION',
+                            'Êtes vous sûr de vouloir supprimer cette notification ?',
+                            'Oui',
+                                () async => await removeNotification(atMoment[index]['_id'], 3),
+                            context),
+                    barrierDismissible: false);
+              },
               onTap: () async {
                 if(!atMoment[index]['isAlreadyRead']) {
                   final appState = Provider.of<AppState>(context, listen: false);
@@ -1415,6 +1468,18 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemCount: atMoment.length,
           itemBuilder: (context, index){
             return InkWell(
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomForValidateAction(
+                            'SUPPRIMER NOTIFICATION',
+                            'Êtes vous sûr de vouloir supprimer cette notification ?',
+                            'Oui',
+                                () async => await removeNotification(atMoment[index]['_id'], 4),
+                            context),
+                    barrierDismissible: false);
+              },
               onTap: () async {
                 if(!atMoment[index]['isAlreadyRead']) {
                   final appState = Provider.of<AppState>(context, listen: false);
@@ -1478,6 +1543,18 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemCount: atMoment.length,
           itemBuilder: (context, index){
             return InkWell(
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomForValidateAction(
+                            'SUPPRIMER NOTIFICATION',
+                            'Êtes vous sûr de vouloir supprimer cette notification ?',
+                            'Oui',
+                                () async => await removeNotification(atMoment[index]['_id'], 2),
+                            context),
+                    barrierDismissible: false);
+              },
                 onTap: () async {
                   if(!atMoment[index]['isAlreadyRead']) {
                     final appState = Provider.of<AppState>(context, listen: false);

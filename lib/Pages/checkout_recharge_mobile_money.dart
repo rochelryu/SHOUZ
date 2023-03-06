@@ -449,7 +449,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
@@ -483,7 +483,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500) {
                                           if(amount % 100 == 0) {
@@ -671,7 +671,7 @@ class _CheckoutRechargeMobileMoneyState
                                   hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                 ),
                                 onChanged: (value) {
-                                  if(value.length > 3) {
+                                  if(value.length >= 3) {
                                     final amount = int.parse(value);
                                     if (amount >= 500 && amount % 100 == 0 ) {
                                       _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
@@ -705,7 +705,7 @@ class _CheckoutRechargeMobileMoneyState
                                   hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                 ),
                                 onChanged: (value) {
-                                  if(value.length > 3) {
+                                  if(value.length >= 3) {
                                     final amount = int.parse(value);
                                     if (amount >= 500 ) {
                                       if(amount % 100 == 0) {
@@ -976,7 +976,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
@@ -1010,7 +1010,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 ) {
                                           if(amount % 100 == 0) {
@@ -1259,7 +1259,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
@@ -1294,7 +1294,7 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length > 3) {
+                                      if(value.length >= 3) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 ) {
                                           if(amount % 100 == 0) {

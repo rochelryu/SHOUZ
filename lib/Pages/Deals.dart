@@ -351,6 +351,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               comments: populaireActu[0]
                                               [choiceItemSearch]['body']
                                               [index]['comments'],
+                                              numberVue: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['numberVue'],
                                               video: populaireActu[0]
                                               [choiceItemSearch]['body']
                                               [index]['video'],
@@ -462,6 +465,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             comments: populaireActu[0]
                                             [choiceItemSearch]['body']
                                             [index]['comments'],
+                                            numberVue: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[0]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -532,6 +538,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             comments: populaireActu[1]
                                             [choiceItemSearch]['body']
                                             [index]['comments'],
+                                            numberVue: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[1]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -636,6 +645,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           comments: populaireActu[1]
                                           [choiceItemSearch]['body']
                                           [index]['comments'],
+                                          numberVue: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['numberVue'],
                                           level: populaireActu[1]
                                           [choiceItemSearch]['body']
                                           [index]['level'],
@@ -698,6 +710,9 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                             comments: populaireActu[2]
                                             [choiceItemSearch]['body']
                                             [index]['comments'],
+                                            numberVue: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[2]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -798,9 +813,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       [choiceItemSearch]['body']
                                           .length,
                                       itemBuilder: (BuildContext context, int index) => PopulaireDeals(
-                                          comments: populaireActu[1]
+                                          comments: populaireActu[2]
                                           [choiceItemSearch]['body']
                                           [index]['comments'],
+                                          numberVue: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['numberVue'],
                                           level: populaireActu[2]
                                           [choiceItemSearch]['body']
                                           [index]['level'],

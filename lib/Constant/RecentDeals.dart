@@ -26,9 +26,10 @@ class RecentDeals extends StatefulWidget {
   var video;
   var approved;
   var comments;
+  var numberVue;
   String id;
   List<String> PersonneLike = [];
-  RecentDeals({this.imageUrl,this.comments, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved });
+  RecentDeals({this.imageUrl,this.comments, this.numberVue, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved });
   @override
   _RecentDeals createState() => _RecentDeals();
 }
@@ -55,6 +56,7 @@ class _RecentDeals extends State<RecentDeals> {
                     .push((MaterialPageRoute(builder: (context) {
                   DealsSkeletonData item = DealsSkeletonData(
                       comments: widget.comments,
+                      numberVue:widget.numberVue,
                     level: widget.level,
                     video: widget.video,
                     quantity: widget.quantity,

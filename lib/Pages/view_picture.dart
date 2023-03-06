@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:photo_view/photo_view.dart';
 import '../Constant/Style.dart';
 
 class ViewPicture extends StatelessWidget {
@@ -14,7 +14,14 @@ class ViewPicture extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: Center(child: Image.network(linkPicture)),
+      body: Center(
+          child: Container(
+            child: PhotoView(
+                imageProvider: NetworkImage(linkPicture),
+              minScale: PhotoViewComputedScale.contained * 1,
+            ),
+          )
+      ),
     );
   }
 }

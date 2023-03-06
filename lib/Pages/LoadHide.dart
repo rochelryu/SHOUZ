@@ -171,9 +171,8 @@ class _LoadEventState extends State<LoadEvent> {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getDetailsForEvent(widget.eventId);
     if(data['etat'] == 'found') {
-      if (newClient.numero != 'null') {
-        await getTokenForNotificationProvider(true);
-      }
+
+      await getTokenForNotificationProvider(newClient.numero != 'null');
       final item = data['result'];
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (builder) => EventDetails(
@@ -237,9 +236,8 @@ class _LoadNewState extends State<LoadNew> {
     if(data['etat'] == 'found') {
       User user = await DBProvider.db.getClient();
       final item = data['result'];
-      if (user.numero != 'null') {
-        await getTokenForNotificationProvider(true);
-      }
+
+      await getTokenForNotificationProvider(user.numero != 'null');
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (BuildContext context) => DetailsActu(
             comeBack: 1,
@@ -294,8 +292,9 @@ class _LoadProductState extends State<LoadProduct> {
       if(user.numero != "null") {
 
         appState.setJoinConnected(user.ident);
-        await getTokenForNotificationProvider(true);
+
       }
+      await getTokenForNotificationProvider(user.numero != 'null');
     } catch (e) {
       print(e);
     }
@@ -305,6 +304,7 @@ class _LoadProductState extends State<LoadProduct> {
           .pushAndRemoveUntil(MaterialPageRoute(builder: (context) {
         DealsSkeletonData item = DealsSkeletonData(
           comments: productInfo['result']['comments'],
+          numberVue: productInfo['result']['numberVue'],
           video: productInfo['result']['video'],
           level: productInfo['result']['level'],
           quantity: productInfo['result']['quantity'],

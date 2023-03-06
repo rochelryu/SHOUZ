@@ -556,6 +556,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                               .push((MaterialPageRoute(builder: (context) {
                                             DealsSkeletonData element = DealsSkeletonData(
                                                 comments: item['comments'],
+                                                numberVue: item['numberVue'],
                                                 quantity: item['quantity'],
                                                 video: item['video'],
                                                 level: item['level'],
@@ -603,6 +604,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                               .push((MaterialPageRoute(builder: (context) {
                                             DealsSkeletonData element = DealsSkeletonData(
                                                 comments: item['comments'],
+                                                numberVue: item['numberVue'],
                                                 video: item['video'],
                                                 quantity: item['quantity'],
                                                 archive: item['archive'],

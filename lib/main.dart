@@ -34,17 +34,20 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  var body = message.data['bodyNotif'].toString().trim() == "images"
-      ? "${Emojis.art_framed_picture} Une image a été envoyé..."
-      : message.data['bodyNotif'].toString().trim();
-  body = message.data['bodyNotif'].toString().trim() == "audio"
-      ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
-      : body;
-  Map<String, String> data =
-      message.data.map((key, value) => MapEntry(key, value.toString()));
+  if(message.data['bodyNotif'] != null) {
+    var body = message.data['bodyNotif'].toString().trim() == "images"
+        ? "${Emojis.art_framed_picture} Une image a été envoyé..."
+        : message.data['bodyNotif'].toString().trim();
+    body = message.data['bodyNotif'].toString().trim() == "audio"
+        ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
+        : body;
+    Map<String, String> data =
+    message.data.map((key, value) => MapEntry(key, value.toString()));
 
-  createShouzNotification(
-      message.data['titreNotif'].toString().trim(), body, data);
+    createShouzNotification(
+        message.data['titreNotif'].toString().trim(), body, data);
+  }
+
 }
 
 void main() async {
@@ -277,9 +280,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     try {
       int levelLocal = await getLevel();
       User user = await DBProvider.db.getClient();
-      if (user.numero != 'null') {
-        await getTokenForNotificationProvider(true);
-      }
+      await getTokenForNotificationProvider(user.numero != 'null');
+
       setState(() {
         level = levelLocal;
       });

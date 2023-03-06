@@ -174,6 +174,7 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                         lieu: dealsFull[index]['lieu'],
                         registerDate: dealsFull[index]['registerDate'],
                         comments: dealsFull[index]['comments'],
+                        numberVue: dealsFull[index]['numberVue'],
                         quantity: dealsFull[index]['quantity']);
                   });
                 }

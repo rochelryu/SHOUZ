@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
-
 import 'package:badges/badges.dart'  as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
-import 'package:shouz/Pages/Covoiturage.dart';
+//import 'package:shouz/Pages/Covoiturage.dart';
 import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
@@ -25,6 +23,7 @@ import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
 import 'Constant/my_flutter_app_second_icons.dart';
+import 'Pages/Opt.dart';
 import 'Pages/all_categorie_deals_choice.dart';
 import 'Pages/choice_other_hobie_second.dart';
 import 'Pages/not_available.dart';
@@ -92,6 +91,17 @@ class _MenuDrawlerState extends State<MenuDrawler>
         newClient = user;
         id = newClient!.ident;
       });
+
+      if(user.inscriptionIsDone == 0) {
+        setState(() {
+          logged = -1;
+        });
+        await modalForExplain(
+            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+            "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
+            context, true);
+        Navigator.pushNamed(context, Login.rootName);
+      }
     }
     else {
       setState(() {
@@ -148,7 +158,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
         } else {
           if (Platform.isAndroid) {
             if (await isHms()) {
-              if ("1.0.24" != getLatestVersionApp['appGallery']) {
+              if ("1.0.25" != getLatestVersionApp['appGallery']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
@@ -159,7 +169,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                     mode: LaunchMode.externalApplication);
               }
             } else {
-              if ("1.0.24" != getLatestVersionApp['playstore']) {
+              if ("1.0.25" != getLatestVersionApp['playstore']) {
                 await prefs.setString(
                     'versionning', jsonEncode(getLatestVersionApp));
                 await modalForExplain(
@@ -171,7 +181,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
               }
             }
           } else {
-            if ("1.0.24" != getLatestVersionApp['appleStore']) {
+            if ("1.0.25" != getLatestVersionApp['appleStore']) {
               await prefs.setString(
                   'versionning', jsonEncode(getLatestVersionApp));
               await modalForExplain(
@@ -450,8 +460,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                                 true);
                             Navigator.pushNamed(context, Login.rootName);
                           },
-                          icon: Icon(Icons.account_circle_outlined,
-                            color: Colors.white, size: 30,))),
+                        icon: Icon(Icons.account_circle_outlined))),
               ),
 
             ],

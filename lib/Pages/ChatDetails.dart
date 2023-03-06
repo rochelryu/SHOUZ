@@ -77,6 +77,8 @@ class _ChatDetailsState extends State<ChatDetails>
 
   bool isListeen = false, showFloatingAction = false;
 
+  String message = '';
+
   Future getImage() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -89,7 +91,6 @@ class _ChatDetailsState extends State<ChatDetails>
     }
   }
 
-  var message = "";
   String room = '';
 
   late AppState appState;
@@ -106,10 +107,9 @@ class _ChatDetailsState extends State<ChatDetails>
         if (appState.getConversationGetter['content'] != null &&
             historyChangeForConversation <
                 appState.getConversationGetter['content'].length) {
-          setState(() {
-            historyChangeForConversation =
-                appState.getConversationGetter['content'].length;
-          });
+
+          historyChangeForConversation = appState.getConversationGetter['content'].length;
+
           _scrollController.animateTo(
               _scrollController.position.maxScrollExtent,
               duration: const Duration(milliseconds: 500),
@@ -133,7 +133,6 @@ class _ChatDetailsState extends State<ChatDetails>
         }
         if(appState.getConversationGetter['_id'] == "" && productDetails != null) {
           loadProfil();
-
         }
       }
     });
@@ -310,26 +309,6 @@ class _ChatDetailsState extends State<ChatDetails>
               isReadByOtherUser: value['isReadByOtherUser'],
               image: value['image'],
               context: context));
-          if(!isMe && value['content'].toString().indexOf("Je viens d'enregistrer une offre.") != -1 && room.split('_')[0] != widget.newClient.ident &&
-              conversation['etatCommunication'] ==
-                  'Seller Purpose price final at buyer') {
-            tabs.add(
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-
-                    },
-                    child: Text(
-                      "Payer par Shouz",
-                      style: Style.sousTitreEvent(15),
-                    ),
-                    style: raisedButtonStyleSuccess,
-                  ),
-                ],
-              )
-            );
-          }
         } else if (date < 1) {
           if (!againToday) {
             tabs.add(Text("Aujourd'hui",
@@ -1135,26 +1114,26 @@ class _ChatDetailsState extends State<ChatDetails>
                                                     border: InputBorder.none,
                                                     hintStyle:
                                                         Style.sousTitre(14)),
-                                                onChanged: (text) async {
+                                                onChanged: (text)  {
                                                   setState(() {
                                                     message = text;
-                                                    if (message.length == 1) {
-                                                      inWrite(
-                                                          true,
-                                                          room,
-                                                          widget
-                                                              .newClient.ident);
-                                                      // appState.setTyping(true, widget.authorId);
-                                                    } else if (message.length ==
-                                                        0) {
-                                                      inWrite(
-                                                          false,
-                                                          room,
-                                                          widget
-                                                              .newClient.ident);
-                                                      // appState.setTyping(false, widget.authorId);
-                                                    }
                                                   });
+                                                  if (text.length == 1) {
+                                                    inWrite(
+                                                        true,
+                                                        room,
+                                                        widget
+                                                            .newClient.ident);
+                                                    // appState.setTyping(true, widget.authorId);
+                                                  } else if (text.length ==
+                                                      0) {
+                                                    inWrite(
+                                                        false,
+                                                        room,
+                                                        widget
+                                                            .newClient.ident);
+                                                    // appState.setTyping(false, widget.authorId);
+                                                  }
                                                 },
                                               ),
                                       ),
@@ -1173,7 +1152,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                             colors: [colorText],
                                             strokeWidth: 2)
                                       else if ((!appState.getLoadingToSend &&
-                                              message.length > 0 &&
+                                          message.length > 0 &&
                                               !isListeen) ||
                                           _image != null)
                                         IconButton(
@@ -1217,7 +1196,6 @@ class _ChatDetailsState extends State<ChatDetails>
                                                 }
                                                 setState(() {
                                                   _image = null;
-                                                  message = '';
                                                   base64Image = '';
                                                   imageCover = '';
                                                 });
@@ -1259,7 +1237,6 @@ class _ChatDetailsState extends State<ChatDetails>
                                                 }
                                                 setState(() {
                                                   _image = null;
-                                                  message = '';
                                                   base64Image = '';
                                                   imageCover = '';
                                                 });
@@ -1274,7 +1251,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                           },
                                         )
                                       else if (!appState.getLoadingToSend &&
-                                          message.length == 0 &&
+                                            message.length == 0 &&
                                           _image == null)
                                         IconButton(
                                           icon: Icon(
@@ -1725,18 +1702,36 @@ class _ChatDetailsState extends State<ChatDetails>
     String audioName = path!.split('/').last;
     final base64Audio = base64Encode(File(path).readAsBytesSync());
     if (appState.getConversationGetter['_id'] == null) {
+
       appState.createChatMessage(
           destinate: room,
           base64: base64Audio,
           imageName: audioName,
           content: message);
     } else {
-      appState.sendChatMessage(
+
+      final setFile = await consumeAPI.postFileOfConversation(message,room,base64Audio,audioName,idConversation.trim());
+      if(setFile['etat'] == 'found') {
+        appState.refreshChatMessage(
+            room: room,
+            id: idConversation
+                .trim());
+      } else {
+        Fluttertoast.showToast(
+            msg: 'Problème de reseau',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: colorError,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+      /*appState.sendChatMessage(
           destinate: room,
           base64: base64Audio,
           imageName: audioName,
           content: message,
-          id: idConversation.trim());
+          id: idConversation.trim());*/
     }
   }
 

@@ -29,8 +29,9 @@ class SearchAdvancedDeals extends StatefulWidget {
   bool displayProfilAuthor;
   var approved;
   var comments;
+  var numberVue;
   List<String> PersonneLike = [];
-  SearchAdvancedDeals({this.imageUrl,this.comments, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video, this.approved});
+  SearchAdvancedDeals({this.imageUrl,this.comments, this.numberVue , this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, required this.displayProfilAuthor, this.video, this.approved});
   @override
   _SearchAdvancedDealsState createState() => _SearchAdvancedDealsState();
 }
@@ -70,6 +71,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                         .push((MaterialPageRoute(builder: (context) {
                       DealsSkeletonData item = DealsSkeletonData(
                           comments: widget.comments,
+                          numberVue:widget.numberVue,
                         level: widget.level,
                         video: widget.video,
                         quantity: widget.quantity,
@@ -141,6 +143,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                       .push((MaterialPageRoute(builder: (context) {
                     DealsSkeletonData item = DealsSkeletonData(
                         comments: widget.comments,
+                        numberVue:widget.numberVue,
                       level: widget.level,
                       video: widget.video,
                       quantity: widget.quantity,
@@ -305,6 +308,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                         .push((MaterialPageRoute(builder: (context) {
                       DealsSkeletonData item = DealsSkeletonData(
                           comments: widget.comments,
+                          numberVue: widget.numberVue,
                         level: widget.level,
                         video: widget.video,
                         quantity: widget.quantity,
@@ -348,6 +352,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                       .push((MaterialPageRoute(builder: (context) {
                     DealsSkeletonData item = DealsSkeletonData(
                         comments: widget.comments,
+                        numberVue: widget.numberVue,
                       level: widget.level,
                       video: widget.video,
                       quantity: widget.quantity,

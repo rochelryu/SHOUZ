@@ -38,6 +38,7 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
     try {
       final items = await consumeAPI.getCategoriesAndNumbersItemsDeals();
 
+
       setState(() {
         data = items;
       });

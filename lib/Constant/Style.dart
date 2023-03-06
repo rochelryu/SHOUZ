@@ -59,6 +59,7 @@ class DealsSkeletonData {
   var video;
   var approved;
   var comments;
+  var numberVue;
   DealsSkeletonData(
       {required this.imageUrl,
         required this.title,
@@ -74,7 +75,7 @@ class DealsSkeletonData {
         required this.quantity,
         required this.archive,
         required this.level,
-        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved, required this.comments});
+        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved, required this.comments, required this.numberVue});
 }
 
 int channelId() {
@@ -591,7 +592,7 @@ class Style {
 
   //Style Of Deals
 
-  static dynamic titleDealsProduct([double size = 13.0]) {
+  static dynamic titleDealsProduct([double size = 11.0]) {
     return TextStyle(
       fontSize: size,
       fontFamily: "Montserrat-Black",
@@ -617,9 +618,9 @@ class Style {
     );
   }
 
-  static dynamic numberOfLike() {
+  static dynamic numberOfLike([double fontSize = 12.0]) {
     return TextStyle(
-      fontSize: 12.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: colorSecondary,
     );

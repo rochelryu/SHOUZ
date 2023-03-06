@@ -192,6 +192,41 @@ class _DetailsDealsState extends State<DetailsDeals> with SingleTickerProviderSt
     }
   }
 
+  Future createCampagne(String productId) async {
+    if (widget.dealsDetailsSkeleton.level == 3) {
+      final renewArticle = await consumeAPI.createCampagne(productId);
+      if (renewArticle['etat'] == "found") {
+        await askedToLead(
+            "Campagne lancé à ${widget.dealsDetailsSkeleton.numberVue} client${widget.dealsDetailsSkeleton.numberVue > 1 ? 's':''}", true, context);
+      } else if (renewArticle['etat'] == "notFound") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
+            barrierDismissible: false);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
+      } else {
+        await askedToLead(renewArticle['error'], false, context);
+      }
+    } else {
+      if (widget.dealsDetailsSkeleton.numberVue <= 4) {
+        await askedToLead(
+            "Il y a moins de 5 vues pour cet article, nous vous recommandons de ne pas gaspiller votre campagne pour ça..",
+            false,
+            context);
+      } else {
+        await askedToLead(
+            "Pour lancer une campagne il faut que l'article soit VIP.",
+            false,
+            context);
+      }
+    }
+  }
+
+
   Future setUpVipProduct(String productId) async {
     if (widget.dealsDetailsSkeleton.level != 3) {
       if (newClient!.wallet >= 1000) {
@@ -694,6 +729,7 @@ class _DetailsDealsState extends State<DetailsDeals> with SingleTickerProviderSt
                                           flex: 1,
                                           child: InkWell(
                                             onTap: (){
+                                              print('ici encore');
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -745,22 +781,24 @@ class _DetailsDealsState extends State<DetailsDeals> with SingleTickerProviderSt
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(widget.dealsDetailsSkeleton.price.toString(),
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold)),
-                  if (!isMe || widget.dealsDetailsSkeleton.approved)
-                    Text("(Prix discutable)",
-                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
-                  if (isMe && !widget.dealsDetailsSkeleton.approved)
-                    Text("(En attente de validation par Shouz)",
-                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
-                ],
+              Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(widget.dealsDetailsSkeleton.price.toString(),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold)),
+                    if (!isMe || widget.dealsDetailsSkeleton.approved)
+                      Text("(Prix discutable)",
+                          style: TextStyle(color: Colors.white, fontSize: 13.5)),
+                    if (isMe && !widget.dealsDetailsSkeleton.approved)
+                      Text("(En attente de validation par Shouz)",
+                          style: TextStyle(color: Colors.white, fontSize: 13.5)),
+                  ],
+                ),
               ),
               if (!isMe && widget.dealsDetailsSkeleton.quantity > 0)
                 ElevatedButton(
@@ -801,7 +839,26 @@ class _DetailsDealsState extends State<DetailsDeals> with SingleTickerProviderSt
                       Navigator.pushNamed(context, Login.rootName);
                     }
                   },
-                )
+                ),
+              if(isMe) Expanded(
+                  child: Container(
+                    child: Row(
+                      children: [
+                        SizedBox(width: 45),
+                        Icon(Icons.favorite,
+                            color: Colors.redAccent, size: 22.0),
+                        SizedBox(width: 3),
+                        Text(widget.dealsDetailsSkeleton.numberFavorite.toString(), style: Style.numberOfLike(20.0),),
+                        SizedBox(width: 15),
+                        Icon(Icons.remove_red_eye,
+                            color: colorSecondary, size: 22.0),
+                        SizedBox(width: 3),
+                        Text(widget.dealsDetailsSkeleton.numberVue.toString(), style: Style.simpleTextOnBoard(20.0),),
+                        Spacer()
+                      ],
+                    ),
+                  )
+              )
             ],
           ),
         ),
@@ -962,6 +1019,45 @@ class _DetailsDealsState extends State<DetailsDeals> with SingleTickerProviderSt
                       ],
                     ),
                   ),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            dialogCustomForValidateAction(
+                                'CAMPAGNE DE RELANCE',
+                                'Nous allons envoyer un message à tous ceux qui ont vu votre article au moins une fois pour les relancer.\nAttention vous ne pouvez créer qu\'une seule fois une campagne alors assurez-vous que c\'est le moment opportun avant de dire "OK".',
+                                'Ok',
+                                    () async => await createCampagne(widget.dealsDetailsSkeleton.id),
+                                context),
+                        barrierDismissible: false);
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        "Créer campagne",
+                        style: Style.titre(15.0),
+                      ),
+                      Card(
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: colorText,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius: BorderRadius.circular(25.0)),
+                          child: Center(
+                            child: Icon(Icons.notifications_active_outlined,
+                                color: colorPrimary, size: 17),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 if (widget.dealsDetailsSkeleton.level != 3 && newClient != null)
                   GestureDetector(
                     onTap: () async {

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:location/location.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 
@@ -706,7 +707,6 @@ Widget dialogCustomForNotChangeProfil(String title, String message, String title
           child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError(),),
           onPressed: () async {
             await callback();
-
           }),
     ],
   )
@@ -1199,11 +1199,9 @@ CachedNetworkImage buildImageInCachedNetworkSimpleWithSizeAuto(String urlImage,B
     imageUrl: urlImage,
     imageBuilder: (context, imageProvider) =>
         Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: imageProvider,
-              fit: fit,
-            ),
+          child: PhotoView(
+            imageProvider: imageProvider,
+            minScale: PhotoViewComputedScale.contained * 1,
           ),
         ),
     progressIndicatorBuilder: (context, url, downloadProgress) =>

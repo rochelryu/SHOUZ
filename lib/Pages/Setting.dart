@@ -363,6 +363,7 @@ class _SettingState extends State<Setting> {
                 style: Style.sousTitre(12),
               ),
             ),
+
           ],
         ),
       ),

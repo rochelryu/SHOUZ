@@ -30,11 +30,13 @@ class VipDeals extends StatefulWidget {
   var approved;
   String id;
   var comments;
+  var numberVue;
   List<String> personneLike = [];
   VipDeals(
       {this.imageUrl,
       this.title,
         this.comments,
+        this.numberVue,
       this.favorite,
       this.price,
       this.level,
@@ -82,6 +84,7 @@ class _VipDealsState extends State<VipDeals> {
                   .push((MaterialPageRoute(builder: (context) {
                 DealsSkeletonData item = DealsSkeletonData(
                     comments: widget.comments,
+                    numberVue:widget.numberVue,
                   level: widget.level,
                   quantity: widget.quantity,
                   numberFavorite: widget.numberFavorite,
@@ -124,7 +127,7 @@ class _VipDealsState extends State<VipDeals> {
                   Padding(
                       padding: EdgeInsets.only(left: 12.0, top: 8.0, right: 6.0),
                       child:
-                          Text(widget.title, style: Style.titleDealsProduct())),
+                          Text(widget.title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis,)),
                   Padding(
                       padding: EdgeInsets.only(left: 12.0),
                       child: Row(
@@ -222,6 +225,7 @@ class _VipDealsState extends State<VipDeals> {
                           .push((MaterialPageRoute(builder: (context) {
                         DealsSkeletonData item = DealsSkeletonData(
                             comments: widget.comments,
+                            numberVue:widget.numberVue,
                             level: widget.level,
                             quantity: widget.quantity,
                             numberFavorite: widget.numberFavorite,
