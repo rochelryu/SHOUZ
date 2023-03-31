@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Painture.dart';
 import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/helper.dart';
@@ -29,7 +30,7 @@ class _CreateProfil extends State<CreateProfil> {
   String base64Image = "";
   final picker = ImagePicker();
   File? tmpFile;
-
+  TextEditingController _controllerParrain = new TextEditingController();
   bool changeLoading = false;
 
   Future getImage(BuildContext context) async {
@@ -64,6 +65,19 @@ class _CreateProfil extends State<CreateProfil> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadInfo();
+  }
+
+  loadInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final codeSponsorSave = await prefs.getString("codeSponsor") ?? "";
+    setState(() {
+      codeParrain = codeSponsorSave;
+      if(codeSponsorSave.length == 6) {
+        _controllerParrain.text = codeSponsorSave;
+      }
+    });
+
   }
 
   @override
@@ -74,10 +88,7 @@ class _CreateProfil extends State<CreateProfil> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (value.length >= 5) {
-            setState(() {
-              heigth = 0;
-              changeLoading = true;
-            });
+
             await DBProvider.db.updateName(value);
             if (tmpFile == null) {
               await showDialog(
@@ -87,6 +98,10 @@ class _CreateProfil extends State<CreateProfil> {
                       "Vous n'avez pas choisi d'image de profil pour votre compte.\nVoulez vous vraiment continuer sans cela ?",
                       "Oui",
                           () async {
+                            setState(() {
+                              heigth = 0;
+                              changeLoading = true;
+                            });
                             final fileName = "images/boss.png";
                             final signinUser = await consumeAPI.signinSecondStep(fileName, '', [], codeParrain);
                             if (signinUser['etat'] == 'found') {
@@ -117,6 +132,10 @@ class _CreateProfil extends State<CreateProfil> {
                   barrierDismissible: false);
 
             } else {
+              setState(() {
+                heigth = 0;
+                changeLoading = true;
+              });
               final fileName = tmpFile?.path.split('/').last;
               final signinUser = await consumeAPI.signinSecondStep(fileName, base64Image, [], codeParrain);
               if (signinUser['etat'] == 'found') {
@@ -372,6 +391,7 @@ class _CreateProfil extends State<CreateProfil> {
                         width: MediaQuery.of(context).size.width,
                         child: TextField(
                           autofocus: true,
+                          controller: _controllerParrain,
                           style: TextStyle(
                               color: Colors.black87,
                               fontWeight: FontWeight.w300),
@@ -427,7 +447,7 @@ class _CreateProfil extends State<CreateProfil> {
                       ),
                     ),
                     title: Text(profilParrain["name"]!, style: prefix0.Style.sousTitre(14, prefix0.colorPrimary),),
-                    subtitle: Text("Est le propriétaire de ce code.", style: prefix0.Style.simpleTextOnBoard(12),),
+                    subtitle: Text("Sera votre parrain.", style: prefix0.Style.simpleTextOnBoard(12),),
                   ),
                 ),
                 if(error) Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 20.0), child: Text("Aucun Utilisateur n'a se code promo", style: prefix0.Style.titleInSegmentInTypeError(),))

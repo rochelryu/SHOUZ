@@ -80,6 +80,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
         backgroundColor: backgroundColor,
         body: DefaultTabController(
           length: 4,
+          initialIndex: 1,
           child: NestedScrollView(
             scrollDirection: Axis.vertical,
             headerSliverBuilder: (context, innerBoxIsScrolled) {

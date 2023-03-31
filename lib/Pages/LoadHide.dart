@@ -315,7 +315,7 @@ class _LoadProductState extends State<LoadProduct> {
           profil: productInfo['result']['profil'],
           imageUrl: productInfo['result']['images'],
           title: productInfo['result']['name'],
-          price: "${productInfo['result']['price'].toString()} ${user.numero != "null" ? user.currencies: ""}",
+          price: "${productInfo['result']['price'].toString()} ${user.numero != "null" ? user.currencies: "XOF"}",
           autor: productInfo['result']['author'],
           numero: productInfo['result']['numero'],
           describe: productInfo['result']['describe'],

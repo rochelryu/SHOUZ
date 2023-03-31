@@ -20,7 +20,8 @@ import 'choice_other_hobie_second.dart';
 class Deals extends StatefulWidget {
   String categorie;
   String categorieName;
-  Deals({ required Key key, required this.categorie, required this.categorieName}) : super(key: key);
+  int? indexTabs;
+  Deals({ required Key key, required this.categorie, required this.categorieName, this.indexTabs }) : super(key: key);
   @override
   _DealsState createState() => _DealsState();
 }
@@ -87,7 +88,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         await loadProduct();
       }
     });
-    _controller = TabController(length: 3, vsync: this, initialIndex: 1)
+    _controller = TabController(length: 3, vsync: this, initialIndex: widget.indexTabs ?? 1)
       ..addListener(() {
         if (_controller.indexIsChanging) {
           if(searchData != '') {
@@ -518,9 +519,6 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                             if(loadingFull){
                               if(dealsFull.length > 0 && dealsFull[1][choiceItemSearch]['body'].length > 0) {
                                 var populaireActu = dealsFull;
-                                print(populaireActu[1]
-                                [choiceItemSearch]['body']
-                                [1]);
 
                                 return Column(
                                   children: <Widget>[

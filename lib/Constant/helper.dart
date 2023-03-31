@@ -8,8 +8,14 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:huawei_push/huawei_push.dart' as huawei;
+import 'package:in_app_review/in_app_review.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shouz/Constant/widget_common.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../Models/User.dart';
 import '../Provider/Notifications.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import '../Utils/Database.dart';
 import 'Style.dart';
 import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 
@@ -22,7 +28,8 @@ const amountMutialiseVTCUnity = 220;
 const amountConfortVTCUnity = 260;
 const minMutialiseVTCPrice = 600;
 const minConfortVTCUnity = 1000;
-const versionApp = "1.0.25";
+const serviceCall = "2250564250219";
+const versionApp = "1.0.27";
 const linkAppGalleryForShouz =
     "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz =
@@ -38,6 +45,33 @@ void showSnackBar(BuildContext context, String text) {
     ),
     action: SnackBarAction(label: 'Ok', onPressed: () {}),
   ));
+}
+
+void openAppReview(BuildContext context) async {
+  final InAppReview inAppReview = InAppReview.instance;
+
+  final prefs = await SharedPreferences.getInstance();
+  final bool alreadyReviewApp = prefs.getBool('alreadyReviewApp') ?? false;
+  if(!alreadyReviewApp) {
+    await modalForExplain(
+        "${ConsumeAPI.AssetPublicServer}app_review.svg",
+        "Comment trouvez-vous notre application ? Veuillez nous dire si vous êtes satisfait de l'utilisation ou si vous avez des propositions à nous faire.",
+        context, true);
+    if(Platform.isAndroid && await isHms()) {
+      prefs.setBool('alreadyReviewApp', true);
+      await launchUrl(Uri.parse(linkAppGalleryForShouz),
+          mode: LaunchMode.externalApplication);
+    } else {
+      if (await inAppReview.isAvailable()) {
+        prefs.setBool('alreadyReviewApp', true);
+        inAppReview.openStoreListing(
+            appStoreId: "6444333797"
+        );
+      }
+    }
+
+  }
+
 }
 
 String priceMutualise(place, distance) {
@@ -158,7 +192,6 @@ Future<void> huaweiMessagingBackgroundHandler(dynamic message) async {
     Map<String, String> data = Map<String, String>.from(message);
     createShouzNotification(message['titreNotif'].toString().trim(), body, data);
   }
-
 }
 
 Future getTokenForNotificationProvider(bool isConnected) async {
@@ -182,7 +215,7 @@ Future getTokenForNotificationProvider(bool isConnected) async {
 
           await huawei.Push.registerBackgroundMessageHandler(
               _onHmsMessageReceived);
-          final infoSaveToken = await consumeAPI.updateTokenVerification(
+          await consumeAPI.updateTokenVerification(
               _token.trim(), "huawei_push", isConnected);
         }
       }, onError: (dynamic error) {
@@ -209,6 +242,17 @@ Future getTokenForNotificationProvider(bool isConnected) async {
   }
 }
 
+Future displayNotificationCenter(String imgUrl, String title, String body, data, BuildContext context) async {
+  User user = await DBProvider.db.getClient();
+  if(data['action'] == "inscription"){
+    if(user.numero == 'null') {
+      await modalForExplainForNotification(imgUrl.trim(), title.trim(), body.trim(), data, user, context);
+    }
+  } else {
+    await modalForExplainForNotification(imgUrl.trim(), title.trim(), body.trim(),data, user, context);
+  }
+}
+
 Future setTokenForNotificationProvider(String tokenOnline) async {
   if (Platform.isAndroid) {
     if (await isHms()) {
@@ -218,7 +262,7 @@ Future setTokenForNotificationProvider(String tokenOnline) async {
         if (event.isNotEmpty) {
           _token = event;
           if (_token.trim() != "" && _token.trim() != tokenOnline) {
-            final infoSaveToken = await consumeAPI.updateTokenVerification(
+            await consumeAPI.updateTokenVerification(
                 _token.trim(), "huawei_push", true);
 
           }
@@ -229,7 +273,7 @@ Future setTokenForNotificationProvider(String tokenOnline) async {
     } else {
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
       if (fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
-        final infoSaveToken = await consumeAPI.updateTokenVerification(
+        await consumeAPI.updateTokenVerification(
             fcmToken.trim(), "firebase", true);
 
       }
@@ -237,8 +281,7 @@ Future setTokenForNotificationProvider(String tokenOnline) async {
   } else {
     final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
     if (fcmToken.trim() != "" && fcmToken.trim() != tokenOnline) {
-      final infoSaveToken =
-          await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase", true);
+      await consumeAPI.updateTokenVerification(fcmToken.trim(), "firebase", true);
 
     }
   }

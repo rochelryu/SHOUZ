@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
@@ -34,7 +36,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if(message.data['bodyNotif'] != null) {
+  if (message.data['bodyNotif'] != null) {
     var body = message.data['bodyNotif'].toString().trim() == "images"
         ? "${Emojis.art_framed_picture} Une image a été envoyé..."
         : message.data['bodyNotif'].toString().trim();
@@ -42,12 +44,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         ? "${Emojis.person_symbol_speaking_head} Une note vocale a été envoyé..."
         : body;
     Map<String, String> data =
-    message.data.map((key, value) => MapEntry(key, value.toString()));
+        message.data.map((key, value) => MapEntry(key, value.toString()));
 
     createShouzNotification(
         message.data['titreNotif'].toString().trim(), body, data);
   }
-
 }
 
 void main() async {
@@ -144,6 +145,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   AppState? appState;
   IO.Socket? socket;
+  SharedPreferences? prefs;
   int level = 15;
   User? client;
   String idOldConversation = "";
@@ -152,16 +154,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void _onHmsMessageReceived(huawei.RemoteMessage remoteMessage) async {
     final dataString = remoteMessage.data ?? "";
     final data = jsonDecode(dataString);
-      if (data['room'] != null) {
-        if (appState?.getIdOldConversation != data['_id'] ||
-            appState?.getIdOldConversation == '') {
-          appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
-          huaweiMessagingBackgroundHandler(data);
-        }
-      } else {
+    if (data['room'] != null) {
+      if (appState?.getIdOldConversation != data['_id'] ||
+          appState?.getIdOldConversation == '') {
         appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
         huaweiMessagingBackgroundHandler(data);
       }
+    } else {
+      appState?.setNumberNotif(appState?.getNumberNotif ?? 0 + 1);
+      huaweiMessagingBackgroundHandler(data);
+    }
   }
 
   void _onHmsMessageReceiveError(Object error) {
@@ -178,7 +180,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           }
           if (appState != null &&
               idOldConversation != "" &&
-              appState?.getConversationGetter['room'] != null && appState?.getConversationGetter['author']  != null &&
+              appState?.getConversationGetter['room'] != null &&
+              appState?.getConversationGetter['author'] != null &&
               client?.name.trim() !=
                   appState?.getConversationGetter['author'].trim()) {
             appState?.ackReadMessage(appState?.getConversationGetter['room']);
@@ -236,7 +239,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } else {
       if (Platform.isAndroid) {
         if (await isHms()) {
-
           huawei.Push.onMessageReceivedStream.listen(_onHmsMessageReceived,
               onError: _onHmsMessageReceiveError);
         } else {
@@ -281,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       int levelLocal = await getLevel();
       User user = await DBProvider.db.getClient();
       await getTokenForNotificationProvider(user.numero != 'null');
-
+      prefs = await SharedPreferences.getInstance();
       setState(() {
         level = levelLocal;
       });
@@ -353,13 +355,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Widget loadDeepLink(String categorie, String id) {
     switch (categorie) {
       case 'deals':
-        return LoadProduct(key: UniqueKey(), productId: id, doubleComeBack: 1,);
+        return LoadProduct(
+          key: UniqueKey(),
+          productId: id,
+          doubleComeBack: 1,
+        );
       case 'event':
         return LoadEvent(key: UniqueKey(), eventId: id);
       case 'new':
         return LoadNew(key: UniqueKey(), actualityId: id);
       case 'travel':
         return LoadTravel(key: UniqueKey(), travelId: id);
+      case 'follow':
+        prefs!.setString("codeSponsor", id);
+        return Login();
       default:
         return LoadHide(key: UniqueKey());
     }

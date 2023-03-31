@@ -5,6 +5,8 @@ import 'package:shouz/Pages/DetailsDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'helper.dart';
+
 
 class SearchAdvancedDeals extends StatefulWidget {
   var imageUrl;
@@ -251,7 +253,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                     child: IconButton(
                       icon: Icon(Icons.call, color: Colors.green),
                       onPressed: () async {
-                        await launchUrl(Uri(scheme: "tel", path: widget.numero));
+                        await launchUrl(Uri(scheme: "tel", path: "+$serviceCall"));
                       },
                     ),
                   ),

@@ -68,6 +68,8 @@ class ConsumeAPI {
       BASE_URL + "/client/getMaxPlaceForCreateEvent";
   static final GET_LATEST_VERSION_APP_URL =
       BASE_URL + "/client/getLastVersionApp";
+  static final GET_LATEST_INFO_NOTIFICATION_IN_APP_URL =
+      BASE_URL + "/client/getLatestInfoNotificationInApp";
   static final ALL_CATEGIRES_URL = BASE_URL + "/categorie/all";
 
   static final SET_EVENT_URL = BASE_URL + "/event/inside";
@@ -1607,6 +1609,22 @@ class ConsumeAPI {
       });
     }
   }
+
+  Future<Map<String, dynamic>> getLatestInfoNotificationInApp() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = await prefs.getString('token') ?? "";
+    if (token == "") {
+      await getTokenForNotificationProvider(true);
+
+      return this.getLatestInfoNotificationInApp();
+    } else {
+      final tokenDecode = jsonDecode(token);
+      final res = await _netUtil.get(
+          "$GET_LATEST_INFO_NOTIFICATION_IN_APP_URL?ident=${tokenDecode['id'] != null ? tokenDecode['id']: 'ident'}&token=${tokenDecode['token']}");
+      return res;
+    }
+  }
+
 
   //Version of App
 

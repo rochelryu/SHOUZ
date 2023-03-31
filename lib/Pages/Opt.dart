@@ -9,7 +9,9 @@ import 'package:shouz/Pages/Login.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../Constant/helper.dart';
 import './CreateProfil.dart';
 import '../MenuDrawler.dart';
 
@@ -157,13 +159,17 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         width: 150,
         alignment: Alignment.center,
         child: Text(
-          "Renvoyer le code",
+          "Besoin d'aide ?",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       onPressed: () async {
         if(!loadRequest) {
-          setState(() {
+          await launchUrl(
+              Uri.parse(
+                  "https://wa.me/$serviceCall?text=Salut à service client Shouz CI, je n'ai toujours pas reçu mon code mon numero de compte est ${newClient!.numero}."),
+              mode: LaunchMode.externalApplication);
+         /* setState(() {
             _hideResendButton = true;
             totalTimeInSeconds = time;
           });
@@ -187,7 +193,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
                 barrierDismissible: false);
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (builder) => Login()));
-          }
+          }*/
         }
 
         // Resend you OTP via API or anything

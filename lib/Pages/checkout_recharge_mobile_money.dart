@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Provider/AppState.dart';
@@ -34,7 +35,8 @@ class _CheckoutRechargeMobileMoneyState
   String otp = '';
   String previsionMontant = 'N/A';
   int indexStepper = 0;
-  bool loadConfirmation = false;
+  bool loadConfirmation = false, displayInfoTransaction = false;
+  late SharedPreferences prefs;
   Map<dynamic, dynamic>? info;
   TextEditingController _controller = TextEditingController();
   TextEditingController _controllerForReceive = TextEditingController();
@@ -54,6 +56,8 @@ class _CheckoutRechargeMobileMoneyState
   Future LoadInfo() async {
     try {
 
+      prefs = await SharedPreferences.getInstance();
+      final amountRecharge = prefs.getDouble("amountRecharge") ?? 0.0;
       final data = await consumeAPI.getMobileMoneyAvalaible();
       if(data["etat"] == 'found') {
         setState(() {
@@ -63,6 +67,31 @@ class _CheckoutRechargeMobileMoneyState
         setState(() {
           newClient = user;
         });
+        print(amountRecharge);
+        if(amountRecharge >= 500) {
+          final intAmountToString = amountRecharge.ceil().toString().split('.')[0];
+          final amount = int.parse(intAmountToString);
+            if(amount % 100 == 0) {
+              setState(() {
+                displayInfoTransaction = true;
+              });
+              _controllerForReceive.text = amount.toString();
+              _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+              setState(() {
+                displayInfoTransaction = true;
+              });
+            } else {
+              _controller.text = "";
+              setState(() {
+                displayInfoTransaction = false;
+              });
+            }
+        } else {
+          _controller.text = "";
+          setState(() {
+            displayInfoTransaction = false;
+          });
+        }
       } else if(data["etat"] == 'notFound') {
         showDialog(
               context: context,
@@ -248,7 +277,7 @@ class _CheckoutRechargeMobileMoneyState
                           ),
                         ),
                       ),
-                      /*GestureDetector(
+                      GestureDetector(
                         onTap: () {
                           setState(() { _character = TypePayement.wave; indexStepper = 0; });
                         },
@@ -290,7 +319,7 @@ class _CheckoutRechargeMobileMoneyState
                             ),
                           ),
                         ),
-                      ),*/
+                      ),
                     ],
                   )
               ),
@@ -399,7 +428,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Mtn qui est censé faire la transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
                           height: 35,
@@ -449,18 +478,25 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
+                                          setState(() {
+                                            displayInfoTransaction = true;
+                                          });
 
                                         } else {
                                           setState(() {
                                             _controllerForReceive.text = "";
+                                            displayInfoTransaction = false;
                                           });
                                         }
                                       } else {
                                         _controllerForReceive.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     },
                                   ),
@@ -483,23 +519,33 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                            setState(() {
+                                              displayInfoTransaction = true;
+                                            });
                                           } else {
                                             _controller.text = "";
+                                            setState(() {
+                                              displayInfoTransaction = false;
+                                            });
                                           }
                                         }
                                       } else {
                                         _controller.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     },
                                   ),
                                 ),
                               ],
                             )),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Mtn Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
                       ],
                     )
                 ),
@@ -533,11 +579,13 @@ class _CheckoutRechargeMobileMoneyState
                                 final titleAlert = "Votre compte vient d'être rechargé avec succès";
                                 await askedToLead(titleAlert, true, context);
                                 _controller.clear();
+                                await prefs.remove('amountRecharge');
                                 Navigator.pushNamed(context, MenuDrawler.rootName);
                               } else if(rechargeCrypto['etat'] == 'inWait') {
                                 final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                 await askedToLead(titleAlert, true, context);
                                 _controller.clear();
+                                await prefs.remove('amountRecharge');
                                 Navigator.pushNamed(context, Notifications.rootName);
                               } else {
                                 await askedToLead(rechargeCrypto['error'], false, context);
@@ -647,8 +695,8 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer le montant de votre réchargement (Montant Min: 500)", style: Style.sousTitre(11)),
-                        SizedBox(height: 5),
+                        if(!displayInfoTransaction) Text("Faites entrer le montant de votre réchargement (Montant Min: 500)", style: Style.sousTitre(11)),
+                        if(!displayInfoTransaction) SizedBox(height: 5),
                         Container(
                             child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -671,18 +719,24 @@ class _CheckoutRechargeMobileMoneyState
                                   hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                 ),
                                 onChanged: (value) {
-                                  if(value.length >= 3) {
+                                  if(value.length >= 2) {
                                     final amount = int.parse(value);
                                     if (amount >= 500 && amount % 100 == 0 ) {
                                       _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
-
+                                      setState(() {
+                                        displayInfoTransaction = true;
+                                      });
                                     } else {
                                       setState(() {
                                         _controllerForReceive.text = "";
+                                        displayInfoTransaction = false;
                                       });
                                     }
                                   } else {
                                     _controllerForReceive.text = "";
+                                    setState(() {
+                                      displayInfoTransaction = false;
+                                    });
                                   }
                                 },
                               ),
@@ -705,23 +759,33 @@ class _CheckoutRechargeMobileMoneyState
                                   hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                 ),
                                 onChanged: (value) {
-                                  if(value.length >= 3) {
+                                  if(value.length >= 2) {
                                     final amount = int.parse(value);
                                     if (amount >= 500 ) {
                                       if(amount % 100 == 0) {
                                         _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                        setState(() {
+                                          displayInfoTransaction = true;
+                                        });
                                       } else {
                                         _controller.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     }
                                   } else {
                                     _controller.text = "";
+                                    setState(() {
+                                      displayInfoTransaction = false;
+                                    });
                                   }
                                 },
                               ),
                             ),
                           ],
                         )),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Mtn Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
 
                       ],
                     )
@@ -799,11 +863,13 @@ class _CheckoutRechargeMobileMoneyState
                                   final titleAlert = "Votre compte vient d'être rechargé avec succès";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
                                   final titleAlert = "Nous analysons cette transaction au près de Wave, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte.";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, Notifications.rootName);
                                 } else {
                                   await askedToLead(rechargeCrypto['error'], false, context);
@@ -926,7 +992,7 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Orange qui est censé faire la transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
                         Container(
                           height: 35,
@@ -976,18 +1042,22 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
-
+                                          setState(() {
+                                            displayInfoTransaction = true;
+                                          });
                                         } else {
                                           setState(() {
                                             _controllerForReceive.text = "";
+                                            displayInfoTransaction = false;
                                           });
                                         }
                                       } else {
                                         _controllerForReceive.text = "";
+                                        displayInfoTransaction = false;
                                       }
                                     },
                                   ),
@@ -1010,23 +1080,33 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 ) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                            setState(() {
+                                              displayInfoTransaction = true;
+                                            });
                                           } else {
                                             _controller.text = "";
+                                            setState(() {
+                                              displayInfoTransaction = false;
+                                            });
                                           }
                                         }
                                       } else {
                                         _controller.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     },
                                   ),
                                 ),
                               ],
                             )),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Orange Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
                       ],
                     )
                 ),
@@ -1093,11 +1173,13 @@ class _CheckoutRechargeMobileMoneyState
                                 if(rechargeCrypto['etat'] == 'found') {
                                   await askedToLead(rechargeCrypto['result']['content'], true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
                                   final titleAlert = "Nous analysons cette transaction au près de Orange, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte.";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, Notifications.rootName);
                                 } else {
                                   await askedToLead(rechargeCrypto['error'], false, context);
@@ -1208,9 +1290,8 @@ class _CheckoutRechargeMobileMoneyState
                     title: Text("Information sur la transaction", style: Style.titre(13)),
                     content: Column(
                       children: [
-                        Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction puis le montant de votre transaction (Montant Min: 500)", style: Style.sousTitre(11)),
+                        Text("Faites entrer votre numero de telephone Moov qui est censé faire la transaction (Montant Min: 500)", style: Style.sousTitre(11)),
                         SizedBox(height: 5),
-
                         Container(
                           height: 35,
                           width: double.infinity,
@@ -1259,18 +1340,24 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 && amount % 100 == 0 ) {
                                           _controllerForReceive.text = (amount * (1 - appState.getPercentageRecharge)).floor().toString();
-
+                                          setState(() {
+                                            displayInfoTransaction = true;
+                                          });
                                         } else {
                                           setState(() {
                                             _controllerForReceive.text = "";
+                                            displayInfoTransaction = false;
                                           });
                                         }
                                       } else {
                                         _controllerForReceive.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     },
 
@@ -1294,23 +1381,33 @@ class _CheckoutRechargeMobileMoneyState
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
                                     onChanged: (value) {
-                                      if(value.length >= 3) {
+                                      if(value.length >= 2) {
                                         final amount = int.parse(value);
                                         if (amount >= 500 ) {
                                           if(amount % 100 == 0) {
                                             _controller.text = (amount / (1 - appState.getPercentageRecharge)).ceil().toString();
+                                            setState(() {
+                                              displayInfoTransaction = true;
+                                            });
                                           } else {
                                             _controller.text = "";
+                                            setState(() {
+                                              displayInfoTransaction = false;
+                                            });
                                           }
                                         }
                                       } else {
                                         _controller.text = "";
+                                        setState(() {
+                                          displayInfoTransaction = false;
+                                        });
                                       }
                                     },
                                   ),
                                 ),
                               ],
                             )),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Moov Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
                       ],
                     )
                 ),
@@ -1344,11 +1441,13 @@ class _CheckoutRechargeMobileMoneyState
                                   final titleAlert = "Votre compte vient d'être rechargé avec succès";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, MenuDrawler.rootName);
                                 } else if(rechargeCrypto['etat'] == 'inWait') {
                                   final titleAlert = "Nous vous avons envoyez une demande de confirmation de cette transaction, une fois confirmation faite votre compte sera soldé immédiatement, soyez sans crainte. 🤌";
                                   await askedToLead(titleAlert, true, context);
                                   _controller.clear();
+                                  await prefs.remove('amountRecharge');
                                   Navigator.pushNamed(context, Notifications.rootName);
                                 } else {
                                   await askedToLead(rechargeCrypto['error'], false, context);

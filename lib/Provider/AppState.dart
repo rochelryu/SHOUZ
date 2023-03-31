@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -432,11 +431,15 @@ class AppState with ChangeNotifier {
   }
 
   void agreeForPropositionForDeals(
-      {required String id, required String room}) async {
-    final jsonData = {
+      {required String id, required String room,required String methodPayement, bool? finalityPayement}) async {
+    dynamic jsonData = {
       "room": room,
       "id": id,
+      "methodPayement": methodPayement
     };
+    if(finalityPayement != null) {
+      jsonData['finalityPayement'] = "true";
+    }
 
     if (_socket == null) {
       await initializeSocket();

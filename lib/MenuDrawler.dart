@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:badges/badges.dart'  as badges;
+import 'package:badges/badges.dart' as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +23,6 @@ import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
 import 'Constant/my_flutter_app_second_icons.dart';
-import 'Pages/Opt.dart';
 import 'Pages/all_categorie_deals_choice.dart';
 import 'Pages/choice_other_hobie_second.dart';
 import 'Pages/not_available.dart';
@@ -40,7 +39,7 @@ class MenuDrawler extends StatefulWidget {
 class _MenuDrawlerState extends State<MenuDrawler>
     with SingleTickerProviderStateMixin {
   late AppState appState;
-  bool isCollasped = false;
+  bool isCollasped = false, update = false;
   bool showBadge = true;
   String id = '';
   late double screenWidth, screenHeight;
@@ -91,19 +90,23 @@ class _MenuDrawlerState extends State<MenuDrawler>
         newClient = user;
         id = newClient!.ident;
       });
+      if (user.tokenNotification == "ONE_SIGNAL" ||
+          user.tokenNotification == "") {
+        await getTokenForNotificationProvider(true);
+      }
 
-      if(user.inscriptionIsDone == 0) {
+      if (user.inscriptionIsDone == 0) {
         setState(() {
           logged = -1;
         });
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}ready_station.svg",
             "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
-            context, true);
+            context,
+            true);
         Navigator.pushNamed(context, Login.rootName);
       }
-    }
-    else {
+    } else {
       setState(() {
         logged = -1;
       });
@@ -112,87 +115,67 @@ class _MenuDrawlerState extends State<MenuDrawler>
     try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        final versionning = prefs.getString("versionning");
-        if (versionning != null) {
-          final versionInApp = jsonDecode(versionning) as dynamic;
+        print(getLatestVersionApp);
           if (Platform.isAndroid) {
             if (await isHms()) {
-              if (versionInApp['appGallery'] !=
-                  getLatestVersionApp['appGallery']) {
-                await prefs.setString(
-                    'versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain(
-                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                    context);
-                await launchUrl(Uri.parse(linkAppGalleryForShouz),
-                    mode: LaunchMode.externalApplication);
+              if (versionApp != getLatestVersionApp['appGallery']) {
+                setState(() {
+                  update = true;
+                });
+              } else {
+                final notificationCenter =
+                    await consumeAPI.getLatestInfoNotificationInApp();
+                if (notificationCenter['etat'] == "found") {
+                  final result = notificationCenter['result'];
+                  await displayNotificationCenter(
+                    result['imgUrl'],
+                    result['title'],
+                    result['body'],
+                    result['data'],
+                    context,
+                  );
+                }
               }
             } else {
-              if (versionInApp['playstore'] !=
-                  getLatestVersionApp['playstore']) {
-                await prefs.setString(
-                    'versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain(
-                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                    context);
-                await launchUrl(Uri.parse(linkPlayStoreForShouz),
-                    mode: LaunchMode.externalApplication);
+              if (versionApp != getLatestVersionApp['playstore']) {
+                setState(() {
+                  update = true;
+                });
+              } else {
+                final notificationCenter =
+                    await consumeAPI.getLatestInfoNotificationInApp();
+                if (notificationCenter['etat'] == "found") {
+                  final result = notificationCenter['result'];
+                  await displayNotificationCenter(
+                    result['imgUrl'],
+                    result['title'],
+                    result['body'],
+                    result['data'],
+                    context,
+                  );
+                }
               }
             }
           } else {
-            if (versionInApp["appleStore"] !=
-                getLatestVersionApp['appleStore']) {
-              await prefs.setString(
-                  'versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain(
-                  "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                  "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                  context);
-              await launchUrl(Uri.parse(linkAppleStoreForShouz),
-                  mode: LaunchMode.externalApplication);
-            }
-          }
-        } else {
-          if (Platform.isAndroid) {
-            if (await isHms()) {
-              if ("1.0.25" != getLatestVersionApp['appGallery']) {
-                await prefs.setString(
-                    'versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain(
-                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                    context);
-                await launchUrl(Uri.parse(linkAppGalleryForShouz),
-                    mode: LaunchMode.externalApplication);
-              }
+            if (versionApp != getLatestVersionApp['appleStore']) {
+              setState(() {
+                update = true;
+              });
             } else {
-              if ("1.0.25" != getLatestVersionApp['playstore']) {
-                await prefs.setString(
-                    'versionning', jsonEncode(getLatestVersionApp));
-                await modalForExplain(
-                    "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                    "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                    context);
-                await launchUrl(Uri.parse(linkPlayStoreForShouz),
-                    mode: LaunchMode.externalApplication);
+              final notificationCenter =
+                  await consumeAPI.getLatestInfoNotificationInApp();
+              if (notificationCenter['etat'] == "found") {
+                final result = notificationCenter['result'];
+                await displayNotificationCenter(
+                  result['imgUrl'],
+                  result['title'],
+                  result['body'],
+                  result['data'],
+                  context,
+                );
               }
             }
-          } else {
-            if ("1.0.25" != getLatestVersionApp['appleStore']) {
-              await prefs.setString(
-                  'versionning', jsonEncode(getLatestVersionApp));
-              await modalForExplain(
-                  "${ConsumeAPI.AssetPublicServer}updateApp.png",
-                  "🆕 Une nouvelle version de l'application est disponible, pensez à mettre à jour l'application pour garantir la sécurité de tous vos contenus.",
-                  context);
-              await launchUrl(Uri.parse(linkAppleStoreForShouz),
-                  mode: LaunchMode.externalApplication);
-            }
           }
-        }
       }
     } catch (e) {}
   }
@@ -420,37 +403,69 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 });
               },
             ),
-            title: Text(titleDomain[appState.getIndexBottomBar]),
+            title: update ? TextButton(
+              onPressed: () async {
+                if (Platform.isAndroid) {
+                  if (await isHms()) {
+                    await launchUrl(Uri.parse(linkAppGalleryForShouz),
+                        mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(Uri.parse(linkPlayStoreForShouz),
+                        mode: LaunchMode.externalApplication);
+                  }
+                } else {
+                  await launchUrl(Uri.parse(linkAppleStoreForShouz),
+                      mode: LaunchMode.externalApplication);
+                }
+              },
+              child: badges.Badge(
+                position: badges.BadgePosition.topEnd(top:-8, end: -20),
+                badgeStyle: badges.BadgeStyle(
+                    badgeColor: colorError,
+                    shape: badges.BadgeShape.twitter),
+                badgeContent: Text(
+                  ' ! ',
+                  style: TextStyle(color: Colors.white),
+                ),
+                child: Text('Mettre à jour Shouz', style: Style.titleNews(15),),
+            )) :Text(titleDomain[appState.getIndexBottomBar]),
             centerTitle: true,
             actions: [
-              if(newClient != null) badges.Badge(
-                  position: badges.BadgePosition.topStart(top: 0, start: 0),
-                  badgeStyle: badges.BadgeStyle(badgeColor: colorText,),
-                  badgeContent: Text(
-                    numberNotif.toString(),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  showBadge: numberNotif != 0,
-                  child: IconButton(
-                      onPressed: () async {
-                        Navigator.of(context).push((MaterialPageRoute(
-                            builder: (context) => Notifications())));
-                      },
-                      icon: Icon(
+              if (newClient != null)
+                badges.Badge(
+                    position: badges.BadgePosition.topStart(top: 0, start: 0),
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: colorText,
+                    ),
+                    badgeContent: Text(
+                      numberNotif.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    showBadge: numberNotif != 0,
+                    child: IconButton(
+                        onPressed: () async {
+                          Navigator.of(context).push((MaterialPageRoute(
+                              builder: (context) => Notifications())));
+                        },
+                        icon: Icon(
                           numberNotif > 0
                               ? Icons.notifications_active
                               : Icons.notifications_none,
-                          color: Colors.white, size: 25,))),
-              if(logged == -1 ) Padding(
+                          color: Colors.white,
+                          size: 25,
+                        ))),
+              if (logged == -1)
+                Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: badges.Badge(
                       position: badges.BadgePosition.topStart(top: 0, start: 0),
-                      badgeStyle: badges.BadgeStyle(badgeColor: colorError,shape: badges.BadgeShape.twitter),
+                      badgeStyle: badges.BadgeStyle(
+                          badgeColor: colorError,
+                          shape: badges.BadgeShape.twitter),
                       badgeContent: Text(
                         ' ! ',
                         style: TextStyle(color: Colors.white),
                       ),
-
                       child: IconButton(
                           onPressed: () async {
                             await modalForExplain(
@@ -460,9 +475,8 @@ class _MenuDrawlerState extends State<MenuDrawler>
                                 true);
                             Navigator.pushNamed(context, Login.rootName);
                           },
-                        icon: Icon(Icons.account_circle_outlined))),
-              ),
-
+                          icon: Icon(Icons.account_circle_outlined))),
+                ),
             ],
           ),
           body: menus[appState.getIndexBottomBar],
