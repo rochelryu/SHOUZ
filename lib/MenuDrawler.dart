@@ -115,7 +115,6 @@ class _MenuDrawlerState extends State<MenuDrawler>
     try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
-        print(getLatestVersionApp);
           if (Platform.isAndroid) {
             if (await isHms()) {
               if (versionApp != getLatestVersionApp['appGallery']) {

@@ -38,19 +38,19 @@ PODS:
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
-  - Firebase/CoreOnly (10.3.0):
-    - FirebaseCore (= 10.3.0)
-  - Firebase/Messaging (10.3.0):
+  - Firebase/CoreOnly (10.6.0):
+    - FirebaseCore (= 10.6.0)
+  - Firebase/Messaging (10.6.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 10.3.0)
-  - firebase_core (2.7.1):
-    - Firebase/CoreOnly (= 10.3.0)
+    - FirebaseMessaging (~> 10.6.0)
+  - firebase_core (2.8.0):
+    - Firebase/CoreOnly (= 10.6.0)
     - Flutter
-  - firebase_messaging (14.2.6):
-    - Firebase/Messaging (= 10.3.0)
+  - firebase_messaging (14.3.0):
+    - Firebase/Messaging (= 10.6.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (10.3.0):
+  - FirebaseCore (10.6.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/Logger (~> 7.8)
@@ -61,7 +61,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
-  - FirebaseMessaging (10.3.0):
+  - FirebaseMessaging (10.6.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
     - GoogleDataTransport (~> 9.2)
@@ -79,6 +79,8 @@ PODS:
     - Flutter
     - MapboxNavigation (~> 1.4)
   - flutter_native_splash (0.0.1):
+    - Flutter
+  - flutter_tts (0.0.1):
     - Flutter
   - fluttertoast (0.0.2):
     - Flutter
@@ -199,6 +201,7 @@ DEPENDENCIES:
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_mapbox_navigation (from `.symlinks/plugins/flutter_mapbox_navigation/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
+  - flutter_tts (from `.symlinks/plugins/flutter_tts/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
@@ -271,6 +274,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_mapbox_navigation/ios"
   flutter_native_splash:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
+  flutter_tts:
+    :path: ".symlinks/plugins/flutter_tts/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
   geocoding_ios:
@@ -312,18 +317,19 @@ SPEC CHECKSUMS:
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: ce3938a0df3cc1ef404671531facef740d03f920
-  Firebase: f92fc551ead69c94168d36c2b26188263860acd9
-  firebase_core: 1ae9f9aa76e6e1edc14fb181637ad466fd6c6fa4
-  firebase_messaging: f8c01f8b540feb4196e8dbe45ae17534747d779d
-  FirebaseCore: 988754646ab3bd4bdcb740f1bfe26b9f6c0d5f2a
+  Firebase: f13680471b021937f2230ea8503c7809d8c29806
+  firebase_core: 58542d7399889ebdbb034baa72d081e54c5c814d
+  firebase_messaging: 01a8db2962f81ea190d08db767aba2e7e805e647
+  FirebaseCore: fa80ad16a62d52f67274b5b88304c3a318bbf9a4
   FirebaseCoreInternal: c7cd505e2136811096b225ac388d6254a2622362
   FirebaseInstallations: 13dde135fa0524e15bddb133ccc8465c53a1b3f3
-  FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
+  FirebaseMessaging: fd93783258c53ae5cdb9b41bf0c51606a677f2d5
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_hms_gms_availability: babc50b18670e99780270bc18d9b17d0a07cd77e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_mapbox_navigation: b2d023f58478f5f80242db9b70cc75ee37f42e20
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
+  flutter_tts: 0f492aab6accf87059b72354fcb4ba934304771d
   fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   geocoding_ios: a389ea40f6f548de6e63006a2e31bf66ff80769a

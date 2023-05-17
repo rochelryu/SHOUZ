@@ -855,6 +855,30 @@ Future<File> get _localPin async {
   final path = await _localPath;
   return File('$path/pin.txt');
 }
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return File('$path/counter.txt');
+}
+
+Future<int> deleteFilePath() async {
+  try {
+    final file = await _localFile;
+    final pin = await _localPin;
+    final explainCovoiturage = await _localExplainCovoiturage;
+    final explainEvent = await _localExplainEvent;
+    final level = await _localLevel;
+
+    await file.delete();
+    await pin.delete();
+    await explainCovoiturage.delete();
+    await explainEvent.delete();
+    await level.delete();
+    setLevel(0);
+    return 1;
+  } catch (e) {
+    return 0;
+  }
+}
 
 resetAllData() async {
   await DBProvider.db.delClient();

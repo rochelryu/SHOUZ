@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/ChangePin.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
@@ -17,6 +18,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Constant/helper.dart';
+import '../Constant/widget_common.dart';
 import 'explication_event.dart';
 
 class Setting extends StatefulWidget {
@@ -66,6 +68,28 @@ class _SettingState extends State<Setting> {
         newClient = info['result'];
         profil['data'] = info['result']['images'];
       });
+    }
+  }
+
+  Future deleteAccount() async {
+    final archivage = await consumeAPI.deleteAccount();
+    if (archivage['etat'] == "found") {
+      await askedToLead(
+          "Votre compte a été supprimé, avec vos données aussi",
+          true,
+          context);
+      Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
+    } else if (archivage['etat'] == "notFound") {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => dialogCustomError(
+              'Plusieurs connexions à ce compte',
+              "Pour une question de sécurité nous allons devoir vous déconnecter.",
+              context),
+          barrierDismissible: false);
+
+    } else {
+      await askedToLead(archivage['error'], false, context);
     }
   }
 
@@ -356,10 +380,42 @@ class _SettingState extends State<Setting> {
               onTap: () async {
                 await launchUrl(Uri.parse("https://t.me/+wQ-tSmeUX6Q0ODg8"), mode: LaunchMode.externalApplication);
               },
-              leading: Icon(Icons.support_agent, color: colorText, size: 33),
+              leading: Icon(Icons.people_alt_outlined, color: colorText, size: 33),
               title: Text("Communauté & Support", style: Style.titre(14)),
               subtitle: Text(
                 "Réjoignez la communauté Telegram",
+                style: Style.sousTitre(12),
+              ),
+            ),
+            ListTile(
+              onTap: () async {
+                await launchUrl(Uri.parse("https://wa.me/$serviceCall"),
+                    mode: LaunchMode.externalApplication);
+              },
+              leading: Icon(Icons.support_agent, color: colorText, size: 33),
+              title: Text("Service client Whatsapp", style: Style.titre(14)),
+              subtitle: Text(
+                "Avez-vous une préoccupation ?",
+                style: Style.sousTitre(12),
+              ),
+            ),
+            ListTile(
+              onTap: () async {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        dialogCustomForValidateAction(
+                            'SUPPRIMER COMPTE',
+                            'Êtes vous sûr de vouloir vous retirer totalement de Shouz ?',
+                            'Oui',
+                                () async => await deleteAccount(),
+                            context),
+                    barrierDismissible: false);
+              },
+              leading: Icon(Icons.delete, color: colorText, size: 33),
+              title: Text("Supprimer mon compte", style: Style.titre(14)),
+              subtitle: Text(
+                "Toutes vos données seront supprimées.",
                 style: Style.sousTitre(12),
               ),
             ),

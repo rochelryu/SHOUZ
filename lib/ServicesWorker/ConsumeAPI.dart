@@ -111,6 +111,9 @@ class ConsumeAPI {
       BASE_URL + "/client/verifyIfExistItemInFavor";
   static final ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL =
       BASE_URL + "/client/addOrRemoveItemInFavorite";
+  static final DELETE_ACCOUNT_URL = BASE_URL + "/client/deleteAccount";
+
+
   static final SET_DEALS_URL = BASE_URL + "/products/inside";
   static final SET_UPDATE_DEALS_URL = BASE_URL + "/products/update";
   static final SET_ARCHIVE_DEALS_URL = BASE_URL + "/products/archiver";
@@ -958,6 +961,34 @@ class ConsumeAPI {
       if (res['etat'] == 'found') {
         await DBProvider.db
             .updateClient(res['result']['recovery'], newClient.ident);
+      } else if (res['etat'] == 'notFound') {
+        await DBProvider.db.delClient();
+        setLevel(1);
+      }
+      return res;
+    });
+  }
+
+  deleteAccount() async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'id': newClient.ident,
+      'recovery': newClient.recovery,
+    };
+
+    return _netUtil
+        .post(DELETE_ACCOUNT_URL, body: body)
+        .then((dynamic res) async {
+      if (res['etat'] == 'found') {
+        final prefs = await SharedPreferences.getInstance();
+        final data = prefs.getKeys();
+        final arrayKey = data.map((value) => value).toList();
+        for (String key in arrayKey) {
+          prefs.remove(key);
+        }
+        await DBProvider.db.delClient();
+        await DBProvider.db.delProfil();
+        await deleteFilePath();
       } else if (res['etat'] == 'notFound') {
         await DBProvider.db.delClient();
         setLevel(1);
