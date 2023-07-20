@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Pages/Login.dart';
@@ -54,7 +53,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = new MyHttpOverrides();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -202,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    FlutterNativeSplash.remove();
+    //FlutterNativeSplash.remove();
     WidgetsBinding.instance.addObserver(this);
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
@@ -281,12 +280,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Future getNewLevel() async {
     try {
       int levelLocal = await getLevel();
-      User user = await DBProvider.db.getClient();
-      await getTokenForNotificationProvider(user.numero != 'null');
-      prefs = await SharedPreferences.getInstance();
       setState(() {
         level = levelLocal;
       });
+      User user = await DBProvider.db.getClient();
+      await getTokenForNotificationProvider(user.numero != 'null');
+      prefs = await SharedPreferences.getInstance();
     } catch (e) {
       print("Erreur $e");
     }

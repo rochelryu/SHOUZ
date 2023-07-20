@@ -22,6 +22,10 @@
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
 
+        <meta-data
+            android:name="com.mapbox.token"
+            android:value="pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg" />
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
