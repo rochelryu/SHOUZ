@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.22+22
+version: 1.0.28+28
 
 environment:
   sdk: ">=2.16.0 <3.0.0"
@@ -31,80 +31,69 @@ dependencies:
   curved_navigation_bar: ^1.0.3
   simple_gradient_text: ^1.2.4
   flutter_staggered_grid_view: ^0.6.2
-  url_launcher: ^6.1.7
-  location: ^4.4.0
-  huawei_location: ^6.4.0+300
-  latlong2: ^0.8.1
-  flutter_map: ^3.0.0
-  loading_indicator: ^3.1.0
-  geocoding: ^2.0.5
-  fluttertoast: ^8.1.2
-  share_plus: ^6.3.0
+  url_launcher: ^6.1.12
+  location: ^5.0.0
+  huawei_location: ^6.11.0+301
+  latlong2: ^0.9.0
+  loading_indicator: ^3.1.1
+  geocoding: ^2.1.0
+  fluttertoast: ^8.2.2
+  share_plus: ^7.0.2
   uni_links: ^0.5.1
-  path_provider: ^2.0.11
-  flutter_svg: ^1.1.6
+  path_provider: ^2.0.15
+  flutter_svg: ^2.0.7
   dotted_border: ^2.0.0+3
-  image_picker: ^0.8.6
+  image_picker: ^1.0.1
   awesome_notifications: ^0.7.4+1
-  shared_preferences: ^2.0.15
-  video_player: ^2.4.10
+  shared_preferences: ^2.2.0
+  video_player: ^2.7.0
   http: ^0.13.5
-  sqflite: ^2.2.2
-  flutter_typeahead: ^4.1.1
+  sqflite: ^2.2.8+4
+  flutter_typeahead: ^4.6.2
   skeleton_text: ^3.0.0
-  file_picker: ^5.2.4
+  file_picker: ^5.3.2
   provider: ^6.0.5
-  socket_io_client: ^2.0.0
+  socket_io_client: ^2.0.2
   carousel_slider: ^4.2.1
   timeline_tile: ^2.0.0
   qr_code_scanner: ^1.0.1
-  audioplayers: ^1.1.1
-  permission_handler: ^10.2.0
-  record: ^4.4.3
-  firebase_messaging: ^14.1.4
-  firebase_core: ^2.4.0
-  huawei_push: ^6.5.0+300
+  permission_handler: ^10.4.3
+  record: ^4.4.4
+  firebase_messaging: ^14.6.5
+  firebase_core: ^2.15.0
+  huawei_push: ^6.10.0+300
   animated_text_kit: ^4.2.2
   video_compress: ^3.1.2
-  intl: ^0.17.0
-  syncfusion_flutter_charts: ^20.3.61
-  syncfusion_flutter_gauges: ^20.3.61
+  intl: ^0.18.1
+  syncfusion_flutter_charts: ^22.1.39
+  syncfusion_flutter_gauges: ^22.1.39
   cached_network_image: ^3.2.3
-  flutter_native_splash: ^2.2.16
-  badges: ^2.0.3
-  flutter_hms_gms_availability: ^3.0.0
-  flutter_mapbox_navigation: ^0.0.26
+  badges: ^3.1.1
+  flutter_hms_gms_availability: ^3.7.0
   mapbox_gl: ^0.16.0
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.0
   ticket_widget: ^0.0.1
-  flutter_expandable_fab: ^1.6.1
+  flutter_expandable_fab: ^1.8.1
   adaptive_action_sheet: ^2.0.2
-  lottie: ^2.1.0
+  flutter_rating_bar: ^4.0.1
+  photo_view: ^0.14.0
+  in_app_review: ^2.0.6
+  flutter_tts: ^3.7.0
+  audioplayers: ^4.1.0
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: ^0.11.0
-
-  flutter_lints: ^2.0.1
+  flutter_lints: ^2.0.2
 
 flutter_icons:
   android: true
   ios: true
   remove_alpha_ios: true
   image_path: "images/icon/ic_launcher2.png"
-
-flutter_native_splash:
-  color: "#2d3447"
-  image: images/icon/app_icon.png
-
-  android_12:
-    image: images/icon/app_icon.png
-    icon_background_color: "#2d3447"
-
-  web: false
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

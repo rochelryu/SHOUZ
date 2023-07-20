@@ -15,13 +15,13 @@ import 'package:shouz/Pages/search_advanced.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Constant/widget_common.dart';
 
-import './CreateDeals.dart';
 import 'choice_other_hobie_second.dart';
 
 class Deals extends StatefulWidget {
   String categorie;
   String categorieName;
-  Deals({ required Key key, required this.categorie, required this.categorieName}) : super(key: key);
+  int? indexTabs;
+  Deals({ required Key key, required this.categorie, required this.categorieName, this.indexTabs }) : super(key: key);
   @override
   _DealsState createState() => _DealsState();
 }
@@ -41,6 +41,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
   ScrollController _scrollControllerPopulaire = new ScrollController();
   List<PopupMenuItem<String>> pref = [];
   int numberItemVip = 10, numberItemRecent = 8, numberItemPopulaire = 8;
+  int numberTotalVip = 0, numberTotalPopulaire = 0, numberTotalRecent = 0;
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyVip = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKeyRecent = new GlobalKey<RefreshIndicatorState>();
@@ -87,7 +88,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         await loadProduct();
       }
     });
-    _controller = TabController(length: 3, vsync: this)
+    _controller = TabController(length: 3, vsync: this, initialIndex: widget.indexTabs ?? 1)
       ..addListener(() {
         if (_controller.indexIsChanging) {
           if(searchData != '') {
@@ -111,8 +112,8 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
     try {
 
       final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire,searchData, widget.categorie);
-
       if(dealsFull.length > 0){
+
         if(
         data[0][0]['body'].length != dealsFull[0][0]['body'].length
             || data[1][0]['body'].length != dealsFull[1][0]['body'].length
@@ -120,11 +121,17 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         ){
           setState(() {
             dealsFull = data;
+            numberTotalVip = data[3];
+            numberTotalRecent = data[4];
+            numberTotalPopulaire = data[5];
           });
         }
       } else {
         setState(() {
           dealsFull = data;
+          numberTotalVip = data[3];
+          numberTotalRecent = data[4];
+          numberTotalPopulaire = data[5];
         });
       }
       Timer(const Duration(seconds: 1), changeMenuOptionButton);
@@ -132,10 +139,10 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         loadMinim = false;
         loadingFull = false;
       });
-      await prefs.setString('dealsFull', jsonEncode(data));
+      await prefs.setString('dealsFull${widget.categorie}', jsonEncode(data));
     }catch (e) {
       print(e);
-      final dealsFullString = prefs.getString("dealsFull");
+      final dealsFullString = prefs.getString("dealsFull${widget.categorie}");
       if(dealsFullString != null) {
         if(mounted) {
           setState(() {
@@ -268,12 +275,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       setState(() {
                                         searchData = text;
                                       });
-                                      if(searchData.length == 0) {
-                                        final data = await consumeAPI.getDeals(numberItemVip,numberItemRecent, numberItemPopulaire, widget.categorie);
-                                        setState(() {
-                                          dealsFull = data;
-                                        });
-                                      }
+
                                     },
                                     onSubmitted: (String text) async {
                                       FocusScope.of(context).requestFocus(FocusNode());
@@ -309,13 +311,13 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                     indicatorColor: colorText,
                     tabs: [
                       Tab(
-                        text: 'Articles VIP',
+                        child: Text('VIP (${numberTotalVip.toString()} Article${numberTotalVip > 1 ? 's': ''})', style: TextStyle(fontSize: 12),),
                       ),
                       Tab(
-                        text: 'Derniers articles',
+                        child: Text('Nouveautés (${numberTotalRecent.toString()} Article${numberTotalRecent > 1 ? 's': ''})', style: TextStyle(fontSize: 12),),
                       ),
                       Tab(
-                        text: 'Les plus aimés',
+                        child: Text('Les plus aimés (${numberTotalPopulaire.toString()})', style: TextStyle(fontSize: 12),),
                       ),
                     ],
                   ),
@@ -333,6 +335,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                             if(loadingFull){
                               if(dealsFull.length > 0 && dealsFull[0][choiceItemSearch]['body'].length > 0) {
                                 var populaireActu = dealsFull;
+
                                 return Column(
                                   children: <Widget>[
                                     Expanded(
@@ -346,6 +349,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                               level: populaireActu[0]
                                               [choiceItemSearch]['body']
                                               [index]['level'],
+                                              comments: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['comments'],
+                                              numberVue: populaireActu[0]
+                                              [choiceItemSearch]['body']
+                                              [index]['numberVue'],
                                               video: populaireActu[0]
                                               [choiceItemSearch]['body']
                                               [index]['video'],
@@ -454,6 +463,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                           .length,
                                       itemBuilder: (context, index) {
                                         return VipDeals(
+                                            comments: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['comments'],
+                                            numberVue: populaireActu[0]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[0]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -504,6 +519,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                             if(loadingFull){
                               if(dealsFull.length > 0 && dealsFull[1][choiceItemSearch]['body'].length > 0) {
                                 var populaireActu = dealsFull;
+
                                 return Column(
                                   children: <Widget>[
                                     Expanded(
@@ -517,6 +533,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                         [choiceItemSearch]['body']
                                             .length,
                                         itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                            comments: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['comments'],
+                                            numberVue: populaireActu[1]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[1]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -618,6 +640,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       [choiceItemSearch]['body']
                                           .length,
                                       itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                          comments: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['comments'],
+                                          numberVue: populaireActu[1]
+                                          [choiceItemSearch]['body']
+                                          [index]['numberVue'],
                                           level: populaireActu[1]
                                           [choiceItemSearch]['body']
                                           [index]['level'],
@@ -677,6 +705,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                         [choiceItemSearch]['body']
                                             .length,
                                         itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                            comments: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['comments'],
+                                            numberVue: populaireActu[2]
+                                            [choiceItemSearch]['body']
+                                            [index]['numberVue'],
                                             level: populaireActu[2]
                                             [choiceItemSearch]['body']
                                             [index]['level'],
@@ -777,6 +811,12 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                                       [choiceItemSearch]['body']
                                           .length,
                                       itemBuilder: (BuildContext context, int index) => PopulaireDeals(
+                                          comments: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['comments'],
+                                          numberVue: populaireActu[2]
+                                          [choiceItemSearch]['body']
+                                          [index]['numberVue'],
                                           level: populaireActu[2]
                                           [choiceItemSearch]['body']
                                           [index]['level'],

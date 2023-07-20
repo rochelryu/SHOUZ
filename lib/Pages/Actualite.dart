@@ -98,7 +98,10 @@ class _ActualiteState extends State<Actualite> {
           _permissionGranted = await location.hasPermission();
 
           if (_permissionGranted == PermissionStatus.denied) {
-
+            await modalForExplain(
+                "${ConsumeAPI.AssetPublicServer}wait_vehicule.svg",
+                "Shouz collecte des données d\'emplacement (localisation) en arrière-plan pour le service covoiturage et VTC afin que vos chauffeurs puissent mieux vous retrouver même quand l'application est fermé ou que vous ayez ouvert une autre application.",
+                context, true);
 
             final resultPermission = await location.requestPermission();
 
@@ -160,8 +163,6 @@ class _ActualiteState extends State<Actualite> {
         _permissionGranted = await location.hasPermission();
 
         if (_permissionGranted == PermissionStatus.denied) {
-
-
           final resultPermission = await location.requestPermission();
 
           if (resultPermission != PermissionStatus.granted) {

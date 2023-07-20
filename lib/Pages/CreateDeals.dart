@@ -20,7 +20,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
-import '../MenuDrawler.dart';
 import '../Provider/VideoCompressApi.dart';
 import 'Login.dart';
 import 'choice_method_payement.dart';
@@ -64,12 +63,10 @@ class _CreateDealsState extends State<CreateDeals> {
   TextEditingController numeroCtrl = new TextEditingController();
   bool requestLoading = false;
   bool _isCategorie = false;
-  bool monVal = false, showFloatingAction =true;
+  bool monVal = false, showFloatingAction = true;
   User? user;
   ConsumeAPI consumeAPI = new ConsumeAPI();
   ScrollController _scrollController = ScrollController();
-
-
 
   @override
   void initState() {
@@ -78,10 +75,11 @@ class _CreateDealsState extends State<CreateDeals> {
     loadCategorie();
     verifyIfUserHaveReadModalExplain();
     _scrollController.addListener(() {
-      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-       setState(() {
-         showFloatingAction = false;
-       });
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+        setState(() {
+          showFloatingAction = false;
+        });
       } else {
         setState(() {
           showFloatingAction = true;
@@ -93,7 +91,7 @@ class _CreateDealsState extends State<CreateDeals> {
   loadCategorie() async {
     User newClient = await DBProvider.db.getClient();
     final data = await consumeAPI.getAllCategrieWithoutFilter("deal");
-    numeroCtrl.text = newClient.numero != "null" ? newClient.numero: "";
+    numeroCtrl.text = newClient.numero != "null" ? newClient.numero : "";
     setState(() {
       allCategories = data['result']["categories"];
       priceVip = data['result']["AMOUNT_FOR_PAY_VIP_DEALS"];
@@ -105,14 +103,33 @@ class _CreateDealsState extends State<CreateDeals> {
   verifyIfUserHaveReadModalExplain() async {
     final prefs = await SharedPreferences.getInstance();
     final bool asRead = prefs.getBool('readCreateDealsModalExplain') ?? false;
-    if(asRead) {
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}premium.svg", "💁🏽‍♂️ Si vous enregistrez plus de 25 différents articles nous vous offrons une publication d'article en mode VIP gratuitement 🤝.\n(Le mode VIP vous permet d'avoir plus de publicité, de fonctionnalité et de visibilité).", context, true);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "1/5 - ⚠️ Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images ou la description de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.", context);
+    if (!asRead) {
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}premium.svg",
+          "💁🏽‍♂️ Si vous enregistrez plus de 25 différents articles nous vous offrons une publication d'article en mode VIP gratuitement 🤝.\n(Le mode VIP vous permet d'avoir plus de publicité, de fonctionnalité et de visibilité).",
+          context,
+          true);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}createShop.png",
+          "1/5 - ⚠️ Attention: Vous ne devez pas mettre votre numero ni le prix de l'article sur les images ou la description de l'article.\nVeuillez envoyer des images professionnelles, bien rognées, qui ne comportent pas des espaces noirs de capture d'écran.",
+          context);
 
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "2/5 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "3/5 - ⚠️ Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "4/5 - ⚠️ Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.", context);
-      await modalForExplain("${ConsumeAPI.AssetPublicServer}createShop.png", "5/5 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client. C'est Shouz qui s'occupera de la livraison et non vous.", context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}createShop.png",
+          "2/5 - Vous pouvez vendre tout article déplaçable, les clients intéressés vous contacterons dans l'application et une fois accord conclu entre vous, nous nous occupons de livrer au client.\nVous detenez un compte dans l'application qui vous permet de recevoir l'argent des clients et vous pouvez retrier cet argent cumulé par mobile money, crypto-monnaie ou carte bancaire.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}createShop.png",
+          "3/5 - ⚠️ Attention: Vous n'avez pas besoin de créer plusieurs postes d'articles qui ont le même titre et qui ont des images presque similaires.\nVous pouvez enregistrer l'article, mentionner dans les details de l'article qu'il y en a de plusieurs types et envoyer les différentes images de ces types d'articles.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}createShop.png",
+          "4/5 - ⚠️ Attention: Si nous remarquons que vous bourrez la liste des publications d'articles toutes les 72h d'un même article dans l'optique d'être en tête d'affichage à chaque fois, nous serons dans l'obligation de suspendre temporairement votre compte Shouz.",
+          context);
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}createShop.png",
+          "5/5 - Tout article que vous envoyé sur Shouz peut être marchandé par les clients dans l'optique d'obtenir des réductions, mais libre à vous d'accepter ou de rejeter l'offre du client. C'est Shouz qui s'occupera de la livraison et non vous.",
+          context);
       await prefs.setBool('readCreateDealsModalExplain', true);
     }
   }
@@ -130,8 +147,9 @@ class _CreateDealsState extends State<CreateDeals> {
     if (result != null) {
       List<File> files = result.paths.map((path) => File(path!)).toList();
       final end = (files.length > 6) ? 6 : files.length;
-      if(6 - (end + post.length) >= 0) {
-        final images = files.sublist(0, end - post.length > 0 ? end - post.length : end  );
+      if (6 - (end + post.length) >= 0) {
+        final images =
+            files.sublist(0, end - post.length > 0 ? end - post.length : end);
         final newBase64Image = images
             .map((image) => base64Encode(image.readAsBytesSync()))
             .toList();
@@ -140,21 +158,24 @@ class _CreateDealsState extends State<CreateDeals> {
           post = allImage;
           base64Image = List.from(base64Image)..addAll(newBase64Image);
         });
-        if(allImage.length == 1) {
+        if (allImage.length == 1) {
           showDialog(
               context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Vous avez sélectionnez une seule image', "Une image c'est pas mal mais vous pouvez envoyer plus d'image pour que les clients puissent mieux voir votre article.\nVous pouvez ajouter les images d'article similaire par exemple.", context),
+              builder: (BuildContext context) => dialogCustomError(
+                  'Vous avez sélectionnez une seule image',
+                  "Une image c'est pas mal mais vous pouvez envoyer plus d'image pour que les clients puissent mieux voir votre article.\nVous pouvez ajouter les images d'article similaire par exemple.",
+                  context),
               barrierDismissible: false);
         }
       } else {
         showDialog(
             context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Trop d\'image séléctionnées', "Vous ne pouvez que prendre 6 photos maximum pour un produit.\n", context),
+            builder: (BuildContext context) => dialogCustomError(
+                'Trop d\'image séléctionnées',
+                "Vous ne pouvez que prendre 6 photos maximum pour un produit.\n",
+                context),
             barrierDismissible: false);
       }
-
     }
   }
 
@@ -169,50 +190,44 @@ class _CreateDealsState extends State<CreateDeals> {
             ..initialize().then((_) {
               _controller!.setLooping(true);
             });
-          _controller!
-            ..addListener(() {
-            });
+          _controller!..addListener(() {});
           postVideo.add(_controller!);
         });
 
-        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        var videoCompressed = await VideoCompressApi.getMediaInfo(movie.path);
 
-       if(videoCompressed!.filesize! / 1000000 < 10) {
-
+        if (videoCompressed!.filesize! / 1000000 < 10) {
           base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
-
         } else {
-          setState((){
+          setState(() {
             postVideo = [];
           });
-          showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
+          showSnackBar(context,
+              "Nous avons compressé votre video mais elle est encore trop lourd, veuillez choisir une autre si possible");
         }
-
       } else {
         setState(() {
           _controller = VideoPlayerController.file(File(movie.path));
           _controller!
             ..initialize().then((_) {
               _controller!.setLooping(true);
-
             });
-          _controller!
-            ..addListener(() {
-
-            });
+          _controller!..addListener(() {});
 
           postVideo[0] = _controller!;
         });
-        MediaInfo? videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        MediaInfo? videoCompressed =
+            await VideoCompressApi.getMediaInfo(movie.path);
 
-        if(videoCompressed!.filesize! / 1000000 < 10) {
+        if (videoCompressed!.filesize! / 1000000 < 10) {
           video = videoCompressed.file!;
           base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
         } else {
-          setState((){
+          setState(() {
             postVideo = [];
           });
-          showSnackBar(context, "Nous avons compressé votre video mais elle est encore trop lourde, veuillez choisir une autre si possible");
+          showSnackBar(context,
+              "Nous avons compressé votre video mais elle est encore trop lourde, veuillez choisir une autre si possible");
         }
       }
     }
@@ -254,9 +269,7 @@ class _CreateDealsState extends State<CreateDeals> {
                         color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
-                            color: _isName
-                                ? colorText
-                                : backgroundColor),
+                            color: _isName ? colorText : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: TextField(
                       controller: nameProductCtrl,
@@ -339,9 +352,8 @@ class _CreateDealsState extends State<CreateDeals> {
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     prefixIcon: Icon(Icons.looks_two,
-                                        color: _isPrice
-                                            ? colorText
-                                            : Colors.grey),
+                                        color:
+                                            _isPrice ? colorText : Colors.grey),
                                     hintText: "Prix",
                                     hintStyle: TextStyle(
                                       color: Colors.white,
@@ -422,9 +434,7 @@ class _CreateDealsState extends State<CreateDeals> {
                         color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
-                            color: _isDescribe
-                                ? colorText
-                                : backgroundColor),
+                            color: _isDescribe ? colorText : backgroundColor),
                         borderRadius: BorderRadius.circular(10.0)),
                     child: TextField(
                       controller: describeCtrl,
@@ -451,9 +461,7 @@ class _CreateDealsState extends State<CreateDeals> {
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_4,
-                              color: _isDescribe
-                                  ? colorText
-                                  : Colors.grey),
+                              color: _isDescribe ? colorText : Colors.grey),
                           labelText: "Donnez plus de details sur l'article",
                           labelStyle: TextStyle(
                             color: Colors.white,
@@ -462,7 +470,6 @@ class _CreateDealsState extends State<CreateDeals> {
                   ),
                 ),
               ),
-
               Container(
                 height: 130,
                 width: double.infinity,
@@ -621,42 +628,44 @@ class _CreateDealsState extends State<CreateDeals> {
                         color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
-                            color: _isCategorie
-                                ? colorText
-                                : backgroundColor),
+                            color: _isCategorie ? colorText : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
-                    child: allCategories.length == 0 ? LoadingIndicator(indicatorType: Indicator.ballScale,colors: [colorText], strokeWidth: 2) :  DropdownButtonFormField<String>(
-                      hint: Text('Veuillez choisir une categorie',
-                          style: Style.sousTitre(14)),
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      isExpanded: true,
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
-
-                      onChanged: (newValue) {
-                        setState(() {
-                          _isCategorie = true;
-                          dropdownValue = newValue!;
-                          _isName = false;
-                          _isDescribe = false;
-                          _isQuantity = false;
-                          _isPrice = false;
-                          _isPosition = false;
-                          _isNumber = false;
-                          requestLoading = false;
-                          monVal = false;
-                        });
-                      },
-                      items: allCategories.map((value) {
-                        return DropdownMenuItem<String>(
-                          value: value['_id'],
-                          child: Text(value['name'],
-                              style: Style.sousTitre(15)),
-                        );
-                      }).toList(),
-                    ),
+                    child: allCategories.length == 0
+                        ? LoadingIndicator(
+                            indicatorType: Indicator.ballScale,
+                            colors: [colorText],
+                            strokeWidth: 2)
+                        : DropdownButtonFormField<String>(
+                            hint: Text('Veuillez choisir une categorie',
+                                style: Style.sousTitre(14)),
+                            value: dropdownValue,
+                            icon: Icon(Icons.arrow_downward),
+                            isExpanded: true,
+                            iconSize: 24,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.white),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _isCategorie = true;
+                                dropdownValue = newValue!;
+                                _isName = false;
+                                _isDescribe = false;
+                                _isQuantity = false;
+                                _isPrice = false;
+                                _isPosition = false;
+                                _isNumber = false;
+                                requestLoading = false;
+                                monVal = false;
+                              });
+                            },
+                            items: allCategories.map((value) {
+                              return DropdownMenuItem<String>(
+                                value: value['_id'],
+                                child: Text(value['name'],
+                                    style: Style.sousTitre(15)),
+                              );
+                            }).toList(),
+                          ),
                   ),
                 ),
               ),
@@ -684,9 +693,8 @@ class _CreateDealsState extends State<CreateDeals> {
                               color: backgroundColorSec,
                               border: Border.all(
                                   width: 1.0,
-                                  color: _isNumber
-                                      ? colorText
-                                      : backgroundColor),
+                                  color:
+                                      _isNumber ? colorText : backgroundColor),
                               borderRadius: BorderRadius.circular(50.0)),
                           child: TextField(
                             controller: numeroCtrl,
@@ -712,9 +720,7 @@ class _CreateDealsState extends State<CreateDeals> {
                             decoration: InputDecoration(
                                 border: InputBorder.none,
                                 prefixIcon: Icon(Icons.looks_5,
-                                    color: _isNumber
-                                        ? colorText
-                                        : Colors.grey),
+                                    color: _isNumber ? colorText : Colors.grey),
                                 hintText: "Numero de telephone",
                                 hintStyle: TextStyle(
                                   color: Colors.white,
@@ -741,9 +747,7 @@ class _CreateDealsState extends State<CreateDeals> {
                         color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
-                            color: _isPosition
-                                ? colorText
-                                : backgroundColor),
+                            color: _isPosition ? colorText : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: TextField(
                       controller: positionCtrl,
@@ -768,9 +772,7 @@ class _CreateDealsState extends State<CreateDeals> {
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_6,
-                              color: _isPosition
-                                  ? colorText
-                                  : Colors.grey),
+                              color: _isPosition ? colorText : Colors.grey),
                           hintText: "Entrer un lieu pour la remise",
                           hintStyle: TextStyle(
                             color: Colors.white,
@@ -791,24 +793,28 @@ class _CreateDealsState extends State<CreateDeals> {
                         value: monVal,
                         checkColor: Colors.white,
                         onChanged: (value) async {
-                          if(user!.numero != 'null' && user!.wallet >= priceVip) {
+                          if (user!.numero != 'null' &&
+                              user!.wallet >= priceVip) {
                             setState(() {
                               monVal = value!;
                             });
                           } else {
-                            if(user!.numero != 'null') {
+                            if (user!.numero != 'null') {
                               Fluttertoast.showToast(
-                                  msg: "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
+                                  msg:
+                                      "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
                                   toastLength: Toast.LENGTH_LONG,
                                   gravity: ToastGravity.CENTER,
                                   timeInSecForIosWeb: 1,
                                   backgroundColor: colorError,
                                   textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
+                                  fontSize: 16.0);
                               Timer(const Duration(seconds: 2), () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
+                                    builder: (builder) => ChoiceMethodPayement(
+                                          key: UniqueKey(),
+                                          isRetrait: false,
+                                        )));
                               });
                             } else {
                               await modalForExplain(
@@ -818,12 +824,11 @@ class _CreateDealsState extends State<CreateDeals> {
                                   true);
                               Navigator.pushNamed(context, Login.rootName);
                             }
-
                           }
-
                         },
                       ),
-                      Text('Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user != null && user?.numero != 'null' ? user?.currencies: 'XOF'})',
+                      Text(
+                          'Booster cet article en VIP (${reformatNumberForDisplayOnPrice(priceVip)} ${user != null && user?.numero != 'null' ? user?.currencies : 'XOF'})',
                           style: Style.warning(11)),
                     ],
                   ),
@@ -842,9 +847,11 @@ class _CreateDealsState extends State<CreateDeals> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        leading: IconButton(onPressed: (){
-          Navigator.pop(context);
-        }, icon: Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back)),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -888,130 +895,151 @@ class _CreateDealsState extends State<CreateDeals> {
           ],
         ),
       ),
-      floatingActionButton: showFloatingAction ? Container(width: 180,child: ElevatedButton(
-        style: raisedButtonStyle,
-        onPressed: () async {
-          await launchUrl(
-              Uri.parse("https://wa.me/2250564250219?text=Je veux mettre mon article en vente sur SHOUZ E-COMMERCE mais je ne sais pas comment m'y prendre." ),
-              mode: LaunchMode.externalApplication
-          );
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(Icons.support_agent),
-
-            Text("Besoin aide ?", style: Style.simpleTextOnBoard(14, colorPrimary),),
-
-          ],
-        ),
-      )) :null,
-
+      floatingActionButton: showFloatingAction
+          ? Container(
+              width: 180,
+              child: ElevatedButton(
+                style: raisedButtonStyle,
+                onPressed: () async {
+                  await launchUrl(
+                      Uri.parse(
+                          "https://wa.me/$serviceCall?text=Je veux mettre mon article en vente sur SHOUZ E-COMMERCE mais je ne sais pas comment m'y prendre."),
+                      mode: LaunchMode.externalApplication);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(Icons.support_agent),
+                    Text(
+                      "Besoin aide ?",
+                      style: Style.simpleTextOnBoard(14, colorPrimary),
+                    ),
+                  ],
+                ),
+              ))
+          : null,
     );
   }
 
   void _submit() async {
-
     bool ready = true;
-    if(nameProduct.length < 3) {
+    if (nameProduct.length < 3) {
       ready = false;
 
       showSnackBar(context, "Le nom du produit est trop court.");
     }
-    if(describe.length < 25) {
+    if (quantity.length > 0 && int.parse(quantity) > 100) {
       ready = false;
-      showSnackBar(context, "Veuillez donner plus de détails dans le champs details articles.");
+
+      showSnackBar(context,
+          "La quantité maximal qu'un article peut avoir dans Shouz est de 100");
     }
-    if(dropdownValue == null) {
+    if (describe.length < 25) {
+      ready = false;
+      showSnackBar(context,
+          "Veuillez donner plus de détails dans le champs details articles.");
+    }
+    if (dropdownValue == null) {
       ready = false;
       showSnackBar(context, "Veuillez choisir une categorie pour l'article.");
     }
-    if(base64Image.length == 0) {
+    if (base64Image.length == 0) {
       ready = false;
-      showSnackBar(context, "Veuillez sélectionner au moins une image de l'article.");
+      showSnackBar(
+          context, "Veuillez sélectionner au moins une image de l'article.");
     }
-    if(numero.length != 10 ) {
+    if (numero.length != 10) {
       ready = false;
-      showSnackBar(context, "Veuillez entrer un numéro de téléphone valide pour qu'on puisse vous appeler.");
+      showSnackBar(context,
+          "Veuillez entrer un numéro de téléphone valide pour qu'on puisse vous appeler.");
     }
-    if(position.length < 7 ) {
+    if (position.length < 7) {
       ready = false;
-      showSnackBar(context, "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+      showSnackBar(context,
+          "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
     }
-    if(price.length <= 2) {
+    if (price.length <= 2) {
       ready = false;
       showSnackBar(context, "Prix minimum d'un article doit être 500.");
     }
-    if(base64Image.length < 2) {
+    if (base64Image.length < 2) {
       ready = false;
-      showSnackBar(context, "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
+      showSnackBar(context,
+          "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
     }
-    if(ready) {
+    if (ready) {
+      if (user!.numero != "null") {
+        setState(() => requestLoading = true);
+        List<String> imageListTitle =
+            post.map((image) => image.path.split('/').last).toList();
 
-      if(user!.numero != "null") {
+        String imageTitle = imageListTitle.join(',');
+        String imagesBuffers = base64Image.join(',');
+        String videoPub = (video != null) ? video!.path.split('/').last : "";
+        int level = monVal ? 3 : 1;
+        final product = await consumeAPI.setProductDeals(
+            nameProduct,
+            describe,
+            dropdownValue!,
+            imageTitle,
+            imagesBuffers,
+            position,
+            level,
+            numero,
+            price,
+            quantity,
+            videoPub,
+            base64Video);
+        setState(() => requestLoading = false);
+        if (product == 'found') {
+          dropdownValue = null;
+          post.clear();
+          postVideo.clear();
+          base64Image.clear();
+          base64Video = "";
+          nameProductCtrl.clear();
+          describeCtrl.clear();
+          priceCtrl.clear();
+          quantityCtrl.clear();
+          nameProduct = "";
+          describe = "";
+          price = "";
 
-
-      setState(() => requestLoading = true);
-      List<String> imageListTitle =
-          post.map((image) => image.path.split('/').last).toList();
-
-      String imageTitle = imageListTitle.join(',');
-      String imagesBuffers = base64Image.join(',');
-      String videoPub = (video != null) ? video!.path.split('/').last : "";
-      int level = monVal ? 3 : 1;
-      final product = await consumeAPI.setProductDeals(
-          nameProduct,
-          describe,
-          dropdownValue!,
-          imageTitle,
-          imagesBuffers,
-          position,
-          level,
-          numero,
-          price,
-          quantity, videoPub, base64Video);
-      setState(() => requestLoading = false);
-      if (product == 'found') {
-        dropdownValue = null;
-        post.clear();
-        postVideo.clear();
-        base64Image.clear();
-        base64Video = "";
-        nameProductCtrl.clear();
-        describeCtrl.clear();
-        priceCtrl.clear();
-        quantityCtrl.clear();
-        nameProduct = "";
-        describe = "";
-        price = "";
-
-        await askedToLead( level == 3 ?
-            "Votre produit est en ligne, vous pouvez le manager où que vous soyez" : "Votre produit est en attente d'approbation par notre service de régularisation, vous recevrez une notification si votre article a été approuvé ou pas",
-            true, context);
-      } else if (product == 'notFound') {
-
-        showDialog(
-            context: context,
-            builder: (BuildContext context) =>
-                dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-            barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
-      }else if (product == 'FreeInPayPrice') {
-        await askedToLead(
-            "Un produit Gratuit ne peut être assimilé à un prix", false, context);
-      } else if (product == 'IncorrectPrice') {
-        await askedToLead("Erreur lors de la saisie des prix", false, context);
+          await askedToLead(
+              level == 3
+                  ? "Votre produit est en ligne, vous pouvez le manager où que vous soyez"
+                  : "Votre produit est en attente d'approbation par notre service de régularisation, vous recevrez une notification si votre article a été approuvé ou pas",
+              true,
+              context);
+          openAppReview(context);
+        } else if (product == 'notFound') {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) => dialogCustomError(
+                  'Plusieurs connexions à ce compte',
+                  "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                  context),
+              barrierDismissible: false);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (builder) => Login()));
+        } else if (product == 'FreeInPayPrice') {
+          await askedToLead(
+              "Un produit Gratuit ne peut être assimilé à un prix",
+              false,
+              context);
+        } else if (product == 'IncorrectPrice') {
+          await askedToLead(
+              "Erreur lors de la saisie des prix", false, context);
+        } else {
+          await askedToLead(
+              "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
+              false,
+              context);
+        }
+        setState(() {
+          monVal = false;
+        });
       } else {
-        await askedToLead(
-            "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
-            false, context);
-      }
-      setState(() {
-        monVal = false;
-      });
-      }
-      else {
         await modalForExplain(
             "${ConsumeAPI.AssetPublicServer}ready_station.svg",
             "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",

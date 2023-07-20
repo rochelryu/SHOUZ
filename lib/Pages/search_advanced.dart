@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Constant/SearchAdvancedDeals.dart';
 import '../Constant/Style.dart';
+import '../Constant/helper.dart';
 import '../Constant/widget_common.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 
@@ -145,8 +147,31 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                     mainAxisAlignment:MainAxisAlignment.center,
                     children: <Widget>[
                       SvgPicture.asset("images/empty.svg",semanticsLabel: 'Shouz Empty Product',height:MediaQuery.of(context).size.height *0.39),
-                      Text("Aucun resultat trouvé pour \"${searchCtrl.text}\" dans la recherche avancée",
+                      Text("Aucun resultat trouvé.\nMais vous pouvez nous demander de recherchez \"${searchCtrl.text}\" pour vous en cliquant sur le bouton ci-dessous",
                           textAlign: TextAlign.center,style: Style.sousTitreEvent(15)),
+                      SizedBox(height: 5,),
+                      ElevatedButton(
+                        style: raisedButtonStyle,
+                        onPressed: () async {
+                          await launchUrl(
+                              Uri.parse(
+                                  "https://wa.me/$serviceCall?text=Salut je recherche ${searchCtrl.text} mais je n'ai aucun resultat, pouvez vous m'aider rapidement. #rechercheAvancé"),
+                              mode: LaunchMode.externalApplication);
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.support_agent),
+                              Text(
+                                "Recherchez pour moi",
+                                style: Style.simpleTextOnBoard(14, colorPrimary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     ]));
                   }
                   return ListView.builder(
@@ -173,6 +198,8 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
                         numberFavorite: dealsFull[index]['numberFavorite'],
                         lieu: dealsFull[index]['lieu'],
                         registerDate: dealsFull[index]['registerDate'],
+                        comments: dealsFull[index]['comments'],
+                        numberVue: dealsFull[index]['numberVue'],
                         quantity: dealsFull[index]['quantity']);
                   });
                 }

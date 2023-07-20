@@ -391,9 +391,7 @@ class _VtcDriverHomeState extends State<VtcDriverHome> {
             }
           }
         } else {
-          print('permission accordé');
           _serviceEnabled = await location.serviceEnabled();
-          print('_serviceEnabled $_serviceEnabled');
           if (!_serviceEnabled) {
             _serviceEnabled = await location.requestService();
             if (!_serviceEnabled) {

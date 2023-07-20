@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,11 +12,13 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/profil_shop.dart';
 import 'package:shouz/Pages/update_deals.dart';
+import 'package:shouz/Pages/view_picture.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
 import 'package:video_player/video_player.dart';
 
+import '../Constant/helper.dart';
 import '../Constant/my_flutter_app_second_icons.dart';
 import './ChatDetails.dart';
 import 'Login.dart';
@@ -32,7 +35,8 @@ class DetailsDeals extends StatefulWidget {
   _DetailsDealsState createState() => _DetailsDealsState();
 }
 
-class _DetailsDealsState extends State<DetailsDeals> {
+class _DetailsDealsState extends State<DetailsDeals>
+    with SingleTickerProviderStateMixin {
   int _currentItem = 0;
   String id = '';
   bool isMe = false;
@@ -42,6 +46,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
   late VideoPlayerController _controller;
   late Future<void> _initialiseVideoFlutter;
   User? newClient;
+  late TabController _controllerTab;
 
   @override
   void initState() {
@@ -57,6 +62,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
       });
       _controller.addListener(checkVideo);
     }
+    _controllerTab = TabController(length: 2, vsync: this);
     getUser();
     verifyIfUserHaveReadModalExplain();
   }
@@ -119,13 +125,11 @@ class _DetailsDealsState extends State<DetailsDeals> {
         newClient = user;
       }
     });
-    if (user.numero != 'null') {
-      final result = await consumeAPI.verifyIfExistItemInFavor(
-          widget.dealsDetailsSkeleton.id, 1);
-      setState(() {
-        favorite = result;
-      });
-    }
+    final result = await consumeAPI.verifyIfExistItemInFavor(
+        widget.dealsDetailsSkeleton.id, 1);
+    setState(() {
+      favorite = result;
+    });
   }
 
   Future archivateProduct(String productId) async {
@@ -163,6 +167,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
       if (renewArticle['etat'] == "found") {
         await askedToLead(
             "Votre article est rémonté en tête sur le marché", true, context);
+        openAppReview(context);
       } else if (renewArticle['etat'] == "notFound") {
         showDialog(
             context: context,
@@ -187,6 +192,43 @@ class _DetailsDealsState extends State<DetailsDeals> {
     }
   }
 
+  Future createCampagne(String productId) async {
+    if (widget.dealsDetailsSkeleton.level == 3) {
+      final renewArticle = await consumeAPI.createCampagne(productId);
+      if (renewArticle['etat'] == "found") {
+        await askedToLead(
+            "Campagne lancé à ${widget.dealsDetailsSkeleton.numberVue} client${widget.dealsDetailsSkeleton.numberVue > 1 ? 's' : ''}",
+            true,
+            context);
+        openAppReview(context);
+      } else if (renewArticle['etat'] == "notFound") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => dialogCustomError(
+                'Plusieurs connexions à ce compte',
+                "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                context),
+            barrierDismissible: false);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (builder) => Login()));
+      } else {
+        await askedToLead(renewArticle['error'], false, context);
+      }
+    } else {
+      if (widget.dealsDetailsSkeleton.numberVue <= 4) {
+        await askedToLead(
+            "Il y a moins de 5 vues pour cet article, nous vous recommandons de ne pas gaspiller votre campagne pour ça..",
+            false,
+            context);
+      } else {
+        await askedToLead(
+            "Pour lancer une campagne il faut que l'article soit VIP.",
+            false,
+            context);
+      }
+    }
+  }
+
   Future setUpVipProduct(String productId) async {
     if (widget.dealsDetailsSkeleton.level != 3) {
       if (newClient!.wallet >= 1000) {
@@ -194,6 +236,7 @@ class _DetailsDealsState extends State<DetailsDeals> {
         if (renewArticle['etat'] == "found") {
           await askedToLead(
               "Votre article est VIP. Bravo à vous 👏👏", true, context);
+          openAppReview(context);
         } else if (renewArticle['etat'] == "notFound") {
           showDialog(
               context: context,
@@ -485,140 +528,299 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       topRight: Radius.circular(40))),
               child: Padding(
                 padding: EdgeInsets.only(left: 25.0, top: 20.0, right: 25.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 7,
-                            child: Text(widget.dealsDetailsSkeleton.title,
-                                style: Style.titre(20.0)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          flex: 7,
+                          child: Text(widget.dealsDetailsSkeleton.title,
+                              style: Style.titre(15.0)),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: <Widget>[
+                              Text(afficheDate,
+                                  textAlign: TextAlign.center,
+                                  style: Style.titre(8.0)),
+                              if (!isMe)
+                                IconButton(
+                                  icon: Icon(Icons.favorite,
+                                      color: favorite
+                                          ? Colors.redAccent
+                                          : Colors.grey,
+                                      size: 22.0),
+                                  onPressed: () async {
+                                    if (id != '' && id != 'ident') {
+                                      setState(() {
+                                        favorite = !favorite;
+                                      });
+                                      await consumeAPI
+                                          .addOrRemoveItemInFavorite(
+                                              widget.dealsDetailsSkeleton.id,
+                                              1);
+                                      openAppReview(context);
+                                    } else {
+                                      await modalForExplain(
+                                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                          context,
+                                          true);
+                                      Navigator.pushNamed(
+                                          context, Login.rootName);
+                                    }
+                                  },
+                                ),
+                            ],
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              children: <Widget>[
-                                Text(afficheDate,
-                                    textAlign: TextAlign.center,
-                                    style: Style.titre(10.0)),
-                                if (!isMe)
-                                  IconButton(
-                                    icon: Icon(Icons.favorite,
-                                        color: favorite
-                                            ? Colors.redAccent
-                                            : Colors.grey,
-                                        size: 22.0),
-                                    onPressed: () async {
-                                      if (id != '' && id != 'ident') {
-                                        setState(() {
-                                          favorite = !favorite;
-                                        });
-                                        await consumeAPI
-                                            .addOrRemoveItemInFavorite(
-                                                widget.dealsDetailsSkeleton.id,
-                                                1);
-                                      } else {
-                                        await modalForExplain(
-                                            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-                                            "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
-                                            context,
-                                            true);
-                                        Navigator.pushNamed(
-                                            context, Login.rootName);
-                                      }
-                                    },
-                                  ),
-                              ],
-                            ),
-                          )
+                        )
+                      ],
+                    ),
+                    Container(
+                      decoration: BoxDecoration(color: Colors.transparent),
+                      child: TabBar(
+                        controller: _controllerTab,
+                        isScrollable: true,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicatorColor: colorText,
+                        tabs: [
+                          Tab(
+                            text: 'Infos',
+                          ),
+                          Tab(
+                            text:
+                                'Avis (${widget.dealsDetailsSkeleton.comments.length})',
+                          ),
                         ],
                       ),
-                      Text(
-                        widget.dealsDetailsSkeleton.describe,
-                        style: Style.sousTitre(14.0),
-                      ),
-                      SizedBox(height: 10.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(MyFlutterAppSecond.pin, color: colorText),
-                          SizedBox(width: 3),
-                          Flexible(
-                              child: Text(widget.dealsDetailsSkeleton.lieu,
-                                  style: Style.priceOldDealsProductBiggest()))
-                        ],
-                      ),
-                      SizedBox(height: 10.0),
-                      Row(
-                        children: <Widget>[
-                          Icon(Icons.local_mall, color: colorText),
-                          SizedBox(width: 5),
-                          Text(
-                              "${widget.dealsDetailsSkeleton.quantity} disponible${widget.dealsDetailsSkeleton.quantity > 1 ? 's' : ''}",
-                              style: Style.priceOldDealsProductBiggest())
-                        ],
-                      ),
-                      SizedBox(height: 10.0),
-                      Row(
-                        children: <Widget>[
-                          Icon(Icons.tag, color: colorText),
-                          SizedBox(width: 5),
-                          Text(widget.dealsDetailsSkeleton.categorieName,
-                              style: Style.priceOldDealsProductBiggest())
-                        ],
-                      ),
-                      /*if(widget.dealsDetailsSkeleton.level == 3) */ Container(
-                        child: TextButton(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(Style.social_normal, color: colorText),
-                                SizedBox(width: 5),
-                                Text("Partager cet article")
-                              ],
-                            ),
-                            onPressed: () {
-                              Share.share(
-                                  "${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.id}");
-                            }),
-                        width: 200,
-                      ),
-                      if (widget.dealsDetailsSkeleton.level == 3)
-                        Container(
-                            width: 275,
-                            child: TextButton(
+                    ),
+                    Expanded(
+                        child: TabBarView(
+                      controller: _controllerTab,
+                      children: [
+                        SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                widget.dealsDetailsSkeleton.describe,
+                                style: Style.sousTitre(12.0),
+                              ),
+                              SizedBox(height: 10.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Icon(MyFlutterAppSecond.pin,
+                                      color: colorText),
+                                  SizedBox(width: 3),
+                                  Flexible(
+                                      child: Text(
+                                          widget.dealsDetailsSkeleton.lieu,
+                                          style: Style
+                                              .priceOldDealsProductBiggest()))
+                                ],
+                              ),
+                              SizedBox(height: 10.0),
+                              Row(
+                                children: <Widget>[
+                                  Icon(Icons.local_mall, color: colorText),
+                                  SizedBox(width: 5),
+                                  Text(
+                                      "${widget.dealsDetailsSkeleton.quantity} disponible${widget.dealsDetailsSkeleton.quantity > 1 ? 's' : ''}",
+                                      style:
+                                          Style.priceOldDealsProductBiggest())
+                                ],
+                              ),
+                              SizedBox(height: 10.0),
+                              Row(
+                                children: <Widget>[
+                                  Icon(Icons.tag, color: colorText),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    widget.dealsDetailsSkeleton.categorieName,
+                                    style: Style.priceOldDealsProductBiggest(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                ],
+                              ),
+                              /*if(widget.dealsDetailsSkeleton.level == 3) */ Container(
+                                child: TextButton(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Icon(Style.social_normal,
+                                            color: colorText),
+                                        SizedBox(width: 5),
+                                        Text("Partager cet article")
+                                      ],
+                                    ),
+                                    onPressed: () {
+                                      Share.share(
+                                          "${widget.dealsDetailsSkeleton.title} à ${widget.dealsDetailsSkeleton.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.id}");
+                                    }),
+                                width: 200,
+                              ),
+                              if (widget.dealsDetailsSkeleton.level == 3)
+                                Container(
+                                    width: 275,
+                                    child: TextButton(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Icon(MyFlutterAppSecond.shop,
+                                                color: colorText),
+                                            SizedBox(width: 5),
+                                            Text("Voir la boutique du vendeur")
+                                          ],
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (builder) => ProfilShop(
+                                                      key: UniqueKey(),
+                                                      comeBack: 0,
+                                                      authorName: widget
+                                                          .dealsDetailsSkeleton
+                                                          .authorName,
+                                                      onLine: widget
+                                                          .dealsDetailsSkeleton
+                                                          .onLine,
+                                                      profil: widget
+                                                          .dealsDetailsSkeleton
+                                                          .profil,
+                                                      autor: widget
+                                                          .dealsDetailsSkeleton
+                                                          .autor)));
+                                        })),
+                              SizedBox(height: 10.0),
+                            ],
+                          ),
+                        ),
+                        ListView.builder(
+                          itemCount:
+                              widget.dealsDetailsSkeleton.comments.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              color: backgroundColor,
+                              child: Container(
+                                width: double.infinity,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Icon(MyFlutterAppSecond.shop,
-                                        color: colorText),
-                                    SizedBox(width: 5),
-                                    Text("Voir la boutique du vendeur")
+                                    Expanded(
+                                      flex: 2,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  formatedDateForLocal(
+                                                      DateTime.parse(widget
+                                                              .dealsDetailsSkeleton
+                                                              .comments[index]
+                                                          ['registerDate']),
+                                                      false),
+                                                  style:
+                                                      Style.simpleTextOnBoard(
+                                                          11),
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                RatingBarIndicator(
+                                                  rating: double.parse(widget
+                                                      .dealsDetailsSkeleton
+                                                      .comments[index]['rating']
+                                                      .toString()),
+                                                  itemSize: 15,
+                                                  direction: Axis.horizontal,
+                                                  itemCount: 5,
+                                                  itemPadding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 2.0),
+                                                  itemBuilder: (context, _) =>
+                                                      Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              widget.dealsDetailsSkeleton
+                                                  .comments[index]['name']
+                                                  .toString()
+                                                  .toUpperCase(),
+                                              style: Style.sousTitre(12),
+                                              maxLines: 1,
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                                widget.dealsDetailsSkeleton
+                                                    .comments[index]['content'],
+                                                style: Style.sousTitre(11)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    if (widget.dealsDetailsSkeleton
+                                            .comments[index]['file'] !=
+                                        "")
+                                      Expanded(
+                                        flex: 1,
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (builder) =>
+                                                        ViewPicture(
+                                                          key: UniqueKey(),
+                                                          linkPicture:
+                                                              "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.comments[index]['file']}",
+                                                        )));
+                                          },
+                                          child: Container(
+                                            width: 80,
+                                            height: 80,
+                                            margin: EdgeInsets.all(15),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                image: DecorationImage(
+                                                    image: NetworkImage(
+                                                        "${ConsumeAPI.AssetProductServer}${widget.dealsDetailsSkeleton.comments[index]['file']}"),
+                                                    fit: BoxFit.cover)),
+                                          ),
+                                        ),
+                                      )
                                   ],
                                 ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (builder) => ProfilShop(
-                                              key: UniqueKey(),
-                                              comeBack: 0,
-                                              authorName: widget
-                                                  .dealsDetailsSkeleton
-                                                  .authorName,
-                                              onLine: widget
-                                                  .dealsDetailsSkeleton.onLine,
-                                              profil: widget
-                                                  .dealsDetailsSkeleton.profil,
-                                              autor: widget.dealsDetailsSkeleton
-                                                  .autor)));
-                                })),
-                      SizedBox(height: 10.0),
-                    ],
-                  ),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ))
+                  ],
                 ),
               ),
             )
@@ -641,22 +843,26 @@ class _DetailsDealsState extends State<DetailsDeals> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(widget.dealsDetailsSkeleton.price.toString(),
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold)),
-                  if (!isMe || widget.dealsDetailsSkeleton.approved)
-                    Text("(Prix discutable)",
-                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
-                  if (isMe && !widget.dealsDetailsSkeleton.approved)
-                    Text("(En attente de validation par Shouz)",
-                        style: TextStyle(color: Colors.white, fontSize: 13.5)),
-                ],
+              Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(widget.dealsDetailsSkeleton.price.toString(),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold)),
+                    if (!isMe || widget.dealsDetailsSkeleton.approved)
+                      Text("(Prix discutable)",
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 13.5)),
+                    if (isMe && !widget.dealsDetailsSkeleton.approved)
+                      Text("(En attente de validation par Shouz)",
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 13.5)),
+                  ],
+                ),
               ),
               if (!isMe && widget.dealsDetailsSkeleton.quantity > 0)
                 ElevatedButton(
@@ -697,7 +903,31 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       Navigator.pushNamed(context, Login.rootName);
                     }
                   },
-                )
+                ),
+              if (isMe)
+                Expanded(
+                    child: Container(
+                  child: Row(
+                    children: [
+                      SizedBox(width: 45),
+                      Icon(Icons.favorite, color: Colors.redAccent, size: 22.0),
+                      SizedBox(width: 3),
+                      Text(
+                        widget.dealsDetailsSkeleton.numberFavorite.toString(),
+                        style: Style.numberOfLike(20.0),
+                      ),
+                      SizedBox(width: 15),
+                      Icon(Icons.remove_red_eye,
+                          color: colorSecondary, size: 22.0),
+                      SizedBox(width: 3),
+                      Text(
+                        widget.dealsDetailsSkeleton.numberVue.toString(),
+                        style: Style.simpleTextOnBoard(20.0),
+                      ),
+                      Spacer()
+                    ],
+                  ),
+                ))
             ],
           ),
         ),
@@ -858,6 +1088,46 @@ class _DetailsDealsState extends State<DetailsDeals> {
                       ],
                     ),
                   ),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            dialogCustomForValidateAction(
+                                'CAMPAGNE DE RELANCE',
+                                'Nous allons envoyer un message à tous ceux qui ont vu votre article au moins une fois pour les relancer.\nAttention vous ne pouvez créer qu\'une seule fois une campagne alors assurez-vous que c\'est le moment opportun avant de dire "OK".',
+                                'Ok',
+                                () async => await createCampagne(
+                                    widget.dealsDetailsSkeleton.id),
+                                context),
+                        barrierDismissible: false);
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        "Créer campagne",
+                        style: Style.titre(15.0),
+                      ),
+                      Card(
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: colorText,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius: BorderRadius.circular(25.0)),
+                          child: Center(
+                            child: Icon(Icons.notifications_active_outlined,
+                                color: colorPrimary, size: 17),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 if (widget.dealsDetailsSkeleton.level != 3 && newClient != null)
                   GestureDetector(
                     onTap: () async {

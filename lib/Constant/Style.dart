@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import 'my_flutter_app_second_icons.dart';
 
@@ -58,6 +59,8 @@ class DealsSkeletonData {
   var categorieName;
   var video;
   var approved;
+  var comments;
+  var numberVue;
   DealsSkeletonData(
       {required this.imageUrl,
         required this.title,
@@ -73,7 +76,7 @@ class DealsSkeletonData {
         required this.quantity,
         required this.archive,
         required this.level,
-        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved});
+        required this.onLine, required this.authorName, required this.categorieName, required this.video, required this.approved, required this.comments, required this.numberVue});
 }
 
 int channelId() {
@@ -155,7 +158,7 @@ var pageExplicationTravelList = [
       body: "4- Le prix du ticket est donné par le conducteur. lors de l'achat des tickets le conducteur ne reçoit pas immédiatement l'argent. s'est après avoir decoder le ticket du passager à l'arrivée que le conducteur reçoit ainsi l'argent du ticket. Il reçoit 90% de la vente du ticket et SHOUZ reçoit les 10% restant.\nPar contre si lors de son voyage l'administration SHOUZ l'appelle pour récupérer un colis dans sa ville de départ pour remettre à une tierce personne sur son trajet, le conducteur bénéficiera d'un avantage commission ce qui lui permettra de gagner 95% au lieu de 90% sur chaque ticket."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}wait_vehicule.svg",
-      body: "5- En résumé, le principe est simple, pour devenir conducteur et gagner 90% ou 95% de chaque ticket vendu vous devez faire une demande conductrice.\nPour pouvoir acheter une place pour un voyage il faut que votre compte soit authentifié et pour cela vous deviez envoyer des informations vous concernant à l'administration SHOUZ. "),
+      body: "5- En résumé, le principe est simple, pour devenir conducteur et gagnez 90% ou 95% de chaque ticket vendu vous devez faire une demande conductrice.\nPour pouvoir acheter une place pour un voyage il faut que votre compte soit authentifié et pour cela vous deviez envoyer des informations vous concernant à l'administration SHOUZ. "),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}notime.svg",
       body: "6 - Tout traitement de demande conducteur ou voyageur par l'administration SHOUZ prend moins de 48h"),
@@ -590,7 +593,7 @@ class Style {
 
   //Style Of Deals
 
-  static dynamic titleDealsProduct([double size = 13.0]) {
+  static dynamic titleDealsProduct([double size = 11.0]) {
     return TextStyle(
       fontSize: size,
       fontFamily: "Montserrat-Black",
@@ -616,9 +619,9 @@ class Style {
     );
   }
 
-  static dynamic numberOfLike() {
+  static dynamic numberOfLike([double fontSize = 12.0]) {
     return TextStyle(
-      fontSize: 12.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: colorSecondary,
     );
@@ -851,6 +854,30 @@ Future<File> get _localExplainCovoiturage async {
 Future<File> get _localPin async {
   final path = await _localPath;
   return File('$path/pin.txt');
+}
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return File('$path/counter.txt');
+}
+
+Future<int> deleteFilePath() async {
+  try {
+    final file = await _localFile;
+    final pin = await _localPin;
+    final explainCovoiturage = await _localExplainCovoiturage;
+    final explainEvent = await _localExplainEvent;
+    final level = await _localLevel;
+
+    await file.delete();
+    await pin.delete();
+    await explainCovoiturage.delete();
+    await explainEvent.delete();
+    await level.delete();
+    setLevel(0);
+    return 1;
+  } catch (e) {
+    return 0;
+  }
 }
 
 resetAllData() async {

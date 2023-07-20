@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -9,6 +9,7 @@ import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../Constant/helper.dart';
 import '../Constant/widget_common.dart';
 import '../MenuDrawler.dart';
 import 'Login.dart';
@@ -184,9 +185,11 @@ class _DetailsActuState extends State<DetailsActu> {
                 bottom: 30.0,
                 child: FloatingActionButton(
                   backgroundColor: colorText,
-                  child: Badge(
-                    position: BadgePosition(top: -23, end: -15),
-                    badgeColor: colorPrimary,
+                  child: badges.Badge(
+                    position: badges.BadgePosition.topEnd(top: -23, end: -15),
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: colorPrimary,
+                    ),
                     badgeContent: Text(
                       widget.comment.length.toString(),
                       style: TextStyle(color: backgroundColor),
@@ -198,7 +201,6 @@ class _DetailsActuState extends State<DetailsActu> {
                       size: 22.0,
                     ),
                   ),
-
                   onPressed: () async {
                     if (user != null) {
                       Navigator.of(context).push((MaterialPageRoute(
@@ -261,6 +263,7 @@ class _DetailsActuState extends State<DetailsActu> {
                             });
                             await consumeAPI.addOrRemoveItemInFavorite(
                                 widget.id, 0);
+                            openAppReview(context);
                           } else {
                             await modalForExplain(
                                 "${ConsumeAPI.AssetPublicServer}ready_station.svg",
@@ -275,7 +278,8 @@ class _DetailsActuState extends State<DetailsActu> {
                       IconButton(
                         icon: Icon(Style.social_normal),
                         onPressed: () {
-                          Share.share("${ConsumeAPI.NewsLink}${widget.id}");
+                          Share.share(
+                              "${widget.title}\n\n Clique ici pour voir l'information que je te partage ${ConsumeAPI.NewsLink}${widget.id}");
                         },
                         color: Colors.white,
                       ),
@@ -294,32 +298,32 @@ class _DetailsActuState extends State<DetailsActu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          if(page['inImage'] !='') Material(
-            elevation: 25.0,
-            borderRadius: BorderRadius.circular(5.0),
-            child: ClipRRect(
+          if (page['inImage'] != '')
+            Material(
+              elevation: 25.0,
               borderRadius: BorderRadius.circular(5.0),
-              child: CachedNetworkImage(
-                imageUrl: page['inImage'],
-                progressIndicatorBuilder:
-                    (context, url, downloadProgress) => Center(
-                    child: CircularProgressIndicator(
-                        value: downloadProgress.progress)),
-                errorWidget: (context, url, error) => notSignal(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5.0),
+                child: CachedNetworkImage(
+                  imageUrl: page['inImage'],
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      Center(
+                          child: CircularProgressIndicator(
+                              value: downloadProgress.progress)),
+                  errorWidget: (context, url, error) => notSignal(),
+                ),
               ),
             ),
-          ),
-          if(page['inImage'] !='') SizedBox(height: 18.0),
-          if(page['inTitle'] !='') Padding(
-            padding: const EdgeInsets.only(top: 27.0),
-            child: GradientText(
-              page['inTitle'],
-              textAlign: TextAlign.center,
-              colors: gradient[1],
-              style: Style.titleNews(),
+          if (page['inTitle'] != '')
+            Padding(
+              padding: const EdgeInsets.only(top: 27.0),
+              child: GradientText(
+                page['inTitle'],
+                colors: gradient[1],
+                style: Style.titleNews(),
+              ),
             ),
-          ),
-          if(page['inTitle'] !='') SizedBox(height: 20.0),
+          if (page['inTitle'] != '') SizedBox(height: 20.0),
           Transform(
             transform: Matrix4.translationValues(0.0, 50 * (1 - y), 0.0),
             child: Text(

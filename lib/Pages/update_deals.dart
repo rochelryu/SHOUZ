@@ -185,7 +185,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
           postVideo.add(_controller!);
 
         });
-        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        var videoCompressed = await VideoCompressApi.getMediaInfo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
           video = videoCompressed.file!;
           base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
@@ -219,7 +219,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
 
           postVideo[0] = _controller!;
         });
-        var videoCompressed = await VideoCompressApi.compressVideo(movie.path);
+        var videoCompressed = await VideoCompressApi.getMediaInfo(movie.path);
         if(videoCompressed!.filesize! / 1000000 < 10) {
           video = videoCompressed.file!;
           base64Video = base64Encode(videoCompressed.file!.readAsBytesSync());
@@ -877,10 +877,11 @@ class _UpdateDealsState extends State<UpdateDeals> {
       setState(() => requestLoading = true);
       List<dynamic> imageListTitle =
       post.map((data) {
+
         if(data['type'] == "Network") {
-          return data['content'];
+          return data['content'].toString().trim();
         } else {
-          return data['content'].path.split('/').last;
+          return data['content'].path.split('/').last.trim();
         }
       }).toList();
 

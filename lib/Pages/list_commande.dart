@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -181,9 +181,9 @@ class _ListCommandeState extends State<ListCommande> {
                                           ],
                                         )
                                       ),
-                                      if(!commande["lastMessage"][0]['isReadByOtherUser'] && commande["lastMessage"][0]['ident'] != user?.ident) Badge(
-                                        padding: EdgeInsets.all(10),
-                                        badgeColor: colorText,
+                                      if(!commande["lastMessage"][0]['isReadByOtherUser'] && commande["lastMessage"][0]['ident'] != user?.ident) badges.Badge(
+
+                                        badgeStyle: badges.BadgeStyle(badgeColor: colorText,padding: EdgeInsets.all(10),),
                                         badgeContent: Text("!", style: Style.titre(15),),
                                         child: SizedBox(
                                           height: double.infinity,

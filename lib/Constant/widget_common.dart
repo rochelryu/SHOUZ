@@ -8,15 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:location/location.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:ticket_widget/ticket_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../MenuDrawler.dart';
 import '../Models/User.dart';
+import '../Pages/Deals.dart';
+import '../Pages/LoadHide.dart';
+import '../Pages/Login.dart';
+import '../Pages/Profil.dart';
+import '../Pages/search_advanced.dart';
 import '../Pages/share_ticket.dart';
 import '../Pages/ticket_detail.dart';
+import '../Pages/view_picture.dart';
+import '../Pages/wallet_page.dart';
 import '../Provider/Audio.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import 'PageTransition.dart';
 import 'Style.dart';
 import 'helper.dart';
 
@@ -705,7 +716,6 @@ Widget dialogCustomForNotChangeProfil(String title, String message, String title
           child: Text(titleValidateMessage, style: Style.titleInSegmentInTypeError(),),
           onPressed: () async {
             await callback();
-
           }),
     ],
   )
@@ -1114,12 +1124,20 @@ Widget boxMessage({
                         topLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
-                      child: image.indexOf('.m4a') == -1 ? CachedNetworkImage(
-                        imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
-                        progressIndicatorBuilder: (context, url, downloadProgress) =>
-                            Center(
-                                child: CircularProgressIndicator(value: downloadProgress.progress)),
-                        errorWidget: (context, url, error) => notSignal(),
+                      child: image.indexOf('.m4a') == -1 ? GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => ViewPicture(key: UniqueKey(), linkPicture: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",)));
+                        },
+                        child: CachedNetworkImage(
+                          imageUrl: "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
+                          progressIndicatorBuilder: (context, url, downloadProgress) =>
+                              Center(
+                                  child: CircularProgressIndicator(value: downloadProgress.progress)),
+                          errorWidget: (context, url, error) => notSignal(),
+                        ),
                       ): LoadAudioAsset(
                         url:
                         "${ConsumeAPI.AssetConversationServer}$idDocument/$image",
@@ -1190,11 +1208,9 @@ CachedNetworkImage buildImageInCachedNetworkSimpleWithSizeAuto(String urlImage,B
     imageUrl: urlImage,
     imageBuilder: (context, imageProvider) =>
         Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: imageProvider,
-              fit: fit,
-            ),
+          child: PhotoView(
+            imageProvider: imageProvider,
+            minScale: PhotoViewComputedScale.contained * 1,
           ),
         ),
     progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -1232,4 +1248,127 @@ Widget customSwitch(bool value, callback) {
       },
     );
   }
+}
+
+Future<Null> modalForExplainForNotification(String imgUrl, String title,String body,data,User user, BuildContext context) async {
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                height: MediaQuery.of(context).size.height * 0.62,
+                decoration: BoxDecoration(
+                    color: backgroundColor.withOpacity(0.92),
+                    borderRadius: BorderRadius.circular(10.0)
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      height: MediaQuery.of(context).size.width * 0.7,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          image: DecorationImage(
+                              image: NetworkImage(imgUrl),
+                              fit: BoxFit.cover
+                          )
+                      ),
+
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GradientText(title, colors: gradient[0], style: Style.titleNews(14.0),maxLines: 2, overflow: TextOverflow.ellipsis,),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(body, style: Style.simpleTextOnBoardWithBolder(12.0),maxLines: 5, overflow: TextOverflow.ellipsis,),
+                    ),
+                    Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 45),
+                      child: ElevatedButton(
+                          child: Text('Ok'),
+                          style: raisedButtonStyleSuccess,
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            switch(data['action']) {
+                              case "inscription":
+                                if(user.numero == 'null') {
+                                  Navigator.pushNamed(context, Login.rootName);
+                                }
+                                break;
+                              case "view_product":
+                                Navigator.push(context,MaterialPageRoute(
+                                    builder: (context) => LoadProduct(key: UniqueKey(), productId: data['productId'] ?? '', doubleComeBack: 1,)));
+                                break;
+                              case "view_event":
+                                Navigator.push(context,MaterialPageRoute(
+                                    builder: (context) => LoadEvent(key: UniqueKey(), eventId: data['eventId'] ?? '')));
+                                break;
+                              case "view_conversation":
+                                Navigator.push(context,MaterialPageRoute(
+                                    builder: (context) => LoadChat(key: UniqueKey(), room: data['room'] ?? '')));
+                                break;
+                              case "view_wallet":
+                                Navigator.pushNamed(context,WalletPage.rootName);
+                                break;
+                              case "view_profil":
+                                Navigator.of(context).push(
+                                    (MaterialPageRoute(builder: (context) => Profil())));
+                                break;
+                              case "view_categorie_product":
+                                Navigator.push(context, ScaleRoute(widget: Deals(key: UniqueKey(),indexTabs: data["indexTabs"] != null ? int.parse(data["indexTabs"]) : 1 , categorie: data["categorieId"], categorieName: data["categorieName"].toString().toUpperCase())));
+                                break;
+                              case "view_actuality":
+                                Navigator.push(context,MaterialPageRoute(
+                                    builder: (context) => LoadNew(key: UniqueKey(), actualityId: data['actualityId'] ?? '')));
+                                break;
+                              case "view_search_item":
+                                Navigator.of(context).push((MaterialPageRoute(
+                                    builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: data["searchItem"]))));
+                                break;
+                              case "view_external_link":
+                                await launchUrl(Uri.parse(data['link']),
+                                    mode: LaunchMode.externalApplication);
+                                break;
+                              default:
+                                break;
+                            }
+
+                          }),
+                    ),
+                    SizedBox(height: 15),
+                  ],
+                ),
+              ),
+              Positioned(
+                  top: 3,
+                  right: 7,
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: colorPrimary,
+                      ),
+                      child: Center(
+                        child: Icon(Icons.close, color: colorSecondary,),
+                      ),
+                    ),
+                  ))
+            ],
+          ),
+        );
+      },
+      barrierDismissible: false
+  );
 }

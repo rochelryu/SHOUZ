@@ -38,7 +38,7 @@ class _WidgetPageState extends State<WidgetPage> {
              ,
 
           (info['result']['myCodeParrain'] != "") ? {
-            "icon": "Liste filleul",
+            "icon": "Bonus Sponsor",
             "desc": "Vos commissions spossoring et filleul"
           } : {
             "icon": "",
@@ -111,7 +111,7 @@ class _WidgetPageState extends State<WidgetPage> {
   Widget block(context, item) {
     Widget block;
     switch (item['icon']) {
-      case "Liste filleul":
+      case "Bonus Sponsor":
         block = ListTile(
           contentPadding:
               EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),

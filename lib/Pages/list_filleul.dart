@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../Constant/Style.dart';
 import '../Constant/helper.dart';
+import '../Constant/widget_common.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 
 class ListFilleul extends StatefulWidget {
@@ -14,6 +16,7 @@ class ListFilleul extends StatefulWidget {
 class _ListFilleulState extends State<ListFilleul> {
   List<dynamic> listFilleul = [];
   int walletSponsor = -1;
+  String codeSponsor = "";
   ConsumeAPI consumeAPI = new ConsumeAPI();
 
   @override
@@ -28,6 +31,7 @@ class _ListFilleulState extends State<ListFilleul> {
       setState(() {
         listFilleul = getAllFilleul['result']['arrayProductAvailable'];
         walletSponsor = getAllFilleul['result']['walletSponsor'];
+        codeSponsor = getAllFilleul['result']['myCodeParrain'];
       });
     }
   }
@@ -44,30 +48,75 @@ class _ListFilleulState extends State<ListFilleul> {
       ),
       body: Column(
         children: [
-          Container(
-            height: 40,
-            margin: EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: 5
-            ),
-            decoration: BoxDecoration(
-                color: backgroundColorSec,
-                borderRadius: BorderRadius.circular(18)
-            ),
+          Text(
+            "Gagnez 500 Frs sur les 2 premiers achats des personnes que vous inviterez ! 🎁",
+            style: Style.sousTitre(15),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 50,
+            width: double.infinity,
             child: Row(
               children: [
-                SizedBox(width: 10,),
-                Icon(Icons.wallet_outlined, color: colorPrimary,),
-                SizedBox(width: 5,),
-                if (walletSponsor >= 0) Text("${reformatNumberForDisplayOnPrice(walletSponsor)} XOF", style: Style.titre(15)),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-
-                  },
-                  child: Text("Retirer"),
-                  style: raisedButtonStyleSuccess,
-                )
+                Expanded(
+                  flex:3,
+                  child: Container(
+                    height: 40,
+                    margin: EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 5
+                    ),
+                    decoration: BoxDecoration(
+                        color: backgroundColorSec,
+                        borderRadius: BorderRadius.circular(18)
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 10,),
+                        Icon(Icons.wallet_outlined, color: colorPrimary,),
+                        SizedBox(width: 5,),
+                        if (walletSponsor >= 0) Text("${reformatNumberForDisplayOnPrice(walletSponsor)}", style: Style.titre(15)),
+                        Spacer(),
+                        ElevatedButton(
+                          onPressed: () {
+                          },
+                          child: Text("Retirer"),
+                          style: raisedButtonStyleSuccess,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    height: 40,
+                    margin: EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 5
+                    ),
+                    decoration: BoxDecoration(
+                        color: backgroundColorSec,
+                        borderRadius: BorderRadius.circular(18)
+                    ),
+                    child: InkWell(
+                      onTap: (){
+                        Clipboard.setData(ClipboardData(text: codeSponsor))
+                            .then((value) { //only if ->
+                          displaySnackBar(context, "Code copié avec succès");
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(width: 10,),
+                          Icon(Icons.local_activity_outlined, color: colorPrimary,),
+                          SizedBox(width: 5,),
+                          if (codeSponsor != "") Text(codeSponsor, style: Style.titre(15)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

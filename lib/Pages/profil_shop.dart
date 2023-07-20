@@ -168,6 +168,8 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                             itemBuilder: (context, index) {
                               return SearchAdvancedDeals(
                                   displayProfilAuthor: false,
+                                  comments: dealsFull["arrayProductAvailable"][index]['comments'],
+                                  numberVue: dealsFull["arrayProductAvailable"][index]['numberVue'],
                                   level: dealsFull["arrayProductAvailable"][index]['level'],
                                   video: dealsFull["arrayProductAvailable"][index]['video'],
                                   imageUrl: dealsFull["arrayProductAvailable"][index]['images'],
@@ -228,6 +230,8 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
                                   Navigator.of(context)
                                       .push((MaterialPageRoute(builder: (context) {
                                     DealsSkeletonData element = DealsSkeletonData(
+                                      comments: item['comments'],
+                                      numberVue: item['numberVue'],
                                       quantity: item['quantity'],
                                       video: item['video'],
                                       archive: item['archive'],
