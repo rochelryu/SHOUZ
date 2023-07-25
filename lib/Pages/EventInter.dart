@@ -1,33 +1,30 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
-import 'package:shouz/Constant/helper.dart';
-import 'package:shouz/Pages/CreateEvent.dart';
-import 'package:shouz/Pages/explication_event.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/event_item.dart';
 import '../Models/User.dart';
 import '../Utils/Database.dart';
-import './EventDetails.dart';
 import 'package:shouz/Constant/widget_common.dart';
-
-import 'ExplainEvent.dart';
 import 'choice_other_hobie_second.dart';
+import 'choice_type_event_create.dart';
 
 class EventInter extends StatefulWidget {
   @override
   _EventInterState createState() => _EventInterState();
 }
 
-class _EventInterState extends State<EventInter> {
+class _EventInterState extends State<EventInter>  with SingleTickerProviderStateMixin {
   User? user;
   Map<String, dynamic>? eventFull;
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  int currentTabIdex = 0;
+  late TabController _controller;
   int level = 0;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   bool loadingFull = true, isError = false;
@@ -35,6 +32,7 @@ class _EventInterState extends State<EventInter> {
   @override
   void initState() {
     super.initState();
+    _controller = TabController(length: 2, vsync: this, initialIndex: currentTabIdex);
     getUser();
     loadEvents();
     getExplainEventMethod();
@@ -119,178 +117,8 @@ class _EventInterState extends State<EventInter> {
                   child: ListView.builder(
                       itemCount: event['listEventsWithFilter'].length,
                       itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (builder) => EventDetails(
-                                  0,
-                                  event['listEventsWithFilter'][index]
-                                  ['imageCover'],
-                                  index,
-                                  event['listEventsWithFilter'][index]
-                                  ['price'],
-                                  event['listEventsWithFilter'][index]
-                                  ['numberFavorite'],
-                                  event['listEventsWithFilter'][index]
-                                  ['authorName'],
-                                  event['listEventsWithFilter'][index]
-                                  ['describe'],
-                                  event['listEventsWithFilter'][index]
-                                  ['_id'],
-                                  event['listEventsWithFilter'][index]
-                                  ['numberTicket'],
-                                  event['listEventsWithFilter'][index]
-                                  ['position'],
-                                  event['listEventsWithFilter'][index]
-                                  ['enventDate'],
-                                  event['listEventsWithFilter'][index]
-                                  ['title'],
-                                  event['listEventsWithFilter'][index]
-                                  ['positionRecently'],
-                                  event['listEventsWithFilter'][index]
-                                  ['videoPub'],
-                                  event['listEventsWithFilter'][index]
-                                  ['allTicket'],
-                                  event['listEventsWithFilter'][index]
-                                  ['authorId'],
-                                  event['listEventsWithFilter'][index]
-                                  ['cumulGain'],
-                                  user != null ? event['listEventsWithFilter'][index]
-                                  ['authorId'] == user!.ident : false,
-                                  event['listEventsWithFilter'][index]
-                                  ['state'],
-                                  user != null ? event['listEventsWithFilter'][index]
-                                  ['favorie']: false,
-                                )));
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 235,
-                            child: Stack(
-                              children: <Widget>[
-                                Container(
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                  child: Hero(
-                                    tag: index,
-                                    child: Image.network(
-                                        "${ConsumeAPI.AssetEventServer}${event['listEventsWithFilter'][index]['imageCover']}",
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  height: 235,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: [
-                                              const Color(0x00000000),
-                                              const Color(0x99111100),
-                                            ],
-                                            begin:
-                                            FractionalOffset(0.0, 0.0),
-                                            end: FractionalOffset(
-                                                0.0, 1.0))),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text(
-                                            event['listEventsWithFilter']
-                                            [index]['title']
-                                                .toString()
-                                                .toUpperCase(),
-                                            style: Style.titreEvent(20),
-                                            textAlign: TextAlign.center),
-                                        SizedBox(height: 10.0),
-                                        Text(
-                                            event['listEventsWithFilter']
-                                            [index]['position'],
-                                            style: Style.sousTitreEvent(15),
-                                            maxLines: 2,
-                                            textAlign: TextAlign.center),
-                                        SizedBox(height: 25.0),
-                                        Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .spaceBetween,
-                                          children: <Widget>[
-                                            Row(
-                                              children: <Widget>[
-                                                SizedBox(width: 10.0),
-                                                Icon(Icons.favorite,
-                                                    color: Colors.redAccent,
-                                                    size: 22.0),
-                                                Text(
-                                                  event['listEventsWithFilter']
-                                                  [index]
-                                                  ['numberFavorite']
-                                                      .toString(),
-                                                  style: Style
-                                                      .titleInSegment(),
-                                                ),
-                                                SizedBox(width: 20.0),
-                                                Icon(
-                                                    Icons
-                                                        .account_balance_wallet,
-                                                    color: Colors.white,
-                                                    size: 22.0),
-                                                SizedBox(width: 5.0),
-                                                Text(
-                                                  event['listEventsWithFilter']
-                                                  [index]['price'][0]['price'].toString().toUpperCase() == "GRATUIT" ? event['listEventsWithFilter'][index]['price'][0]['price'] : reformatNumberForDisplayOnPrice(event['listEventsWithFilter'][index]['price'][0]['price']),
-                                                  style: Style
-                                                      .titleInSegment(),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                    Icons.alarm,
-                                                    color: Colors.white,
-                                                    size: 22.0),
-                                                Text(DateTime.parse(event['listEventsWithFilter']
-                                                [index]['enventDate']).day.toString() +
-                                                    '/' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .month
-                                                        .toString() +
-                                                    '/' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .year
-                                                        .toString()+
-                                                    ' à ' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .hour
-                                                        .toString() +
-                                                    'h:' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .minute
-                                                        .toString(),
-                                                    style: Style
-                                                        .titleInSegment()),
-                                                SizedBox(width: 10.0)
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 15.0),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
+                        final infoEvent = event['listEventsWithFilter'][index];
+                        return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
                       }),
                 ),
               ],
@@ -344,189 +172,44 @@ class _EventInterState extends State<EventInter> {
           }
           return Column(
             children: <Widget>[
+              Container(
+                height: 35,
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: backgroundColorSec
+                ),
+                child: TabBar(
+                  controller: _controller,
+                  indicator: BoxDecoration(
+                    color: colorText,
+                    borderRadius: BorderRadius.circular(20)
+                  ),
+                  tabs: [
+                    Tab(
+                      text: "Events",
+                    ),
+                    Tab(
+                      text: "Votes",
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
-                child: ListView.builder(
-                    itemCount: event['listEventsWithFilter'].length,
-                    itemBuilder: (context, index) {
-
-                      return InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (builder) => EventDetails(
-                                0,
-                                event['listEventsWithFilter'][index]
-                                ['imageCover'],
-                                index,
-                                event['listEventsWithFilter'][index]
-                                ['price'],
-                                event['listEventsWithFilter'][index]
-                                ['numberFavorite'],
-                                event['listEventsWithFilter'][index]
-                                ['authorName'],
-                                event['listEventsWithFilter'][index]
-                                ['describe'],
-                                event['listEventsWithFilter'][index]
-                                ['_id'],
-                                event['listEventsWithFilter'][index]
-                                ['numberTicket'],
-                                event['listEventsWithFilter'][index]
-                                ['position'],
-                                event['listEventsWithFilter'][index]
-                                ['enventDate'],
-                                event['listEventsWithFilter'][index]
-                                ['title'],
-                                event['listEventsWithFilter'][index]
-                                ['positionRecently'],
-                                event['listEventsWithFilter'][index]
-                                ['videoPub'],
-                                event['listEventsWithFilter'][index]
-                                ['allTicket'],
-                                event['listEventsWithFilter'][index]
-                                ['authorId'],
-                                event['listEventsWithFilter'][index]
-                                ['cumulGain'],
-                                user != null ? event['listEventsWithFilter'][index]
-                                ['authorId'] == user!.ident : false,
-                                event['listEventsWithFilter'][index]
-                                ['state'],
-                                user != null ? event['listEventsWithFilter'][index]
-                                ['favorie'] : false,
-                              )));
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 235,
-                          child: Stack(
-                            children: <Widget>[
-                              Container(
-                                height: double.infinity,
-                                width: double.infinity,
-                                child: Hero(
-                                  tag: index,
-                                  child: CachedNetworkImage(
-                                    imageUrl: "${ConsumeAPI.AssetEventServer}${event['listEventsWithFilter'][index]['imageCover']}",
-                                    progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                        Center(
-                                            child: CircularProgressIndicator(value: downloadProgress.progress)),
-                                    errorWidget: (context, url, error) => notSignal(),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                height: 235,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          colors: [
-                                            const Color(0x00000000),
-                                            const Color(0x99111100),
-                                          ],
-                                          begin:
-                                          FractionalOffset(0.0, 0.0),
-                                          end: FractionalOffset(
-                                              0.0, 1.0))),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Text(
-                                          event['listEventsWithFilter']
-                                          [index]['title']
-                                              .toString()
-                                              .toUpperCase(),
-                                          style: Style.titreEvent(20),
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 10.0),
-                                      Text(
-                                          event['listEventsWithFilter']
-                                          [index]['position'],
-                                          style: Style.sousTitreEvent(15),
-                                          maxLines: 2,
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 25.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              SizedBox(width: 10.0),
-                                              Icon(Icons.favorite,
-                                                  color: Colors.redAccent,
-                                                  size: 22.0),
-                                              Text(
-                                                event['listEventsWithFilter']
-                                                [index]
-                                                ['numberFavorite']
-                                                    .toString(),
-                                                style: Style
-                                                    .titleInSegment(),
-                                              ),
-                                              SizedBox(width: 20.0),
-                                              Icon(
-                                                  Icons
-                                                      .account_balance_wallet,
-                                                  color: Colors.white,
-                                                  size: 22.0),
-                                              SizedBox(width: 5.0),
-                                              Text(
-                                                event['listEventsWithFilter']
-                                                [index]['price'][0]['price'],
-                                                style: Style
-                                                    .titleInSegment(),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                  Icons.alarm,
-                                                  color: Colors.white,
-                                                  size: 22.0),
-                                              Text(DateTime.parse(event['listEventsWithFilter']
-                                              [index]['enventDate']).day.toString() +
-                                                  '/' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .month
-                                                      .toString() +
-                                                  '/' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .year
-                                                      .toString()+
-                                                  ' à ' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .hour
-                                                      .toString() +
-                                                  'h:' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .minute
-                                                      .toString(),
-                                                  style: Style
-                                                      .titleInSegment()),
-                                              SizedBox(width: 10.0)
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 15.0),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+                child: TabBarView(
+                  controller: _controller,
+                  children: [
+                    ListView.builder(
+                        itemCount: event['listEventsWithFilter'].length,
+                        itemBuilder: (context, index) {
+                          final infoEvent = event['listEventsWithFilter'][index];
+                          return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
+                        }),
+                    Center(
+                      child: Text("Book"),
+                    )
+                  ],
+                ),
               ),
             ],
           );
@@ -536,18 +219,16 @@ class _EventInterState extends State<EventInter> {
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
         onPressed: () {
-          if(user!= null && user!.isActivateForfait != 0) {
-            Navigator.pushNamed(context, CreateEvent.rootName);
-          } else {
-            if(level == 0){
-              setExplain(2, "event");
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
-            } else {
-              Navigator.pushNamed(context, ExplainEvent.rootName);
-            }
-
-          }
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (builder) => ChoiceTypeEventCreate(
+                        key: UniqueKey(),
+                        isActivateForfait: user!= null && user!.isActivateForfait != 0,
+                      level: level,
+                    )
+                )
+            );
 
         },
         backgroundColor: colorText,

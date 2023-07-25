@@ -107,7 +107,7 @@ String formatedTime({required double seconds}) {
 String reformatNumberForDisplayOnPrice(dynamic price) {
   final numberFormated = NumberFormat("#,##0", 'fr_FR');
 
-  return numberFormated.format(price);
+  return numberFormated.format(double.tryParse(price.toString()) ?? 0);
 }
 
 double defaultLatitude = 5.316667;

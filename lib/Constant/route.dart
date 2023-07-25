@@ -15,6 +15,7 @@ import 'package:shouz/Pages/checkout_recharge_mobile_money.dart';
 import 'package:shouz/Pages/checkout_retrait.dart';
 import 'package:shouz/Pages/checkout_retrait_mobile_money.dart';
 import 'package:shouz/Pages/create_travel.dart';
+import 'package:shouz/Pages/create_vote.dart';
 import 'package:shouz/Pages/demande_conducteur.dart';
 import 'package:shouz/Pages/event_decode.dart';
 import 'package:shouz/Pages/result_buy_covoiturage.dart';
@@ -50,4 +51,5 @@ final routes = {
   CheckoutRetrait.rootName: (context) => CheckoutRetrait(),
   EventDecode.rootName: (context) => EventDecode(),
   TravelDecode.rootName: (context) => TravelDecode(),
+  CreateVote.rootName: (context) => CreateVote(),
 };

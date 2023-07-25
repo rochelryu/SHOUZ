@@ -20,7 +20,7 @@ class AppState with ChangeNotifier {
   int maxPlace = 0;
   double percentageRecharge = 0.0;
   int amountTvaWithdraw = 200;
-  int indexBottomBar = 1;//new Random().nextInt(3);
+  int indexBottomBar = 2;//new Random().nextInt(3);
   String idOldConversation = '';
   String priceVoyageTotal = '';
   String forfaitEventEnum = "NOT FORFAIT";

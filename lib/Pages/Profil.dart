@@ -159,8 +159,8 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                         errorWidget: (context, url, error) => notSignal(),
                       ),
                       Positioned(
-                        top: 35,
-                          left: 10,
+                          top: 50,
+                          left: 16,
                           child: Container(
                               height: 40,
                               width: 40,

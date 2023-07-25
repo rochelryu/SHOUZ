@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/Categorie.dart';
+import 'package:shouz/Models/Event.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Utils/network_util.dart';
@@ -90,6 +91,8 @@ class ConsumeAPI {
       BASE_URL + "/event/getAllDecodeurForEvent";
   static final GET_DETAILS_FOR_EVENT_URL =
       BASE_URL + "/event/getDetailsOfEvent";
+
+  static final ALL_EVENT_BY_CLIENT_URL = BASE_URL + "/event/all";
 
   static final ALL_CATEGIRES_WITHOUT_FILTER_URL =
       BASE_URL + "/categorie/display";
@@ -1599,6 +1602,15 @@ class ConsumeAPI {
     final res = await _netUtil.get(
         '$GET_DETAILS_FOR_EVENT_URL/${newClient.ident}?idEvent=$idEvent&credentials=${newClient.recovery}');
     return res;
+  }
+
+  Future<List<dynamic>> getAllEventByClient(String search) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
+    List<dynamic> allEvent =
+    res['result'].map((c) => Event.fromJson(c)).toList();
+    return allEvent;
   }
 
   //TOKEN VEERIFICATION

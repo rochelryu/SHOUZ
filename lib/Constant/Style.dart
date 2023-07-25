@@ -14,6 +14,8 @@ Color colorOne = tint;
 Color colorTwo = backgroundColorSec;
 Color colorThree = colorText;
 enum TypePayement { bitcoin, ethereum, orange, mtn, moov, wave, visa }
+enum TypeVotesInfoLoad { with_event, without_event, none }
+enum TypePeriodicVotes { only, one_day_vote, two_day_vote, three_day_vote, none }
 
 
 bool primaryTheme = true;
@@ -987,6 +989,16 @@ double getProportionateScreenWidth(double inputWidth) {
 }
 
 // Style boutton in flutter
+final ButtonStyle raisedButtonOutlineStyle = OutlinedButton.styleFrom(
+  minimumSize: const Size(88, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)
+    ),
+  ),
+  side: BorderSide(color: colorError, width: 2)
+);
+
 final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   foregroundColor: Colors.white,
   backgroundColor: colorText,
@@ -1146,6 +1158,53 @@ Future<Null> modalForExplain(String assetLink, String text, BuildContext context
                       Navigator.pop(context);
                     }),
               )
+          ],
+        );
+      },
+      barrierDismissible: false
+  );
+}
+
+Future<Null> modalForCreateActionInEventScreen(String assetLink, String text, BuildContext context, [bool isSvg = false]) async {
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25)
+          ),
+          children: <Widget>[
+            if(!isSvg) Container(
+              width: double.infinity,
+              height: 250,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: NetworkImage(assetLink),
+                      fit: BoxFit.contain
+                  )
+              ),
+
+            ),
+            if(isSvg) SvgPicture.network(assetLink,
+              semanticsLabel: text.substring(0, 20),
+              height: 250,
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text(text, style: Style.simpleTextOnBoardWithBolder(13.0)),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 45),
+              child: ElevatedButton(
+                  child: Text('Ok'),
+                  style: raisedButtonStyle,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            )
           ],
         );
       },
