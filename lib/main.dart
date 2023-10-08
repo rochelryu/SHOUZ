@@ -330,7 +330,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     } else {
                       return LoadHide(key: UniqueKey());
                     }
-                  });
+                  }
+                  );
             }
           }),
     );

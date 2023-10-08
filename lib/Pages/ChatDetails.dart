@@ -108,8 +108,8 @@ class _ChatDetailsState extends State<ChatDetails>
         if (appState.getConversationGetter['content'] != null &&
             historyChangeForConversation <
                 appState.getConversationGetter['content'].length) {
-
-          historyChangeForConversation = appState.getConversationGetter['content'].length;
+          historyChangeForConversation =
+              appState.getConversationGetter['content'].length;
 
           _scrollController.animateTo(
               _scrollController.position.maxScrollExtent,
@@ -132,7 +132,8 @@ class _ChatDetailsState extends State<ChatDetails>
             showFloatingAction = true;
           });
         }
-        if(appState.getConversationGetter['_id'] == "" && productDetails != null) {
+        if (appState.getConversationGetter['_id'] == "" &&
+            productDetails != null) {
           loadProfil();
         }
       }
@@ -143,7 +144,6 @@ class _ChatDetailsState extends State<ChatDetails>
 
   @override
   dispose() {
-
     perodicScroll?.cancel();
     _timer?.cancel();
     _ampTimer?.cancel();
@@ -333,105 +333,118 @@ class _ChatDetailsState extends State<ChatDetails>
               image: value['image'],
               context: context));
           final lastMessage = conversation['content'].length == index + 1;
-          if(!isMe && value['content'].toString().indexOf("Je viens d'enregistrer une offre") != -1 && room.split('_')[0] != widget.newClient.ident &&
-              conversation['etatCommunication'] == 'Seller Purpose price final at buyer'  && lastMessage) {
+          if (!isMe &&
+              value['content']
+                      .toString()
+                      .indexOf("Je viens d'enregistrer une offre") !=
+                  -1 &&
+              room.split('_')[0] != widget.newClient.ident &&
+              conversation['etatCommunication'] ==
+                  'Seller Purpose price final at buyer' &&
+              lastMessage) {
             tabs.add(
-                Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          final priceFinal = conversation['priceFinal'] != null
-                              ? conversation['priceFinal']
-                              : 0;
-                          if (widget.newClient.wallet >= priceFinal) {
-                            appState.agreeForPropositionForDeals(
-                                room: room, id: idConversation, methodPayement: 'immediate');
-                            openAppReview(context);
-                          } else {
-                            await prefs.setDouble('amountRecharge', priceFinal - widget.newClient.wallet);
-                            Fluttertoast.showToast(
-                                msg: 'Solde Insuffisant pensez à vous recharger',
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: colorError,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final priceFinal = conversation['priceFinal'] != null
+                          ? conversation['priceFinal']
+                          : 0;
+                      if (widget.newClient.wallet >= priceFinal) {
+                        appState.agreeForPropositionForDeals(
+                            room: room,
+                            id: idConversation,
+                            methodPayement: 'immediate');
+                        openAppReview(context);
+                      } else {
+                        await prefs.setDouble('amountRecharge',
+                            priceFinal - widget.newClient.wallet);
+                        Fluttertoast.showToast(
+                            msg: 'Solde Insuffisant pensez à vous recharger',
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
 
-                            Timer(const Duration(milliseconds: 2000), () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (builder) => ChoiceMethodPayement(
+                        Timer(const Duration(milliseconds: 2000), () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (builder) => ChoiceMethodPayement(
                                     key: UniqueKey(),
                                     isRetrait: false,
                                   )));
-                            });
-                          }
-                        },
-                        child: Text(
-                          "👉 Payer Maintenant",
-                          style: Style.sousTitreEvent(12),
-                        ),
-                        style: raisedButtonStyleSuccess,
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final priceFinal = conversation['priceFinal'] != null
-                              ? conversation['priceFinal']
-                              : 0;
-                          if (priceFinal >= 0) {
-                            appState.agreeForPropositionForDeals(
-                                room: room, id: idConversation, methodPayement: 'delivery');
-                            openAppReview(context);
-                          } else {
-                            await prefs.setDouble('amountRecharge', priceFinal - widget.newClient.wallet);
-                            Fluttertoast.showToast(
-                                msg: 'Solde Insuffisant pensez à vous recharger',
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: colorError,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-
-                            Timer(const Duration(milliseconds: 2000), () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (builder) => ChoiceMethodPayement(
-                                    key: UniqueKey(),
-                                    isRetrait: false,
-                                  )));
-                            });
-                          }
-                        },
-                        child: Text(
-                          "👉 Payer à la livraison",
-                          style: Style.sousTitreEvent(12),
-                        ),
-                        style: raisedButtonStyle,
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          appState.notAgreeForPropositionForDeals(
-                              room: room, id: idConversation);
-                          Fluttertoast.showToast(
-                              msg: 'Reponse envoyée',
-                              toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: colorText,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                        },
-                        child: Text(
-                          "Refuser l'offre 👈",
-                          style: Style.sousTitreEvent(12),
-                        ),
-                        style: raisedButtonStyleError,
-                      ),
-                    ],
+                        });
+                      }
+                    },
+                    child: Text(
+                      "👉 Payer Maintenant",
+                      style: Style.sousTitreEvent(12),
+                    ),
+                    style: raisedButtonStyleSuccess,
                   ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final priceFinal = conversation['priceFinal'] != null
+                          ? conversation['priceFinal']
+                          : 0;
+                      if (priceFinal >= 0) {
+                        appState.agreeForPropositionForDeals(
+                            room: room,
+                            id: idConversation,
+                            methodPayement: 'delivery');
+                        openAppReview(context);
+                      } else {
+                        await prefs.setDouble('amountRecharge',
+                            priceFinal - widget.newClient.wallet);
+                        Fluttertoast.showToast(
+                            msg: 'Solde Insuffisant pensez à vous recharger',
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: colorError,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+
+                        Timer(const Duration(milliseconds: 2000), () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (builder) => ChoiceMethodPayement(
+                                    key: UniqueKey(),
+                                    isRetrait: false,
+                                  )));
+                        });
+                      }
+                    },
+                    child: Text(
+                      "👉 Payer à la livraison",
+                      style: Style.sousTitreEvent(12),
+                    ),
+                    style: raisedButtonStyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      appState.notAgreeForPropositionForDeals(
+                          room: room, id: idConversation);
+                      Fluttertoast.showToast(
+                          msg: 'Reponse envoyée',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: colorText,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    },
+                    child: Text(
+                      "Refuser l'offre 👈",
+                      style: Style.sousTitreEvent(12),
+                    ),
+                    style: raisedButtonStyleError,
+                  ),
+                ],
+              ),
             );
           }
         } else {
@@ -526,11 +539,15 @@ class _ChatDetailsState extends State<ChatDetails>
                           : 'images/client_a_colis_off.png',
                       'Niveau Client'),
                 ),
-
               ],
             )),
       );
-      if(conversation['levelDelivery'] > 0 && conversation['levelDelivery'] < 3 && conversation['content'][conversation['content'].length - 1]['content'].toString().indexOf("Je viens de payer à la livraison") == -1){
+      if (conversation['levelDelivery'] > 0 &&
+          conversation['levelDelivery'] < 3 &&
+          conversation['content'][conversation['content'].length - 1]['content']
+                  .toString()
+                  .indexOf("Je viens de payer à la livraison") ==
+              -1) {
         tabs.add(Container(
           height: 120,
           width: MediaQuery.of(context).size.width,
@@ -552,10 +569,14 @@ class _ChatDetailsState extends State<ChatDetails>
                           : 0;
                       if (widget.newClient.wallet >= priceFinal) {
                         appState.agreeForPropositionForDeals(
-                            room: room, id: appState.getIdOldConversation.trim(), methodPayement: "delivery", finalityPayement: true);
+                            room: room,
+                            id: appState.getIdOldConversation.trim(),
+                            methodPayement: "delivery",
+                            finalityPayement: true);
                         openAppReview(context);
                       } else {
-                        await prefs.setDouble('amountRecharge', priceFinal - widget.newClient.wallet);
+                        await prefs.setDouble('amountRecharge',
+                            priceFinal - widget.newClient.wallet);
                         Fluttertoast.showToast(
                             msg: 'Solde Insuffisant pensez à vous recharger',
                             toastLength: Toast.LENGTH_LONG,
@@ -568,9 +589,9 @@ class _ChatDetailsState extends State<ChatDetails>
                         Timer(const Duration(milliseconds: 2000), () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (builder) => ChoiceMethodPayement(
-                                key: UniqueKey(),
-                                isRetrait: false,
-                              )));
+                                    key: UniqueKey(),
+                                    isRetrait: false,
+                                  )));
                         });
                       }
                     },
@@ -1042,7 +1063,8 @@ class _ChatDetailsState extends State<ChatDetails>
                                             ? 10
                                             : 70.0),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: reformateView(conversation),
                                     ),
                                   );
@@ -1193,24 +1215,17 @@ class _ChatDetailsState extends State<ChatDetails>
                                                     border: InputBorder.none,
                                                     hintStyle:
                                                         Style.sousTitre(14)),
-                                                onChanged: (text)  {
+                                                onChanged: (text) {
                                                   setState(() {
                                                     message = text;
                                                   });
                                                   if (text.length == 1) {
-                                                    inWrite(
-                                                        true,
-                                                        room,
-                                                        widget
-                                                            .newClient.ident);
+                                                    inWrite(true, room,
+                                                        widget.newClient.ident);
                                                     // appState.setTyping(true, widget.authorId);
-                                                  } else if (text.length ==
-                                                      0) {
-                                                    inWrite(
-                                                        false,
-                                                        room,
-                                                        widget
-                                                            .newClient.ident);
+                                                  } else if (text.length == 0) {
+                                                    inWrite(false, room,
+                                                        widget.newClient.ident);
                                                     // appState.setTyping(false, widget.authorId);
                                                   }
                                                 },
@@ -1231,7 +1246,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                             colors: [colorText],
                                             strokeWidth: 2)
                                       else if ((!appState.getLoadingToSend &&
-                                          message.length > 0 &&
+                                              message.length > 0 &&
                                               !isListeen) ||
                                           _image != null)
                                         IconButton(
@@ -1294,25 +1309,36 @@ class _ChatDetailsState extends State<ChatDetails>
                                                     curve: Curves.easeInOut);
                                               } else {
                                                 if (_image != null) {
-                                                  final setFile = await consumeAPI.postFileOfConversation(message,room,base64Image,imageCover,idConversation.trim());
-                                                  if(setFile['etat'] == 'found') {
+                                                  final setFile = await consumeAPI
+                                                      .postFileOfConversation(
+                                                          message,
+                                                          room,
+                                                          base64Image,
+                                                          imageCover,
+                                                          idConversation
+                                                              .trim());
+                                                  if (setFile['etat'] ==
+                                                      'found') {
                                                     appState.refreshChatMessage(
                                                         room: room,
                                                         id: idConversation
                                                             .trim());
                                                   } else {
                                                     Fluttertoast.showToast(
-                                                        msg: 'Problème de reseau',
-                                                        toastLength: Toast.LENGTH_SHORT,
-                                                        gravity: ToastGravity.CENTER,
+                                                        msg:
+                                                            'Problème de reseau',
+                                                        toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                            ToastGravity.CENTER,
                                                         timeInSecForIosWeb: 1,
-                                                        backgroundColor: colorError,
+                                                        backgroundColor:
+                                                            colorError,
                                                         textColor: Colors.white,
                                                         fontSize: 16.0);
                                                   }
                                                   inWrite(false, room,
                                                       widget.newClient.ident);
-
                                                 } else {
                                                   appState.sendChatMessage(
                                                       destinate: room,
@@ -1341,7 +1367,7 @@ class _ChatDetailsState extends State<ChatDetails>
                                           },
                                         )
                                       else if (!appState.getLoadingToSend &&
-                                            message.length == 0 &&
+                                          message.length == 0 &&
                                           _image == null)
                                         IconButton(
                                           icon: Icon(
@@ -1387,231 +1413,240 @@ class _ChatDetailsState extends State<ChatDetails>
                           strokeWidth: 2),
                     )
                   : Column(
-                
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 35.0),
-                            child: Material(
-                              elevation: 10,
-                              child: Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                            "${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
-                                        fit: BoxFit.cover)),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 35.0),
+                          child: Material(
+                            elevation: 10,
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: NetworkImage(
+                                          "${ConsumeAPI.AssetProductServer}${productDetails!['result']['images'][0]}"),
+                                      fit: BoxFit.cover)),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 0),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (builder) => LoadProduct(
+                                            key: UniqueKey(),
+                                            productId: widget.productId,
+                                            doubleComeBack: 2,
+                                          )));
+                            },
+                            child: Text("Voir l'article"),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          height: 20,
+                          child: TabBar(
+                            controller: _tabController,
+                            unselectedLabelColor: Color(0xdd3c5b6d),
+                            labelColor: colorText,
+                            indicatorColor: colorText,
+                            tabs: [
+                              Tab(
+                                text: (room.split('_')[0] ==
+                                        widget.newClient.ident)
+                                    ? 'Mon offre'
+                                    : 'Vendeur',
                               ),
-                            ),
+                              Tab(
+                                //icon: const Icon(Icons.shopping_cart),
+                                text: (room.split('')[1] ==
+                                        widget.newClient.ident)
+                                    ? 'Ma réponse'
+                                    : 'Acheteur',
+                              ),
+                            ],
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 0),
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (builder) => LoadProduct(
-                                              key: UniqueKey(),
-                                              productId: widget.productId,
-                                              doubleComeBack: 2,
-                                            )));
-                              },
-                              child: Text("Voir l'article"),
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 20,
-                            child: TabBar(
+                        ),
+                        Expanded(
+                          child: TabBarView(
                               controller: _tabController,
-                              unselectedLabelColor: Color(0xdd3c5b6d),
-                              labelColor: colorText,
-                              indicatorColor: colorText,
-                              tabs: [
-                                Tab(
-                                  text: (room.split('_')[0] ==
-                                          widget.newClient.ident)
-                                      ? 'Mon offre'
-                                      : 'Vendeur',
-                                ),
-                                Tab(
-                                  //icon: const Icon(Icons.shopping_cart),
-                                  text: (room.split('')[1] ==
-                                          widget.newClient.ident)
-                                      ? 'Ma réponse'
-                                      : 'Acheteur',
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child:
-                                TabBarView(controller: _tabController,
-                                    children: <Widget>[
-                              SingleChildScrollView(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 40,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Prix Initial',
-                                                style: Style.chatIsMe(15)),
-                                            Text(
-                                                productDetails!['result']['price']
-                                                    .toString(),
-                                                style: Style.titleNews()),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 40,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Prix Livraison',
-                                                style: Style.chatIsMe(15)),
-                                            Text(
-                                                productDetails!['result']['priceDelivery']
-                                                    .toString(),
-                                                style: Style.titleNews()),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 40,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Qte Restante',
-                                                style: Style.chatIsMe(15)),
-                                            Text(
-                                                productDetails!['result']
-                                                        ['quantity']
-                                                    .toString(),
-                                                style: Style.titleNews()),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(height: 5),
-                                      Divider(
-                                        height: 1,
-                                        indent: 12,
-                                        endIndent: 12,
-                                        color: Colors.grey[200],
-                                      ),
-                                      SizedBox(height: 5),
-                                      Text('Proposition du vendeur',
-                                          style: Style.titleNews()),
-                                      SizedBox(height: 10),
-                                      Divider(
-                                        height: 1,
-                                        indent: 12,
-                                        endIndent: 12,
-                                        color: Colors.grey[200],
-                                      ),
-                                      SizedBox(height: 5),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 170,
-                                        child: propositionAuteur(
-                                            conversation['etatCommunication'],
-                                            (room.split('_')[0] ==
-                                                widget.newClient.ident),
-                                            conversation['priceFinal'],
-                                            conversation['quantityProduct']),
-                                      ),
-                                      if (conversation['etatCommunication'] !=
-                                              null &&
-                                          conversation['etatCommunication'] ==
-                                              'Conversation between users' &&
-                                          room.split('_')[0] ==
-                                              widget.newClient.ident)
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            if (int.parse(quantity) <=
-                                                    productDetails!['result']
-                                                        ['quantity'] &&
-                                                double.parse(price) > 0 &&
-                                                double.parse(quantity) > 0) {
-                                              appState
-                                                  .sendPropositionForDealsByAuteur(
-                                                      price: price,
-                                                      qte: quantity,
-                                                      room: room,
-                                                      id: idConversation);
-                                              Navigator.pop(context);
-                                              Fluttertoast.showToast(
-                                                  msg: 'Proposition envoyée',
-                                                  toastLength: Toast.LENGTH_LONG,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor: colorText,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                              Timer(Duration(seconds: 2), () { openAppReview(context); });
-                                            } else {
-                                              Fluttertoast.showToast(
-                                                  msg:
-                                                      "Erreur sur la quantité ou le prix",
-                                                  toastLength: Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            }
-                                          },
-                                          child: Text(
-                                            "Envoyer la proposition",
-                                            style: Style.sousTitreEvent(15),
+                              children: <Widget>[
+                                SingleChildScrollView(
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 40,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Prix Initial',
+                                                  style: Style.chatIsMe(15)),
+                                              Text(
+                                                  productDetails!['result']
+                                                          ['price']
+                                                      .toString(),
+                                                  style: Style.titleNews()),
+                                            ],
                                           ),
-                                          style: raisedButtonStyle,
                                         ),
-                                    ],
+                                        Container(
+                                          width: double.infinity,
+                                          height: 40,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Prix Livraison',
+                                                  style: Style.chatIsMe(15)),
+                                              Text(
+                                                  productDetails!['result']
+                                                          ['priceDelivery']
+                                                      .toString(),
+                                                  style: Style.titleNews()),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          width: double.infinity,
+                                          height: 40,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Qte Restante',
+                                                  style: Style.chatIsMe(15)),
+                                              Text(
+                                                  productDetails!['result']
+                                                          ['quantity']
+                                                      .toString(),
+                                                  style: Style.titleNews()),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                        Divider(
+                                          height: 1,
+                                          indent: 12,
+                                          endIndent: 12,
+                                          color: Colors.grey[200],
+                                        ),
+                                        SizedBox(height: 5),
+                                        Text('Proposition du vendeur',
+                                            style: Style.titleNews()),
+                                        SizedBox(height: 10),
+                                        Divider(
+                                          height: 1,
+                                          indent: 12,
+                                          endIndent: 12,
+                                          color: Colors.grey[200],
+                                        ),
+                                        SizedBox(height: 5),
+                                        Container(
+                                          width: double.infinity,
+                                          height: 170,
+                                          child: propositionAuteur(
+                                              conversation['etatCommunication'],
+                                              (room.split('_')[0] ==
+                                                  widget.newClient.ident),
+                                              conversation['priceFinal'],
+                                              conversation['quantityProduct']),
+                                        ),
+                                        if (conversation['etatCommunication'] !=
+                                                null &&
+                                            conversation['etatCommunication'] ==
+                                                'Conversation between users' &&
+                                            room.split('_')[0] ==
+                                                widget.newClient.ident)
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (int.parse(quantity) <=
+                                                      productDetails!['result']
+                                                          ['quantity'] &&
+                                                  double.parse(price) > 0 &&
+                                                  double.parse(quantity) > 0) {
+                                                appState
+                                                    .sendPropositionForDealsByAuteur(
+                                                        price: price,
+                                                        qte: quantity,
+                                                        room: room,
+                                                        id: idConversation);
+                                                Navigator.pop(context);
+                                                Fluttertoast.showToast(
+                                                    msg: 'Proposition envoyée',
+                                                    toastLength:
+                                                        Toast.LENGTH_LONG,
+                                                    gravity:
+                                                        ToastGravity.CENTER,
+                                                    timeInSecForIosWeb: 1,
+                                                    backgroundColor: colorText,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0);
+                                                Timer(Duration(seconds: 2), () {
+                                                  openAppReview(context);
+                                                });
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Erreur sur la quantité ou le prix",
+                                                    toastLength:
+                                                        Toast.LENGTH_SHORT,
+                                                    gravity:
+                                                        ToastGravity.CENTER,
+                                                    timeInSecForIosWeb: 1,
+                                                    backgroundColor: Colors.red,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0);
+                                              }
+                                            },
+                                            child: Text(
+                                              "Envoyer la proposition",
+                                              style: Style.sousTitreEvent(15),
+                                            ),
+                                            style: raisedButtonStyle,
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (conversation['etatCommunication'] != null &&
-                                  conversation['etatCommunication'] ==
-                                      'Seller and Buyer validate price final')
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      "images/deals_validate.svg",
-                                      semanticsLabel: 'deals_validate',
-                                      height: MediaQuery.of(context).size.height *
-                                          0.39,
-                                    ),
-                                    Text(
-                                        (room.split('_')[0] ==
-                                                widget.newClient.ident)
-                                            ? "L'acheteur a accepté votre proposition 🤝"
-                                            : "Vous vous êtes entendu avec le vendeur sur sa proposition 🤝",
-                                        textAlign: TextAlign.center,
-                                        style: Style.sousTitreEvent(15)),
-                                  ],
-                                )
-                              else
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: reformatText(conversation),
-                                )
-                            ]),
-                          ),
-                        ],
-                      ),
+                                if (conversation['etatCommunication'] != null &&
+                                    conversation['etatCommunication'] ==
+                                        'Seller and Buyer validate price final')
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        "images/deals_validate.svg",
+                                        semanticsLabel: 'deals_validate',
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.39,
+                                      ),
+                                      Text(
+                                          (room.split('_')[0] ==
+                                                  widget.newClient.ident)
+                                              ? "L'acheteur a accepté votre proposition 🤝"
+                                              : "Vous vous êtes entendu avec le vendeur sur sa proposition 🤝",
+                                          textAlign: TextAlign.center,
+                                          style: Style.sousTitreEvent(15)),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: reformatText(conversation),
+                                  )
+                              ]),
+                        ),
+                      ],
+                    ),
             ),
           ),
         ));
@@ -1645,10 +1680,13 @@ class _ChatDetailsState extends State<ChatDetails>
                   : 0;
               if (widget.newClient.wallet >= priceFinal) {
                 appState.agreeForPropositionForDeals(
-                    room: room, id: appState.getIdOldConversation.trim(), methodPayement: "immediate");
+                    room: room,
+                    id: appState.getIdOldConversation.trim(),
+                    methodPayement: "immediate");
                 Navigator.pop(context);
               } else {
-                await prefs.setDouble('amountRecharge', priceFinal - widget.newClient.wallet);
+                await prefs.setDouble(
+                    'amountRecharge', priceFinal - widget.newClient.wallet);
                 Fluttertoast.showToast(
                     msg: 'Solde Insuffisant pensez à vous recharger',
                     toastLength: Toast.LENGTH_LONG,
@@ -1681,10 +1719,13 @@ class _ChatDetailsState extends State<ChatDetails>
                   : 0;
               if (priceFinal >= 0) {
                 appState.agreeForPropositionForDeals(
-                    room: room, id: appState.getIdOldConversation.trim(), methodPayement: "delivery");
+                    room: room,
+                    id: appState.getIdOldConversation.trim(),
+                    methodPayement: "delivery");
                 Navigator.pop(context);
               } else {
-                await prefs.setDouble('amountRecharge', priceFinal - widget.newClient.wallet);
+                await prefs.setDouble(
+                    'amountRecharge', priceFinal - widget.newClient.wallet);
                 Fluttertoast.showToast(
                     msg: 'Solde Insuffisant pensez à vous recharger',
                     toastLength: Toast.LENGTH_LONG,
@@ -1697,9 +1738,9 @@ class _ChatDetailsState extends State<ChatDetails>
                 Timer(const Duration(milliseconds: 2000), () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (builder) => ChoiceMethodPayement(
-                        key: UniqueKey(),
-                        isRetrait: false,
-                      )));
+                            key: UniqueKey(),
+                            isRetrait: false,
+                          )));
                 });
               }
             },
@@ -1833,20 +1874,16 @@ class _ChatDetailsState extends State<ChatDetails>
     String audioName = path!.split('/').last;
     final base64Audio = base64Encode(File(path).readAsBytesSync());
     if (appState.getConversationGetter['_id'] == null) {
-
       appState.createChatMessage(
           destinate: room,
           base64: base64Audio,
           imageName: audioName,
           content: message);
     } else {
-
-      final setFile = await consumeAPI.postFileOfConversation(message,room,base64Audio,audioName,idConversation.trim());
-      if(setFile['etat'] == 'found') {
-        appState.refreshChatMessage(
-            room: room,
-            id: idConversation
-                .trim());
+      final setFile = await consumeAPI.postFileOfConversation(
+          message, room, base64Audio, audioName, idConversation.trim());
+      if (setFile['etat'] == 'found') {
+        appState.refreshChatMessage(room: room, id: idConversation.trim());
       } else {
         Fluttertoast.showToast(
             msg: 'Problème de reseau',

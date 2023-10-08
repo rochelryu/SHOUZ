@@ -92,7 +92,11 @@ class _MenuDrawlerState extends State<MenuDrawler>
       });
       if (user.tokenNotification == "ONE_SIGNAL" ||
           user.tokenNotification == "") {
-        await getTokenForNotificationProvider(true);
+        try {
+          await getTokenForNotificationProvider(true);
+        } catch (e) {
+          print("Token  non mis à jour au backend");
+        }
       }
 
       if (user.inscriptionIsDone == 0) {
