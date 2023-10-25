@@ -119,48 +119,28 @@ class _MenuDrawlerState extends State<MenuDrawler>
     try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
-          if (Platform.isAndroid) {
-            if (await isHms()) {
-              if (versionApp != getLatestVersionApp['appGallery']) {
-                setState(() {
-                  update = true;
-                });
-              } else {
-                final notificationCenter =
-                    await consumeAPI.getLatestInfoNotificationInApp();
-                if (notificationCenter['etat'] == "found") {
-                  final result = notificationCenter['result'];
-                  await displayNotificationCenter(
-                    result['imgUrl'],
-                    result['title'],
-                    result['body'],
-                    result['data'],
-                    context,
-                  );
-                }
-              }
+        if (Platform.isAndroid) {
+          if (await isHms()) {
+            if (versionApp != getLatestVersionApp['appGallery']) {
+              setState(() {
+                update = true;
+              });
             } else {
-              if (versionApp != getLatestVersionApp['playstore']) {
-                setState(() {
-                  update = true;
-                });
-              } else {
-                final notificationCenter =
-                    await consumeAPI.getLatestInfoNotificationInApp();
-                if (notificationCenter['etat'] == "found") {
-                  final result = notificationCenter['result'];
-                  await displayNotificationCenter(
-                    result['imgUrl'],
-                    result['title'],
-                    result['body'],
-                    result['data'],
-                    context,
-                  );
-                }
+              final notificationCenter =
+                  await consumeAPI.getLatestInfoNotificationInApp();
+              if (notificationCenter['etat'] == "found") {
+                final result = notificationCenter['result'];
+                await displayNotificationCenter(
+                  result['imgUrl'],
+                  result['title'],
+                  result['body'],
+                  result['data'],
+                  context,
+                );
               }
             }
           } else {
-            if (versionApp != getLatestVersionApp['appleStore']) {
+            if (versionApp != getLatestVersionApp['playstore']) {
               setState(() {
                 update = true;
               });
@@ -179,6 +159,26 @@ class _MenuDrawlerState extends State<MenuDrawler>
               }
             }
           }
+        } else {
+          if (versionApp != getLatestVersionApp['appleStore']) {
+            setState(() {
+              update = true;
+            });
+          } else {
+            final notificationCenter =
+                await consumeAPI.getLatestInfoNotificationInApp();
+            if (notificationCenter['etat'] == "found") {
+              final result = notificationCenter['result'];
+              await displayNotificationCenter(
+                result['imgUrl'],
+                result['title'],
+                result['body'],
+                result['data'],
+                context,
+              );
+            }
+          }
+        }
       }
     } catch (e) {}
   }
@@ -406,32 +406,37 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 });
               },
             ),
-            title: update ? TextButton(
-              onPressed: () async {
-                if (Platform.isAndroid) {
-                  if (await isHms()) {
-                    await launchUrl(Uri.parse(linkAppGalleryForShouz),
-                        mode: LaunchMode.externalApplication);
-                  } else {
-                    await launchUrl(Uri.parse(linkPlayStoreForShouz),
-                        mode: LaunchMode.externalApplication);
-                  }
-                } else {
-                  await launchUrl(Uri.parse(linkAppleStoreForShouz),
-                      mode: LaunchMode.externalApplication);
-                }
-              },
-              child: badges.Badge(
-                position: badges.BadgePosition.topEnd(top:-8, end: -20),
-                badgeStyle: badges.BadgeStyle(
-                    badgeColor: colorError,
-                    shape: badges.BadgeShape.twitter),
-                badgeContent: Text(
-                  ' ! ',
-                  style: TextStyle(color: Colors.white),
-                ),
-                child: Text('Mettre à jour Shouz', style: Style.titleNews(15),),
-            )) :Text(titleDomain[appState.getIndexBottomBar]),
+            title: update
+                ? TextButton(
+                    onPressed: () async {
+                      if (Platform.isAndroid) {
+                        if (await isHms()) {
+                          await launchUrl(Uri.parse(linkAppGalleryForShouz),
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          await launchUrl(Uri.parse(linkPlayStoreForShouz),
+                              mode: LaunchMode.externalApplication);
+                        }
+                      } else {
+                        await launchUrl(Uri.parse(linkAppleStoreForShouz),
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: badges.Badge(
+                      position: badges.BadgePosition.topEnd(top: -8, end: -20),
+                      badgeStyle: badges.BadgeStyle(
+                          badgeColor: colorError,
+                          shape: badges.BadgeShape.twitter),
+                      badgeContent: Text(
+                        ' ! ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      child: Text(
+                        'Mettre à jour Shouz',
+                        style: Style.titleNews(15),
+                      ),
+                    ))
+                : Text(titleDomain[appState.getIndexBottomBar]),
             centerTitle: true,
             actions: [
               if (newClient != null)
