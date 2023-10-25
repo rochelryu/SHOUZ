@@ -36,9 +36,9 @@ const linkPlayStoreForShouz =
     "https://play.google.com/store/apps/details?id=com.shouz.app";
 const linkAppleStoreForShouz = "https://apps.apple.com/app/shouz/id6444333797";
 
-void showSnackBar(BuildContext context, String text) {
+void showSnackBar(BuildContext context, String text, {bool isOk = false }) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    backgroundColor: colorError,
+    backgroundColor: isOk ? colorSuccess : colorError,
     content: Text(
       text,
       textAlign: TextAlign.center,

@@ -6,8 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
-
 import 'my_flutter_app_second_icons.dart';
 
 Color colorOne = tint;

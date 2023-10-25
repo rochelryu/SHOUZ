@@ -3,21 +3,22 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shouz/Constant/ExtensionEnum.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
-import 'package:shouz/Models/Categorie.dart';
+import 'package:shouz/MenuDrawler.dart';
 import 'package:shouz/Models/Event.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:video_player/video_player.dart';
 
 import '../Constant/helper.dart';
 import '../Constant/widget_common.dart';
+import '../Utils/shared_pref_function.dart';
 
 class CreateVote extends StatefulWidget {
   static String rootName = '/CreateVote';
@@ -29,43 +30,33 @@ class _CreateVoteState extends State<CreateVote> {
   final picker = ImagePicker();
   DateTime? dateChoice;
   DateTime? dateChoiceEnd;
-  late DateTime date = new DateTime.now();
-  late DateTime dateEnd = new DateTime.now();
   final formKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
-  final ConsumeAPI consumeAPI = new ConsumeAPI();
-  int durrationEvent = 0;
-  int maxPlace = 0;
-  List<File> post = [];
-  File? video;
+  final ConsumeAPI consumeAPI = ConsumeAPI();
   String base64Image = "";
-  String base64Video = "";
-  List<VideoPlayerController> postVideo = [];
-  List<String> allCategorie = [];
-  String nameProduct = "";
-  TextEditingController nameProductCtrl = new TextEditingController();
-  TextEditingController ctrlCategorie = new TextEditingController();
-  TextEditingController ctrlEvent = new TextEditingController();
-  String describe = "";
-  String email = "";
-  TextEditingController emailCtrl = new TextEditingController();
-
+  String picture = "";
+  TextEditingController titleCtrl = TextEditingController(), ctrlEvent = TextEditingController(), nameCategorieCtrl = TextEditingController();
+  List<File> post = [];
+  List<File> actors = [];
+  List<TextEditingController> namesCtrlActors = [];
   String price = "";
-  TextEditingController priceCtrl = new TextEditingController();
-  bool _isName = true;
-  bool available = false;
+  TextEditingController priceCtrl = TextEditingController();
+  bool _isName = true, _isNameCategorie = false;
+  bool available = false, displayResult = false;
   bool _isPrice = false;
-  bool _isLoading = false;
-  bool monVal = false, showFloatingAction = true;
+  bool _isLoading = false, _isLoadingDone =false;
+  bool monVal = false, showFloatingAction = true, isPosting = false;
+  Event? eventChoice;
   ScrollController _scrollController = ScrollController();
-  List<List<TextEditingController>> _controllers = [];
   int indexStepper = 0;
+  List<String> allNameRegister = [];
 
   TypeVotesInfoLoad _typeVotesInfoLoad = TypeVotesInfoLoad.none;
   TypePeriodicVotes _typePeriodicVotes = TypePeriodicVotes.none;
 
   Future<Null> selectDate(BuildContext context, bool begin) async {
-    final initialDate = begin ? date : dateEnd;
+    final actualDate = DateTime.now();
+    final initialDate = begin ? dateChoice ?? actualDate : dateChoiceEnd ?? actualDate;
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: initialDate,
@@ -75,9 +66,9 @@ class _CreateVoteState extends State<CreateVote> {
     if (picked != null) {
       setState(() {
         if (begin) {
-          date = picked;
+          dateChoice = picked;
         } else {
-          dateEnd = picked;
+          dateChoiceEnd = DateTime(picked.year, picked.month, picked.day, 23, 59);
         }
       });
     }
@@ -87,8 +78,8 @@ class _CreateVoteState extends State<CreateVote> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadData();
     _scrollController.addListener(() {
-      print(_scrollController.position.pixels);
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 100) {
         setState(() {
@@ -99,6 +90,13 @@ class _CreateVoteState extends State<CreateVote> {
           showFloatingAction = true;
         });
       }
+    });
+  }
+
+  loadData() async {
+    final voteId = await getVoteIdToShared();
+    setState(() {
+      indexStepper = voteId.toString().isEmpty ? 0 : 1;
     });
   }
 
@@ -121,8 +119,30 @@ class _CreateVoteState extends State<CreateVote> {
         setState(() {
           post[0] = File(image.path);
         });
-        base64Image = base64Encode(File(image.path).readAsBytesSync());
+
       }
+      picture = image.name;
+    }
+  }
+
+  Future getNomineProfil() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true, allowCompression: true, type: FileType.image);
+
+    if (result != null) {
+      List<File> files = result.paths.map((path) => File(path!)).toList();
+
+        // final newBase64Image = files
+        //     .map((image) => base64Encode(image.readAsBytesSync()))
+        //     .toList();
+      List<TextEditingController> allNewControllers = files.map((e) => TextEditingController()).toList();
+      final List<File> allImage = List.from(actors)..addAll(files);
+      final List<TextEditingController> allCtrls = List.from(namesCtrlActors)..addAll(allNewControllers);
+        setState(() {
+          namesCtrlActors = allCtrls;
+          actors = allImage;
+        });
+
     }
   }
 
@@ -154,7 +174,6 @@ class _CreateVoteState extends State<CreateVote> {
                 enableStepTapping: false,
                 lineLength: MediaQuery.of(context).size.width * 0.5,
                 onStepReached: (index) {
-                  print(index);
                   setState(() {
                     indexStepper = index;
                   });
@@ -165,7 +184,8 @@ class _CreateVoteState extends State<CreateVote> {
                 ],
               ),
             ),
-            firstStepCreationVote(),
+            if(indexStepper == 0) firstStepCreationVote(),
+            if(indexStepper == 1) secondStepCreationVote(),
           ],
         ),
       ),
@@ -174,82 +194,129 @@ class _CreateVoteState extends State<CreateVote> {
 
   void _submit() async {
     bool ready = true;
-    if (nameProduct.length < 3) {
+    if (_typeVotesInfoLoad == TypeVotesInfoLoad.none) {
       ready = false;
 
-      showSnackBar(context, "Le titre de l'évènement est trop court.");
+      showSnackBar(context,
+          "Dites nous si le vôte est lié à un de vos évènement ou non !");
     }
-    if (describe.length < 17) {
+    if (_typePeriodicVotes == TypePeriodicVotes.none) {
+      ready = false;
+
+      showSnackBar(context, "Dites nous qu'elle est la fréquence des vôtes !");
+    }
+    if (dateChoiceEnd == null || dateChoice == null) {
       ready = false;
       showSnackBar(context,
-          "Veuillez donner plus de détails dans le champs details de l'évènement.");
+          "Veuillez sélectionner une date ${dateChoice == null
+              ? "de debut"
+              : "de fin"}");
     }
-    if (allCategorie.length == 0) {
-      ready = false;
-      showSnackBar(
-          context, "Veuillez choisir au moins une categorie pour l'événement.");
+    if (available) {
+      if ((price.isNotEmpty && int.parse(price) % 100 != 0) || price.isEmpty) {
+        ready = false;
+        showSnackBar(
+            context, "Le montant pour le vôte doit être un multiple de 100");
+      }
     }
-    if (allCategorie.length > 3) {
-      ready = false;
-      showSnackBar(context,
-          "Vous ne pouvez que choisir au plus 3 categories pour l'événement.");
-    }
-    if (base64Image.length == 0) {
-      ready = false;
-      showSnackBar(context, "Veuillez sélectionner l'image de l'événement.");
+    if(_typeVotesInfoLoad == TypeVotesInfoLoad.without_event) {
+      if (base64Image.isEmpty) {
+        ready = false;
+        showSnackBar(context, "Veuillez sélectionner l'image d'affiche du vôte.");
+      }
+      if(titleCtrl.text.isEmpty) {
+        ready = false;
+        showSnackBar(context, "Veuillez entrer le nom du vôte.");
+      }
     }
 
-    if (dateChoice == null) {
-      ready = false;
-      showSnackBar(context, "Veuillez choisir la date de debut de l'évènement");
+      if (ready) {
+        final eventId = ExtensionEnumToValue.transformTypeVotesInfoLoadInCorrectValue(_typeVotesInfoLoad, eventChoice);
+        setState(() {
+          isPosting = true;
+        });
+        final setVote = await consumeAPI.createVote(
+          eventId: eventId,
+            price: price,
+            base64: base64Image,picture: picture,name: titleCtrl.text, beginDate: dateChoice!, endDate: dateChoiceEnd!, frequence: _typePeriodicVotes, displayResult: displayResult);
+        setState(() {
+          isPosting = false;
+        });
+        print(setVote);
+        if(setVote['etat'] == 'found') {
+          setState(() {
+            indexStepper++;
+          });
+        } else {
+          await askedToLead(
+              "Un problème lors de la création du vôte, veuillez reprendre ultérieurement s'il vous plait.",
+              false,
+              context);
+        }
+
+      }
     }
-    if (dateChoiceEnd == null) {
+  void _submitCategorie({bool isDone = false}) async {
+    bool ready = true;
+    if (!isDone && nameCategorieCtrl.text.isEmpty) {
       ready = false;
-      showSnackBar(context, "Veuillez choisir la date de fin de l'évènement");
-    }
-    if (durrationEvent >= 8) {
-      ready = false;
+
       showSnackBar(context,
-          "Votre évènement se deroulera sur ${durrationEvent.toString()} jours ? Verifiez les dates de debut et fin s'il vous plait.");
+          "Veuillez faire entrer le nom de la categorie d'abord");
     }
-    if (_controllers.length == 0) {
+    if (!isDone && (namesCtrlActors.isEmpty || namesCtrlActors.length != actors.length)) {
       ready = false;
-      showSnackBar(
-          context, "Faites entrer le prix et la quantité des types de ticket");
+
+      showSnackBar(context, "Veuillez vous rassurer que tous les nominés pour cette categorie ont été àjouté.");
     }
-    if (email.indexOf('@') <= 3) {
+    if(isDone && nameCategorieCtrl.text.isEmpty && namesCtrlActors.isEmpty) {
       ready = false;
-      showSnackBar(context, "Faites entrer une adresse email valide.");
+      await dropVoteIdToShared();
+      Navigator.pushNamedAndRemoveUntil(context, MenuDrawler.rootName, (route) => route.isFirst);
     }
 
     if (ready) {
-      final array = _controllers
-          .map((arrayItem) =>
-      "${arrayItem[0].text}:${arrayItem[1].text.length > 0 ? arrayItem[1].text : '0'}")
-          .toList()
-          .where((element) => element != ":0")
-          .toList();
-      final placeTotal = array
-          .map((e) => int.parse(e.substring(e.indexOf(':') + 1)))
-          .reduce((value, element) => value + element);
-      final List<bool> isValidArrayForPrice = array.map((e) {
-        if (e.split(':')[0].toLowerCase().indexOf("gratuit") != -1 ||
-            int.tryParse(e.split(':')[0]) != null) {
-          return true;
+      setState(() {
+        if(isDone) _isLoadingDone = true;
+        else isPosting = true;
+      });
+      final voteId = await getVoteIdToShared() as String;
+      List<String> listNameActors = [];
+      List<String> listNameImage = [];
+      List<String> listBaseActors = [];
+      actors.asMap().forEach((index, actor) {
+        final imageName = actor.path.split('/').last;
+        if(allNameRegister.contains('${voteId}_$imageName')) {
+          listBaseActors.add('');
         } else {
-          return false;
+          listBaseActors.add(base64Encode(actor.readAsBytesSync()));
         }
-      }).toList();
-      if (placeTotal <= maxPlace && isValidArrayForPrice.indexOf(false) == -1) {
-        setState(() => _isLoading = true);
-        String imageCover = post[0].path.split('/').last;
-        String videoPub = (video != null) ? video!.path.split('/').last : "";
+        listNameImage.add('${voteId}_$imageName');
+        listNameActors.add(namesCtrlActors[index].text.toLowerCase());
+      });
+      final lastStepVote = await consumeAPI.createCategorieAndNomineVote(
+        isDone: isDone,
+          base64: listBaseActors.join(','), categorieName: nameCategorieCtrl.text, imageName: listNameImage.join(','), nameActors: listNameActors.join(','));
+      setState(() {
+        if(isDone) _isLoadingDone = false;
+        else isPosting = false;
+      });
+      if(lastStepVote['etat'] == 'found') {
+        allNameRegister = listNameImage;
+        showSnackBar(context, "Les nominés de la categorie ${nameCategorieCtrl.text} ont été enregistré", isOk: true);
+        setState(() {
+          actors = [];
+          nameCategorieCtrl.text = '';
+          namesCtrlActors = [];
+
+        });
       } else {
         await askedToLead(
-            "Votre nombre maximum de ticket est de $maxPlace.\nSi un type de ticket est gratuit ecrivez juste gratuit à la place du prix du ticket",
+            "Un problème lors de la création du vôte, veuillez reprendre ultérieurement s'il vous plait.",
             false,
             context);
       }
+
     }
   }
 
@@ -284,13 +351,6 @@ class _CreateVoteState extends State<CreateVote> {
   }
 
   List<Widget> _listViewWithoutEvent() {
-    /*Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          height: 60,
-          width: double.infinity,
-          child: value,
-        ));*/
     List<Widget> tabs = [
       //Title
       Padding(
@@ -312,7 +372,7 @@ class _CreateVoteState extends State<CreateVote> {
                     color: _isName ? colorText : backgroundColor),
                 borderRadius: BorderRadius.circular(50.0)),
             child: TextField(
-              controller: nameProductCtrl,
+              controller: titleCtrl,
               style: TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w300),
               cursorColor: colorText,
@@ -323,14 +383,13 @@ class _CreateVoteState extends State<CreateVote> {
                   _isPrice = false;
                   _isLoading = false;
                   monVal = false;
-                  nameProduct = text;
                 });
               },
               decoration: InputDecoration(
                   border: InputBorder.none,
                   prefixIcon: Icon(Icons.looks_one,
                       color: _isName ? colorText : Colors.grey),
-                  hintText: "Titre de l'évenement",
+                  hintText: "Titre du vôte",
                   hintStyle: TextStyle(
                     color: Colors.white,
                   )),
@@ -410,134 +469,6 @@ class _CreateVoteState extends State<CreateVote> {
             }),
       ),
 
-      if (allCategorie.length < (maxPlace != 10 ? 3 : 1))
-        Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            "Veuillez selectionner des categories pour votre évènement. (Max Categorie: ${maxPlace != 10 ? '3' : '1'})",
-            /*textAlign: TextAlign.justify,*/ style:
-          Style.sousTitre(13.0),
-          ),
-        ),
-      if (allCategorie.length < (maxPlace != 10 ? 3 : 1))
-        Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 10.0,
-              child: Container(
-                height: 50,
-                padding: EdgeInsets.only(left: 10.0),
-                width: MediaQuery.of(context).size.width,
-                child: TypeAheadField(
-                  hideSuggestionsOnKeyboardHide: false,
-                  textFieldConfiguration: TextFieldConfiguration(
-                    //autofautofocusocus: true,
-                    controller: ctrlCategorie,
-                    style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w300),
-
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText:
-                      "Economie, Bourse, Festival, Coupé décalé, Gospel, Boom Party",
-                      hintStyle: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.grey[500],
-                          fontSize: 13.0),
-                    ),
-                  ),
-                  hideOnEmpty: true,
-                  suggestionsCallback: (pattern) async {
-                    return consumeAPI.getAllCategrie(
-                        pattern.length > 0 ? pattern : '', 'not', '2');
-                  },
-                  itemBuilder: (context, suggestion) {
-                    final categorie = suggestion as Categorie;
-                    return ListTile(
-                      title: Text(categorie.name,
-                          style: Style.priceDealsProduct()),
-                      trailing: (categorie.popularity == 1)
-                          ? Icon(Icons.star, color: colorText)
-                          : Icon(Icons.star_border, color: colorText),
-                    );
-                  },
-                  onSuggestionSelected: (suggestion) async {
-                    final categorie = suggestion as Categorie;
-                    ctrlCategorie.text = categorie.name;
-                    final etat = await consumeAPI
-                        .verifyCategorieExist(ctrlCategorie.text);
-                    if (etat) {
-                      if (allCategorie.indexOf(ctrlCategorie.text) == -1) {
-                        setState(() {
-                          allCategorie.add(ctrlCategorie.text);
-                        });
-                      }
-                      ctrlCategorie.clear();
-                    } else {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) =>
-                              dialogCustomError(
-                                  'Erreur',
-                                  'Categorie inexistante dans notre registre',
-                                  context),
-                          barrierDismissible: false);
-                    }
-                  },
-                ),
-              ),
-            )),
-
-      Padding(
-          padding:
-          EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
-          child: Text('Categories choisies',
-              textAlign: TextAlign.start,
-              style: Style.enterChoiceHobieInSecondaryOption(16.0))),
-      allCategorie.length == 0
-          ? Padding(
-          padding: EdgeInsets.symmetric(vertical: 25.0),
-          child: Text(
-            "Veuillez choisir au moins une catégorie",
-            style: Style.titleInSegmentInTypeError(),
-          ))
-          : Wrap(
-        spacing: 6.0,
-        children: <Widget>[
-          MasonryGridView.count(
-            physics: const BouncingScrollPhysics(),
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            mainAxisSpacing: 0,
-            crossAxisSpacing: 0,
-            padding: EdgeInsets.all(0.0),
-            itemCount: allCategorie.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Chip(
-                elevation: 10.0,
-                deleteIcon: Icon(Icons.delete,
-                    color: Colors.black87, size: 17.0),
-                deleteButtonTooltipMessage: "Retirer",
-                onDeleted: () async {
-                  setState(() {
-                    allCategorie.removeAt(index);
-                  });
-                },
-                avatar: CircleAvatar(
-                    backgroundColor: colorText,
-                    child: Text(
-                        allCategorie[index]
-                            .substring(0, 1)
-                            .toUpperCase(),
-                        style: TextStyle(color: Colors.white))),
-                label: Text(allCategorie[index]),
-                backgroundColor: Colors.white,
-              );
-            },
-          ),
-        ],
-      )
     ];
     return tabs;
   }
@@ -593,25 +524,8 @@ class _CreateVoteState extends State<CreateVote> {
                 onSuggestionSelected: (suggestion) async {
                   final event = suggestion as Event;
                   ctrlEvent.text = event.title;
-                  /*final etat = await consumeAPI
-                      .verifyCategorieExist(ctrlCategorie.text);
-                  if (etat) {
-                    if (allCategorie.indexOf(ctrlCategorie.text) == -1) {
-                      setState(() {
-                        allCategorie.add(ctrlCategorie.text);
-                      });
-                    }
-                    ctrlCategorie.clear();
-                  } else {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) =>
-                            dialogCustomError(
-                                'Erreur',
-                                'Categorie inexistante dans notre registre',
-                                context),
-                        barrierDismissible: false);
-                  }*/
+                  eventChoice = event;
+
                 },
               ),
             ),
@@ -624,7 +538,7 @@ class _CreateVoteState extends State<CreateVote> {
   Widget firstStepCreationVote() {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
-      child: Text(
+      child: isPosting ? CircularProgressIndicator(color: colorPrimary,) :Text(
         "Enregistrer et continuer",
         style: Style.sousTitreEvent(15),
       ),
@@ -650,14 +564,8 @@ class _CreateVoteState extends State<CreateVote> {
                       Text(
                           "${(dateChoice != null) ? formatedDateForLocal(dateChoice!) : ' '} - ${(dateChoiceEnd != null) ? formatedDateForLocal(dateChoiceEnd!) : ' '}",
                           style: Style.sousTitre(13)),
-                    SizedBox(height: 5),
-                    if (durrationEvent > 0)
-                      Text(
-                        "Le vôte sera en ${durrationEvent.toString()} jour${durrationEvent > 1 ? 's' : ''}",
-                        style: Style.sousTitre(13, colorError),
-                        textAlign: TextAlign.center,
-                      ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 15),
+
                     Container(
                       height: 60,
                       width: double.infinity,
@@ -708,7 +616,36 @@ class _CreateVoteState extends State<CreateVote> {
                   ],
                 ),
               ),
-
+              Container(
+                margin: EdgeInsets.only(top: 15, bottom: 15),
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              "Afficher les resultats",
+                              style: Style.sousTitre(14)),
+                          Text(
+                              "Tout le monde pourra voir les resultats de chaque nomminé",
+                              style: Style.simpleTextOnBoard(13)),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: customSwitch(displayResult, (){
+                        setState(() {
+                          displayResult = !displayResult;
+                        });
+                      }),
+                    ),
+                  ],
+                ),
+              ),
               Container(
                 margin: EdgeInsets.only(top: 15),
                 width: double.infinity,
@@ -723,7 +660,6 @@ class _CreateVoteState extends State<CreateVote> {
                     Expanded(
                       flex: 1,
                       child: customSwitch(available, (){
-                        print(available);
                         setState(() {
                           available = !available;
                         });
@@ -758,13 +694,23 @@ class _CreateVoteState extends State<CreateVote> {
                             color: Colors.white, fontWeight: FontWeight.w300),
                         cursorColor: colorText,
                         onChanged: (text) {
-                          setState(() {
-                            _isPrice = true;
-                            _isName = false;
-                            _isLoading = false;
-                            monVal = false;
-                            price = text;
-                          });
+                          try{
+                            if(text.isNotEmpty) {
+                              int.parse(text);
+                              setState(() {
+                                _isPrice = true;
+                                _isName = false;
+                                _isLoading = false;
+                                monVal = false;
+                                price = text;
+                              });
+                              priceCtrl.text = text;
+                            }
+
+                          }catch (e) {
+                            priceCtrl.text = price;
+                          }
+
                         },
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -868,6 +814,7 @@ class _CreateVoteState extends State<CreateVote> {
                   ],
                 ),
               ),
+
             ],
           ),
         ),
@@ -937,6 +884,214 @@ class _CreateVoteState extends State<CreateVote> {
               ],
             ),
           ),
+          Container(
+            width: double.infinity,
+            child: baseForm,
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget secondStepCreationVote() {
+    final createCategorie = ElevatedButton(
+      onPressed: _submitCategorie,
+      child: isPosting ? CircularProgressIndicator(color: colorPrimary,) :Text(
+        "Enregistrer une autre categorie",
+        style: Style.sousTitreEvent(15),
+      ),
+      style: raisedButtonStyle,
+    );
+    final doneVote = ElevatedButton(
+      onPressed: () {
+        _submitCategorie(isDone: true);
+      },
+      child: _isLoadingDone ? CircularProgressIndicator(color: colorPrimary,) :Text(
+        "Terminer avec cette categorie",
+        style: Style.sousTitreEvent(15),
+      ),
+      style: raisedButtonStyleError,
+    );
+    var baseForm = Column(
+      children: <Widget>[
+        Form(
+          key: formKey,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: Colors.transparent,
+                  elevation: _isNameCategorie ? 4.0 : 0.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0)),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+
+                        color: backgroundColorSec,
+                        border: Border.all(
+                            width: 1.0,
+                            color: _isNameCategorie ? colorText : backgroundColor),
+                        borderRadius: BorderRadius.circular(50.0)),
+                    child: TextField(
+                      controller: nameCategorieCtrl,
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w300),
+                      cursorColor: colorText,
+                      keyboardType: TextInputType.text,
+                      onChanged: (text) {
+                        setState(() {
+                          _isNameCategorie = true;
+                          _isPrice = false;
+                          _isLoading = false;
+                          _isName = false;
+                          monVal = false;
+                        });
+                      },
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          prefixIcon: Icon(Icons.looks_one,
+                              color: _isName ? colorText : Colors.grey),
+                          hintText: "Nom de la categorie",
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+
+              Container(
+                height: 210,
+                width: double.infinity,
+                padding: EdgeInsets.only(left: 0.0, top: 10.0, bottom: 10.0),
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: actors.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Padding(
+                          padding: EdgeInsets.only(right: 15),
+                          child: InkWell(
+                            onTap: () {
+                              getNomineProfil();
+                            },
+                            child: DottedBorder(
+                              borderType: BorderType.RRect,
+                              radius: Radius.circular(12),
+                              padding: EdgeInsets.all(6),
+                              color: Colors.white,
+                              strokeWidth: 1,
+                              child: Container(
+                                height: double.infinity,
+                                width: 110,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(MyFlutterAppSecond.attach,
+                                        color: Colors.white, size: 30),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      "Charger une image d'un nominé.",
+                                      style: Style.titleInSegment(),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Container(
+                          width: 160,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  actors.removeAt(index - 1);
+                                  namesCtrlActors.removeAt(index - 1);
+                                  setState(() {
+
+                                  });
+                                },
+                                child: Card(
+                                  elevation: 4.0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.0)),
+                                  child: Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        image: DecorationImage(
+                                            image: FileImage(actors[index - 1]),
+                                            fit: BoxFit.cover)),
+                                  ),
+                                ),
+                              ),
+
+                              Card(
+                                color: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50.0)),
+                                child: Container(
+                                  height: 40,
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: BoxDecoration(
+
+                                      color: backgroundColorSec,
+                                      border: Border.all(
+                                          width: 1.0,
+                                          color: colorText),
+                                      borderRadius: BorderRadius.circular(50.0)),
+                                  child: TextField(
+                                    controller: namesCtrlActors[index - 1],
+                                    style: TextStyle(
+                                        color: Colors.white, fontWeight: FontWeight.w300),
+                                    cursorColor: colorText,
+                                    keyboardType: TextInputType.text,
+                                    onChanged: (text) {},
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Nom du nominé",
+                                        hintStyle: TextStyle(
+                                          color: Colors.white,
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    }),
+              ),
+
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        _isLoading ? const CircularProgressIndicator() : createCategorie,
+        SizedBox(height: 20),
+        _isLoadingDone ? const CircularProgressIndicator() : doneVote,
+      ],
+      crossAxisAlignment: CrossAxisAlignment.center,
+    );
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text("Faites entrer le nom de la categorie puis cliquez sur suivant si vous voulez enregistrer et passer à une autre categorie",
+              style: Style.sousTitre(14),
+              textAlign: TextAlign.center),
+          SizedBox(height: 10,),
           Container(
             width: double.infinity,
             child: baseForm,

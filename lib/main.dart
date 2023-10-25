@@ -110,21 +110,26 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<AppState?>(
       create: (_) => AppState(),
       lazy: false,
-      child: MaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'Shouz',
-          initialRoute: '/',
-          routes: routes,
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-              primarySwatch: Colors.blue,
-              primaryColor: backgroundColor,
-              primaryColorDark: Colors.blue),
-          home: MyHomePage(
-            title: 'Shouz',
-            key: UniqueKey(),
+      child: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: MaterialApp(
             navigatorKey: navigatorKey,
-          )),
+            title: 'Shouz',
+            initialRoute: '/',
+            routes: routes,
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+                primaryColor: backgroundColor,
+                primaryColorDark: Colors.blue),
+            home: MyHomePage(
+              title: 'Shouz',
+              key: UniqueKey(),
+              navigatorKey: navigatorKey,
+            )),
+      ),
     );
   }
 }
