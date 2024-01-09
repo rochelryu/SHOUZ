@@ -189,7 +189,7 @@ class VipDeals extends StatelessWidget {
                             icon: Icon(Style.social_normal, color: tint),
                             onPressed: () {
                               Share.share(
-                                  "$title à $price\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}$id");
+                                  "$title à $price\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/$id");
                             }),
                       ],
                     ),

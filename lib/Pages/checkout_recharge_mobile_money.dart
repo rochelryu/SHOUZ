@@ -67,7 +67,6 @@ class _CheckoutRechargeMobileMoneyState
         setState(() {
           newClient = user;
         });
-        print(amountRecharge);
         if(amountRecharge >= 500) {
           final intAmountToString = amountRecharge.ceil().toString().split('.')[0];
           final amount = int.parse(intAmountToString);
@@ -126,12 +125,13 @@ class _CheckoutRechargeMobileMoneyState
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: Style.white,),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        title: Text("Rechargement Mobile Money"),
+        title: Text("Rechargement Mobile Money", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
       ),
@@ -785,7 +785,7 @@ class _CheckoutRechargeMobileMoneyState
                             ),
                           ],
                         )),
-                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Mtn Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Wave afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
 
                       ],
                     )

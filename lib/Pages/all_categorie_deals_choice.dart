@@ -30,7 +30,7 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
   void initState() {
     super.initState();
     loadProduct();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future loadProduct() async {
@@ -133,7 +133,8 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
                     },
                   )
                 ],
-              ),),
+              ),
+            ),
             SizedBox(height: 5.0),
             Expanded(
               child: Container(
@@ -226,6 +227,7 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
         elevation: 20.0,
         onPressed: () {
           Navigator.of(context).push(

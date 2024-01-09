@@ -64,7 +64,7 @@ class _DetailsDealsState extends State<DetailsDeals>
     }
     _controllerTab = TabController(length: 2, vsync: this);
     getUser();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   verifyIfUserHaveReadModalExplain() async {
@@ -472,6 +472,7 @@ class _DetailsDealsState extends State<DetailsDeals>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Container(
+                            margin: EdgeInsets.only(top: 10),
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
@@ -582,13 +583,17 @@ class _DetailsDealsState extends State<DetailsDeals>
                     Container(
                       decoration: BoxDecoration(color: Colors.transparent),
                       child: TabBar(
+                        dividerHeight: 0,
                         controller: _controllerTab,
-                        isScrollable: true,
-                        indicatorSize: TabBarIndicatorSize.label,
+                        labelColor: Style.white,
+                        unselectedLabelColor: colorSecondary,
+
+                        //isScrollable: true,
+                        indicatorSize: TabBarIndicatorSize.tab,
                         indicatorColor: colorText,
                         tabs: [
                           Tab(
-                            text: 'Infos',
+                            text: 'Descriptions',
                           ),
                           Tab(
                             text:
@@ -612,20 +617,20 @@ class _DetailsDealsState extends State<DetailsDeals>
                                 widget.dealsDetailsSkeleton.describe,
                                 style: Style.sousTitre(12.0),
                               ),
-                              SizedBox(height: 10.0),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Icon(MyFlutterAppSecond.pin,
-                                      color: colorText),
-                                  SizedBox(width: 3),
-                                  Flexible(
-                                      child: Text(
-                                          widget.dealsDetailsSkeleton.lieu,
-                                          style: Style
-                                              .priceOldDealsProductBiggest()))
-                                ],
-                              ),
+                              SizedBox(height: 5.0),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.start,
+                              //   children: <Widget>[
+                              //     Icon(MyFlutterAppSecond.pin,
+                              //         color: colorText),
+                              //     SizedBox(width: 3),
+                              //     Flexible(
+                              //         child: Text(
+                              //             widget.dealsDetailsSkeleton.lieu,
+                              //             style: Style
+                              //                 .priceOldDealsProductBiggest()))
+                              //   ],
+                              // ),
                               SizedBox(height: 10.0),
                               Row(
                                 children: <Widget>[
@@ -642,11 +647,13 @@ class _DetailsDealsState extends State<DetailsDeals>
                                 children: <Widget>[
                                   Icon(Icons.tag, color: colorText),
                                   SizedBox(width: 5),
-                                  Text(
-                                    widget.dealsDetailsSkeleton.categorieName,
-                                    style: Style.priceOldDealsProductBiggest(),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  Expanded(
+                                    child: Text(
+                                      widget.dealsDetailsSkeleton.categorieName,
+                                      style: Style.priceOldDealsProductBiggest(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   )
                                 ],
                               ),
@@ -659,18 +666,17 @@ class _DetailsDealsState extends State<DetailsDeals>
                                         Icon(Style.social_normal,
                                             color: colorText),
                                         SizedBox(width: 5),
-                                        Text("Partager cet article")
+                                        Text("Partager cet article", style: Style.simpleTextOnBoard(17, colorText),)
                                       ],
                                     ),
                                     onPressed: () {
                                       Share.share(
-                                          "${widget.dealsDetailsSkeleton.title} à ${widget.dealsDetailsSkeleton.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.id}");
+                                          "${widget.dealsDetailsSkeleton.title} à ${widget.dealsDetailsSkeleton.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/${widget.dealsDetailsSkeleton.id}");
                                     }),
-                                width: 200,
+                                width: double.infinity,
                               ),
                               if (widget.dealsDetailsSkeleton.level == 3)
                                 Container(
-                                    width: 275,
                                     child: TextButton(
                                         child: Row(
                                           mainAxisAlignment:
@@ -679,7 +685,7 @@ class _DetailsDealsState extends State<DetailsDeals>
                                             Icon(MyFlutterAppSecond.shop,
                                                 color: colorText),
                                             SizedBox(width: 5),
-                                            Text("Voir la boutique du vendeur")
+                                            Text("Voir la boutique du vendeur", style: Style.simpleTextOnBoard(17, colorText))
                                           ],
                                         ),
                                         onPressed: () {
@@ -732,7 +738,7 @@ class _DetailsDealsState extends State<DetailsDeals>
                                                               .dealsDetailsSkeleton
                                                               .comments[index]
                                                           ['registerDate']),
-                                                      false),
+                                                      withTime: false),
                                                   style:
                                                       Style.simpleTextOnBoard(
                                                           11),
@@ -867,9 +873,9 @@ class _DetailsDealsState extends State<DetailsDeals>
               if (!isMe && widget.dealsDetailsSkeleton.quantity > 0)
                 ElevatedButton(
                   style: raisedButtonStyle,
-                  child: Text("Discuter", style: Style.titre(18)),
+                  child: Text("Discuter le prix", style: Style.titre(14)),
                   onPressed: () async {
-                    if (newClient != null && newClient?.numero != "null") {
+                    if (newClient != null && newClient?.numero != "null" && newClient?.numero != "null" && newClient!.numero.isNotEmpty) {
                       if (widget.dealsDetailsSkeleton.archive == 0) {
                         Navigator.push(
                             context,
@@ -1195,6 +1201,12 @@ class _ViewerProductState extends State<ViewerProduct> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: PageView.builder(
           itemCount: widget.imgUrl.length,

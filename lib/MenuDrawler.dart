@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:badges/badges.dart' as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 //import 'package:shouz/Pages/Covoiturage.dart';
@@ -85,35 +83,34 @@ class _MenuDrawlerState extends State<MenuDrawler>
 
   loadInfo() async {
     User user = await DBProvider.db.getClient();
-    if (user.numero != 'null') {
-      setState(() {
-        newClient = user;
-        id = newClient!.ident;
-      });
-      if (user.tokenNotification == "ONE_SIGNAL" ||
-          user.tokenNotification == "") {
-        try {
-          await getTokenForNotificationProvider(true);
-        } catch (e) {
-          print("Token  non mis à jour au backend");
-        }
+    setState(() {
+      newClient = user;
+      id = newClient!.ident;
+    });
+    if (user.tokenNotification == "ONE_SIGNAL" || user.tokenNotification == "") {
+      try {
+        await getTokenForNotificationProvider(true);
+      } catch (e) {
+        print("Token  non mis à jour au backend");
       }
-
-      if (user.inscriptionIsDone == 0) {
-        setState(() {
-          logged = -1;
-        });
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-            "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
-            context,
-            true);
-        Navigator.pushNamed(context, Login.rootName);
-      }
-    } else {
+    }
+    if (user.numero == '' || user.numero == 'null') {
       setState(() {
         logged = -1;
       });
+
+
+      // if (user.inscriptionIsDone == 0) {
+      //   setState(() {
+      //     logged = -1;
+      //   });
+      //   await modalForExplain(
+      //       "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+      //       "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
+      //       context,
+      //       true);
+      //   Navigator.pushNamed(context, Login.rootName);
+      // }
     }
 
     try {
@@ -227,7 +224,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                newClient != null
+                newClient != null && newClient!.images != ''
                     ? Container(
                         width: 105,
                         height: 105,
@@ -368,7 +365,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     if (numberConnected <= 2) {
       final appState = Provider.of<AppState>(context);
       try {
-        if (id != "" && id != 'ident') {
+        if (id != "" && id != 'ident' && newClient?.numero != '') {
           appState.setJoinConnected(id);
         }
         numberConnected++;
@@ -435,11 +432,12 @@ class _MenuDrawlerState extends State<MenuDrawler>
                         'Mettre à jour Shouz',
                         style: Style.titleNews(15),
                       ),
-                    ))
-                : Text(titleDomain[appState.getIndexBottomBar]),
+                    )
+            )
+                : Text(titleDomain[appState.getIndexBottomBar], style: Style.titleNews(),),
             centerTitle: true,
             actions: [
-              if (newClient != null)
+              if (newClient != null && newClient!.numero != 'null'  && newClient!.numero != '')
                 badges.Badge(
                     position: badges.BadgePosition.topStart(top: 0, start: 0),
                     badgeStyle: badges.BadgeStyle(
@@ -459,9 +457,11 @@ class _MenuDrawlerState extends State<MenuDrawler>
                           numberNotif > 0
                               ? Icons.notifications_active
                               : Icons.notifications_none,
-                          color: Colors.white,
-                          size: 25,
-                        ))),
+                          color: Style.white,
+                          size: 35,
+                        )
+                    )
+                ),
               if (logged == -1)
                 Padding(
                   padding: EdgeInsets.only(right: 10),
@@ -469,10 +469,12 @@ class _MenuDrawlerState extends State<MenuDrawler>
                       position: badges.BadgePosition.topStart(top: 0, start: 0),
                       badgeStyle: badges.BadgeStyle(
                           badgeColor: colorError,
-                          shape: badges.BadgeShape.twitter),
+                          shape: badges.BadgeShape.twitter,
+                        padding: EdgeInsets.all(3)
+                      ),
                       badgeContent: Text(
                         ' ! ',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Style.white),
                       ),
                       child: IconButton(
                           onPressed: () async {
@@ -483,7 +485,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                                 true);
                             Navigator.pushNamed(context, Login.rootName);
                           },
-                          icon: Icon(Icons.account_circle_outlined))),
+                          icon: Icon(Icons.account_circle_outlined, size: 35,color: Style.white,))),
                 ),
             ],
           ),

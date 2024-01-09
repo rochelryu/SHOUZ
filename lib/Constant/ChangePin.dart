@@ -50,7 +50,14 @@ class _ChangePinState extends State<ChangePin> {
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
-        title: Text('Vérification'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text('Vérification', style: Style.titleNews(),),
       ),
       body: Column(
         children: <Widget>[

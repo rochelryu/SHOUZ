@@ -82,7 +82,14 @@ class _MoreActualityByCategorieState extends State<MoreActualityByCategorie> {
         appBar: AppBar(
           elevation: 0.0,
           backgroundColor: backgroundColor,
-          title: Text(widget.categorieName),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back, color: Style.white,)
+          ),
+          title: Text(widget.categorieName, style: Style.titleNews(),),
+          centerTitle: true,
         ),
         body: LayoutBuilder(builder: (context,contraints) {
           if(loadingFull){

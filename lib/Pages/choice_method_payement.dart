@@ -74,12 +74,13 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
         backgroundColor: backgroundColor,
         appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white,),
           onPressed: () {
             Navigator.pop(context);
           }
         ),
-        title: Text("${widget.isRetrait ? 'Retrait' : 'Rechargement' } ShouzPay"),
+        title: Text("${widget.isRetrait ? 'Retrait' : 'Rechargement' } ShouzPay", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
         ),

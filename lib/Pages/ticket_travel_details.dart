@@ -14,7 +14,14 @@ class TicketTravelDetails extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text('Ticket Voyage Detail'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text('Ticket Voyage Detail', style: Style.titleNews(),),
+        centerTitle: true,
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         actions: [

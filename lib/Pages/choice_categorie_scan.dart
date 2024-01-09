@@ -11,7 +11,13 @@ class ChoiceCategorieScan extends StatelessWidget {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: backgroundColor,
-        title: Text("Décodage Ticket"),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Style.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            }),
+        title: Text("Décodage Ticket", style: Style.titleNews(),),
+        centerTitle: true,
         actions: [
           Padding(padding: EdgeInsets.only(right: 10), child: Icon(Icons.qr_code_scanner),),
         ],

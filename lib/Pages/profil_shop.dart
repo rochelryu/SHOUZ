@@ -58,7 +58,7 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
           } else {
             Navigator.pushNamed(context, MenuDrawler.rootName);
           }
-        }, icon: Icon(Icons.arrow_back)),
+        }, icon: Icon(Icons.arrow_back, color: Style.white,)),
       ),
       body: ListView(
         children: [
@@ -119,6 +119,8 @@ class _ProfilShopState extends State<ProfilShop> with SingleTickerProviderStateM
               controller: _controller,
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.label,
+              labelColor: Style.white,
+              unselectedLabelColor: colorSecondary,
               indicatorColor: colorText,
               tabs: [
                 Tab(

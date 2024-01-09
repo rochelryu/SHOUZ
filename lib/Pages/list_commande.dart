@@ -75,7 +75,14 @@ class _ListCommandeState extends State<ListCommande> {
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
-        title: Text("Liste des commandes"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
+        title: Text("Liste des commandes", style: Style.titleNews(),),
+        centerTitle: true,
       ),
       body: LayoutBuilder(
           builder: (context,contraints) {

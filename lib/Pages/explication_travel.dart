@@ -120,6 +120,7 @@ class _ExplicationTravelState extends State<ExplicationTravel> {
               bottom: 30.0,
               child: lastPage
                   ? FloatingActionButton(
+                shape: CircleBorder(),
                 backgroundColor: backgroundColor,
                 child: Icon(
                   Icons.arrow_forward,

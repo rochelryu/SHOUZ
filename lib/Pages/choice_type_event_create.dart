@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 
+import '../Models/User.dart';
+import '../ServicesWorker/ConsumeAPI.dart';
+import '../Utils/Database.dart';
 import 'CreateEvent.dart';
 import 'ExplainEvent.dart';
+import 'Login.dart';
 import 'create_vote.dart';
 import 'explication_event.dart';
 
@@ -22,6 +26,7 @@ class _ChoiceTypeEventCreateState extends State<ChoiceTypeEventCreate> with Tick
     'images/slide_event_3.png',
   ];
   int currentIndex = 0;
+  User? user;
 
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -44,8 +49,18 @@ class _ChoiceTypeEventCreateState extends State<ChoiceTypeEventCreate> with Tick
     _animation = CurvedAnimation(
         parent: _controller, curve: Curves.easeIn
     );
+    getUser();
     // Démarrer l'animation au démarrage de l'écran
     startImageAnimation();
+  }
+
+  getUser() async {
+    User newClient = await DBProvider.db.getClient();
+    if(newClient.numero != 'null') {
+      setState(() {
+        user = newClient;
+      });
+    }
   }
 
   void startImageAnimation() {
@@ -109,18 +124,28 @@ class _ChoiceTypeEventCreateState extends State<ChoiceTypeEventCreate> with Tick
                         margin: EdgeInsets.symmetric(vertical: 10),
                         width: MediaQuery.of(context).size.width * 0.4,
                         child: ElevatedButton(
-                          onPressed: (){
-                            if(widget.isActivateForfait) {
-                              Navigator.pushNamed(context, CreateEvent.rootName);
-                            } else {
-                              if(widget.level == 0){
-                                setExplain(2, "event");
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
+                          onPressed: () async {
+                            if(user != null && user!.numero.isNotEmpty) {
+                              if(widget.isActivateForfait) {
+                                Navigator.pushNamed(context, CreateEvent.rootName);
                               } else {
-                                Navigator.pushNamed(context, ExplainEvent.rootName);
+                                if(widget.level == 0){
+                                  setExplain(2, "event");
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
+                                } else {
+                                  Navigator.pushNamed(context, ExplainEvent.rootName);
+                                }
                               }
+                            } else {
+                              await modalForExplain(
+                              "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                              "Nous allons créer votre compte ensemble et vous allez commencer à avoir accès à tous les avantages de SHOUZ.",
+                              context,
+                              true);
+                              Navigator.pushNamed(context, Login.rootName);
                             }
+
                           },
                           child: Text(
                             "Événement",
@@ -134,8 +159,17 @@ class _ChoiceTypeEventCreateState extends State<ChoiceTypeEventCreate> with Tick
                         margin: EdgeInsets.symmetric(vertical: 10),
                         width: MediaQuery.of(context).size.width * 0.4,
                         child: OutlinedButton(
-                          onPressed: (){
-                            Navigator.pushNamed(context, CreateVote.rootName);
+                          onPressed: () async {
+                            if(user != null && user!.numero.isNotEmpty) {
+                              Navigator.pushNamed(context, CreateVote.rootName);
+                            } else {
+                              await modalForExplain(
+                                  "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                  "Nous allons créer votre compte ensemble et vous allez commencer à avoir accès à tous les avantages de SHOUZ.",
+                                  context,
+                                  true);
+                              Navigator.pushNamed(context, Login.rootName);
+                            }
                           },
                           child: Text(
                             "Vôte",
@@ -146,7 +180,7 @@ class _ChoiceTypeEventCreateState extends State<ChoiceTypeEventCreate> with Tick
                       ),
                     ],
                   ),
-                  Container(
+                  if(1 != 1) Container(
                     height: 50,
                     margin: EdgeInsets.symmetric(vertical: 10),
                     width: MediaQuery.of(context).size.width * 0.7,

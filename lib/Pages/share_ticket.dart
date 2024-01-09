@@ -41,7 +41,7 @@ class _ShareTicketState extends State<ShareTicket> {
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white,),
           onPressed: () {
             Navigator.pushNamed(context, MenuDrawler.rootName);
           },
@@ -95,25 +95,29 @@ class _ShareTicketState extends State<ShareTicket> {
                         padding: EdgeInsets.only(left: 10.0),
                         width: MediaQuery.of(context).size.width,
                         child: TypeAheadField(
-                          hideSuggestionsOnKeyboardHide: false,
-                          textFieldConfiguration: TextFieldConfiguration(
-                            //autofautofocusocus: true,
-                            keyboardType: TextInputType.number,
-                            controller: eCtrl,
-                            style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w300),
+                          controller: eCtrl,
+                          builder: (context, controller, focusNode) {
+                            return TextField(
+                              //autofautofocusocus: true,
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              focusNode: focusNode,
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w300
+                              ),
 
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText:
-                              "Architecture, Sport, Imobilier, Coupé décalé, Forum",
-                              hintStyle: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.grey[500],
-                                  fontSize: 13.0),
-                            ),
-                          ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText:
+                                "Architecture, Sport, Imobilier, Coupé décalé, Forum",
+                                hintStyle: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    color: Colors.grey[500],
+                                    fontSize: 13.0),
+                              ),
+                            );
+                          },
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
                             return consumeAPI.getAllUser(pattern.length >= 8 ? pattern :'');
@@ -138,9 +142,9 @@ class _ShareTicketState extends State<ShareTicket> {
                                   style: Style.simpleTextOnBoard()),
                             );
                           },
-                          onSuggestionSelected: (suggestion) async {
+                          onSelected: (suggestion) async {
                             final user = suggestion as Map<dynamic,dynamic>;
-                            eCtrl.text = user['prefix'] + ' ' + user['numero'];
+                            eCtrl.text = '';
                             setState(() {
                               friend = user;
                             });

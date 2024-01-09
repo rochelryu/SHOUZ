@@ -11,6 +11,7 @@ import '../Constant/event_item.dart';
 import '../Models/User.dart';
 import '../Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'VoteEventScreen.dart';
 import 'choice_other_hobie_second.dart';
 import 'choice_type_event_create.dart';
 
@@ -26,7 +27,8 @@ class _EventInterState extends State<EventInter>  with SingleTickerProviderState
   int currentTabIdex = 0;
   late TabController _controller;
   int level = 0;
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorEventKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorVoteKey = GlobalKey<RefreshIndicatorState>();
   bool loadingFull = true, isError = false;
 
   @override
@@ -36,7 +38,7 @@ class _EventInterState extends State<EventInter>  with SingleTickerProviderState
     getUser();
     loadEvents();
     getExplainEventMethod();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future getExplainEventMethod() async {
@@ -76,26 +78,30 @@ class _EventInterState extends State<EventInter>  with SingleTickerProviderState
   }
   Future loadEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    try {
-      final data = await consumeAPI.getEvents();
-      setState(() {
-        eventFull = data;
-        loadingFull = false;
-      });
-      await prefs.setString('eventFull', jsonEncode(data));
-    } catch (e) {
-      final eventFullString = prefs.getString("eventFull");
-
-      if(eventFullString != null) {
+    if(mounted) {
+      try {
+        final events = await consumeAPI.getEvents();
+        final votes = await consumeAPI.getVoteEvents();
+        final data = {...events, ...votes};
         setState(() {
-          eventFull = jsonDecode(eventFullString) as Map<String, dynamic>;
+          eventFull = data;
+          loadingFull = false;
         });
+        await prefs.setString('eventFull', jsonEncode(data));
+      } catch (e) {
+        final eventFullString = prefs.getString("eventFull");
+
+        if(eventFullString != null) {
+          setState(() {
+            eventFull = jsonDecode(eventFullString) as Map<String, dynamic>;
+          });
+        }
+        setState(() {
+          isError = true;
+          loadingFull = false;
+        });
+        await askedToLead(eventFull != null && eventFull?["listEventsWithFilter"].length > 0 ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
       }
-      setState(() {
-        isError = true;
-        loadingFull = false;
-      });
-      await askedToLead(eventFull != null && eventFull?["listEventsWithFilter"].length > 0 ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
     }
   }
 
@@ -103,121 +109,168 @@ class _EventInterState extends State<EventInter>  with SingleTickerProviderState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: loadEvents,
-        child: LayoutBuilder(
-        builder: (context,contraints) {
-        if(loadingFull){
-          if(eventFull != null && eventFull?['listEventsWithFilter'].length > 0) {
-            var event = eventFull!;
-            return Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                      itemCount: event['listEventsWithFilter'].length,
-                      itemBuilder: (context, index) {
-                        final infoEvent = event['listEventsWithFilter'][index];
-                        return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
-                      }),
+      body: Column(
+        children: [
+          Container(
+            height: 35,
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: backgroundColorSec
+            ),
+            child: TabBar(
+              dividerHeight: 0,
+              controller: _controller,
+              labelColor: Style.white,
+              unselectedLabelColor: colorSecondary,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                  color: colorText,
+                  borderRadius: BorderRadius.circular(20)
+              ),
+              tabs: [
+                Tab(
+                  text: "Events",
+                ),
+                Tab(
+                  text: "Votes",
                 ),
               ],
-            );
-          }
-          return Column(children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return loadDataSkeletonOfEvent(context);
-                },
-              ),
-            )
-          ]);
+            ),
+          ),
+          Expanded(child: TabBarView(
+            controller: _controller,
+            children: [
+              RefreshIndicator(
+                key: _refreshIndicatorEventKey,
+                onRefresh: loadEvents,
+                child: LayoutBuilder(
+                    builder: (context,contraints) {
+                      if(loadingFull){
+                        if(eventFull != null && eventFull?['listEventsWithFilter'].length > 0) {
+                          var event = eventFull!;
+                          return ListView.builder(
+                              itemCount: event['listEventsWithFilter'].length,
+                              itemBuilder: (context, index) {
+                                final infoEvent = event['listEventsWithFilter'][index];
+                                return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
+                              });
+                        }
+                        return ListView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return loadDataSkeletonOfEvent(context);
+                          },
+                        );
 
-        } else if(!loadingFull && isError && eventFull == null) {
-          return isErrorSubscribe(context);
-        } else {
-          var event = eventFull!;
-          if (event['listEventsWithFilter'].length == 0) {
-            return Center(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SvgPicture.asset(
-                        "images/emptyevent.svg",
-                        semanticsLabel: 'Shouz event empty',
-                        height: MediaQuery.of(context).size.height * 0.35,
-                      ),
-                      Text(
-                          "Aucun Evenement Populaires pour le moment selon vos centres d'intérêts",
-                          textAlign: TextAlign.center,
-                          style: Style.sousTitreEvent(15)),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push((MaterialPageRoute(
-                              builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
-                        },
-                        child: Text('Ajouter Préférence'),
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: colorPrimary, backgroundColor: colorText,
-                          minimumSize: Size(88, 36),
-                          elevation: 4.0,
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                        ),
-                      )
-                    ]));
-          }
-          return Column(
-            children: <Widget>[
-              Container(
-                height: 35,
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: backgroundColorSec
-                ),
-                child: TabBar(
-                  controller: _controller,
-                  indicator: BoxDecoration(
-                    color: colorText,
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  tabs: [
-                    Tab(
-                      text: "Events",
-                    ),
-                    Tab(
-                      text: "Votes",
-                    ),
-                  ],
+                      } else if(!loadingFull && isError && eventFull == null) {
+                        return isErrorSubscribe(context);
+                      } else {
+                        var event = eventFull!;
+                        if (event['listEventsWithFilter'].length == 0) {
+                          return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  "images/emptyevent.svg",
+                                  semanticsLabel: 'Shouz event empty',
+                                  height: MediaQuery.of(context).size.height * 0.35,
+                                ),
+                                Text(
+                                    "Aucun Evenement Populaires pour le moment selon vos centres d'intérêts",
+                                    textAlign: TextAlign.center,
+                                    style: Style.sousTitreEvent(15)),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push((MaterialPageRoute(
+                                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                  },
+                                  child: Text('Ajouter Préférence'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: colorPrimary, backgroundColor: colorText,
+                                    minimumSize: Size(88, 36),
+                                    elevation: 4.0,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                                  ),
+                                )
+                              ]);
+                        }
+                        return ListView.builder(
+                            itemCount: event['listEventsWithFilter'].length,
+                            itemBuilder: (context, index) {
+                              final infoEvent = event['listEventsWithFilter'][index];
+                              return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
+                            });
+                      }}
                 ),
               ),
-              Expanded(
-                child: TabBarView(
-                  controller: _controller,
-                  children: [
-                    ListView.builder(
-                        itemCount: event['listEventsWithFilter'].length,
-                        itemBuilder: (context, index) {
-                          final infoEvent = event['listEventsWithFilter'][index];
-                          return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
-                        }),
-                    Center(
-                      child: Text("Book"),
-                    )
-                  ],
+              RefreshIndicator(
+                key: _refreshIndicatorVoteKey,
+                onRefresh: loadEvents,
+                child: LayoutBuilder(
+                    builder: (context,contraints) {
+                      if(loadingFull){
+                        if(eventFull != null && eventFull?['listVoteEvents'].length > 0) {
+                          var event = eventFull!;
+                          return VoteScreen(allVoteEvent: event['listVoteEvents']);
+                        }
+                        return ListView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return loadDataSkeletonOfEvent(context);
+                          },
+                        );
+
+                      } else if(!loadingFull && isError && eventFull == null) {
+                        return isErrorSubscribe(context);
+                      } else {
+                        var event = eventFull!;
+                        if (event['listVoteEvents'].length == 0) {
+                          return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  "images/emptyevent.svg",
+                                  semanticsLabel: 'Shouz event empty',
+                                  height: MediaQuery.of(context).size.height * 0.35,
+                                ),
+                                Text(
+                                    "Aucun Vôte disponible pour le moment selon vos centres d'intérêts",
+                                    textAlign: TextAlign.center,
+                                    style: Style.sousTitreEvent(15)),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push((MaterialPageRoute(
+                                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                  },
+                                  child: Text('Ajouter Préférence'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: colorPrimary, backgroundColor: colorText,
+                                    minimumSize: Size(88, 36),
+                                    elevation: 4.0,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                                  ),
+                                )
+                              ]);
+                        }
+                        return VoteScreen(allVoteEvent: event['listVoteEvents']);
+                      }}
                 ),
               ),
+
+
             ],
-          );
-        }}
-        ),
+          )),
+
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
+        shape: CircleBorder(),
         onPressed: () {
             Navigator.push(
                 context,

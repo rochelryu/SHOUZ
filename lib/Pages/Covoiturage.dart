@@ -1,20 +1,16 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:huawei_location/huawei_location.dart' as huawei_location;
 import 'package:latlong2/latlong.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox_gl;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Login.dart';
-import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
-import './CovoiturageChoicePlace.dart';
 import 'package:permission_handler/permission_handler.dart' as permission;
 
 import 'package:location/location.dart';
@@ -99,7 +95,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
     _initialCameraPosition = mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(centerPositionLatitude, centerPositionLongitude), zoom: 7);
     internetCheck();
     getExplainCovoiturageMethod();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
     getPositionCurrent();
   }
 

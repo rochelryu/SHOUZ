@@ -29,6 +29,7 @@ const Color colorPrimary = Colors.white;
 const Color colorBlack = Colors.black;
 const Color colorSecondary = Colors.grey;
 const Color colorWelcome = Colors.white70;
+const Color colorTransparent = Colors.transparent;
 final Color secondColor =
     (!primaryTheme) ? Color(0xFFFFFFFF) : Color(0xFFFFFFFF);
 final transitionMedium = new Duration(milliseconds: 400);
@@ -122,7 +123,7 @@ var pageExplicationEventList = [
       body: "Salut à vous et bienvenue dans les explications de la rubrique événement.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}surveillance.svg",
-      body: "1- Cette rubrique existe pour tous ceux qui veulent organiser des événements et pouvoir vendre leurs tickets directement dans SHOUZ.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par une ou plusieurs personnes à qui vous aurez donné la permission (des vigils ou autres agents de sécurité).\nVotre décodeur doit avoir un compte SHOUZ car c'est avec son compte sous la rubrique décodage de ticket qu'il pourra décoder vos tickets."),
+      body: "1 - Vendez vos tickets directement dans SHOUZ, nous allons générer des tickets numérique avec QR-Code et ce sont ces tickets qui seront présenter par vos clients pour entrer à votre évènement"),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}allInOneExplainEvent.jpeg",
       body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'au nombre maximal de ticket)."),
@@ -476,18 +477,18 @@ class Style {
     );
   }
 
-  static dynamic titleOnBoardShadow() {
+  static dynamic titleOnBoardShadow({double fontSize = 40}) {
     return TextStyle(
-      fontSize: 42.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Black",
       letterSpacing: 1.0,
       //fontWeight: FontWeight.w600,
     );
   }
 
-  static dynamic titleOnBoard() {
+  static dynamic titleOnBoard({double fontSize = 34.0}) {
     return TextStyle(
-      fontSize: 34.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Black",
       letterSpacing: 2.0,
       //fontWeight: FontWeight.w600,

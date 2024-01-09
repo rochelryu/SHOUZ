@@ -52,8 +52,15 @@ class _VerifyUserState extends State<VerifyUser> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         elevation: 0,
-        title: Text('Vérification'),
+        centerTitle: true,
+        title: Text('Vérification', style: Style.titleNews(),),
       ),
       body: Column(
         children: <Widget>[

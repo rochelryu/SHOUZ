@@ -37,6 +37,12 @@ class _EventDecodeState extends State<EventDecode> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
       ),
       body: FutureBuilder(
           future: eventsDecodeFull,

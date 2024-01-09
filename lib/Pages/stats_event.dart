@@ -133,7 +133,7 @@ class _StatsEventState extends State<StatsEvent> {
         ),
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white,),
           onPressed: () {
             Navigator.pop(context);
           },

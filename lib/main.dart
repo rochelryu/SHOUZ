@@ -123,6 +123,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
                 primarySwatch: Colors.blue,
                 primaryColor: backgroundColor,
+
                 primaryColorDark: Colors.blue),
             home: MyHomePage(
               title: 'Shouz',
@@ -289,7 +290,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         level = levelLocal;
       });
       User user = await DBProvider.db.getClient();
-      await getTokenForNotificationProvider(user.numero != 'null');
+      if(user.ident != 'ident') {
+        await getTokenForNotificationProvider(true);
+      }
       prefs = await SharedPreferences.getInstance();
     } catch (e) {
       print("Erreur $e");
@@ -305,40 +308,42 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<String?>(
-          stream: linkStream,
-          builder: (context, streamSnapshot) {
-            final link = streamSnapshot.data ?? '';
-            if (link.isNotEmpty) {
-              final arrayInfo = link.split('/');
-              final idElement = arrayInfo.last;
-              final categorie = arrayInfo[arrayInfo.length - 2];
-              return loadDeepLink(categorie, idElement);
-            } else {
-              return FutureBuilder<String?>(
-                  future: getInitialLink(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      final linkInitial = snapshot.data ?? '';
-                      if (linkInitial.isEmpty) {
-                        return (appState?.getSocketIO != null)
-                            ? levelUser(level)
-                            : LoadHide(
-                                key: UniqueKey(),
-                              );
+      body: GestureDetector(
+        child: StreamBuilder<String?>(
+            stream: linkStream,
+            builder: (context, streamSnapshot) {
+              final link = streamSnapshot.data ?? '';
+              if (link.isNotEmpty) {
+                final arrayInfo = link.split('/');
+                final idElement = arrayInfo.last;
+                final categorie = arrayInfo[4];
+                return loadDeepLink(categorie, idElement);
+              } else {
+                return FutureBuilder<String?>(
+                    future: getInitialLink(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        final linkInitial = snapshot.data ?? '';
+                        if (linkInitial.isEmpty) {
+                          return (appState?.getSocketIO != null)
+                              ? levelUser(level)
+                              : LoadHide(
+                                  key: UniqueKey(),
+                                );
+                        } else {
+                          final arrayInfo = linkInitial.split('/');
+                          final idElement = arrayInfo.last;
+                          final categorie = arrayInfo[4];
+                          return loadDeepLink(categorie, idElement);
+                        }
                       } else {
-                        final arrayInfo = linkInitial.split('/');
-                        final idElement = arrayInfo.last;
-                        final categorie = arrayInfo[arrayInfo.length - 2];
-                        return loadDeepLink(categorie, idElement);
+                        return LoadHide(key: UniqueKey());
                       }
-                    } else {
-                      return LoadHide(key: UniqueKey());
                     }
-                  }
-                  );
-            }
-          }),
+                    );
+              }
+            }),
+      ),
     );
   }
 

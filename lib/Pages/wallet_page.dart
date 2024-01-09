@@ -95,7 +95,14 @@ class _WalletPageState extends State<WalletPage> {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: backgroundColor,
-        title: Text('Portefeuille'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text('Portefeuille', style: Style.titleNews(),),
+        centerTitle: true,
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,

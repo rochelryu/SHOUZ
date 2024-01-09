@@ -51,12 +51,13 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: Style.white,),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        title: Text("Retrait Crypto"),
+        title: Text("Retrait Crypto", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
       ),
@@ -247,6 +248,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                   ),
                   SizedBox(width: 15.0),
                   !loadingFetchButton ? FloatingActionButton(
+                    shape: CircleBorder(),
                     backgroundColor: Colors.orange,
                     child: Icon(Icons.check,color: Colors.white),
                     onPressed: () async {
@@ -370,6 +372,7 @@ class _CheckoutRetraitState extends State<CheckoutRetrait> {
                   ),
                   SizedBox(width: 15.0),
                   !loadingFetchButton ? FloatingActionButton(
+                    shape: CircleBorder(),
                     backgroundColor: Colors.blue,
                     child: Icon(Icons.check,color: Colors.white),
                     onPressed: () async {

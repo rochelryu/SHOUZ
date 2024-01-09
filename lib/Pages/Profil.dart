@@ -179,6 +179,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                   )),
                   bottom: TabBar(
                     labelColor: colorText,
+                    indicatorSize: TabBarIndicatorSize.tab,
                     unselectedLabelColor: Colors.white.withOpacity(0.85),
                     labelPadding: EdgeInsets.all(5.0),
                     indicatorColor: colorText,
@@ -199,6 +200,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                     return Column(children: <Widget>[
                       Expanded(
                         child: ListView.builder(
+                          padding: EdgeInsets.all(0),
                           itemCount: 3,
                           itemBuilder: (context, index) {
                             return loadDataSkeletonOfActuality(context);
@@ -229,6 +231,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                         children: <Widget>[
                           Expanded(
                             child: ListView.builder(
+                              padding: EdgeInsets.all(0),
                               itemCount: infoUser['favoriteActualite'].length,
                               itemBuilder: (context, index) {
                                 return CardTopNewActu(
@@ -264,6 +267,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                     return Column(children: <Widget>[
                       Expanded(
                         child: ListView.builder(
+                          padding: EdgeInsets.all(0),
                           itemCount: 2,
                           itemBuilder: (context, index) {
                             return Padding(
@@ -483,8 +487,10 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                           decoration: BoxDecoration(color: Colors.transparent),
                           child: TabBar(
                             controller: _controllerDeals,
-                            isScrollable: true,
                             indicatorSize: TabBarIndicatorSize.label,
+                            dividerHeight: 0,
+                            labelColor: Style.white,
+                            unselectedLabelColor: colorSecondary,
                             indicatorColor: colorText,
                             tabs: [
                               Tab(
@@ -503,6 +509,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                             controller: _controllerDeals,
                             children: <Widget>[
                               GridView.builder(
+                                padding: EdgeInsets.all(0),
                                   gridDelegate:
                                       SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2),
@@ -565,6 +572,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                     );
                                   }),
                               GridView.builder(
+                                  padding: EdgeInsets.all(0),
                                   gridDelegate:
                                       SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2),
@@ -639,6 +647,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                     return Column(children: <Widget>[
                       Expanded(
                         child: ListView.builder(
+                          padding: EdgeInsets.all(0),
                           itemCount: 3,
                           itemBuilder: (context, index) {
                             return loadDataSkeletonOfEvent(context);
@@ -658,8 +667,10 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                           decoration: BoxDecoration(color: Colors.transparent),
                           child: TabBar(
                             controller: _controllerEvents,
-                            isScrollable: true,
                             indicatorSize: TabBarIndicatorSize.label,
+                            dividerHeight: 0,
+                            labelColor: Style.white,
+                            unselectedLabelColor: colorSecondary,
                             indicatorColor: colorText,
                             tabs: [
                               Tab(
@@ -678,6 +689,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                             controller: _controllerEvents,
                             children: <Widget>[
                               ListView.builder(
+                                  padding: EdgeInsets.all(0),
                                   itemCount: infoUser['myEvents'].length,
                                   itemBuilder: (context, index) {
                                     final item = infoUser['myEvents'][index];
@@ -809,6 +821,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                     );
                                   }),
                               ListView.builder(
+                                  padding: EdgeInsets.all(0),
                                   itemCount: infoUser['favoriteEvents'].length,
                                   itemBuilder: (context, index) {
                                     final indexHero = index + 10000;
@@ -980,6 +993,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                     return Column(children: <Widget>[
                       Expanded(
                         child: ListView.builder(
+                          padding: EdgeInsets.all(0),
                           itemCount: 3,
                           itemBuilder: (context, index) {
                             return loadDataSkeletonOfEvent(context);
@@ -1023,6 +1037,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                             ? Container(
                                 height: 100,
                                 child: ListView.builder(
+                                  padding: EdgeInsets.all(0),
                                   physics: BouncingScrollPhysics(),
                                   scrollDirection: Axis.horizontal,
                                   itemCount: infoUser['myTravels'].length + 1,
@@ -1178,6 +1193,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                         (infoUser['buyTravel'].length != 0)
                             ? Expanded(
                                 child: GridView.builder(
+                                    padding: EdgeInsets.all(0),
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
                                             crossAxisCount: 2),

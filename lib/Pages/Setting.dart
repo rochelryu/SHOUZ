@@ -15,10 +15,12 @@ import 'package:shouz/Pages/explication_travel.dart';
 import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
+import 'package:shouz/Utils/shared_pref_function.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Constant/helper.dart';
 import '../Constant/widget_common.dart';
+import '../Utils/Database.dart';
 import 'explication_event.dart';
 
 class Setting extends StatefulWidget {
@@ -93,6 +95,16 @@ class _SettingState extends State<Setting> {
     }
   }
 
+  Future logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final anonymousUser = await getAnonymousUser();
+    await prefs.clear();
+    await DBProvider.db.delClient();
+    await DBProvider.db.delProfil();
+    await saveAnonymousUser(anonymousUser);
+    await Navigator.pushNamedAndRemoveUntil(context,MenuDrawler.rootName, (route) => false);
+  }
+
   Future getImage(BuildContext context) async {
     var image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -127,14 +139,15 @@ class _SettingState extends State<Setting> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text("Paramêtre"),
+        title: Text("Paramêtre", style: Style.titleNews(),),
+        centerTitle: true,
         elevation: 0.0,
         leading: SizedBox(height: 5),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
-              icon: Icon(Icons.check),
+              icon: Icon(Icons.check, color: Style.white,),
               onPressed: () async {
                 await Navigator.pushNamed(context, MenuDrawler.rootName);
               },
@@ -387,15 +400,26 @@ class _SettingState extends State<Setting> {
                 style: Style.sousTitre(12),
               ),
             ),
+
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://wa.me/$serviceCall"),
-                    mode: LaunchMode.externalApplication);
+                await launchUrl(Uri(scheme: 'tel', path: "+$serviceCall"));
               },
               leading: Icon(Icons.support_agent, color: colorText, size: 33),
-              title: Text("Service client Whatsapp", style: Style.titre(14)),
+              title: Text("Service client", style: Style.titre(14)),
               subtitle: Text(
                 "Avez-vous une préoccupation ?",
+                style: Style.sousTitre(12),
+              ),
+            ),
+            ListTile(
+              onTap: () async {
+                await logout();
+              },
+              leading: Icon(Icons.exit_to_app, color: colorText, size: 33),
+              title: Text("Deconnexion", style: Style.titre(14)),
+              subtitle: Text(
+                "Connectez-vous à un autre compte",
                 style: Style.sousTitre(12),
               ),
             ),

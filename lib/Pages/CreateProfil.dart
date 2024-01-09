@@ -86,6 +86,7 @@ class _CreateProfil extends State<CreateProfil> {
     return Scaffold(
       backgroundColor: prefix0.backgroundColor,
       floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
         onPressed: () async {
           if (value.length >= 5) {
 

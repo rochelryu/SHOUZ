@@ -57,7 +57,7 @@ class _ChatDetailsState extends State<ChatDetails>
   String base64Image = "", imageCover = "";
   final picker = ImagePicker();
   ConsumeAPI consumeAPI = ConsumeAPI();
-  late SharedPreferences prefs;
+  SharedPreferences? prefs;
   Map<dynamic, dynamic>? productDetails;
 
   String price = "";
@@ -71,7 +71,7 @@ class _ChatDetailsState extends State<ChatDetails>
   Timer? _timer;
   Timer? _ampTimer;
   Timer? perodicScroll;
-  final _audioRecorder = Record();
+  final _audioRecorder = AudioRecorder();
   //String pathRecordAudio = '';
 
   double opacity = 0.0;
@@ -139,7 +139,6 @@ class _ChatDetailsState extends State<ChatDetails>
       }
     });
     loadProfil();
-    verifyIfUserHaveReadModalExplain();
   }
 
   @override
@@ -173,7 +172,7 @@ class _ChatDetailsState extends State<ChatDetails>
       this.room = roomLocal;
     });
     prefs = await SharedPreferences.getInstance();
-    final converse = prefs.getString(room);
+    final converse = prefs?.getString(room);
 
     if (converse != null) {
       final conversation = jsonDecode(converse);
@@ -226,54 +225,6 @@ class _ChatDetailsState extends State<ChatDetails>
 
   inWrite(bool etat, String room, String identUser) {
     appState.setTyping(etat, room, identUser);
-  }
-
-  verifyIfUserHaveReadModalExplain() async {
-    if (room.split('_')[0] == widget.newClient.ident) {
-      final bool asRead =
-          prefs.getBool('readViewFirstDealsForSellerModalExplain') ?? false;
-      if (!asRead) {
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "1/4 - 💁 Shouz est votre boutique, discuttez avec le client, vous pouvez lui envoyer d'autres images de cet article et uniquement de cet article.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
-            "2/4 - 💁 Conversez avec le client et tombez d'accord sur le prix total et la quantité d'article à livrer. Pour faire une offre officielle sur le prix et la quantité au client veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour faire une offre.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "3/4 - ⚠️ Attention: Nous n'acceptons pas que vous donnez votre contact à l'acheteur pour une conversation ailleurs ou que vous lui demandez de vous faire une quelconque transaction ailleurs.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "4/4 - ⚠️ Si votre stock est epuisé, veuillez le notifier au client et marquer sur la fiche de votre article qu'il est épuisé.\nSi votre article n'est pas encore disponible ou qu'il doit être importé, veuillez le notifier au client et lui dire quand cela pourra être disponible avant de lui faire une offre de prix.",
-            context);
-        await prefs.setBool('readViewFirstDealsForSellerModalExplain', true);
-      }
-    } else {
-      final bool asRead =
-          prefs.getBool('readViewFirstDealsForBuyerModalExplain') ?? false;
-      if (!asRead) {
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "1/4 - 🙋‍♂️ Shouz est votre assurance garantie, discuttez avec le vendeur, vous pouvez lui demander d'autres images de cet article et de vous donner plus d'informations sur l'article pour vous assurer du type de qualité.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}accordPayDirect.png",
-            "2/4 - 🧑‍🏫 Conversez avec le vendeur et tombez d'accord sur le prix total et la quantité d'article à livrer. Quand le vendeur vous fera une offre officielle sur le prix et la quantité veuillez cliquer sur l'icone <🛒> situé en haut-droite de votre ecran pour voir l'offre.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}guardMoney.png",
-            "3/4 - ⚠️ Attention: N'acceptez pas que le vendeur vous donne son contact pour une conversation ailleurs ou qu'il vous demande de faire une transaction ailleurs. Tant que vous restez ici vous bénéficiez des garanties.",
-            context);
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}discussionInAppDeal.png",
-            "4/4 - ⛔️ Il y a certains vendeurs qui ont des articles en cours d'importation, donc veuillez leur demander si l'article est disponible actuelement ou il prendra combien de temps avant d'arriver chez eux.",
-            context);
-        await prefs.setBool('readViewFirstDealsForBuyerModalExplain', true);
-      }
-    }
   }
 
   List<Widget> reformateView(conversation) {
@@ -360,7 +311,7 @@ class _ChatDetailsState extends State<ChatDetails>
                             methodPayement: 'immediate');
                         openAppReview(context);
                       } else {
-                        await prefs.setDouble('amountRecharge',
+                        await prefs?.setDouble('amountRecharge',
                             priceFinal - widget.newClient.wallet);
                         Fluttertoast.showToast(
                             msg: 'Solde Insuffisant pensez à vous recharger',
@@ -398,7 +349,7 @@ class _ChatDetailsState extends State<ChatDetails>
                             methodPayement: 'delivery');
                         openAppReview(context);
                       } else {
-                        await prefs.setDouble('amountRecharge',
+                        await prefs?.setDouble('amountRecharge',
                             priceFinal - widget.newClient.wallet);
                         Fluttertoast.showToast(
                             msg: 'Solde Insuffisant pensez à vous recharger',
@@ -575,7 +526,7 @@ class _ChatDetailsState extends State<ChatDetails>
                             finalityPayement: true);
                         openAppReview(context);
                       } else {
-                        await prefs.setDouble('amountRecharge',
+                        await prefs?.setDouble('amountRecharge',
                             priceFinal - widget.newClient.wallet);
                         Fluttertoast.showToast(
                             msg: 'Solde Insuffisant pensez à vous recharger',
@@ -941,7 +892,8 @@ class _ChatDetailsState extends State<ChatDetails>
         backgroundColor: backgroundColor,
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () {
+            icon: Icon(Icons.arrow_back, color: Style.white),
+            onPressed: () {
                 appState.setConversation({});
                 appState.setIdOldConversation('');
                 appState.updateLoadingToSend(false);
@@ -951,8 +903,8 @@ class _ChatDetailsState extends State<ChatDetails>
                 } else {
                   Navigator.pushNamed(context, MenuDrawler.rootName);
                 }
-              },
-              icon: Icon(Icons.arrow_back)),
+            },
+          ),
           actions: [
             badges.Badge(
               showBadge: room.split('_')[0] != widget.newClient.ident &&
@@ -1685,7 +1637,7 @@ class _ChatDetailsState extends State<ChatDetails>
                     methodPayement: "immediate");
                 Navigator.pop(context);
               } else {
-                await prefs.setDouble(
+                await prefs?.setDouble(
                     'amountRecharge', priceFinal - widget.newClient.wallet);
                 Fluttertoast.showToast(
                     msg: 'Solde Insuffisant pensez à vous recharger',
@@ -1724,7 +1676,7 @@ class _ChatDetailsState extends State<ChatDetails>
                     methodPayement: "delivery");
                 Navigator.pop(context);
               } else {
-                await prefs.setDouble(
+                await prefs?.setDouble(
                     'amountRecharge', priceFinal - widget.newClient.wallet);
                 Fluttertoast.showToast(
                     msg: 'Solde Insuffisant pensez à vous recharger',
@@ -1847,6 +1799,7 @@ class _ChatDetailsState extends State<ChatDetails>
     try {
       if (await _audioRecorder.hasPermission()) {
         await _audioRecorder.start(
+            const RecordConfig(),
           path: await _pathRecord(),
         );
 

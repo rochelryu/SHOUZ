@@ -58,12 +58,13 @@ class _CheckoutRetraitMobileMoneyState
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: Style.white,),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        title: Text("Retrait Mobile Money"),
+        title: Text("Retrait Mobile Money", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
       ),

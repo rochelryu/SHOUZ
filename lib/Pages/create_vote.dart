@@ -35,7 +35,9 @@ class _CreateVoteState extends State<CreateVote> {
   final ConsumeAPI consumeAPI = ConsumeAPI();
   String base64Image = "";
   String picture = "";
-  TextEditingController titleCtrl = TextEditingController(), ctrlEvent = TextEditingController(), nameCategorieCtrl = TextEditingController();
+  TextEditingController titleCtrl = TextEditingController(),
+      ctrlEvent = TextEditingController(),
+      nameCategorieCtrl = TextEditingController();
   List<File> post = [];
   List<File> actors = [];
   List<TextEditingController> namesCtrlActors = [];
@@ -44,7 +46,7 @@ class _CreateVoteState extends State<CreateVote> {
   bool _isName = true, _isNameCategorie = false;
   bool available = false, displayResult = false;
   bool _isPrice = false;
-  bool _isLoading = false, _isLoadingDone =false;
+  bool _isLoading = false, _isLoadingDone = false;
   bool monVal = false, showFloatingAction = true, isPosting = false;
   Event? eventChoice;
   ScrollController _scrollController = ScrollController();
@@ -56,7 +58,8 @@ class _CreateVoteState extends State<CreateVote> {
 
   Future<Null> selectDate(BuildContext context, bool begin) async {
     final actualDate = DateTime.now();
-    final initialDate = begin ? dateChoice ?? actualDate : dateChoiceEnd ?? actualDate;
+    final initialDate =
+        begin ? dateChoice ?? actualDate : dateChoiceEnd ?? actualDate;
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: initialDate,
@@ -68,7 +71,8 @@ class _CreateVoteState extends State<CreateVote> {
         if (begin) {
           dateChoice = picked;
         } else {
-          dateChoiceEnd = DateTime(picked.year, picked.month, picked.day, 23, 59);
+          dateChoiceEnd =
+              DateTime(picked.year, picked.month, picked.day, 23, 59);
         }
       });
     }
@@ -119,7 +123,6 @@ class _CreateVoteState extends State<CreateVote> {
         setState(() {
           post[0] = File(image.path);
         });
-
       }
       picture = image.name;
     }
@@ -132,39 +135,53 @@ class _CreateVoteState extends State<CreateVote> {
     if (result != null) {
       List<File> files = result.paths.map((path) => File(path!)).toList();
 
-        // final newBase64Image = files
-        //     .map((image) => base64Encode(image.readAsBytesSync()))
-        //     .toList();
-      List<TextEditingController> allNewControllers = files.map((e) => TextEditingController()).toList();
+      // final newBase64Image = files
+      //     .map((image) => base64Encode(image.readAsBytesSync()))
+      //     .toList();
+      List<TextEditingController> allNewControllers =
+          files.map((e) => TextEditingController()).toList();
       final List<File> allImage = List.from(actors)..addAll(files);
-      final List<TextEditingController> allCtrls = List.from(namesCtrlActors)..addAll(allNewControllers);
-        setState(() {
-          namesCtrlActors = allCtrls;
-          actors = allImage;
-        });
-
+      final List<TextEditingController> allCtrls = List.from(namesCtrlActors)
+        ..addAll(allNewControllers);
+      setState(() {
+        namesCtrlActors = allCtrls;
+        actors = allImage;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: backgroundColor,
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Style.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            }
+        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: ListView(
           controller: _scrollController,
           children: [
-            if(indexStepper == 0) Text("Créer votre vôte !",
-                style: Style.secondTitre(22), textAlign: TextAlign.center,),
-            if(indexStepper == 1) Text("Ajouter les nominés",
-                style: Style.secondTitre(22), textAlign: TextAlign.center,),
+            if (indexStepper == 0)
+              Text(
+                "Créer votre vôte !",
+                style: Style.secondTitre(22),
+                textAlign: TextAlign.center,
+              ),
+            if (indexStepper == 1)
+              Text(
+                "Ajouter les nominés",
+                style: Style.secondTitre(22),
+                textAlign: TextAlign.center,
+              ),
             Container(
               margin: EdgeInsets.only(bottom: 10),
               child: IconStepper(
@@ -184,8 +201,8 @@ class _CreateVoteState extends State<CreateVote> {
                 ],
               ),
             ),
-            if(indexStepper == 0) firstStepCreationVote(),
-            if(indexStepper == 1) secondStepCreationVote(),
+            if (indexStepper == 0) firstStepCreationVote(),
+            if (indexStepper == 1) secondStepCreationVote(),
           ],
         ),
       ),
@@ -208,9 +225,7 @@ class _CreateVoteState extends State<CreateVote> {
     if (dateChoiceEnd == null || dateChoice == null) {
       ready = false;
       showSnackBar(context,
-          "Veuillez sélectionner une date ${dateChoice == null
-              ? "de debut"
-              : "de fin"}");
+          "Veuillez sélectionner une date ${dateChoice == null ? "de debut" : "de fin"}");
     }
     if (available) {
       if ((price.isNotEmpty && int.parse(price) % 100 != 0) || price.isEmpty) {
@@ -219,66 +234,79 @@ class _CreateVoteState extends State<CreateVote> {
             context, "Le montant pour le vôte doit être un multiple de 100");
       }
     }
-    if(_typeVotesInfoLoad == TypeVotesInfoLoad.without_event) {
+    if (_typeVotesInfoLoad == TypeVotesInfoLoad.without_event) {
       if (base64Image.isEmpty) {
         ready = false;
-        showSnackBar(context, "Veuillez sélectionner l'image d'affiche du vôte.");
+        showSnackBar(
+            context, "Veuillez sélectionner l'image d'affiche du vôte.");
       }
-      if(titleCtrl.text.isEmpty) {
+      if (titleCtrl.text.isEmpty) {
         ready = false;
         showSnackBar(context, "Veuillez entrer le nom du vôte.");
       }
     }
 
-      if (ready) {
-        final eventId = ExtensionEnumToValue.transformTypeVotesInfoLoadInCorrectValue(_typeVotesInfoLoad, eventChoice);
-        setState(() {
-          isPosting = true;
-        });
-        final setVote = await consumeAPI.createVote(
+    if (ready) {
+      final eventId =
+          ExtensionEnumToValue.transformTypeVotesInfoLoadInCorrectValue(
+              _typeVotesInfoLoad, eventChoice);
+      setState(() {
+        isPosting = true;
+      });
+      final setVote = await consumeAPI.createVote(
           eventId: eventId,
-            price: price,
-            base64: base64Image,picture: picture,name: titleCtrl.text, beginDate: dateChoice!, endDate: dateChoiceEnd!, frequence: _typePeriodicVotes, displayResult: displayResult);
+          price: price,
+          base64: base64Image,
+          picture: picture,
+          name: titleCtrl.text,
+          beginDate: dateChoice!,
+          endDate: dateChoiceEnd!,
+          frequence: _typePeriodicVotes,
+          displayResult: displayResult);
+      setState(() {
+        isPosting = false;
+      });
+      if (setVote['etat'] == 'found') {
         setState(() {
-          isPosting = false;
+          indexStepper++;
         });
-        print(setVote);
-        if(setVote['etat'] == 'found') {
-          setState(() {
-            indexStepper++;
-          });
-        } else {
-          await askedToLead(
-              "Un problème lors de la création du vôte, veuillez reprendre ultérieurement s'il vous plait.",
-              false,
-              context);
-        }
-
+      } else {
+        await askedToLead(
+            "Un problème lors de la création du vôte, veuillez reprendre ultérieurement s'il vous plait.",
+            false,
+            context);
       }
     }
+  }
+
   void _submitCategorie({bool isDone = false}) async {
     bool ready = true;
     if (!isDone && nameCategorieCtrl.text.isEmpty) {
       ready = false;
 
-      showSnackBar(context,
-          "Veuillez faire entrer le nom de la categorie d'abord");
+      showSnackBar(
+          context, "Veuillez faire entrer le nom de la categorie d'abord");
     }
-    if (!isDone && (namesCtrlActors.isEmpty || namesCtrlActors.length != actors.length)) {
+    if (!isDone &&
+        (namesCtrlActors.isEmpty || namesCtrlActors.length != actors.length)) {
       ready = false;
 
-      showSnackBar(context, "Veuillez vous rassurer que tous les nominés pour cette categorie ont été àjouté.");
+      showSnackBar(context,
+          "Veuillez vous rassurer que tous les nominés pour cette categorie ont été àjouté.");
     }
-    if(isDone && nameCategorieCtrl.text.isEmpty && namesCtrlActors.isEmpty) {
+    if (isDone && nameCategorieCtrl.text.isEmpty && namesCtrlActors.isEmpty) {
       ready = false;
       await dropVoteIdToShared();
-      Navigator.pushNamedAndRemoveUntil(context, MenuDrawler.rootName, (route) => route.isFirst);
+      Navigator.pushNamedAndRemoveUntil(
+          context, MenuDrawler.rootName, (route) => route.isFirst);
     }
 
     if (ready) {
       setState(() {
-        if(isDone) _isLoadingDone = true;
-        else isPosting = true;
+        if (isDone)
+          _isLoadingDone = true;
+        else
+          isPosting = true;
       });
       final voteId = await getVoteIdToShared() as String;
       List<String> listNameActors = [];
@@ -286,7 +314,7 @@ class _CreateVoteState extends State<CreateVote> {
       List<String> listBaseActors = [];
       actors.asMap().forEach((index, actor) {
         final imageName = actor.path.split('/').last;
-        if(allNameRegister.contains('${voteId}_$imageName')) {
+        if (allNameRegister.contains('${voteId}_$imageName')) {
           listBaseActors.add('');
         } else {
           listBaseActors.add(base64Encode(actor.readAsBytesSync()));
@@ -295,28 +323,38 @@ class _CreateVoteState extends State<CreateVote> {
         listNameActors.add(namesCtrlActors[index].text.toLowerCase());
       });
       final lastStepVote = await consumeAPI.createCategorieAndNomineVote(
-        isDone: isDone,
-          base64: listBaseActors.join(','), categorieName: nameCategorieCtrl.text, imageName: listNameImage.join(','), nameActors: listNameActors.join(','));
+          isDone: isDone,
+          base64: listBaseActors.join(','),
+          categorieName: nameCategorieCtrl.text,
+          imageName: listNameImage.join(','),
+          nameActors: listNameActors.join(','));
       setState(() {
-        if(isDone) _isLoadingDone = false;
-        else isPosting = false;
+        if (isDone)
+          _isLoadingDone = false;
+        else
+          isPosting = false;
       });
-      if(lastStepVote['etat'] == 'found') {
+      if (lastStepVote['etat'] == 'found') {
         allNameRegister = listNameImage;
-        showSnackBar(context, "Les nominés de la categorie ${nameCategorieCtrl.text} ont été enregistré", isOk: true);
+        showSnackBar(context,
+            "Les nominés de la categorie ${nameCategorieCtrl.text} ont été enregistré",
+            isOk: true);
         setState(() {
           actors = [];
           nameCategorieCtrl.text = '';
           namesCtrlActors = [];
-
         });
+        if (isDone) {
+          await dropVoteIdToShared();
+          Navigator.pushNamedAndRemoveUntil(
+              context, MenuDrawler.rootName, (route) => route.isFirst);
+        }
       } else {
         await askedToLead(
             "Un problème lors de la création du vôte, veuillez reprendre ultérieurement s'il vous plait.",
             false,
             context);
       }
-
     }
   }
 
@@ -324,30 +362,30 @@ class _CreateVoteState extends State<CreateVote> {
     bool isIos = Platform.isIOS;
     return isIos
         ? CupertinoAlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: <Widget>[
-        CupertinoDialogAction(
-            child: Text("Ok"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            })
-      ],
-    )
+            title: Text(title),
+            content: Text(message),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          )
         : AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      elevation: 20.0,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0)),
-      actions: <Widget>[
-        TextButton(
-            child: Text("Ok"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            })
-      ],
-    );
+            title: Text(title),
+            content: Text(message),
+            elevation: 20.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            actions: <Widget>[
+              TextButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          );
   }
 
   List<Widget> _listViewWithoutEvent() {
@@ -358,23 +396,21 @@ class _CreateVoteState extends State<CreateVote> {
         child: Card(
           color: Colors.transparent,
           elevation: _isName ? 4.0 : 0.0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
           child: Container(
             height: 50,
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-
                 color: backgroundColorSec,
                 border: Border.all(
-                    width: 1.0,
-                    color: _isName ? colorText : backgroundColor),
+                    width: 1.0, color: _isName ? colorText : backgroundColor),
                 borderRadius: BorderRadius.circular(50.0)),
             child: TextField(
               controller: titleCtrl,
-              style: TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w300),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
               cursorColor: colorText,
               keyboardType: TextInputType.text,
               onChanged: (text) {
@@ -468,7 +504,6 @@ class _CreateVoteState extends State<CreateVote> {
               }
             }),
       ),
-
     ];
     return tabs;
   }
@@ -479,8 +514,7 @@ class _CreateVoteState extends State<CreateVote> {
         padding: EdgeInsets.all(8.0),
         child: Text(
           "Veuillez selectionner l'évènement lié à ce vôte",
-          /*textAlign: TextAlign.justify,*/ style:
-        Style.sousTitre(13.0),
+          /*textAlign: TextAlign.justify,*/ style: Style.sousTitre(13.0),
         ),
       ),
       Padding(
@@ -492,24 +526,25 @@ class _CreateVoteState extends State<CreateVote> {
               padding: EdgeInsets.only(left: 10.0),
               width: MediaQuery.of(context).size.width,
               child: TypeAheadField(
-                hideSuggestionsOnKeyboardHide: false,
-                textFieldConfiguration: TextFieldConfiguration(
-                  //autofautofocusocus: true,
-                  controller: ctrlEvent,
-                  style: TextStyle(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w300),
+                controller: ctrlEvent,
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    //autofautofocusocus: true,
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.w300),
 
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText:
-                    "Ecrivez le titre de cet évènement",
-                    hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        color: Colors.grey[500],
-                        fontSize: 13.0),
-                  ),
-                ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Ecrivez le titre de cet évènement",
+                      hintStyle: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          color: Colors.grey[500],
+                          fontSize: 13.0),
+                    ),
+                  );
+                },
                 hideOnEmpty: true,
                 suggestionsCallback: (pattern) async {
                   return consumeAPI.getAllEventByClient(pattern);
@@ -517,31 +552,34 @@ class _CreateVoteState extends State<CreateVote> {
                 itemBuilder: (context, suggestion) {
                   final event = suggestion as Event;
                   return ListTile(
-                    title: Text(event.title,
-                        style: Style.priceDealsProduct()),
+                    title: Text(event.title, style: Style.priceDealsProduct()),
                   );
                 },
-                onSuggestionSelected: (suggestion) async {
+                onSelected: (suggestion) async {
                   final event = suggestion as Event;
                   ctrlEvent.text = event.title;
                   eventChoice = event;
-
                 },
               ),
             ),
           )),
-      SizedBox(height: 20,)
-
+      SizedBox(
+        height: 20,
+      )
     ];
   }
 
   Widget firstStepCreationVote() {
     var loginBtn = ElevatedButton(
       onPressed: _submit,
-      child: isPosting ? CircularProgressIndicator(color: colorPrimary,) :Text(
-        "Enregistrer et continuer",
-        style: Style.sousTitreEvent(15),
-      ),
+      child: isPosting
+          ? CircularProgressIndicator(
+              color: colorPrimary,
+            )
+          : Text(
+              "Enregistrer et continuer",
+              style: Style.sousTitreEvent(15),
+            ),
       style: raisedButtonStyle,
     );
     var baseForm = Column(
@@ -550,22 +588,25 @@ class _CreateVoteState extends State<CreateVote> {
           key: formKey,
           child: Column(
             children: <Widget>[
-              if(_typeVotesInfoLoad == TypeVotesInfoLoad.without_event) ..._listViewWithoutEvent(),
-              if(_typeVotesInfoLoad == TypeVotesInfoLoad.with_event) ..._listViewWithEvent(),
+              if (_typeVotesInfoLoad == TypeVotesInfoLoad.without_event)
+                ..._listViewWithoutEvent(),
+              if (_typeVotesInfoLoad == TypeVotesInfoLoad.with_event)
+                ..._listViewWithEvent(),
               Container(
                 width: double.infinity,
                 child: Column(
                   children: <Widget>[
                     if (dateChoice == null && dateChoiceEnd == null)
                       Text(
-                          "Cliquez sur les bouttons ci-dessous pour marquer les dates du vôte",
-                          style: Style.sousTitre(13), textAlign: TextAlign.center,),
+                        "Cliquez sur les bouttons ci-dessous pour marquer les dates du vôte",
+                        style: Style.sousTitre(13),
+                        textAlign: TextAlign.center,
+                      ),
                     if (dateChoice != null || dateChoiceEnd != null)
                       Text(
                           "${(dateChoice != null) ? formatedDateForLocal(dateChoice!) : ' '} - ${(dateChoiceEnd != null) ? formatedDateForLocal(dateChoiceEnd!) : ' '}",
                           style: Style.sousTitre(13)),
                     SizedBox(height: 15),
-
                     Container(
                       height: 60,
                       width: double.infinity,
@@ -626,8 +667,7 @@ class _CreateVoteState extends State<CreateVote> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                              "Afficher les resultats",
+                          Text("Afficher les resultats",
                               style: Style.sousTitre(14)),
                           Text(
                               "Tout le monde pourra voir les resultats de chaque nomminé",
@@ -637,7 +677,7 @@ class _CreateVoteState extends State<CreateVote> {
                     ),
                     Expanded(
                       flex: 1,
-                      child: customSwitch(displayResult, (){
+                      child: customSwitch(displayResult, () {
                         setState(() {
                           displayResult = !displayResult;
                         });
@@ -653,13 +693,12 @@ class _CreateVoteState extends State<CreateVote> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Text(
-                          "Les vôtes sont payant ?",
+                      child: Text("Les vôtes sont payant ?",
                           style: Style.sousTitre(14)),
                     ),
                     Expanded(
                       flex: 1,
-                      child: customSwitch(available, (){
+                      child: customSwitch(available, () {
                         setState(() {
                           available = !available;
                         });
@@ -668,8 +707,7 @@ class _CreateVoteState extends State<CreateVote> {
                   ],
                 ),
               ),
-
-              if(available)
+              if (available)
                 // price
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -694,8 +732,8 @@ class _CreateVoteState extends State<CreateVote> {
                             color: Colors.white, fontWeight: FontWeight.w300),
                         cursorColor: colorText,
                         onChanged: (text) {
-                          try{
-                            if(text.isNotEmpty) {
+                          try {
+                            if (text.isNotEmpty) {
                               int.parse(text);
                               setState(() {
                                 _isPrice = true;
@@ -706,16 +744,18 @@ class _CreateVoteState extends State<CreateVote> {
                               });
                               priceCtrl.text = text;
                             }
-
-                          }catch (e) {
+                          } catch (e) {
                             priceCtrl.text = price;
                           }
-
                         },
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             border: InputBorder.none,
-                            prefixIcon: Icon(_typeVotesInfoLoad == TypeVotesInfoLoad.without_event ? Icons.looks_two: Icons.looks_one,
+                            prefixIcon: Icon(
+                                _typeVotesInfoLoad ==
+                                        TypeVotesInfoLoad.without_event
+                                    ? Icons.looks_two
+                                    : Icons.looks_one,
                                 color: _isPrice ? colorText : Colors.grey),
                             hintText: "Prix du vote",
                             hintStyle: TextStyle(
@@ -749,10 +789,15 @@ class _CreateVoteState extends State<CreateVote> {
                                     value: TypePeriodicVotes.only,
                                     groupValue: _typePeriodicVotes,
                                     onChanged: (value) {
-                                      setState(() { _typePeriodicVotes = value as TypePeriodicVotes; });
+                                      setState(() {
+                                        _typePeriodicVotes =
+                                            value as TypePeriodicVotes;
+                                      });
                                     },
                                   ),
-                                  Text("Unique", style: Style.simpleTextWithSizeAndColors(13)),
+                                  Text("Unique",
+                                      style: Style.simpleTextWithSizeAndColors(
+                                          13)),
                                 ],
                               ),
                             ),
@@ -766,44 +811,15 @@ class _CreateVoteState extends State<CreateVote> {
                                     value: TypePeriodicVotes.one_day_vote,
                                     groupValue: _typePeriodicVotes,
                                     onChanged: (value) {
-                                      setState(() { _typePeriodicVotes = value as TypePeriodicVotes; });
+                                      setState(() {
+                                        _typePeriodicVotes =
+                                            value as TypePeriodicVotes;
+                                      });
                                     },
                                   ),
-                                  Text("1 vote/jr", style: Style.simpleTextWithSizeAndColors(13)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              child: Column(
-                                children: [
-                                  Radio(
-                                    activeColor: colorText,
-                                    value: TypePeriodicVotes.two_day_vote,
-                                    groupValue: _typePeriodicVotes,
-                                    onChanged: (value) {
-                                      setState(() { _typePeriodicVotes = value as TypePeriodicVotes; });
-                                    },
-                                  ),
-                                  Text("1 vote/2 jrs", style: Style.simpleTextWithSizeAndColors(13)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              child: Column(
-                                children: [
-                                  Radio(
-                                    activeColor: colorText,
-                                    value: TypePeriodicVotes.three_day_vote,
-                                    groupValue: _typePeriodicVotes,
-                                    onChanged: (value) {
-                                      setState(() { _typePeriodicVotes = value as TypePeriodicVotes; });
-                                    },
-                                  ),
-                                  Text("1 vote/3 jrs", style: Style.simpleTextWithSizeAndColors(13)),
+                                  Text("1 vote/jr",
+                                      style: Style.simpleTextWithSizeAndColors(
+                                          13)),
                                 ],
                               ),
                             ),
@@ -814,7 +830,6 @@ class _CreateVoteState extends State<CreateVote> {
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -834,8 +849,7 @@ class _CreateVoteState extends State<CreateVote> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text("Ce vôte est-il lié à un de vos événement ?",
-                    style: Style.sousTitre(14),
-                    textAlign: TextAlign.center),
+                    style: Style.sousTitre(14), textAlign: TextAlign.center),
                 Container(
                   width: double.infinity,
                   height: 50,
@@ -853,7 +867,10 @@ class _CreateVoteState extends State<CreateVote> {
                                 value: TypeVotesInfoLoad.with_event,
                                 groupValue: _typeVotesInfoLoad,
                                 onChanged: (value) {
-                                  setState(() { _typeVotesInfoLoad = value as TypeVotesInfoLoad; });
+                                  setState(() {
+                                    _typeVotesInfoLoad =
+                                        value as TypeVotesInfoLoad;
+                                  });
                                 },
                               ),
                               Text("Oui", style: Style.titre(18)),
@@ -870,7 +887,10 @@ class _CreateVoteState extends State<CreateVote> {
                                 value: TypeVotesInfoLoad.without_event,
                                 groupValue: _typeVotesInfoLoad,
                                 onChanged: (value) {
-                                  setState(() { _typeVotesInfoLoad = value as TypeVotesInfoLoad; });
+                                  setState(() {
+                                    _typeVotesInfoLoad =
+                                        value as TypeVotesInfoLoad;
+                                  });
                                 },
                               ),
                               Text("Non", style: Style.titre(18)),
@@ -896,20 +916,28 @@ class _CreateVoteState extends State<CreateVote> {
   Widget secondStepCreationVote() {
     final createCategorie = ElevatedButton(
       onPressed: _submitCategorie,
-      child: isPosting ? CircularProgressIndicator(color: colorPrimary,) :Text(
-        "Enregistrer une autre categorie",
-        style: Style.sousTitreEvent(15),
-      ),
+      child: isPosting
+          ? CircularProgressIndicator(
+              color: colorPrimary,
+            )
+          : Text(
+              "Enregistrer une autre categorie",
+              style: Style.sousTitreEvent(15),
+            ),
       style: raisedButtonStyle,
     );
     final doneVote = ElevatedButton(
       onPressed: () {
         _submitCategorie(isDone: true);
       },
-      child: _isLoadingDone ? CircularProgressIndicator(color: colorPrimary,) :Text(
-        "Terminer avec cette categorie",
-        style: Style.sousTitreEvent(15),
-      ),
+      child: _isLoadingDone
+          ? CircularProgressIndicator(
+              color: colorPrimary,
+            )
+          : Text(
+              "Terminer avec cette categorie",
+              style: Style.sousTitreEvent(15),
+            ),
       style: raisedButtonStyleError,
     );
     var baseForm = Column(
@@ -930,11 +958,11 @@ class _CreateVoteState extends State<CreateVote> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-
                         color: backgroundColorSec,
                         border: Border.all(
                             width: 1.0,
-                            color: _isNameCategorie ? colorText : backgroundColor),
+                            color:
+                                _isNameCategorie ? colorText : backgroundColor),
                         borderRadius: BorderRadius.circular(50.0)),
                     child: TextField(
                       controller: nameCategorieCtrl,
@@ -963,7 +991,6 @@ class _CreateVoteState extends State<CreateVote> {
                   ),
                 ),
               ),
-
               Container(
                 height: 210,
                 width: double.infinity,
@@ -995,7 +1022,7 @@ class _CreateVoteState extends State<CreateVote> {
                                         color: Colors.white, size: 30),
                                     SizedBox(height: 5),
                                     Text(
-                                      "Charger une image d'un nominé.",
+                                      "Charger les images des nominés.",
                                       style: Style.titleInSegment(),
                                       textAlign: TextAlign.center,
                                     )
@@ -1015,14 +1042,13 @@ class _CreateVoteState extends State<CreateVote> {
                                 onTap: () {
                                   actors.removeAt(index - 1);
                                   namesCtrlActors.removeAt(index - 1);
-                                  setState(() {
-
-                                  });
+                                  setState(() {});
                                 },
                                 child: Card(
                                   elevation: 4.0,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.0)),
+                                      borderRadius:
+                                          BorderRadius.circular(12.0)),
                                   child: Container(
                                     height: 120,
                                     width: double.infinity,
@@ -1034,7 +1060,6 @@ class _CreateVoteState extends State<CreateVote> {
                                   ),
                                 ),
                               ),
-
                               Card(
                                 color: Colors.transparent,
                                 shape: RoundedRectangleBorder(
@@ -1044,16 +1069,16 @@ class _CreateVoteState extends State<CreateVote> {
                                   width: double.infinity,
                                   padding: EdgeInsets.symmetric(horizontal: 5),
                                   decoration: BoxDecoration(
-
                                       color: backgroundColorSec,
                                       border: Border.all(
-                                          width: 1.0,
-                                          color: colorText),
-                                      borderRadius: BorderRadius.circular(50.0)),
+                                          width: 1.0, color: colorText),
+                                      borderRadius:
+                                          BorderRadius.circular(50.0)),
                                   child: TextField(
                                     controller: namesCtrlActors[index - 1],
                                     style: TextStyle(
-                                        color: Colors.white, fontWeight: FontWeight.w300),
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w300),
                                     cursorColor: colorText,
                                     keyboardType: TextInputType.text,
                                     onChanged: (text) {},
@@ -1072,7 +1097,6 @@ class _CreateVoteState extends State<CreateVote> {
                       }
                     }),
               ),
-
             ],
           ),
         ),
@@ -1088,10 +1112,13 @@ class _CreateVoteState extends State<CreateVote> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text("Faites entrer le nom de la categorie puis cliquez sur suivant si vous voulez enregistrer et passer à une autre categorie",
+          Text(
+              "Faites entrer le nom de la categorie puis cliquez sur suivant si vous voulez enregistrer et passer à une autre categorie",
               style: Style.sousTitre(14),
               textAlign: TextAlign.center),
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           Container(
             width: double.infinity,
             child: baseForm,

@@ -126,8 +126,7 @@ class _LoginState extends State<Login> {
                             setState(() {
                               user = res['user'];
                             });
-                            await DBProvider.db.delClient();
-                            await DBProvider.db.newClient(user);
+                            await DBProvider.db.updateIdent(user.ident);
                             setLevel(2);
                             setState(() {
                                 isCliked = false;

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/CircularClipper.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Constant/VerifyUser.dart';
@@ -94,6 +95,7 @@ class _EventDetailsState extends State<EventDetails> {
   ConsumeAPI consumeAPI = new ConsumeAPI();
   late User user = new User('null', 'null', 'ident');
   late DateTime eventDate;
+  late SharedPreferences prefs;
   ScrollController _scrollController = ScrollController();
 
   late int placeTotal;
@@ -101,6 +103,7 @@ class _EventDetailsState extends State<EventDetails> {
 
   Future getInfo() async {
     final User me = await DBProvider.db.getClient();
+    prefs = await SharedPreferences.getInstance();
     if (me.numero != 'null') {
       setState(() {
         user = me;
@@ -255,7 +258,7 @@ class _EventDetailsState extends State<EventDetails> {
                 child: IconButton(
                   onPressed: () {
                     Share.share(
-                        "Ticket de ${widget.title} disponible dans Shouz.\n 🙂 Shouz Avantage:\n   - 🤩 Achète des semaines en avance.\n   - 🤩 Paye par mobile money ou demande à quelqu'un de payer un ticket pour toi.\n   - 🤩 Tes tickets sont des originaux.\n   - 🤩 Et si finalement tu ne peux plus y aller à cause d'un imprévu ! Shouz te rembourse tout ton argent.\n Clique ici pour voir l'évènement que je te partage ${ConsumeAPI.EventLink}${widget.id}");
+                        "Ticket de ${widget.title} disponible dans Shouz.\n 🙂 Shouz Avantage:\n   - 🤩 Achète des semaines en avance.\n   - 🤩 Paye par mobile money ou demande à quelqu'un de payer un ticket pour toi.\n   - 🤩 Tes tickets sont des originaux.\n   - 🤩 Et si finalement tu ne peux plus y aller à cause d'un imprévu ! Shouz te rembourse tout ton argent.\n Clique ici pour voir l'évènement que je te partage ${ConsumeAPI.EventLink}${widget.title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/${widget.id}");
                   },
                   icon: Icon(Icons.share, color: Colors.white),
                   iconSize: 30.0,
@@ -395,10 +398,10 @@ class _EventDetailsState extends State<EventDetails> {
                             ? priceItem
                             : newTable[i]["price"] * place;
                       });
-                      Timer(Duration(seconds: 2), () {
+                      Timer(Duration(milliseconds: 500), () {
                         _scrollController.animateTo(
                             _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 500),
+                            duration: const Duration(milliseconds: 100),
                             curve: Curves.easeInOut);
                       });
                     } else {
@@ -479,7 +482,7 @@ class _EventDetailsState extends State<EventDetails> {
                         ),
                       if (!widget.isMeAuthor)
                         Text(
-                          "Combien de places vous voulez: ",
+                          "Nombre de places: ",
                           style: Style.sousTitre(15),
                         ),
                     ],
@@ -597,10 +600,10 @@ class _EventDetailsState extends State<EventDetails> {
                             eventDateAlreadySkiped > 0)
                           ElevatedButton(
                             style: raisedButtonStyle,
-                            child: Text("Acheter", style: Style.titre(18)),
+                            child: Text("Acheter maintenant", style: Style.titre(14)),
                             onPressed: () async {
                               if ((priceItem != 0 || choice == "GRATUIT") &&
-                                  user.numero != "null" &&
+                                  user.numero != "null" && user.numero.isNotEmpty &&
                                   priceItem <= user.wallet) {
                                 appState.setIdEvent(widget.id);
                                 appState.setNumberTicket(place);
@@ -614,9 +617,11 @@ class _EventDetailsState extends State<EventDetails> {
                                           key: UniqueKey(),
                                         )));
                               } else if (user.numero != "null" &&
-                                  priceItem > user.wallet) {
+                                  priceItem > user.wallet && user.numero.isNotEmpty) {
+                                await prefs.setDouble('amountRecharge',
+                                    priceItem - user.wallet);
                                 displaySnackBar(context,
-                                    'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).toString()}');
+                                    'Votre solde est insuffisant, vous n\'avez que ${double.parse(user.wallet.toString()).floor().toString()}');
                                 Timer(Duration(seconds: 3), () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (builder) =>
@@ -625,9 +630,8 @@ class _EventDetailsState extends State<EventDetails> {
                                             isRetrait: false,
                                           )));
                                 });
-                              } else if ((priceItem != 0 ||
-                                      choice == "GRATUIT") &&
-                                  user.numero == "null") {
+                              } else if (
+                                  user.numero == "null" || user.numero.isEmpty) {
                                 await modalForExplain(
                                     "${ConsumeAPI.AssetPublicServer}ready_station.svg",
                                     "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
@@ -790,8 +794,15 @@ class _ViewerEventState extends State<ViewerEvent> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0.0,
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back, color: Style.white,)
+          ),
         ),
         floatingActionButton: FloatingActionButton(
+          shape: CircleBorder(),
           onPressed: () {
             setState(() {
               _controller.value.isPlaying

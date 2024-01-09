@@ -204,6 +204,7 @@ class _CreateTravelState extends State<CreateTravel> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               FloatingActionButton(
+                                shape: CircleBorder(),
                                 child: Icon(Icons.event_available,
                                     color: Colors.white),
                                 onPressed: () {
@@ -433,7 +434,14 @@ class _CreateTravelState extends State<CreateTravel> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+
         elevation: 0.0,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Style.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            }
+        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

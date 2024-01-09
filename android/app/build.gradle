@@ -47,7 +47,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
 
     configurations {
         all*.exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-plugin-annotation-v8 mapbox-android-telemetry'
@@ -60,7 +60,7 @@ android {
     defaultConfig {
         applicationId "com.shouz.app"
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         resConfigs "en", "fr"

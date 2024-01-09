@@ -29,7 +29,7 @@ const amountConfortVTCUnity = 260;
 const minMutialiseVTCPrice = 600;
 const minConfortVTCUnity = 1000;
 const serviceCall = "2250564250219";
-const versionApp = "1.0.27";
+const versionApp = "1.0.31";
 const linkAppGalleryForShouz =
     "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz =
@@ -119,7 +119,7 @@ String descriptionShouz =
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
 
-String formatedDateForLocal(DateTime date, [bool withTime = true]) {
+String formatedDateForLocal(DateTime date, {bool withTime = true}) {
   initializeDateFormatting();
   var formatDate = withTime ? DateFormat("dd/MM/yyyy' à 'HH:mm") : DateFormat("dd/MM/yyyy");
   return formatDate.format(date);

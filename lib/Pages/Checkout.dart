@@ -46,12 +46,13 @@ class _CheckoutState extends State<Checkout> {
           backgroundColor: backgroundColor,
           appBar: AppBar(
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: Icon(Icons.arrow_back, color: Style.white,),
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
               }),
-            title: Text("Rechargement Crypto"),
+            title: Text("Rechargement Crypto", style: Style.titleNews(),),
+            centerTitle: true,
             backgroundColor: backgroundColor,
             elevation: 0.0,
           ),
@@ -236,6 +237,7 @@ class _CheckoutState extends State<Checkout> {
                     ),
                     SizedBox(width: 15.0),
                     FloatingActionButton(
+                      shape: CircleBorder(),
                       backgroundColor: Colors.orange,
                       child: Icon(Icons.check,color: Colors.white),
                       onPressed: () async {
@@ -325,6 +327,7 @@ class _CheckoutState extends State<Checkout> {
                     ),
                     SizedBox(width: 15.0),
                     FloatingActionButton(
+                      shape: CircleBorder(),
                       backgroundColor: Colors.blue,
                       child: Icon(Icons.check,color: Colors.white),
                       onPressed: () async {

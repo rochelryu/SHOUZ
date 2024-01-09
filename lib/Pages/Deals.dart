@@ -104,7 +104,7 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
         }
       });
     loadProduct();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future loadProduct() async {
@@ -220,7 +220,14 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
-        title: Text(widget.categorieName),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
+        title: Text(widget.categorieName, style: Style.titleNews(),),
+        centerTitle: true,
       ),
       body: GestureDetector(
         onTap: () {
@@ -305,19 +312,22 @@ class _DealsState extends State<Deals> with SingleTickerProviderStateMixin {
                 Container(
                   decoration: BoxDecoration(color: Colors.transparent),
                   child: TabBar(
+                    dividerHeight: 0,
+                    labelColor: Style.white,
+                    unselectedLabelColor: colorSecondary,
                     controller: _controller,
-                    isScrollable: true,
-                    indicatorSize: TabBarIndicatorSize.label,
+                    padding: EdgeInsets.zero,
+                    indicatorSize: TabBarIndicatorSize.tab,
                     indicatorColor: colorText,
                     tabs: [
                       Tab(
-                        child: Text('VIP (${numberTotalVip.toString()} Article${numberTotalVip > 1 ? 's': ''})', style: TextStyle(fontSize: 12),),
+                        child: Text('VIP (${numberTotalVip.toString()})', style: TextStyle(fontSize: 12),),
                       ),
                       Tab(
-                        child: Text('Nouveautés (${numberTotalRecent.toString()} Article${numberTotalRecent > 1 ? 's': ''})', style: TextStyle(fontSize: 12),),
+                        child: Text('News (${numberTotalRecent.toString()})', style: TextStyle(fontSize: 12),),
                       ),
                       Tab(
-                        child: Text('Les plus aimés (${numberTotalPopulaire.toString()})', style: TextStyle(fontSize: 12),),
+                        child: Text('Tendances (${numberTotalPopulaire.toString()})', style: TextStyle(fontSize: 12),),
                       ),
                     ],
                   ),

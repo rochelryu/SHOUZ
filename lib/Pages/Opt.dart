@@ -63,7 +63,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         borderRadius: BorderRadius.circular(30.0),
         child: Icon(
           Icons.arrow_back,
-          color: Colors.white,
+          color: Style.white,
         ),
         onTap: () {
           Navigator.pop(context);
@@ -341,9 +341,12 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
           loadRequest = false;
         });
         if (verify['etat'] == 'found') {
+          final user = verify['user'] as User;
+          await DBProvider.db.delClient();
+          await DBProvider.db.newClient(user);
           await DBProvider.db.updateClient(beta.join(""), newClient!.ident);
-          if (newClient?.name == '' ||
-              newClient?.inscriptionIsDone == 0) {
+          if (user.name == '' ||
+              user.inscriptionIsDone == 0) {
             setLevel(3);
             Navigator.push(
                 context, ScaleRoute(widget: CreateProfil()));
@@ -415,7 +418,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
   loadInfo() async {
     final user = await DBProvider.db.getClient();
-    print(user.numero);
     setState(() {
       newClient = user;
     });

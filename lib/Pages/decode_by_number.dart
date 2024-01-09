@@ -32,10 +32,11 @@ class _DecodeByNumberState extends State<DecodeByNumber> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text(widget.title.toUpperCase()),
+        title: Text(widget.title.toUpperCase(), style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white,),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -98,26 +99,29 @@ class _DecodeByNumberState extends State<DecodeByNumber> {
                     padding: EdgeInsets.only(left: 10.0),
                     width: MediaQuery.of(context).size.width,
                     child: TypeAheadField(
-                      hideSuggestionsOnKeyboardHide: false,
-                      textFieldConfiguration: TextFieldConfiguration(
-                        //autofautofocusocus: true,
-                        keyboardType: TextInputType.number,
-                        controller: eCtrl,
-                        style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w300),
+                      controller: eCtrl,
+                      builder: (context, controller, focusNode) {
+                        return TextField(
+                          //autofautofocusocus: true,
+                          keyboardType: TextInputType.number,
+                          controller: controller,
+                          focusNode: focusNode,
+                          style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w300),
 
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          suffixIcon: scanned ? CircularProgressIndicator(value: 15, strokeWidth: 1.0,): Icon(Icons.search, color: colorText, size: 15),
-                          hintText:
-                          "Recherche par son numero",
-                          hintStyle: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.grey[500],
-                              fontSize: 13.0),
-                        ),
-                      ),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            suffixIcon: scanned ? CircularProgressIndicator(value: 15, strokeWidth: 1.0,): Icon(Icons.search, color: colorText, size: 15),
+                            hintText:
+                            "Recherche par son numero",
+                            hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey[500],
+                                fontSize: 13.0),
+                          ),
+                        );
+                      },
                       hideOnEmpty: true,
                       suggestionsCallback: (pattern) async {
                         return consumeAPI.getAllUser(pattern.length >= 8 ? pattern :'');
@@ -140,7 +144,7 @@ class _DecodeByNumberState extends State<DecodeByNumber> {
                               style: Style.priceDealsProduct()),
                         );
                       },
-                      onSuggestionSelected: (suggestion) async {
+                      onSelected: (suggestion) async {
                         final user = suggestion as Map<dynamic,dynamic>;
                         eCtrl.text = user['prefix'] + ' ' + user['numero'];
                         setState(() {

@@ -1,19 +1,14 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shouz/Constant/Style.dart';
-import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/MenuDrawler.dart';
-import 'package:shouz/Pages/share_ticket.dart';
 import 'package:shouz/Provider/AppState.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
-import 'package:ticket_widget/ticket_widget.dart';
 
 import 'Login.dart';
 
@@ -72,7 +67,7 @@ class _ResultBuyEventState extends State<ResultBuyEvent> {
           onPressed: () {
             Navigator.of(context).pushNamedAndRemoveUntil(MenuDrawler.rootName, (Route<dynamic> route) => false);
           },
-          icon: Icon(Icons.close),
+          icon: Icon(Icons.close, color: Style.white,),
         ),
       ),
       body: body(isFinishLoad),
