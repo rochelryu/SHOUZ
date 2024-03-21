@@ -17,7 +17,7 @@ import '../Utils/shared_pref_function.dart';
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
   static final BASE_URL =
-      "https://app.shouz.network"; //http://192.168.1.180:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "http://192.168.1.33:5002"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final SET_EMPTY_URL = BASE_URL + "/client/createEmptyClient";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
@@ -206,7 +206,9 @@ class ConsumeAPI {
   }
 
   createUserToAvoidInfo() async {
+    print("createUserToAvoidInfo");
     return _netUtil.post(SET_EMPTY_URL, body: {}).then((dynamic res) async {
+      print(res);
       await saveAnonymousUser(res["result"]);
       return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
     });
@@ -820,6 +822,7 @@ class ConsumeAPI {
 
   Future<List<dynamic>> getCategoriesAndNumbersItemsDeals() async {
     User newClient = await DBProvider.db.getClient();
+    print('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
     final res =
         await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
     return res;
@@ -1659,6 +1662,7 @@ class ConsumeAPI {
 
   Future<List<dynamic>> getAllEventByClient(String search) async {
     User newClient = await DBProvider.db.getClient();
+    print('$GET_FILTER_ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
     final res = await _netUtil.get(
         '$GET_FILTER_ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
     List<dynamic> allEvent = res.map((c) => Event.fromJson(c)).toList();
@@ -1690,6 +1694,7 @@ class ConsumeAPI {
       'frequence': frequence.toString().split('.')[1],
       'displayResult': displayResult.toString(),
     };
+    print(body);
     final headers = {
       'Authorization':
           'Shouz-app-mobile ${newClient.recovery} ${newClient.ident}'

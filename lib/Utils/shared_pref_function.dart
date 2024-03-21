@@ -24,7 +24,7 @@ getVoteIdToShared() async {
 
 getAnonymousUser() async {
   final prefs = await SharedPreferences.getInstance();
-  String data = await prefs.getString('anonymousUser') ?? '';
+  String data = await prefs.getString('anonymousUser') ?? '{}';
   return jsonDecode(data);
 }
 
@@ -99,4 +99,9 @@ verifyAndCreateIfNoteExisteVoteByIdToShared(String voteId, String categorieId, S
   }
   return  toCreate || found;
   //return
+}
+
+clearSharedPrefAllStorage() async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.clear();
 }

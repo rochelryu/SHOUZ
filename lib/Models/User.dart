@@ -59,8 +59,8 @@ class User {
         ident = json["_id"],
         position = json["position"] ?? '',
         pin = json["pin"] ?? '',
-        numero = json["numero"],
-        prefix = json["prefix"],
+        numero = json["numero"] ?? 'null',
+        prefix = json["prefix"]?? '+225',
         images = json["images"] ?? '',
         lagitude = (json["positionRecently"] != null)
             ? json["positionRecently"]["latitude"]
@@ -71,7 +71,7 @@ class User {
         hobiesActualite = json["hobiesActualite"] ?? [],
         hobiesDeals = json["hobiesDeals"] ?? [],
         recovery = json["recovery"],
-        currencies = json["currencies"],
+        currencies = json["currencies"] ?? 'XOF',
         isActivateForBuyTravel = json["isActivateForBuyTravel"],
         wallet = double.parse(json["wallet"].toString()),
         inscriptionIsDone = json["inscriptionIsDone"] ? 1 : 0,

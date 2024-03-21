@@ -36,7 +36,7 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
     _animation = CurvedAnimation(
         parent: _controller, curve: Curves.easeIn
     );
-
+    print(widget.voteItem);
     setState(() {
       voteItem = widget.voteItem;
     });

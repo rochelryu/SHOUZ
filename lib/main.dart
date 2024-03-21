@@ -11,6 +11,7 @@ import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 import 'Utils/Database.dart';
 import 'Utils/network_util.dart';
+import 'Utils/shared_pref_function.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -285,12 +286,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Future getNewLevel() async {
     try {
+
       int levelLocal = await getLevel();
       setState(() {
         level = levelLocal;
       });
-      User user = await DBProvider.db.getClient();
-      if(user.ident != 'ident') {
+      User? user = await DBProvider.db.getClient();
+      if(user != null && user.ident != 'ident') {
         await getTokenForNotificationProvider(true);
       }
       prefs = await SharedPreferences.getInstance();

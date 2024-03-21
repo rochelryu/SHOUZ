@@ -90,8 +90,13 @@ class DBProvider {
     if(list.isNotEmpty) {
       return list.last;
     }
-    final anonymousUser = await getAnonymousUser();
-    return User.fromJson(anonymousUser);
+    final anonymousUser = await getAnonymousUser() as Map;
+    if(anonymousUser.isNotEmpty) {
+      print("Is Not empty");
+      return User.fromJson(anonymousUser);
+    }
+    return null;
+
   }
 
   getProfil() async {

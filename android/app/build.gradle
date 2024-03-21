@@ -111,7 +111,7 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation platform('com.google.firebase:firebase-bom:29.3.1')
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.huawei.hms:location:6.0.0.302'
     implementation "com.google.android.material:material:1.7.0-alpha01"

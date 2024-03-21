@@ -370,8 +370,8 @@ class _StatsEventState extends State<StatsEvent> {
     );
   }
 
-  List<ChartSeries> lineChartArray() {
-    List<ChartSeries> data = [];
+  List<CartesianSeries> lineChartArray() {
+    List<CartesianSeries> data = [];
     for(int index = 0; index < itemTypeTicketForFrequence.length; index++) {
       data.add(LineSeries<ChartDataLine, DateTime>(
           animationDuration: 2500,

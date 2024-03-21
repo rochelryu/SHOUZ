@@ -43,8 +43,8 @@ class AppState with ChangeNotifier {
         IO.OptionBuilder().setTransports(['websocket']).build());
 
     _socket!.onConnect((data) async {
-      final User getClient = await DBProvider.db.getClient();
-      if (getClient.numero != "null") {
+      final User? getClient = await DBProvider.db.getClient();
+      if (getClient != null && getClient.numero != "null") {
         this.setJoinConnected(getClient.ident);
       }
     });
