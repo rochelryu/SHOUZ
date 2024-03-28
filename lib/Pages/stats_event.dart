@@ -42,28 +42,31 @@ class _StatsEventState extends State<StatsEvent> {
       final data = await consumeAPI.getStatsOfEvent(widget.eventId);
       if(data['etat'] == "found") {
         final frequenceBuyTicketWithFilter = data['result']['frequenceBuyTicketWithFilter'] as List<dynamic>;
-        if(frequenceBuyTicketWithFilter.length > 0) {
-          setState(() {
-            for(int index = 0; index < data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'].length; index++) {
-              final pieElementData = data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'][index];
-              pieSeriesData.add(PieSeriesData(pieElementData['title'], pieElementData['value'], colorsForStats[index == 0 ? colorsForStats.length -1: index - 1]));
-            }
-            tableDataStats = data['result']['listAllBuyer'].map((value) {
-              return TableDataStats(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['placeTotal'], value['registerDate']);
-            }).toList();
-            tableDataStatsForRemoved = data['result']['listAllRemover'].map((value) {
-              return TableDataStatsForRemoved(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['commission'], value['registerDate']);
-            }).toList();
-            registerDateOfEvent = DateTime.parse(data['result']['registerDate']);
-            eventExpireDate = DateTime.parse(data['result']['eventExpireDate']);
-            totalTicketBuy = data['result']['totalTicketBuy'];
-            cumulGain = data['result']['cumulGain'];
-            allPrices = data['result']['price'];
-            totalTicketDecode = data['result']['totalTicketDecode'];
+
+
+
+        setState(() {
+          for(int index = 0; index < data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'].length; index++) {
+            final pieElementData = data['result']['globalTicketBuyByTypeTicketPreceptFromTotalTicketRest'][index];
+            pieSeriesData.add(PieSeriesData(pieElementData['title'], pieElementData['value'], colorsForStats[index == 0 ? colorsForStats.length -1: index - 1]));
+          }
+          tableDataStats = data['result']['listAllBuyer'].map((value) {
+            return TableDataStats(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['placeTotal'], value['registerDate']);
+          }).toList();
+          tableDataStatsForRemoved = data['result']['listAllRemover'].map((value) {
+            return TableDataStatsForRemoved(value['client'][0]['name'], value['client'][0]['images'], value['typeTicket'], value['priceTicket'], value['commission'], value['registerDate']);
+          }).toList();
+          registerDateOfEvent = DateTime.parse(data['result']['registerDate']);
+          eventExpireDate = DateTime.parse(data['result']['eventExpireDate']);
+          totalTicketBuy = data['result']['totalTicketBuy'];
+          cumulGain = data['result']['cumulGain'];
+          allPrices = data['result']['price'];
+          totalTicketDecode = data['result']['totalTicketDecode'];
+          if(frequenceBuyTicketWithFilter.length > 0) {
             itemTypeTicketForFrequence = frequenceBuyTicketWithFilter[0]['data'];
             chartDataLines = frequenceBuyTicketWithFilter.map((item) => ChartDataLine(item['date'], item['data'])).toList();
-          });
-        }
+          }
+        });
         setState(() {
           error = false;
           isLoading = false;

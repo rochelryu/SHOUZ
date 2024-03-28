@@ -11,7 +11,6 @@ import 'Constant/helper.dart';
 import 'Provider/AppState.dart';
 import 'Utils/Database.dart';
 import 'Utils/network_util.dart';
-import 'Utils/shared_pref_function.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +47,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     createShouzNotification(
         message.data['titreNotif'].toString().trim(), body, data);
+  } else {
+    createShouzNotification(
+        message.notification!.title!, message.notification!.body!, {});
   }
 }
 
@@ -75,9 +77,6 @@ void main() async {
         defaultRingtoneType: DefaultRingtoneType.Ringtone,
         vibrationPattern: lowVibrationPattern),
   ]);
-  Intl.defaultLocale = 'fr_FR';
-  initializeDateFormatting();
-
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -88,10 +87,17 @@ void main() async {
 
   await _messaging.requestPermission(
     alert: true,
+    announcement: false,
     badge: true,
+    carPlay: false,
+    criticalAlert: false,
     provisional: false,
     sound: true,
   );
+  Intl.defaultLocale = 'fr_FR';
+  initializeDateFormatting();
+
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,

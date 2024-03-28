@@ -34,7 +34,7 @@ class EventDetails extends StatefulWidget {
   var id;
   var positionRecently;
   var numberTicket;
-  var enventDate;
+  var eventDate;
   var authorName;
   var describe;
   var position;
@@ -58,7 +58,7 @@ class EventDetails extends StatefulWidget {
       this.id,
       this.numberTicket,
       this.position,
-      this.enventDate,
+      this.eventDate,
       this.title,
       this.positionRecently,
       this.videoPub,
@@ -120,8 +120,9 @@ class _EventDetailsState extends State<EventDetails> {
     favorite = widget.favorite;
     state = widget.stateEvent;
     placeTotal = widget.numberTicket;
-    eventDate = DateTime.parse(widget.enventDate);
+    eventDate = DateTime.parse(widget.eventDate);
     final newDate = eventDate.difference(DateTime.now());
+    print("Tolerence time is $MAX_SECONDS_TOLERANCE_TO_SHARE_TICKET and Time Actual is ${newDate.inSeconds}");
     setState(() {
       eventDateAlreadySkiped = newDate.inSeconds;
     });
@@ -298,13 +299,13 @@ class _EventDetailsState extends State<EventDetails> {
                       children: <Widget>[
                         Text('Date', style: Style.sousTitre(15)),
                         Text(
-                            DateTime.parse(widget.enventDate).day.toString() +
+                            DateTime.parse(widget.eventDate).day.toString() +
                                 '/' +
-                                DateTime.parse(widget.enventDate)
+                                DateTime.parse(widget.eventDate)
                                     .month
                                     .toString() +
                                 '/' +
-                                DateTime.parse(widget.enventDate)
+                                DateTime.parse(widget.eventDate)
                                     .year
                                     .toString(),
                             style: Style.titre(18))
@@ -316,9 +317,9 @@ class _EventDetailsState extends State<EventDetails> {
                       children: <Widget>[
                         Text('Heure', style: Style.sousTitre(15)),
                         Text(
-                            DateTime.parse(widget.enventDate).hour.toString() +
+                            DateTime.parse(widget.eventDate).hour.toString() +
                                 ':' +
-                                DateTime.parse(widget.enventDate)
+                                DateTime.parse(widget.eventDate)
                                     .minute
                                     .toString(),
                             style: Style.titre(20))
@@ -575,7 +576,7 @@ class _EventDetailsState extends State<EventDetails> {
                     ),
                   ],
                 )),
-          if (choice != "")
+          if (choice != "" || widget.isMeAuthor)
             Container(
               margin: EdgeInsets.all(10),
               height: 60,
@@ -597,7 +598,7 @@ class _EventDetailsState extends State<EventDetails> {
                         if (state < 3 &&
                             state > 0 &&
                             widget.numberTicket > 0 &&
-                            eventDateAlreadySkiped > 0)
+                            eventDateAlreadySkiped > - MAX_SECONDS_TOLERANCE_TO_SHARE_TICKET)
                           ElevatedButton(
                             style: raisedButtonStyle,
                             child: Text("Acheter maintenant", style: Style.titre(14)),
@@ -770,11 +771,12 @@ class _ViewerEventState extends State<ViewerEvent> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(
-        "${ConsumeAPI.AssetEventServer}${widget.videoUrl}");
+    _controller = VideoPlayerController.networkUrl(
+        Uri.parse("${ConsumeAPI.AssetEventServer}${widget.videoUrl}"));
 
     _controller.setLooping(true);
     _controller.setVolume(1.0);
+
     setState(() {
       _initialiseVideoFlutter = _controller.initialize();
     });

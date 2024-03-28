@@ -110,7 +110,7 @@ class _ShareTicketState extends State<ShareTicket> {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText:
-                                "Architecture, Sport, Imobilier, Coupé décalé, Forum",
+                                "XXXXXXXX",
                                 hintStyle: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     color: Colors.grey[500],
@@ -230,53 +230,59 @@ class _ShareTicketState extends State<ShareTicket> {
                       child: LoadingIndicator(indicatorType: Indicator.ballRotate,colors: [colorText], strokeWidth: 2),
                     ) : ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            loadingForCliqueSendTicket = true;
-                          });
-                          if(friend != null && place != 0) {
-                            final shareTicket = await consumeAPI.shareEventTicket(widget.ticketId, place, friend!['numero'], friend!['prefix']);
-                            if(shareTicket['etat'] == 'found') {
-                              if(shareTicket['result']['placeTotal']> 0) {
-                                await askedToLead(
-                                    "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}, il vous reste encore ${shareTicket['result']['placeTotal'].toString()}",
-                                    true, context);
-                                setState(() {
-                                  place = 0;
-                                  friend = null;
-                                });
-                              } else {
-                                await askedToLead(
-                                    "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}.",
-                                    true, context);
-                                setState(() {
-                                  place = 0;
-                                  friend = null;
-                                });
-                                Timer(Duration(seconds: 3), () {
-                                  Navigator.pushNamed(context, MenuDrawler.rootName);
-                                });
-                              }
+                          try{
+                            setState(() {
+                              loadingForCliqueSendTicket = true;
+                            });
+                            if(friend != null && place != 0) {
+                              final shareTicket = await consumeAPI.shareEventTicket(widget.ticketId, place, friend!['numero'], friend!['prefix']);
+                              if(shareTicket['etat'] == 'found') {
+                                if(shareTicket['result']['placeTotal']> 0) {
+                                  await askedToLead(
+                                      "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}, il vous reste encore ${shareTicket['result']['placeTotal'].toString()}",
+                                      true, context);
+                                  setState(() {
+                                    place = 0;
+                                    friend = null;
+                                  });
+                                } else {
+                                  await askedToLead(
+                                      "Vous avez envoyer un ticket de $place place(s) à ${friend!['name']}.",
+                                      true, context);
+                                  setState(() {
+                                    place = 0;
+                                    friend = null;
+                                  });
+                                  Timer(Duration(seconds: 3), () {
+                                    Navigator.pushNamed(context, MenuDrawler.rootName);
+                                  });
+                                }
 
+                              }
+                              else {
+                                await askedToLead(shareTicket['error'], false, context);
+                              }
+                            } else if (friend != null && place == 0) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      dialogCustomError('Rien Partagé', "Vous n'avez pas renseigné le nombre de ticket que vous voulez envoyer à ${friend!['name']}", context),
+                                  barrierDismissible: false);
+                            }else {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      dialogCustomError('Aucun correspondant', "Vous n'avez pas renseigné de correspondant", context),
+                                  barrierDismissible: false);
                             }
-                            else {
-                              await askedToLead(shareTicket['error'], false, context);
-                            }
-                          } else if (friend != null && place == 0) {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    dialogCustomError('Rien Partagé', "Vous n'avez pas renseigné le nombre de ticket que vous voulez envoyer à ${friend!['name']}", context),
-                                barrierDismissible: false);
-                          }else {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    dialogCustomError('Aucun correspondant', "Vous n'avez pas renseigné de correspondant", context),
-                                barrierDismissible: false);
+                            setState(() {
+                              loadingForCliqueSendTicket = false;
+                            });
+                          } catch(e) {
+                            setState(() {
+                              loadingForCliqueSendTicket = false;
+                            });
                           }
-                          setState(() {
-                            loadingForCliqueSendTicket = false;
-                          });
                         },
                         child: Text('ENVOYER'),
                       style: raisedButtonStyle,

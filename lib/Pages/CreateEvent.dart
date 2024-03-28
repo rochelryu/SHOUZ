@@ -883,11 +883,13 @@ class _CreateEventState extends State<CreateEvent> {
                               },
                               avatar: CircleAvatar(
                                   backgroundColor: colorText,
-                                  child: Text(
-                                      allCategorie[index]
-                                          .substring(0, 1)
-                                          .toUpperCase(),
-                                      style: TextStyle(color: Colors.white))),
+                                  child: Center(
+                                    child: Text(
+                                        allCategorie[index]
+                                            .substring(0, 1)
+                                            .toUpperCase(),
+                                        style: Style.simpleTextOnBoard(14, Style.white)),
+                                  )),
                               label: Text(allCategorie[index]),
                               backgroundColor: Colors.white,
                             );

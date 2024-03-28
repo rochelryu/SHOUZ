@@ -488,7 +488,7 @@ class _CreateTravelState extends State<CreateTravel> {
         lieuRencontre.length > 3 &&
         dateChoice != null &&
         endCity.length > 2 &&
-        price.length > 3) {
+        price.length >= 3) {
       final travel = await consumeAPI.setTravel(beginCity, lieuRencontre, dateChoice.toString(), endCity, price);
       setState(() => _isLoading = false);
       if (travel['etat'] == 'found') {

@@ -495,11 +495,11 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                             tabs: [
                               Tab(
                                 text:
-                                    'Mes Produits (${infoUser['myDeals'].length})',
+                                'Mes Favories (${infoUser['favoriteDeals'].length})',
                               ),
                               Tab(
                                 text:
-                                    'Mes Favories (${infoUser['favoriteDeals'].length})',
+                                    'Mes Produits (${infoUser['myDeals'].length})',
                               ),
                             ],
                           ),
@@ -508,6 +508,70 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                           child: TabBarView(
                             controller: _controllerDeals,
                             children: <Widget>[
+                              GridView.builder(
+                                  padding: EdgeInsets.all(0),
+                                  gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2),
+                                  itemCount: infoUser['favoriteDeals'].length,
+                                  itemBuilder: (context, index) {
+                                    final item =
+                                    infoUser['favoriteDeals'][index];
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                            (MaterialPageRoute(
+                                                builder: (context) {
+                                                  DealsSkeletonData element =
+                                                  DealsSkeletonData(
+                                                      comments: item['comments'],
+                                                      numberVue: item['numberVue'],
+                                                      video: item['video'],
+                                                      quantity: item['quantity'],
+                                                      archive: item['archive'],
+                                                      level: item['level'],
+                                                      numberFavorite:
+                                                      item['numberFavorite'],
+                                                      lieu: item['lieu'],
+                                                      id: item['_id'],
+                                                      registerDate:
+                                                      item['registerDate'],
+                                                      profil: item['profil'],
+                                                      imageUrl: item['images'],
+                                                      title: item['name'],
+                                                      price:
+                                                      item['price'].toString() +
+                                                          ' XOF',
+                                                      autor: item['author'],
+                                                      numero: item['numero'],
+                                                      describe: item['describe'],
+                                                      onLine: item['onLine'],
+                                                      authorName:
+                                                      item['authorName'],
+                                                      categorieName:
+                                                      item['categorieName'],
+                                                      approved: item['approved']);
+                                                  return DetailsDeals(
+                                                      dealsDetailsSkeleton: element,
+                                                      comeBack: 0);
+                                                })));
+                                      },
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                        "${ConsumeAPI.AssetProductServer}${item['images'][0]}",
+                                        progressIndicatorBuilder: (context, url,
+                                            downloadProgress) =>
+                                            Center(
+                                                child:
+                                                CircularProgressIndicator(
+                                                    value: downloadProgress
+                                                        .progress)),
+                                        errorWidget: (context, url, error) =>
+                                            notSignal(),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  }),
                               GridView.builder(
                                 padding: EdgeInsets.all(0),
                                   gridDelegate:
@@ -571,70 +635,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                       ),
                                     );
                                   }),
-                              GridView.builder(
-                                  padding: EdgeInsets.all(0),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2),
-                                  itemCount: infoUser['favoriteDeals'].length,
-                                  itemBuilder: (context, index) {
-                                    final item =
-                                        infoUser['favoriteDeals'][index];
-                                    return InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                            (MaterialPageRoute(
-                                                builder: (context) {
-                                          DealsSkeletonData element =
-                                              DealsSkeletonData(
-                                                  comments: item['comments'],
-                                                  numberVue: item['numberVue'],
-                                                  video: item['video'],
-                                                  quantity: item['quantity'],
-                                                  archive: item['archive'],
-                                                  level: item['level'],
-                                                  numberFavorite:
-                                                      item['numberFavorite'],
-                                                  lieu: item['lieu'],
-                                                  id: item['_id'],
-                                                  registerDate:
-                                                      item['registerDate'],
-                                                  profil: item['profil'],
-                                                  imageUrl: item['images'],
-                                                  title: item['name'],
-                                                  price:
-                                                      item['price'].toString() +
-                                                          ' XOF',
-                                                  autor: item['author'],
-                                                  numero: item['numero'],
-                                                  describe: item['describe'],
-                                                  onLine: item['onLine'],
-                                                  authorName:
-                                                      item['authorName'],
-                                                  categorieName:
-                                                      item['categorieName'],
-                                                  approved: item['approved']);
-                                          return DetailsDeals(
-                                              dealsDetailsSkeleton: element,
-                                              comeBack: 0);
-                                        })));
-                                      },
-                                      child: CachedNetworkImage(
-                                        imageUrl:
-                                            "${ConsumeAPI.AssetProductServer}${item['images'][0]}",
-                                        progressIndicatorBuilder: (context, url,
-                                                downloadProgress) =>
-                                            Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        value: downloadProgress
-                                                            .progress)),
-                                        errorWidget: (context, url, error) =>
-                                            notSignal(),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  }),
+
                             ],
                           ),
                         )
@@ -710,7 +711,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                                       item['_id'],
                                                       item['numberTicket'],
                                                       item['position'],
-                                                      item['enventDate'],
+                                                      item['eventDate'],
                                                       item['title'],
                                                       item['positionRecently'],
                                                       item['videoPub'],
@@ -852,7 +853,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                                       infoUser['favoriteEvents']
                                                           [index]['position'],
                                                       infoUser['favoriteEvents']
-                                                          [index]['enventDate'],
+                                                          [index]['eventDate'],
                                                       infoUser['favoriteEvents']
                                                           [index]['title'],
                                                       infoUser['favoriteEvents']

@@ -37,7 +37,7 @@ class EventItem extends StatelessWidget {
               infoEvent
               ['position'],
               infoEvent
-              ['enventDate'],
+              ['eventDate'],
               infoEvent
               ['title'],
               infoEvent
@@ -149,25 +149,25 @@ class EventItem extends StatelessWidget {
                                 color: Colors.white,
                                 size: 22.0),
                             Text(DateTime.parse(infoEvent
-                            ['enventDate']).day.toString() +
+                            ['eventDate']).day.toString() +
                                 '/' +
                                 DateTime.parse(infoEvent
-                                ['enventDate'])
+                                ['eventDate'])
                                     .month
                                     .toString() +
                                 '/' +
                                 DateTime.parse(infoEvent
-                                ['enventDate'])
+                                ['eventDate'])
                                     .year
                                     .toString()+
                                 ' à ' +
                                 DateTime.parse(infoEvent
-                                ['enventDate'])
+                                ['eventDate'])
                                     .hour
                                     .toString() +
                                 'h:' +
                                 DateTime.parse(infoEvent
-                                ['enventDate'])
+                                ['eventDate'])
                                     .minute
                                     .toString(),
                                 style: Style

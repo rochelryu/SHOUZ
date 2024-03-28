@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:badges/badges.dart' as badges;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,6 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:record/record.dart';
 import 'package:shouz/Constant/widget_common.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'LoadHide.dart';
 import 'choice_method_payement.dart';
 
@@ -394,6 +396,19 @@ class _ChatDetailsState extends State<ChatDetails>
                     ),
                     style: raisedButtonStyleError,
                   ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await launchUrl(
+                          Uri.parse(
+                              "https://wa.me/$serviceCall?text=Salut je veux acheter un atricle dans votre application mais je ne sais pas comment le faire. #aideAchat"),
+                          mode: LaunchMode.externalApplication);
+                    },
+                    child: Text(
+                      "Besoin d'aide ?",
+                      style: Style.sousTitreEvent(15),
+                    ),
+                    style: raisedButtonStyle,
+                  ),
                 ],
               ),
             );
@@ -637,8 +652,7 @@ class _ChatDetailsState extends State<ChatDetails>
         conversation['levelDelivery'] < 7 &&
         room != '' &&
         room.split('_')[1] == widget.newClient.ident) {
-      tabs.add(Container(
-        height: 140,
+      tabs.add(SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -648,7 +662,7 @@ class _ChatDetailsState extends State<ChatDetails>
               style: Style.titleNews(),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 appState.relanceDeals(
@@ -702,53 +716,49 @@ class _ChatDetailsState extends State<ChatDetails>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Prix Total Proposé', style: Style.chatIsMe(13)),
-                  Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 60,
-                        width: double.infinity,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Card(
-                                color: Colors.transparent,
-                                elevation: 2.0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50.0)),
-                                child: Container(
-                                  height: 50,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.25,
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                      color: backgroundColorSec,
-                                      border: Border.all(
-                                          width: 1.0, color: colorText),
-                                      borderRadius:
-                                          BorderRadius.circular(50.0)),
-                                  child: TextField(
-                                    controller: priceCtrl,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w300),
-                                    cursorColor: colorText,
-                                    onChanged: (text) {
-                                      setState(() {
-                                        price = text.toString();
-                                      });
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Prix vente",
-                                        hintStyle: TextStyle(
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                ),
-                              ),
-                            ]),
-                      )),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Card(
+                          color: Colors.transparent,
+                          elevation: 2.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50.0)),
+                          child: Container(
+                            height: 50,
+                            width:
+                                MediaQuery.of(context).size.width * 0.3,
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                            decoration: BoxDecoration(
+                                color: backgroundColorSec,
+                                border: Border.all(
+                                    width: 1.0, color: colorText),
+                                borderRadius:
+                                    BorderRadius.circular(50.0)),
+                            child: TextField(
+                              textAlign: TextAlign.start,
+                              controller: priceCtrl,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w300),
+                              cursorColor: colorText,
+                              onChanged: (text) {
+                                setState(() {
+                                  price = text.toString();
+                                });
+                              },
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none,
+                                  hintText: "Prix vente",
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  )),
+                            ),
+                          ),
+                        ),
+                      ]),
                 ],
               ),
             ),
@@ -757,51 +767,45 @@ class _ChatDetailsState extends State<ChatDetails>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('Qte Proposée', style: Style.chatIsMe(13)),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                      height: 60,
-                      width: double.infinity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Card(
-                            color: Colors.transparent,
-                            elevation: 2.0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50.0)),
-                            child: Container(
-                              height: 50,
-                              width: MediaQuery.of(context).size.width * 0.25,
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                  color: backgroundColorSec,
-                                  border:
-                                      Border.all(width: 1.0, color: colorText),
-                                  borderRadius: BorderRadius.circular(50.0)),
-                              child: TextField(
-                                controller: quantityCtrl,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w300),
-                                cursorColor: colorText,
-                                onChanged: (text) {
-                                  setState(() {
-                                    quantity = text.toString();
-                                  });
-                                },
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Quantité",
-                                    hintStyle: TextStyle(
-                                      color: Colors.white,
-                                    )),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Card(
+                      color: Colors.transparent,
+                      elevation: 2.0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50.0)),
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                            color: backgroundColorSec,
+                            border:
+                                Border.all(width: 1.0, color: colorText),
+                            borderRadius: BorderRadius.circular(50.0)),
+                        child: TextField(
+                          controller: quantityCtrl,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300),
+                          cursorColor: colorText,
+                          onChanged: (text) {
+                            setState(() {
+                              quantity = text.toString();
+                            });
+                          },
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Quantité",
+                              hintStyle: TextStyle(
+                                color: Colors.white,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ))
@@ -809,7 +813,7 @@ class _ChatDetailsState extends State<ChatDetails>
         );
       } else {
         return Center(
-          child: Text('Pas encore de proposition faites pour le vendeur',
+          child: Text('Pas encore de proposition faites par le vendeur', textAlign: TextAlign.center,
               style: Style.chatIsMe(15)),
         );
       }
@@ -917,7 +921,7 @@ class _ChatDetailsState extends State<ChatDetails>
                 style: TextStyle(color: Colors.white),
               ),
               child: IconButton(
-                icon: Icon(Icons.shopping_cart_outlined),
+                icon: Icon(Icons.shopping_cart_outlined, color: Style.white,),
                 onPressed: () {
                   scaffoldKey.currentState?.openEndDrawer();
                 },
@@ -1399,7 +1403,7 @@ class _ChatDetailsState extends State<ChatDetails>
                         ),
                         Container(
                           width: double.infinity,
-                          height: 20,
+                          height: 30,
                           child: TabBar(
                             controller: _tabController,
                             unselectedLabelColor: Color(0xdd3c5b6d),
@@ -1723,7 +1727,21 @@ class _ChatDetailsState extends State<ChatDetails>
               textAlign: TextAlign.center,
             ),
             style: raisedButtonStyleError,
-          )
+          ),
+          SizedBox(height: 35),
+          ElevatedButton(
+            onPressed: () async {
+              await launchUrl(
+                  Uri.parse(
+                      "https://wa.me/$serviceCall?text=Salut je veux acheter un atricle dans votre application mais je ne sais pas comment le faire. #aideAchat"),
+                  mode: LaunchMode.externalApplication);
+            },
+            child: Text(
+              "Besoin d'aide ?",
+              style: Style.sousTitreEvent(15),
+            ),
+            style: raisedButtonStyle,
+          ),
         ];
       }
     } else {

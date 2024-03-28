@@ -3,6 +3,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/User.dart';
 //import 'package:shouz/Pages/Covoiturage.dart';
@@ -21,6 +22,7 @@ import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
 import 'Constant/my_flutter_app_second_icons.dart';
+import 'Pages/Covoiturage.dart';
 import 'Pages/all_categorie_deals_choice.dart';
 import 'Pages/choice_other_hobie_second.dart';
 import 'Pages/not_available.dart';
@@ -53,10 +55,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
       key: UniqueKey(),
     ),
     EventInter(),
-    //Covoiturage()
-    NotAvailable(
-      key: UniqueKey(),
-    ),
+    Covoiturage(),
+    // NotAvailable(
+    //   key: UniqueKey(),
+    // ),
   ];
   List<String> titleDomain = [
     'Actualité',
@@ -82,38 +84,24 @@ class _MenuDrawlerState extends State<MenuDrawler>
   }
 
   loadInfo() async {
-    User user = await DBProvider.db.getClient();
-    setState(() {
-      newClient = user;
-      id = newClient!.ident;
-    });
-    if (user.tokenNotification == "ONE_SIGNAL" || user.tokenNotification == "") {
-      try {
-        await getTokenForNotificationProvider(true);
-      } catch (e) {
-        print("Token  non mis à jour au backend");
-      }
-    }
-    if (user.numero == '' || user.numero == 'null') {
-      setState(() {
-        logged = -1;
-      });
-
-
-      // if (user.inscriptionIsDone == 0) {
-      //   setState(() {
-      //     logged = -1;
-      //   });
-      //   await modalForExplain(
-      //       "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-      //       "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
-      //       context,
-      //       true);
-      //   Navigator.pushNamed(context, Login.rootName);
-      // }
-    }
-
     try {
+      User user = await DBProvider.db.getClient();
+      setState(() {
+        newClient = user;
+        id = newClient!.ident;
+      });
+      if (user.tokenNotification == "ONE_SIGNAL" || user.tokenNotification == "") {
+        try {
+          await getTokenForNotificationProvider(true);
+        } catch (e) {
+          print("Token  non mis à jour au backend");
+        }
+      }
+      if (user.numero == '' || user.numero == 'null') {
+        setState(() {
+          logged = -1;
+        });
+      }
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
         if (Platform.isAndroid) {
@@ -177,7 +165,25 @@ class _MenuDrawlerState extends State<MenuDrawler>
           }
         }
       }
-    } catch (e) {}
+
+    } catch (e) {
+      print("Erreur de get vervion");
+      if(e.toString().contains('User')) {
+        logout();
+      }
+      print(e.toString());
+
+    }
+  }
+
+  Future logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await DBProvider.db.delProfil();
+    final result = await consumeAPI.createUserToAvoidInfo();
+    await DBProvider.db.delClient();
+    await DBProvider.db.newClient(result["user"]);
+    await loadInfo();
   }
 
   @override

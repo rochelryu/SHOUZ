@@ -22,6 +22,7 @@ import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 ConsumeAPI consumeAPI = new ConsumeAPI();
 
 const maxAmountOnAccount = 5000000;
+const MAX_SECONDS_TOLERANCE_TO_SHARE_TICKET = 7200;
 const maxAmountOfTransaction = 1000000;
 const minAmountOfTransaction = 1000;
 const amountMutialiseVTCUnity = 220;

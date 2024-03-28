@@ -28,7 +28,6 @@ import '../Pages/wallet_page.dart';
 
 final routes = {
   Login.rootName: (context) => Login(),
-  Otp.rootName: (context) => Otp(key: UniqueKey()),
   CreateProfil.rootName: (context) => CreateProfil(),
   MenuDrawler.rootName: (context) => MenuDrawler(),
   ChoiceHobie.rootName: (context) => ChoiceHobie(),

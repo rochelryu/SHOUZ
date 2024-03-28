@@ -824,7 +824,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                 Expanded(child: mapbox_gl.MapboxMap(
                   initialCameraPosition: _initialCameraPosition,
                   onMapCreated: _onMapCreated,
-                  styleString: 'mapbox://styles/rochelryu/ckkzo8rz23s6p17mpelgd4kzk',
+                  styleString: 'mapbox://styles/rochelryu/ckj3rq4ykbukh19rpata2eez3',
                   accessToken: "pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
                   //onStyleLoadedCallback: _onStyleLoadedCallback,
                   myLocationEnabled: true,
@@ -985,6 +985,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                                   });
                                   if(origine.length > 4) {
                                     final itemOriginServer = await consumeAPI.getAutoComplete(origine);
+                                    print(itemOriginServer);
                                     setState(() {
                                       originItems = itemOriginServer;
                                     });
@@ -1145,14 +1146,14 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               setState(() {
                                 firstItemOpen = false;
                               });
-                              eCtrl.text = originItems[index]['title'].trim();
-                              originChoice = [originItems[index+1]['longitude'], originItems[index+1]['latitude']];
+                              eCtrl.text = originItems[index-1]['title'].trim();
+                              originChoice = [originItems[index-1]['longitude'], originItems[index-1]['latitude']];
                               FocusScope.of(context).requestFocus(FocusNode());
                               controller.animateCamera(
-                                  mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']), zoom: 15)));
+                                  mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(originItems[index-1]['latitude'], originItems[index-1]['longitude']), zoom: 15)));
                               controller.addSymbol(
                                 mapbox_gl.SymbolOptions(
-                                  geometry: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']),
+                                  geometry: mapbox_gl.LatLng(originItems[index-1]['latitude'], originItems[index-1]['longitude']),
                                   iconImage: "images/marqueur_begin.png",
                                   iconSize: 0.3,
 
@@ -1161,8 +1162,8 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               //await _addSourceAndLineLayer();
                             },
                             leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
-                            title: Text(originItems[index+1]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
-                            subtitle: Text(originItems[index+1]['info'].trim(), style: Style.simpleTextOnBoard(12)),
+                            title: Text(originItems[index-1]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
+                            subtitle: Text(originItems[index-1]['info'].trim(), style: Style.simpleTextOnBoard(12)),
                           );
                         }
                       }

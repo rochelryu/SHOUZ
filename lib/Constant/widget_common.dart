@@ -440,17 +440,17 @@ Widget detailTicket(String idTicket, String idEvent, String nameImage, int place
     child:TicketWidget(
         padding: EdgeInsets.all(10.0),
         width: MediaQuery.of(context).size.width * 0.75,
-        height: MediaQuery.of(context).size.height * 0.6,
+        height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
+            if(timesDecode.isEmpty) Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => ShareTicket(key: UniqueKey(), ticketId: idEvent, placeTotal: placeTotal, typeTicket: typeTicket))));
+                        builder: (context) => ShareTicket(key: UniqueKey(), ticketId: idTicket, placeTotal: placeTotal, typeTicket: typeTicket))));
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),

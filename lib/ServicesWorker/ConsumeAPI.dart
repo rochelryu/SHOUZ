@@ -17,7 +17,7 @@ import '../Utils/shared_pref_function.dart';
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
   static final BASE_URL =
-      "http://192.168.1.33:5002"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "http://172.20.10.3:5002"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final SET_EMPTY_URL = BASE_URL + "/client/createEmptyClient";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
@@ -201,14 +201,12 @@ class ConsumeAPI {
     User newClient = await DBProvider.db.getClient();
     return _netUtil.post(SIGIN_URL,
         body: {"numero": numero, "prefix": prefix, 'ident': newClient.ident}).then((dynamic res) {
-      return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
+      return {'etat': res["etat"]};
     });
   }
 
   createUserToAvoidInfo() async {
-    print("createUserToAvoidInfo");
     return _netUtil.post(SET_EMPTY_URL, body: {}).then((dynamic res) async {
-      print(res);
       await saveAnonymousUser(res["result"]);
       return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
     });
@@ -262,12 +260,10 @@ class ConsumeAPI {
 
   Future<List<dynamic>> getAllUser(String number) async {
     if (number.length >= 8) {
-      print(number);
       User newClient = await DBProvider.db.getClient();
       final res = await _netUtil
           .get('$GET_USER_BY_FILTER_URL/${newClient.ident}?search=$number');
       List<dynamic> allUser = res['result'];
-      print(allUser);
       return allUser;
     } else {
       return [];
@@ -364,6 +360,7 @@ class ConsumeAPI {
 
   Future<Map<String, dynamic>> getStatsOfEvent(String idEvent) async {
     User newClient = await DBProvider.db.getClient();
+    print('$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
     final res = await _netUtil.get(
         '$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
     return res;
@@ -761,7 +758,6 @@ class ConsumeAPI {
   Future<Map<String, dynamic>> getActualite() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get('$GET_ACTUALITE_URL/${newClient.ident}');
-    print(res);
     return res;
   }
 
@@ -820,11 +816,12 @@ class ConsumeAPI {
     return res;
   }
 
-  Future<List<dynamic>> getCategoriesAndNumbersItemsDeals() async {
+  Future<List<dynamic>> getCategoriesAndNumbersItemsDeals({String sort = "newer"}) async {
     User newClient = await DBProvider.db.getClient();
+
     print('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
     final res =
-        await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
+        await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}?sort=$sort');
     return res;
   }
 
@@ -1115,11 +1112,13 @@ class ConsumeAPI {
     });
   }
 
-  verifyOtp(String code) async {
+  verifyOtp(String code, {required String prefix, required String numero}) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
       'code': code,
+      'prefix': prefix,
+      'numero': numero,
     };
 
     return _netUtil.post(VERIFY_OTP_URL, body: body).then((dynamic res) async {
@@ -1336,7 +1335,7 @@ class ConsumeAPI {
       String imageCover,
       String imageCoverBase64,
       String position,
-      String enventDate,
+      String eventDate,
       String eventExpireDate,
       int numberTicket,
       String prices,
@@ -1358,7 +1357,7 @@ class ConsumeAPI {
       'position': position,
       'categorie': categorie.join(','),
       'prices': prices,
-      'enventDate': enventDate,
+      'eventDate': eventDate,
       'eventExpireDate': eventExpireDate,
       'videoPub': videoPub,
       'videoPubBase64': videoPubBase64,
@@ -1662,11 +1661,9 @@ class ConsumeAPI {
 
   Future<List<dynamic>> getAllEventByClient(String search) async {
     User newClient = await DBProvider.db.getClient();
-    print('$GET_FILTER_ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
     final res = await _netUtil.get(
         '$GET_FILTER_ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
     List<dynamic> allEvent = res.map((c) => Event.fromJson(c)).toList();
-    print(allEvent);
     return allEvent;
   }
 
@@ -1694,7 +1691,6 @@ class ConsumeAPI {
       'frequence': frequence.toString().split('.')[1],
       'displayResult': displayResult.toString(),
     };
-    print(body);
     final headers = {
       'Authorization':
           'Shouz-app-mobile ${newClient.recovery} ${newClient.ident}'
@@ -1811,6 +1807,7 @@ class ConsumeAPI {
 
   Future<Map<String, dynamic>> getLatestVersionApp() async {
     User newClient = await DBProvider.db.getClient();
+    print("$GET_LATEST_VERSION_APP_URL?versionApp=$versionApp&client=${newClient.ident}");
     final res = await _netUtil.get(
         "$GET_LATEST_VERSION_APP_URL?versionApp=$versionApp&client=${newClient.ident}");
     return res;

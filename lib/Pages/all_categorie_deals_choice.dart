@@ -118,9 +118,12 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
 
                       },
                       onSubmitted: (String text) async {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        Navigator.of(context).push((MaterialPageRoute(
-                            builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                        if(text.length > 2) {
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          Navigator.of(context).push((MaterialPageRoute(
+                              builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                        }
+
                       },
                     ),
                   ),

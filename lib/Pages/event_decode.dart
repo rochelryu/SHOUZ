@@ -342,21 +342,21 @@ class _EventDecodeState extends State<EventDecode> {
                             Text(atMoment[index]['position'], style: Style.sousTitreEvent(14), maxLines: 2,),
                             SizedBox(height: 20,),
                             Text(
-                                DateTime.parse(atMoment[index]['enventDate']).day.toString() +
+                                DateTime.parse(atMoment[index]['eventDate']).day.toString() +
                                     '/' +
-                                    DateTime.parse(atMoment[index]['enventDate'])
+                                    DateTime.parse(atMoment[index]['eventDate'])
                                         .month
                                         .toString() +
                                     '/' +
-                                    DateTime.parse(atMoment[index]['enventDate'])
+                                    DateTime.parse(atMoment[index]['eventDate'])
                                         .year
                                         .toString()+
                                     ' à ' +
-                                    DateTime.parse(atMoment[index]['enventDate'])
+                                    DateTime.parse(atMoment[index]['eventDate'])
                                         .hour
                                         .toString() +
                                     'h:' +
-                                    DateTime.parse(atMoment[index]['enventDate'])
+                                    DateTime.parse(atMoment[index]['eventDate'])
                                         .minute
                                         .toString(),
                                 style: Style.simpleTextOnBoard(15)),

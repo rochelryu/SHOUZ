@@ -123,22 +123,22 @@ var pageExplicationEventList = [
       body: "Salut à vous et bienvenue dans les explications de la rubrique événement.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}surveillance.svg",
-      body: "1 - Vendez vos tickets directement dans SHOUZ, nous allons générer des tickets numérique avec QR-Code et ce sont ces tickets qui seront présenter par vos clients pour entrer à votre évènement"),
+      body: "1 - Vendez vos billets en ligne, ce sont des des billets numériques générés et qui simplifie l'entrée à votre événement."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}allInOneExplainEvent.jpeg",
-      body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'au nombre maximal de ticket)."),
+      imageUrl: "${ConsumeAPI.AssetPublicServer}allEvent.svg",
+      body: "2- Créez et vendez vos billets pour tous types d'événements, gratuits ou payants, avec des abonnements adaptés à vos besoins."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}ConsultingEvent.svg",
-      body: "3- Les clients qui achètent les tickets sont tout comme vous nos priorités donc nous travaillons afin d'améliorer leur cadre et possibilités d'actions dans SHOUZ.\nPar exemple un client qui achète un ticket de plusieurs places peut partager des places à d'autres membres dans l'application ce qui fera qu'eux aussi auront des tickets du nombre de places qui leur seront allouées.\nCeci est la fonctionnalité de partage de ticket qui est utilisé en cas d'indisponibilité ou de retard de celui qui a acheté les tickets et sert également à faciliter l'achat de tickets par des mentors afin de les distribuer aux membres intéressés."),
+      imageUrl: "${ConsumeAPI.AssetPublicServer}shareTicket.svg",
+      body: "3- Notre système offre aux acheteurs de tickets une expérience fluide avec des options de partage de billets et d'achat groupé pour les mentors."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}cashIn.svg",
-      body: "4- Les clients qui achètent les tickets peuvent annuler l'achat de leur ticket s'ils trouvent qu'ils ne seront plus disponibles pour participer à l'événement, ainsi ils récupèrent 90% du montant du ticket acheté, les autres 10% vont sur le solde cumule du créateur de l'événement ainsi que le ticket qui redevient à nouveau disponible pour achat.\nMais l'annulation de ticket peut se faire si l'acheteur est pris un ticket d'au plus 2 places et durant un temps, si on arrive à 24h avant le début de l'événement, aucun ticket ne peut être annulé."),
-  PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}CancelledEvent.svg",
-      body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est déposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
+      body: "4- Les acheteurs de vos billets peuvent annuler l'achat jusqu'à 24h avant l'événement et récupérez 90% du montant, 10% étant reversés à l'organisateur."),
+  // PageExplicationModel(
+  //     imageUrl: "${ConsumeAPI.AssetPublicServer}CancelledEvent.svg",
+  //     body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est déposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}notification.svg",
-      body: "6 - Nous notifions le créateur de l'événement lorsqu'un ticket est acheté, affichhons toutes les statistiques de l'évènement.\nNous assurons au créateur de l'événement une totale sécurité concernant l'achat, la gestion et le décodage de ticket pour ses événements et nous assurons aussi une large communauté intéressée.\nNous tenons à rappeler que les événements ne sont visibles que chez ceux qui sont intéressés par la même catégorie qu'à l'événement."),
+      body: "5 - Nous notifions au créateur de l'évènement le niveau d'achat de ses tickets, établissons des statistiques de son événement et une sécurité pour les verifications de tickets, et offrons large communauté d'utilisateurs ciblés."),
 ];
 
 var pageExplicationTravelList = [

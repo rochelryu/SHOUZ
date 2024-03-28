@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 import '../Constant/helper.dart';
 import '../Constant/widget_common.dart';
+import '../Models/User.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
+import '../Utils/Database.dart';
 import '../Utils/shared_pref_function.dart';
 
 class VoteEventDetail extends StatefulWidget {
@@ -23,6 +26,8 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
   dynamic voteItem;
   bool isVoting = false;
   int currentActorVoted = -1;
+  late SharedPreferences prefs;
+  User? newClient;
 
   @override
   void initState() {
@@ -36,11 +41,23 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
     _animation = CurvedAnimation(
         parent: _controller, curve: Curves.easeIn
     );
-    print(widget.voteItem);
     setState(() {
       voteItem = widget.voteItem;
     });
+    LoadInfo();
     // Démarrer l'animation au démarrage de l'écran
+  }
+
+  Future LoadInfo() async {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      User user = await DBProvider.db.getClient();
+      setState(() {
+        newClient = user;
+      });
+    } catch (e) {
+      print("Erreur $e");
+    }
   }
 
   @override
@@ -110,23 +127,49 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
           Positioned(
             top: 45,
             left: 8,
-            child: Container(
-              margin: EdgeInsets.only(left: 10.0),
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                gradient: LinearGradient(
-                    colors: [Color(0x00000000), tint],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight),
-              ),
-              child: IconButton(
-                icon: Icon(Icons.close, color: Colors.white, size: 22.0),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
+            right: 15,
+            child: Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 10.0),
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    gradient: LinearGradient(
+                        colors: [Color(0x00000000), tint],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight),
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.0),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                if(newClient != null && newClient!.ident == widget.voteItem['author']) ...[
+                  Spacer(),
+                  ElevatedButton(
+                      style: raisedButtonStyle,
+                      onPressed: () {
+
+                      }, child: Text(
+                    "Modifier",
+                    style: Style.sousTitreEvent(12),
+                  )),
+                  SizedBox(width: 10,),
+                  ElevatedButton(
+                      style: raisedButtonStyleError,
+                      onPressed: () {
+
+                      }, child: Text(
+                    "Supprimer",
+                    style: Style.sousTitreEvent(12),
+                  )),
+                ]
+
+              ],
             ),
           ),
         ],
@@ -207,7 +250,7 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
                           final actualy = DateTime.now();
                           final isAvailableOfTime = actualy.difference(DateTime.parse(widget.voteItem['beginDate'])).inMinutes > -86399 && actualy.difference(DateTime.parse(widget.voteItem['endDate'])).inMinutes < 0;
                           if(isAvailableOfTime) {
-                            final verifyIsAvailaible = await verifyAndCreateIfNoteExisteVoteByIdToShared(widget.voteItem['_id'], categorie['_id'], actor['_id']);
+                            final verifyIsAvailaible = await verifyAndCreateIfNotExistVoteByIdToShared(widget.voteItem['_id'], categorie['_id'], actor['_id']);
                             if(!verifyIsAvailaible) {
                               final createVote = await consumeAPI.setVoteBySalior(actor['_id'], categorie['_id']);
                               if(createVote['etat'] == 'found') {
@@ -219,7 +262,7 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
                                   voteItem['categorie'][indexCategorieVote] = dataVote;
                                 });
                                 showSnackBar(context, "Vôte pris en compte", isOk: true);
-                                await verifyAndCreateIfNoteExisteVoteByIdToShared(widget.voteItem['_id'], categorie['_id'], actor['_id'], toCreate: true);
+                                await verifyAndCreateIfNotExistVoteByIdToShared(widget.voteItem['_id'], categorie['_id'], actor['_id'], toCreate: true);
 
                               } else {
                                 showSnackBar(context, createVote['error']);

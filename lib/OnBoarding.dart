@@ -157,7 +157,6 @@ class _OnBoardingState extends State<OnBoarding> {
                   onPressed: () async {
                     setLevel(1);
                     final result = await consumeAPI.createUserToAvoidInfo();
-                    print(result);
                     await DBProvider.db.delClient();
                     await DBProvider.db.newClient(result["user"]);
                     Navigator.push(context, ScaleRoute(widget: MenuDrawler()));

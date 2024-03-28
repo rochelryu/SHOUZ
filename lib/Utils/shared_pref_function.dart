@@ -34,15 +34,16 @@ getAllVoteByIdToShared(String voteId) async {
   return jsonDecode(data);
 }
 
-verifyAndCreateIfNoteExisteVoteByIdToShared(String voteId, String categorieId, String actorId, {bool toCreate = false}) async {
+verifyAndCreateIfNotExistVoteByIdToShared(String voteId, String categorieId, String actorId, {bool toCreate = false}) async {
   final prefs = await SharedPreferences.getInstance();
   String data = await prefs.getString(voteId) ?? '';
   bool found = false;
   final actualy = DateTime.now();
   final registerDate = DateTime(actualy.year, actualy.month, actualy.day, 0,0,0);
+  print(data);
   if(data != '') {
     List<dynamic> dataFormated = jsonDecode(data);
-
+    print(dataFormated);
 
     for (var element in dataFormated) {
       if (element['categorieId'].toString().trim() == categorieId.trim()) {

@@ -938,6 +938,7 @@ class _DetailsDealsState extends State<DetailsDeals>
           ),
         ),
       ),
+
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: isMe
           ? ExpandableFab(
