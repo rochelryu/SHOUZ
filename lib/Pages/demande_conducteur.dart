@@ -759,7 +759,15 @@ class _DemandeConducteurState extends State<DemandeConducteur> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+
       ),
+
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(

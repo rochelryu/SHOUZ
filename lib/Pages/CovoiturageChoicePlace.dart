@@ -58,7 +58,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
     super.initState();
     choice = widget.placePosition;
     appState = Provider.of<AppState>(context, listen: false);
-    LoadInfo();
+    loadInfo();
   }
 
   @override
@@ -68,7 +68,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
     super.dispose();
 
   }
-  LoadInfo() async {
+  loadInfo() async {
     User user = await DBProvider.db.getClient();
     final ticket = await consumeAPI.verifyIfIamTicket(widget.id);
     setState(() {
@@ -429,6 +429,7 @@ class _CovoiturageChoicePlaceState extends State<CovoiturageChoicePlace> {
         ),
       ),
       floatingActionButton: widget.state == 1 ? FloatingActionButton(
+        shape: CircleBorder(),
         onPressed: (){
           if(choice.contains(2) && widget.state != 0) {
             final data = choice.where((element) => element == 2).toList();

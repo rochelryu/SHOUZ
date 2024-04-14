@@ -8,7 +8,7 @@ import 'package:shouz/Pages/wallet_page.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:shouz/Constant/widget_common.dart';
-
+import 'package:badges/badges.dart' as badges;
 import '../MenuDrawler.dart';
 import '../Models/User.dart';
 import '../Provider/AppState.dart';
@@ -29,7 +29,9 @@ class Notifications extends StatefulWidget {
 class _NotificationsState extends State<Notifications>  with SingleTickerProviderStateMixin{
   late TabController _controller;
   ConsumeAPI consumeAPI = new ConsumeAPI();
-  int numberNotifDeals = 0, numberNotifEvent = 0, numberNotifCovoiturage = 0, numberNotifShouzPay = 0;
+  int numberNotifDeals = 0, numberNotifEvent = 0, numberNotifCovoiturage = 0, numberNotifShouzPay = 0, type = 0;
+  bool isToDelete = false;
+  List<String> listNotificationDelete = [];
 
   late Future<Map<dynamic, dynamic>> notificationsFull;
   User? newClient;
@@ -43,26 +45,32 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
     notificationsFull = consumeAPI.getAllNotif();
   }
 
-  Future removeNotification(String notificationId, int type) async {
-      final remove = await consumeAPI.removeNotification(notificationId, type.toString());
 
-      if (remove == "notFound") {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) => dialogCustomError(
-                'Plusieurs connexions à ce compte',
-                "Pour une question de sécurité nous allons devoir vous déconnecter.",
-                context),
-            barrierDismissible: false);
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (builder) => Login()));
-      } else {
-        await getInfo();
-        final allNotif = consumeAPI.getAllNotif();
-        setState(() {
-          notificationsFull = allNotif;
-        });
-      }
+  Future removeManyNotification(List<String> notificationsId, int type) async {
+    final remove = await consumeAPI.removeManyNotification(notificationsId, type.toString());
+
+    if (remove == "notFound") {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => dialogCustomError(
+              'Plusieurs connexions à ce compte',
+              "Pour une question de sécurité nous allons devoir vous déconnecter.",
+              context),
+          barrierDismissible: false);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (builder) => Login()));
+    } else {
+      setState(() {
+        isToDelete = false;
+        listNotificationDelete = [];
+        type = 0;
+      });
+      await getInfo();
+      final allNotif = consumeAPI.getAllNotif();
+      setState(() {
+        notificationsFull = allNotif;
+      });
+    }
 
   }
 
@@ -102,132 +110,113 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
       appBar: AppBar(
         elevation: 0.0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white),
           onPressed: ()async {
             await Navigator.pushNamedAndRemoveUntil(context,MenuDrawler.rootName, (route) => route.isFirst);
           },
         ),
+        title: Text('Notifications', style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
-        title: Text('Notifications'),
+
+        actions: [
+          if(isToDelete) badges.Badge(
+              position: badges.BadgePosition.topStart(top: 0, start: 0),
+              badgeStyle: badges.BadgeStyle(
+                badgeColor: Style.white,
+              ),
+              badgeContent: Text(
+                listNotificationDelete.length.toString(),
+                style: TextStyle(color: colorError.withOpacity(0.75), fontSize: 12),
+              ),
+              showBadge: listNotificationDelete.length != 0,
+              child: IconButton(
+                  onPressed: () async {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            dialogCustomForValidateAction(
+                                'SUPPRIMER NOTIFICATION',
+                                'Êtes vous sûr de vouloir supprimer ${listNotificationDelete.length > 1 ? 'ces' :'cette'} notification${listNotificationDelete.length > 1 ? 's' :''} ?',
+                                'Oui',
+                                    () async => await removeManyNotification(listNotificationDelete, type),
+                                context),
+                        barrierDismissible: false);
+                  },
+                  icon: Icon(
+                    Icons.delete_outline_outlined,
+                    color: colorError,
+                    size: 35,
+                  )
+              )
+          ),
+        ],
         bottom: TabBar(
           controller: _controller,
-          unselectedLabelColor: Color(0xdd3c5b6d),
+          unselectedLabelColor: colorSecondary,
           labelColor: colorText,
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerHeight: 0,
           indicatorColor: colorText,
+          physics: isToDelete ? NeverScrollableScrollPhysics() : const BouncingScrollPhysics() ,
           tabs: [
             Tab(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Text('Deals', maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: badges.Badge(
+                  position: badges.BadgePosition.topEnd(top: -20, end: -20),
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: colorText,
                   ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: numberNotifDeals != 0
-                        ? Container(
-                      width: 17,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: colorText,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                          child: Text(
-                            numberNotifDeals.toString(),
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    )
-                        : Container(),
+                  badgeContent: Text(
+                    numberNotifDeals.toString(),
+                    style: TextStyle(color: Style.white),
                   ),
-                ],
+                  showBadge: numberNotifDeals != 0,
+                  child: Text('Deals', maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ),
             Tab(
               //icon: const Icon(Icons.shopping_cart),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Text('Events', maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: numberNotifEvent != 0
-                        ? Container(
-                      width: 17,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: colorText,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                          child: Text(
-                            numberNotifEvent.toString(),
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    )
-                        : Container(),
-                  ),
-                ],
+              child: badges.Badge(
+                position: badges.BadgePosition.topEnd(top: -20, end: -20),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: colorText,
+                ),
+                badgeContent: Text(
+                  numberNotifEvent.toString(),
+                  style: TextStyle(color: Style.white),
+                ),
+                showBadge: numberNotifEvent != 0,
+                child: Text('Events', maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ),
             Tab(
               //icon: const Icon(Icons.shopping_cart),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Text('Voyages', maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: numberNotifCovoiturage != 0
-                        ? Container(
-                      width: 17,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: colorText,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                          child: Text(
-                            numberNotifCovoiturage.toString(),
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    )
-                        : Container(),
-                  ),
-                ],
+              child: badges.Badge(
+                position: badges.BadgePosition.topEnd(top: -20, end: -20),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: colorText,
+                ),
+                badgeContent: Text(
+                  numberNotifCovoiturage.toString(),
+                  style: TextStyle(color: Style.white),
+                ),
+                showBadge: numberNotifCovoiturage != 0,
+                child: Text('Voyages', maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ),
             Tab(
               //icon: const Icon(Icons.shopping_cart),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Text('ShouzPay', maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: numberNotifShouzPay != 0
-                        ? Container(
-                      width: 17,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: colorText,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                          child: Text(
-                            numberNotifShouzPay.toString(),
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    )
-                        : Container(),
-                  ),
-                ],
+              child: badges.Badge(
+                position: badges.BadgePosition.topEnd(top: -20, end: -20),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: colorText,
+                ),
+                badgeContent: Text(
+                  numberNotifShouzPay.toString(),
+                  style: TextStyle(color: Style.white),
+                ),
+                showBadge: numberNotifShouzPay != 0,
+                child: Text('ShouzPay', maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ),
           ],
@@ -1290,49 +1279,73 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           final isCampagne = atMoment[index]['room'].toString().split('_').length != 3;
             return InkWell(
               onLongPress: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        dialogCustomForValidateAction(
-                            'SUPPRIMER NOTIFICATION',
-                            'Êtes vous sûr de vouloir supprimer cette notification ?',
-                            'Oui',
-                                () async => await removeNotification(atMoment[index]['notificationId'], 1),
-                            context),
-                    barrierDismissible: false);
+                setState(() {
+                  isToDelete = true;
+                });
+                setState(() {
+                  if(!listNotificationDelete.contains(atMoment[index]['notificationId'])) {
+                    listNotificationDelete.add(atMoment[index]['notificationId']);
+                    type = 1;
+                  } else {
+                    listNotificationDelete.remove(atMoment[index]['notificationId']);
+                    if(listNotificationDelete.isEmpty) {
+                      setState(() {
+                        isToDelete = false;
+                      });
+                    }
+                  }
+                });
+
               },
               onTap: () async {
-                if(!atMoment[index]['isAlreadyRead']) {
-                  final appState = Provider.of<AppState>(context, listen: false);
-                  final numberNotif = appState.getNumberNotif - 1;
-                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
-                  setState(() {
-                    numberNotifDeals = (numberNotifDeals - 1) >0 ? numberNotifDeals - 1: 0;
-                  });
-                  await consumeAPI.viewNotif(atMoment[index]['notificationId'], "DEALS");
-                }
-                if(isCampagne){
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                      builder: (context) => LoadProduct(key: UniqueKey(), productId: atMoment[index]['productId'] ?? '', doubleComeBack: 1,)), (route) => route.isFirst);
+                if(!isToDelete) {
+                  if(!atMoment[index]['isAlreadyRead']) {
+                    final appState = Provider.of<AppState>(context, listen: false);
+                    final numberNotif = appState.getNumberNotif - 1;
+                    appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                    setState(() {
+                      numberNotifDeals = (numberNotifDeals - 1) >0 ? numberNotifDeals - 1: 0;
+                    });
+                    await consumeAPI.viewNotif(atMoment[index]['notificationId'], "DEALS");
+                  }
+                  if(isCampagne){
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                        builder: (context) => LoadProduct(key: UniqueKey(), productId: atMoment[index]['productId'] ?? '', doubleComeBack: 1,)), (route) => route.isFirst);
+                  } else {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => ChatDetails(
+                                newClient:newClient!,
+                                comeBack: 0,
+                                room: atMoment[index]['room'],
+                                productId: atMoment[index]['productId'],
+                                name: atMoment[index]['name'],
+                                onLine: atMoment[index]['onLine'],
+                                profil: atMoment[index]['imageOtherUser'],
+                                //authorId prend la valeur de idOtherUser
+                                authorId: atMoment[index]['idOtherUser'])));
+                  }
                 } else {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (builder) => ChatDetails(
-                              newClient:newClient!,
-                              comeBack: 0,
-                              room: atMoment[index]['room'],
-                              productId: atMoment[index]['productId'],
-                              name: atMoment[index]['name'],
-                              onLine: atMoment[index]['onLine'],
-                              profil: atMoment[index]['imageOtherUser'],
-                              //authorId prend la valeur de idOtherUser
-                              authorId: atMoment[index]['idOtherUser'])));
+                  setState(() {
+                    if(!listNotificationDelete.contains(atMoment[index]['notificationId'])) {
+                      listNotificationDelete.add(atMoment[index]['notificationId']);
+                      type = 1;
+                    } else {
+                      listNotificationDelete.remove(atMoment[index]['notificationId']);
+                      if(listNotificationDelete.isEmpty) {
+                        setState(() {
+                          isToDelete = false;
+                        });
+                      }
+                    }
+                  });
                 }
+
 
               },
               child: Container(
-                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                color:listNotificationDelete.contains(atMoment[index]['notificationId']) ? colorError : atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1342,7 +1355,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                          border: Border.all(color: colorText, width: 1.0),
+                          border: Border.all(color: listNotificationDelete.contains(atMoment[index]['notificationId']) ? colorError : colorText, width: 1.0),
                           borderRadius: BorderRadius.circular(50.0),
                           image: DecorationImage(
                             image: isCampagne ? NetworkImage("${ConsumeAPI.AssetPublicServer}campagne.jpeg") : NetworkImage("${ConsumeAPI.AssetProfilServer}${atMoment[index]['imageOtherUser']}"),
@@ -1356,7 +1369,7 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
                         child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(atMoment[index]['content'], style: Style.contextNotif(11), maxLines: 3,)
+                          Text(atMoment[index]['content'], style: Style.simpleTextInContainer(listNotificationDelete.contains(atMoment[index]['notificationId']) ? colorBlack: colorPrimary), maxLines: 3,)
                         ],
                       ),),
                     ),
@@ -1391,36 +1404,65 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemBuilder: (context, index){
             return InkWell(
               onLongPress: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        dialogCustomForValidateAction(
-                            'SUPPRIMER NOTIFICATION',
-                            'Êtes vous sûr de vouloir supprimer cette notification ?',
-                            'Oui',
-                                () async => await removeNotification(atMoment[index]['_id'], 3),
-                            context),
-                    barrierDismissible: false);
-              },
-              onTap: () async {
-                if(!atMoment[index]['isAlreadyRead']) {
-                  final appState = Provider.of<AppState>(context, listen: false);
-                  final numberNotif = appState.getNumberNotif - 1;
-                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
-                  setState(() {
-                    numberNotifCovoiturage = (numberNotifCovoiturage - 1) >0 ? numberNotifCovoiturage - 1: 0;
-                  });
-                  await consumeAPI.viewNotif(atMoment[index]['_id'], "TRAVELS");
-                }
-                if(atMoment[index]['typeTravel'] == 'DEMANDE_TRAVELER') {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (builder) => VerifyUser(
-                        redirect: CreateTravel.rootName, key: UniqueKey(),)));
-                }
+                setState(() {
+                  isToDelete = true;
+                });
+                setState(() {
+                  if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                    listNotificationDelete.add(atMoment[index]['_id']);
+                    type = 3;
+                  } else {
+                    listNotificationDelete.remove(atMoment[index]['_id']);
+                    if(listNotificationDelete.isEmpty) {
+                      setState(() {
+                        isToDelete = false;
+                      });
+                    }
+                  }
+                });
 
               },
+              onTap: () async {
+                if(!isToDelete) {
+                  if (!atMoment[index]['isAlreadyRead']) {
+                    final appState =
+                        Provider.of<AppState>(context, listen: false);
+                    final numberNotif = appState.getNumberNotif - 1;
+                    appState.setNumberNotif(numberNotif > 0 ? numberNotif : 0);
+                    setState(() {
+                      numberNotifCovoiturage = (numberNotifCovoiturage - 1) > 0
+                          ? numberNotifCovoiturage - 1
+                          : 0;
+                    });
+                    await consumeAPI.viewNotif(
+                        atMoment[index]['_id'], "TRAVELS");
+                  }
+                  if (atMoment[index]['typeTravel'] == 'DEMANDE_TRAVELER') {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (builder) => VerifyUser(
+                              redirect: CreateTravel.rootName,
+                              key: UniqueKey(),
+                            )));
+                  }
+                }
+                else {
+                  setState(() {
+                    if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                      listNotificationDelete.add(atMoment[index]['_id']);
+                      type = 3;
+                    } else {
+                      listNotificationDelete.remove(atMoment[index]['_id']);
+                      if(listNotificationDelete.isEmpty) {
+                        setState(() {
+                          isToDelete = false;
+                        });
+                      }
+                    }
+                  });
+                }
+              },
               child: Container(
-                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                color: listNotificationDelete.contains(atMoment[index]['notificationId']) ? colorError : atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1469,31 +1511,58 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemBuilder: (context, index){
             return InkWell(
               onLongPress: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        dialogCustomForValidateAction(
-                            'SUPPRIMER NOTIFICATION',
-                            'Êtes vous sûr de vouloir supprimer cette notification ?',
-                            'Oui',
-                                () async => await removeNotification(atMoment[index]['_id'], 4),
-                            context),
-                    barrierDismissible: false);
+                setState(() {
+                  isToDelete = true;
+                });
+                setState(() {
+                  if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                    listNotificationDelete.add(atMoment[index]['_id']);
+                    type = 4;
+                  } else {
+                    listNotificationDelete.remove(atMoment[index]['_id']);
+                    if(listNotificationDelete.isEmpty) {
+                      setState(() {
+                        isToDelete = false;
+                      });
+                    }
+                  }
+                });
               },
               onTap: () async {
-                if(!atMoment[index]['isAlreadyRead']) {
-                  final appState = Provider.of<AppState>(context, listen: false);
-                  final numberNotif = appState.getNumberNotif - 1;
-                  appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
-                  setState(() {
-                    numberNotifShouzPay = (numberNotifShouzPay - 1) >0 ? numberNotifShouzPay - 1: 0;
-                  });
-                  await consumeAPI.viewNotif(atMoment[index]['_id'], "SHOUZPAY");
+                if(!isToDelete) {
+                  if (!atMoment[index]['isAlreadyRead']) {
+                    final appState =
+                        Provider.of<AppState>(context, listen: false);
+                    final numberNotif = appState.getNumberNotif - 1;
+                    appState.setNumberNotif(numberNotif > 0 ? numberNotif : 0);
+                    setState(() {
+                      numberNotifShouzPay = (numberNotifShouzPay - 1) > 0
+                          ? numberNotifShouzPay - 1
+                          : 0;
+                    });
+                    await consumeAPI.viewNotif(
+                        atMoment[index]['_id'], "SHOUZPAY");
+                  }
+                  Navigator.pushNamed(context, WalletPage.rootName);
                 }
-                Navigator.pushNamed(context, WalletPage.rootName);
+                else {
+                  setState(() {
+                    if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                      listNotificationDelete.add(atMoment[index]['_id']);
+                      type = 4;
+                    } else {
+                      listNotificationDelete.remove(atMoment[index]['_id']);
+                      if(listNotificationDelete.isEmpty) {
+                        setState(() {
+                          isToDelete = false;
+                        });
+                      }
+                    }
+                  });
+                }
               },
               child: Container(
-                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                color: listNotificationDelete.contains(atMoment[index]['_id']) ? colorError : atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1544,39 +1613,68 @@ class _NotificationsState extends State<Notifications>  with SingleTickerProvide
           itemBuilder: (context, index){
             return InkWell(
               onLongPress: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        dialogCustomForValidateAction(
-                            'SUPPRIMER NOTIFICATION',
-                            'Êtes vous sûr de vouloir supprimer cette notification ?',
-                            'Oui',
-                                () async => await removeNotification(atMoment[index]['_id'], 2),
-                            context),
-                    barrierDismissible: false);
+                setState(() {
+                  isToDelete = true;
+                });
+                setState(() {
+                  if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                    listNotificationDelete.add(atMoment[index]['_id']);
+                    type = 2;
+                  } else {
+                    listNotificationDelete.remove(atMoment[index]['_id']);
+                    if(listNotificationDelete.isEmpty) {
+                      setState(() {
+                        isToDelete = false;
+                      });
+                    }
+                  }
+                });
+
               },
                 onTap: () async {
-                  if(!atMoment[index]['isAlreadyRead']) {
-                    final appState = Provider.of<AppState>(context, listen: false);
+                  if(!isToDelete) {
+                  if (!atMoment[index]['isAlreadyRead']) {
+                    final appState =
+                        Provider.of<AppState>(context, listen: false);
                     final numberNotif = appState.getNumberNotif - 1;
-                    appState.setNumberNotif(numberNotif > 0 ? numberNotif: 0);
+                    appState.setNumberNotif(numberNotif > 0 ? numberNotif : 0);
                     setState(() {
-                      numberNotifEvent = (numberNotifEvent - 1) >0 ? numberNotifEvent - 1: 0;
+                      numberNotifEvent =
+                          (numberNotifEvent - 1) > 0 ? numberNotifEvent - 1 : 0;
                     });
-                    await consumeAPI.viewNotif(atMoment[index]['_id'], "EVENTS");
+                    await consumeAPI.viewNotif(
+                        atMoment[index]['_id'], "EVENTS");
                   }
-                  if(atMoment[index]['typeEvent'] == "ATTRIBUTION_DECODAGE") {
-                    Navigator.of(context)
-                        .push((MaterialPageRoute(builder: (context) => ChoiceCategorieScan())));
+                  if (atMoment[index]['typeEvent'] == "ATTRIBUTION_DECODAGE") {
+                    Navigator.of(context).push((MaterialPageRoute(
+                        builder: (context) => ChoiceCategorieScan())));
                   } else {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (builder) => LoadEvent(key: UniqueKey(), eventId: atMoment[index]['idEvent'])));
+                            builder: (builder) => LoadEvent(
+                                key: UniqueKey(),
+                                eventId: atMoment[index]['idEvent'])));
                   }
-                },
+                }
+                  else {
+                    setState(() {
+                      if(!listNotificationDelete.contains(atMoment[index]['_id'])) {
+                        listNotificationDelete.add(atMoment[index]['_id']);
+                        type = 2;
+                      } else {
+                        listNotificationDelete.remove(atMoment[index]['_id']);
+                        if(listNotificationDelete.isEmpty) {
+                          setState(() {
+                            isToDelete = false;
+                          });
+                        }
+                      }
+                    });
+                  }
+              },
               child: Container(
-                color: atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
+                color: listNotificationDelete.contains(atMoment[index]['_id']) ? colorError : atMoment[index]['isAlreadyRead'] ? Colors.transparent: colorText.withOpacity(0.05),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,44 +1,44 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
-import 'package:shouz/Constant/helper.dart';
-import 'package:shouz/Pages/CreateEvent.dart';
-import 'package:shouz/Pages/explication_event.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/event_item.dart';
 import '../Models/User.dart';
 import '../Utils/Database.dart';
-import './EventDetails.dart';
 import 'package:shouz/Constant/widget_common.dart';
-
-import 'ExplainEvent.dart';
+import 'VoteEventScreen.dart';
 import 'choice_other_hobie_second.dart';
+import 'choice_type_event_create.dart';
 
 class EventInter extends StatefulWidget {
   @override
   _EventInterState createState() => _EventInterState();
 }
 
-class _EventInterState extends State<EventInter> {
+class _EventInterState extends State<EventInter>  with SingleTickerProviderStateMixin {
   User? user;
   Map<String, dynamic>? eventFull;
   ConsumeAPI consumeAPI = new ConsumeAPI();
+  int currentTabIdex = 0;
+  late TabController _controller;
   int level = 0;
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorEventKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorVoteKey = GlobalKey<RefreshIndicatorState>();
   bool loadingFull = true, isError = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = TabController(length: 2, vsync: this, initialIndex: currentTabIdex);
     getUser();
     loadEvents();
     getExplainEventMethod();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future getExplainEventMethod() async {
@@ -78,26 +78,30 @@ class _EventInterState extends State<EventInter> {
   }
   Future loadEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    try {
-      final data = await consumeAPI.getEvents();
-      setState(() {
-        eventFull = data;
-        loadingFull = false;
-      });
-      await prefs.setString('eventFull', jsonEncode(data));
-    } catch (e) {
-      final eventFullString = prefs.getString("eventFull");
-
-      if(eventFullString != null) {
+    if(mounted) {
+      try {
+        final events = await consumeAPI.getEvents();
+        final votes = await consumeAPI.getVoteEvents();
+        final data = {...events, ...votes};
         setState(() {
-          eventFull = jsonDecode(eventFullString) as Map<String, dynamic>;
+          eventFull = data;
+          loadingFull = false;
         });
+        await prefs.setString('eventFull', jsonEncode(data));
+      } catch (e) {
+        final eventFullString = prefs.getString("eventFull");
+
+        if(eventFullString != null) {
+          setState(() {
+            eventFull = jsonDecode(eventFullString) as Map<String, dynamic>;
+          });
+        }
+        setState(() {
+          isError = true;
+          loadingFull = false;
+        });
+        await askedToLead(eventFull != null && eventFull?["listEventsWithFilter"].length > 0 ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
       }
-      setState(() {
-        isError = true;
-        loadingFull = false;
-      });
-      await askedToLead(eventFull != null && eventFull?["listEventsWithFilter"].length > 0 ? "Aucune connection internet, donc nous vous affichons quelques évènement en mode hors ligne":"Aucune connection internet, veuillez vérifier vos données internet", false, context);
     }
   }
 
@@ -105,449 +109,179 @@ class _EventInterState extends State<EventInter> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: loadEvents,
-        child: LayoutBuilder(
-        builder: (context,contraints) {
-        if(loadingFull){
-          if(eventFull != null && eventFull?['listEventsWithFilter'].length > 0) {
-            var event = eventFull!;
-            return Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                      itemCount: event['listEventsWithFilter'].length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (builder) => EventDetails(
-                                  0,
-                                  event['listEventsWithFilter'][index]
-                                  ['imageCover'],
-                                  index,
-                                  event['listEventsWithFilter'][index]
-                                  ['price'],
-                                  event['listEventsWithFilter'][index]
-                                  ['numberFavorite'],
-                                  event['listEventsWithFilter'][index]
-                                  ['authorName'],
-                                  event['listEventsWithFilter'][index]
-                                  ['describe'],
-                                  event['listEventsWithFilter'][index]
-                                  ['_id'],
-                                  event['listEventsWithFilter'][index]
-                                  ['numberTicket'],
-                                  event['listEventsWithFilter'][index]
-                                  ['position'],
-                                  event['listEventsWithFilter'][index]
-                                  ['enventDate'],
-                                  event['listEventsWithFilter'][index]
-                                  ['title'],
-                                  event['listEventsWithFilter'][index]
-                                  ['positionRecently'],
-                                  event['listEventsWithFilter'][index]
-                                  ['videoPub'],
-                                  event['listEventsWithFilter'][index]
-                                  ['allTicket'],
-                                  event['listEventsWithFilter'][index]
-                                  ['authorId'],
-                                  event['listEventsWithFilter'][index]
-                                  ['cumulGain'],
-                                  user != null ? event['listEventsWithFilter'][index]
-                                  ['authorId'] == user!.ident : false,
-                                  event['listEventsWithFilter'][index]
-                                  ['state'],
-                                  user != null ? event['listEventsWithFilter'][index]
-                                  ['favorie']: false,
-                                )));
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 235,
-                            child: Stack(
-                              children: <Widget>[
-                                Container(
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                  child: Hero(
-                                    tag: index,
-                                    child: Image.network(
-                                        "${ConsumeAPI.AssetEventServer}${event['listEventsWithFilter'][index]['imageCover']}",
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  height: 235,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: [
-                                              const Color(0x00000000),
-                                              const Color(0x99111100),
-                                            ],
-                                            begin:
-                                            FractionalOffset(0.0, 0.0),
-                                            end: FractionalOffset(
-                                                0.0, 1.0))),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text(
-                                            event['listEventsWithFilter']
-                                            [index]['title']
-                                                .toString()
-                                                .toUpperCase(),
-                                            style: Style.titreEvent(20),
-                                            textAlign: TextAlign.center),
-                                        SizedBox(height: 10.0),
-                                        Text(
-                                            event['listEventsWithFilter']
-                                            [index]['position'],
-                                            style: Style.sousTitreEvent(15),
-                                            maxLines: 2,
-                                            textAlign: TextAlign.center),
-                                        SizedBox(height: 25.0),
-                                        Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .spaceBetween,
-                                          children: <Widget>[
-                                            Row(
-                                              children: <Widget>[
-                                                SizedBox(width: 10.0),
-                                                Icon(Icons.favorite,
-                                                    color: Colors.redAccent,
-                                                    size: 22.0),
-                                                Text(
-                                                  event['listEventsWithFilter']
-                                                  [index]
-                                                  ['numberFavorite']
-                                                      .toString(),
-                                                  style: Style
-                                                      .titleInSegment(),
-                                                ),
-                                                SizedBox(width: 20.0),
-                                                Icon(
-                                                    Icons
-                                                        .account_balance_wallet,
-                                                    color: Colors.white,
-                                                    size: 22.0),
-                                                SizedBox(width: 5.0),
-                                                Text(
-                                                  event['listEventsWithFilter']
-                                                  [index]['price'][0]['price'].toString().toUpperCase() == "GRATUIT" ? event['listEventsWithFilter'][index]['price'][0]['price'] : reformatNumberForDisplayOnPrice(event['listEventsWithFilter'][index]['price'][0]['price']),
-                                                  style: Style
-                                                      .titleInSegment(),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                    Icons.alarm,
-                                                    color: Colors.white,
-                                                    size: 22.0),
-                                                Text(DateTime.parse(event['listEventsWithFilter']
-                                                [index]['enventDate']).day.toString() +
-                                                    '/' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .month
-                                                        .toString() +
-                                                    '/' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .year
-                                                        .toString()+
-                                                    ' à ' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .hour
-                                                        .toString() +
-                                                    'h:' +
-                                                    DateTime.parse(event['listEventsWithFilter']
-                                                    [index]['enventDate'])
-                                                        .minute
-                                                        .toString(),
-                                                    style: Style
-                                                        .titleInSegment()),
-                                                SizedBox(width: 10.0)
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 15.0),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
+      body: Column(
+        children: [
+          Container(
+            height: 35,
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: backgroundColorSec
+            ),
+            child: TabBar(
+              dividerHeight: 0,
+              controller: _controller,
+              labelColor: Style.white,
+              unselectedLabelColor: colorSecondary,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                  color: colorText,
+                  borderRadius: BorderRadius.circular(20)
+              ),
+              tabs: [
+                Tab(
+                  text: "Events",
+                ),
+                Tab(
+                  text: "Votes",
                 ),
               ],
-            );
-          }
-          return Column(children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return loadDataSkeletonOfEvent(context);
-                },
-              ),
-            )
-          ]);
+            ),
+          ),
+          Expanded(child: TabBarView(
+            controller: _controller,
+            children: [
+              RefreshIndicator(
+                key: _refreshIndicatorEventKey,
+                onRefresh: loadEvents,
+                child: LayoutBuilder(
+                    builder: (context,contraints) {
+                      if(loadingFull){
+                        if(eventFull != null && eventFull?['listEventsWithFilter'].length > 0) {
+                          var event = eventFull!;
+                          return ListView.builder(
+                              itemCount: event['listEventsWithFilter'].length,
+                              itemBuilder: (context, index) {
+                                final infoEvent = event['listEventsWithFilter'][index];
+                                return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
+                              });
+                        }
+                        return ListView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return loadDataSkeletonOfEvent(context);
+                          },
+                        );
 
-        } else if(!loadingFull && isError && eventFull == null) {
-          return isErrorSubscribe(context);
-        } else {
-          var event = eventFull!;
-          if (event['listEventsWithFilter'].length == 0) {
-            return Center(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SvgPicture.asset(
-                        "images/emptyevent.svg",
-                        semanticsLabel: 'Shouz event empty',
-                        height: MediaQuery.of(context).size.height * 0.35,
-                      ),
-                      Text(
-                          "Aucun Evenement Populaires pour le moment selon vos centres d'intérêts",
-                          textAlign: TextAlign.center,
-                          style: Style.sousTitreEvent(15)),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push((MaterialPageRoute(
-                              builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
-                        },
-                        child: Text('Ajouter Préférence'),
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: colorPrimary, backgroundColor: colorText,
-                          minimumSize: Size(88, 36),
-                          elevation: 4.0,
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                        ),
-                      )
-                    ]));
-          }
-          return Column(
-            children: <Widget>[
-              Expanded(
-                child: ListView.builder(
-                    itemCount: event['listEventsWithFilter'].length,
-                    itemBuilder: (context, index) {
-
-                      return InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (builder) => EventDetails(
-                                0,
-                                event['listEventsWithFilter'][index]
-                                ['imageCover'],
-                                index,
-                                event['listEventsWithFilter'][index]
-                                ['price'],
-                                event['listEventsWithFilter'][index]
-                                ['numberFavorite'],
-                                event['listEventsWithFilter'][index]
-                                ['authorName'],
-                                event['listEventsWithFilter'][index]
-                                ['describe'],
-                                event['listEventsWithFilter'][index]
-                                ['_id'],
-                                event['listEventsWithFilter'][index]
-                                ['numberTicket'],
-                                event['listEventsWithFilter'][index]
-                                ['position'],
-                                event['listEventsWithFilter'][index]
-                                ['enventDate'],
-                                event['listEventsWithFilter'][index]
-                                ['title'],
-                                event['listEventsWithFilter'][index]
-                                ['positionRecently'],
-                                event['listEventsWithFilter'][index]
-                                ['videoPub'],
-                                event['listEventsWithFilter'][index]
-                                ['allTicket'],
-                                event['listEventsWithFilter'][index]
-                                ['authorId'],
-                                event['listEventsWithFilter'][index]
-                                ['cumulGain'],
-                                user != null ? event['listEventsWithFilter'][index]
-                                ['authorId'] == user!.ident : false,
-                                event['listEventsWithFilter'][index]
-                                ['state'],
-                                user != null ? event['listEventsWithFilter'][index]
-                                ['favorie'] : false,
-                              )));
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 235,
-                          child: Stack(
-                            children: <Widget>[
-                              Container(
-                                height: double.infinity,
-                                width: double.infinity,
-                                child: Hero(
-                                  tag: index,
-                                  child: CachedNetworkImage(
-                                    imageUrl: "${ConsumeAPI.AssetEventServer}${event['listEventsWithFilter'][index]['imageCover']}",
-                                    progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                        Center(
-                                            child: CircularProgressIndicator(value: downloadProgress.progress)),
-                                    errorWidget: (context, url, error) => notSignal(),
-                                    fit: BoxFit.cover,
-                                  ),
+                      } else if(!loadingFull && isError && eventFull == null) {
+                        return isErrorSubscribe(context);
+                      } else {
+                        var event = eventFull!;
+                        if (event['listEventsWithFilter'].length == 0) {
+                          return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  "images/emptyevent.svg",
+                                  semanticsLabel: 'Shouz event empty',
+                                  height: MediaQuery.of(context).size.height * 0.35,
                                 ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                height: 235,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          colors: [
-                                            const Color(0x00000000),
-                                            const Color(0x99111100),
-                                          ],
-                                          begin:
-                                          FractionalOffset(0.0, 0.0),
-                                          end: FractionalOffset(
-                                              0.0, 1.0))),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Text(
-                                          event['listEventsWithFilter']
-                                          [index]['title']
-                                              .toString()
-                                              .toUpperCase(),
-                                          style: Style.titreEvent(20),
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 10.0),
-                                      Text(
-                                          event['listEventsWithFilter']
-                                          [index]['position'],
-                                          style: Style.sousTitreEvent(15),
-                                          maxLines: 2,
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 25.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              SizedBox(width: 10.0),
-                                              Icon(Icons.favorite,
-                                                  color: Colors.redAccent,
-                                                  size: 22.0),
-                                              Text(
-                                                event['listEventsWithFilter']
-                                                [index]
-                                                ['numberFavorite']
-                                                    .toString(),
-                                                style: Style
-                                                    .titleInSegment(),
-                                              ),
-                                              SizedBox(width: 20.0),
-                                              Icon(
-                                                  Icons
-                                                      .account_balance_wallet,
-                                                  color: Colors.white,
-                                                  size: 22.0),
-                                              SizedBox(width: 5.0),
-                                              Text(
-                                                event['listEventsWithFilter']
-                                                [index]['price'][0]['price'],
-                                                style: Style
-                                                    .titleInSegment(),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                  Icons.alarm,
-                                                  color: Colors.white,
-                                                  size: 22.0),
-                                              Text(DateTime.parse(event['listEventsWithFilter']
-                                              [index]['enventDate']).day.toString() +
-                                                  '/' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .month
-                                                      .toString() +
-                                                  '/' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .year
-                                                      .toString()+
-                                                  ' à ' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .hour
-                                                      .toString() +
-                                                  'h:' +
-                                                  DateTime.parse(event['listEventsWithFilter']
-                                                  [index]['enventDate'])
-                                                      .minute
-                                                      .toString(),
-                                                  style: Style
-                                                      .titleInSegment()),
-                                              SizedBox(width: 10.0)
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 15.0),
-                                    ],
+                                Text(
+                                    "Aucun Evenement Populaires pour le moment selon vos centres d'intérêts",
+                                    textAlign: TextAlign.center,
+                                    style: Style.sousTitreEvent(15)),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push((MaterialPageRoute(
+                                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                  },
+                                  child: Text('Ajouter Préférence'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: colorPrimary, backgroundColor: colorText,
+                                    minimumSize: Size(88, 36),
+                                    elevation: 4.0,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
                                   ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+                                )
+                              ]);
+                        }
+                        return ListView.builder(
+                            itemCount: event['listEventsWithFilter'].length,
+                            itemBuilder: (context, index) {
+                              final infoEvent = event['listEventsWithFilter'][index];
+                              return EventItem(index:index, infoEvent:infoEvent, comeBack: 0, user: user);
+                            });
+                      }}
+                ),
               ),
+              RefreshIndicator(
+                key: _refreshIndicatorVoteKey,
+                onRefresh: loadEvents,
+                child: LayoutBuilder(
+                    builder: (context,contraints) {
+                      if(loadingFull){
+                        if(eventFull != null && eventFull?['listVoteEvents'].length > 0) {
+                          var event = eventFull!;
+                          return VoteScreen(allVoteEvent: event['listVoteEvents']);
+                        }
+                        return ListView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return loadDataSkeletonOfEvent(context);
+                          },
+                        );
+
+                      } else if(!loadingFull && isError && eventFull == null) {
+                        return isErrorSubscribe(context);
+                      } else {
+                        var event = eventFull!;
+                        if (event['listVoteEvents'].length == 0) {
+                          return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  "images/emptyevent.svg",
+                                  semanticsLabel: 'Shouz event empty',
+                                  height: MediaQuery.of(context).size.height * 0.35,
+                                ),
+                                Text(
+                                    "Aucun Vôte disponible pour le moment selon vos centres d'intérêts",
+                                    textAlign: TextAlign.center,
+                                    style: Style.sousTitreEvent(15)),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push((MaterialPageRoute(
+                                        builder: (context) => ChoiceOtherHobieSecond(key: UniqueKey()))));
+                                  },
+                                  child: Text('Ajouter Préférence'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: colorPrimary, backgroundColor: colorText,
+                                    minimumSize: Size(88, 36),
+                                    elevation: 4.0,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                                  ),
+                                )
+                              ]);
+                        }
+                        return VoteScreen(allVoteEvent: event['listVoteEvents']);
+                      }}
+                ),
+              ),
+
+
             ],
-          );
-        }}
-        ),
+          )),
+
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 20.0,
+        shape: CircleBorder(),
         onPressed: () {
-          if(user!= null && user!.isActivateForfait != 0) {
-            Navigator.pushNamed(context, CreateEvent.rootName);
-          } else {
-            if(level == 0){
-              setExplain(2, "event");
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (builder) => ExplicationEvent(key: UniqueKey(), typeRedirect: 1)));
-            } else {
-              Navigator.pushNamed(context, ExplainEvent.rootName);
-            }
-
-          }
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (builder) => ChoiceTypeEventCreate(
+                        key: UniqueKey(),
+                        isActivateForfait: user!= null && user!.isActivateForfait != 0,
+                      level: level,
+                    )
+                )
+            );
 
         },
         backgroundColor: colorText,

@@ -140,9 +140,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                                         children: <Widget>[
                                             Text(
                                             value['title'],
-                                            style: value['title'] != "FREE" && value['title'] != "GOLD"
-                                            ? Style.grandTitre(23)
-                                                : Style.grandTitreBlack(23),
+                                            style: Style.grandTitre(23),
                                             )
                                         ])),
                           ),
@@ -329,7 +327,7 @@ class _ExplainEventState extends State<ExplainEvent> {
                           height: 30,
                           width: double.infinity,
                           child: Center(
-                          child: Text("${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.numero != 'null' ? newClient!.currencies: 'XOF'}",
+                          child: Text("${reformatNumberForDisplayOnPrice(element['priceLocalCurrencies'])} ${newClient!.numero != 'null' && newClient!.numero.isNotEmpty ? newClient!.currencies: 'XOF'}",
                               style: Style.titre(15)),
                           ),
                         )

@@ -30,7 +30,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
   void initState() {
     super.initState();
     getInfo();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future getInfo() async {
@@ -90,14 +90,15 @@ class _AddDecodeurState extends State<AddDecodeur> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text('ATTRIBUER DECODEUR'),
-        backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Style.white),
           onPressed: () {
-            Navigator.pop(context);
+             Navigator.pop(context);
           },
         ),
+        title: Text('ATTRIBUER DECODEUR', style: Style.titleNews(),),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
       ),
       backgroundColor: backgroundColor,
       body: GestureDetector(
@@ -149,30 +150,33 @@ class _AddDecodeurState extends State<AddDecodeur> {
                     padding: EdgeInsets.only(left: 10.0),
                     width: MediaQuery.of(context).size.width,
                     child: TypeAheadField(
-                      hideSuggestionsOnKeyboardHide: false,
-                      textFieldConfiguration: TextFieldConfiguration(
-                        //autofautofocusocus: true,
-                        keyboardType: TextInputType.number,
-                        controller: eCtrl,
-                        style: TextStyle(
-                            color: Colors.black87, fontWeight: FontWeight.w300),
-
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "Recherche par son numero",
-                          hintStyle: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.grey[500],
-                              fontSize: 13.0),
-                        ),
-                      ),
+                      controller: eCtrl,
                       hideOnEmpty: true,
+                      builder: (context, controller, focusNode) {
+                        return TextField(
+                          keyboardType: TextInputType.number,
+                          controller: controller,
+                          focusNode: focusNode,
+                          autofocus: true,
+                          style: TextStyle(
+                              color: Colors.black87, fontWeight: FontWeight.w300),
+
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Recherche par son numero",
+                            hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey[500],
+                                fontSize: 13.0),
+                          ),
+                        );
+                      },
                       suggestionsCallback: (pattern) async {
-                        return consumeAPI
+                        return await consumeAPI
                             .getAllUser(pattern.length >= 8 ? pattern : '');
                       },
                       itemBuilder: (context, suggestion) {
-                        final user = suggestion as Map<dynamic, dynamic>;
+                        final user = suggestion as dynamic;
                         return ListTile(
                           leading: Container(
                             height: 50,
@@ -190,7 +194,7 @@ class _AddDecodeurState extends State<AddDecodeur> {
                               style: Style.simpleTextOnBoard()),
                         );
                       },
-                      onSuggestionSelected: (suggestion) async {
+                      onSelected: (suggestion) async {
                         final user = suggestion as Map<dynamic, dynamic>;
                         eCtrl.text = user['prefix'] + ' ' + user['numero'];
                         setState(() {

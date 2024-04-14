@@ -122,19 +122,19 @@ class _LoginState extends State<Login> {
                             setState(() {
                               isCliked = true;
                             });
-                            final res = await ConsumeAPI().signin(numero, '+225');
-                            setState(() {
-                              user = res['user'];
-                            });
-                            await DBProvider.db.delClient();
-                            await DBProvider.db.newClient(user);
+                            await ConsumeAPI().signin(numero, '+225');
+                            // setState(() {
+                            //   user = res['user'];
+                            // });
+                            // print(user.ident);
+                            // await DBProvider.db.updateIdent(user.ident);
                             setLevel(2);
                             setState(() {
                                 isCliked = false;
                               });
                             Navigator.of(context).push(
                                 MaterialPageRoute(
-                                    builder: (builder) => Otp(key: UniqueKey(),)
+                                    builder: (builder) => Otp(key: UniqueKey(), prefix: '+225', numero: numero,)
                                 )
                             );
                           }

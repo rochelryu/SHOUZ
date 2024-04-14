@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:badges/badges.dart' as badges;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -23,6 +22,7 @@ import './Pages/Setting.dart';
 import './Pages/WidgetPage.dart';
 import 'Constant/helper.dart';
 import 'Constant/my_flutter_app_second_icons.dart';
+import 'Pages/Covoiturage.dart';
 import 'Pages/all_categorie_deals_choice.dart';
 import 'Pages/choice_other_hobie_second.dart';
 import 'Pages/not_available.dart';
@@ -55,10 +55,10 @@ class _MenuDrawlerState extends State<MenuDrawler>
       key: UniqueKey(),
     ),
     EventInter(),
-    //Covoiturage()
-    NotAvailable(
-      key: UniqueKey(),
-    ),
+    Covoiturage(),
+    // NotAvailable(
+    //   key: UniqueKey(),
+    // ),
   ];
   List<String> titleDomain = [
     'Actualité',
@@ -84,79 +84,48 @@ class _MenuDrawlerState extends State<MenuDrawler>
   }
 
   loadInfo() async {
-    User user = await DBProvider.db.getClient();
-    if (user.numero != 'null') {
+    try {
+      User user = await DBProvider.db.getClient();
       setState(() {
         newClient = user;
         id = newClient!.ident;
       });
-      if (user.tokenNotification == "ONE_SIGNAL" ||
-          user.tokenNotification == "") {
-        await getTokenForNotificationProvider(true);
+      if (user.tokenNotification == "ONE_SIGNAL" || user.tokenNotification == "") {
+        try {
+          await getTokenForNotificationProvider(true);
+        } catch (e) {
+          print("Token  non mis à jour au backend");
+        }
       }
-
-      if (user.inscriptionIsDone == 0) {
+      if (user.numero == '' || user.numero == 'null') {
         setState(() {
           logged = -1;
         });
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-            "Vous y êtes presque ! Votre inscription n'est pas encore terminée. Il reste juste une dernière étape.",
-            context,
-            true);
-        Navigator.pushNamed(context, Login.rootName);
       }
-    } else {
-      setState(() {
-        logged = -1;
-      });
-    }
-
-    try {
       final getLatestVersionApp = await consumeAPI.getLatestVersionApp();
       if (getLatestVersionApp['playstore'] != null) {
-          if (Platform.isAndroid) {
-            if (await isHms()) {
-              if (versionApp != getLatestVersionApp['appGallery']) {
-                setState(() {
-                  update = true;
-                });
-              } else {
-                final notificationCenter =
-                    await consumeAPI.getLatestInfoNotificationInApp();
-                if (notificationCenter['etat'] == "found") {
-                  final result = notificationCenter['result'];
-                  await displayNotificationCenter(
-                    result['imgUrl'],
-                    result['title'],
-                    result['body'],
-                    result['data'],
-                    context,
-                  );
-                }
-              }
+        if (Platform.isAndroid) {
+          if (await isHms()) {
+            if (versionApp != getLatestVersionApp['appGallery']) {
+              setState(() {
+                update = true;
+              });
             } else {
-              if (versionApp != getLatestVersionApp['playstore']) {
-                setState(() {
-                  update = true;
-                });
-              } else {
-                final notificationCenter =
-                    await consumeAPI.getLatestInfoNotificationInApp();
-                if (notificationCenter['etat'] == "found") {
-                  final result = notificationCenter['result'];
-                  await displayNotificationCenter(
-                    result['imgUrl'],
-                    result['title'],
-                    result['body'],
-                    result['data'],
-                    context,
-                  );
-                }
+              final notificationCenter =
+                  await consumeAPI.getLatestInfoNotificationInApp();
+              if (notificationCenter['etat'] == "found") {
+                final result = notificationCenter['result'];
+                await displayNotificationCenter(
+                  result['imgUrl'],
+                  result['title'],
+                  result['body'],
+                  result['data'],
+                  context,
+                );
               }
             }
           } else {
-            if (versionApp != getLatestVersionApp['appleStore']) {
+            if (versionApp != getLatestVersionApp['playstore']) {
               setState(() {
                 update = true;
               });
@@ -175,8 +144,46 @@ class _MenuDrawlerState extends State<MenuDrawler>
               }
             }
           }
+        } else {
+          if (versionApp != getLatestVersionApp['appleStore']) {
+            setState(() {
+              update = true;
+            });
+          } else {
+            final notificationCenter =
+                await consumeAPI.getLatestInfoNotificationInApp();
+            if (notificationCenter['etat'] == "found") {
+              final result = notificationCenter['result'];
+              await displayNotificationCenter(
+                result['imgUrl'],
+                result['title'],
+                result['body'],
+                result['data'],
+                context,
+              );
+            }
+          }
+        }
       }
-    } catch (e) {}
+
+    } catch (e) {
+      print("Erreur de get vervion");
+      if(e.toString().contains('User')) {
+        logout();
+      }
+      print(e.toString());
+
+    }
+  }
+
+  Future logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await DBProvider.db.delProfil();
+    final result = await consumeAPI.createUserToAvoidInfo();
+    await DBProvider.db.delClient();
+    await DBProvider.db.newClient(result["user"]);
+    await loadInfo();
   }
 
   @override
@@ -223,7 +230,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                newClient != null
+                newClient != null && newClient!.images != ''
                     ? Container(
                         width: 105,
                         height: 105,
@@ -364,7 +371,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     if (numberConnected <= 2) {
       final appState = Provider.of<AppState>(context);
       try {
-        if (id != "" && id != 'ident') {
+        if (id != "" && id != 'ident' && newClient?.numero != '') {
           appState.setJoinConnected(id);
         }
         numberConnected++;
@@ -402,35 +409,41 @@ class _MenuDrawlerState extends State<MenuDrawler>
                 });
               },
             ),
-            title: update ? TextButton(
-              onPressed: () async {
-                if (Platform.isAndroid) {
-                  if (await isHms()) {
-                    await launchUrl(Uri.parse(linkAppGalleryForShouz),
-                        mode: LaunchMode.externalApplication);
-                  } else {
-                    await launchUrl(Uri.parse(linkPlayStoreForShouz),
-                        mode: LaunchMode.externalApplication);
-                  }
-                } else {
-                  await launchUrl(Uri.parse(linkAppleStoreForShouz),
-                      mode: LaunchMode.externalApplication);
-                }
-              },
-              child: badges.Badge(
-                position: badges.BadgePosition.topEnd(top:-8, end: -20),
-                badgeStyle: badges.BadgeStyle(
-                    badgeColor: colorError,
-                    shape: badges.BadgeShape.twitter),
-                badgeContent: Text(
-                  ' ! ',
-                  style: TextStyle(color: Colors.white),
-                ),
-                child: Text('Mettre à jour Shouz', style: Style.titleNews(15),),
-            )) :Text(titleDomain[appState.getIndexBottomBar]),
+            title: update
+                ? TextButton(
+                    onPressed: () async {
+                      if (Platform.isAndroid) {
+                        if (await isHms()) {
+                          await launchUrl(Uri.parse(linkAppGalleryForShouz),
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          await launchUrl(Uri.parse(linkPlayStoreForShouz),
+                              mode: LaunchMode.externalApplication);
+                        }
+                      } else {
+                        await launchUrl(Uri.parse(linkAppleStoreForShouz),
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: badges.Badge(
+                      position: badges.BadgePosition.topEnd(top: -8, end: -20),
+                      badgeStyle: badges.BadgeStyle(
+                          badgeColor: colorError,
+                          shape: badges.BadgeShape.twitter),
+                      badgeContent: Text(
+                        ' ! ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      child: Text(
+                        'Mettre à jour Shouz',
+                        style: Style.titleNews(15),
+                      ),
+                    )
+            )
+                : Text(titleDomain[appState.getIndexBottomBar], style: Style.titleNews(),),
             centerTitle: true,
             actions: [
-              if (newClient != null)
+              if (newClient != null && newClient!.numero != 'null'  && newClient!.numero != '')
                 badges.Badge(
                     position: badges.BadgePosition.topStart(top: 0, start: 0),
                     badgeStyle: badges.BadgeStyle(
@@ -450,9 +463,11 @@ class _MenuDrawlerState extends State<MenuDrawler>
                           numberNotif > 0
                               ? Icons.notifications_active
                               : Icons.notifications_none,
-                          color: Colors.white,
-                          size: 25,
-                        ))),
+                          color: Style.white,
+                          size: 35,
+                        )
+                    )
+                ),
               if (logged == -1)
                 Padding(
                   padding: EdgeInsets.only(right: 10),
@@ -460,10 +475,12 @@ class _MenuDrawlerState extends State<MenuDrawler>
                       position: badges.BadgePosition.topStart(top: 0, start: 0),
                       badgeStyle: badges.BadgeStyle(
                           badgeColor: colorError,
-                          shape: badges.BadgeShape.twitter),
+                          shape: badges.BadgeShape.twitter,
+                        padding: EdgeInsets.all(3)
+                      ),
                       badgeContent: Text(
                         ' ! ',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Style.white),
                       ),
                       child: IconButton(
                           onPressed: () async {
@@ -474,7 +491,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
                                 true);
                             Navigator.pushNamed(context, Login.rootName);
                           },
-                          icon: Icon(Icons.account_circle_outlined))),
+                          icon: Icon(Icons.account_circle_outlined, size: 35,color: Style.white,))),
                 ),
             ],
           ),

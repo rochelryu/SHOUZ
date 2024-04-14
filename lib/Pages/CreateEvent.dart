@@ -784,27 +784,30 @@ class _CreateEventState extends State<CreateEvent> {
                         padding: EdgeInsets.only(left: 10.0),
                         width: MediaQuery.of(context).size.width,
                         child: TypeAheadField(
-                          hideSuggestionsOnKeyboardHide: false,
-                          textFieldConfiguration: TextFieldConfiguration(
-                            //autofautofocusocus: true,
-                            controller: eCtrl,
-                            style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w300),
+                          controller: eCtrl,
+                          builder: (context, controller, focusNode) {
+                            return TextField(
+                              //autofautofocusocus: true,
+                              controller: controller,
+                              focusNode:focusNode,
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w300),
 
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText:
-                                  "Economie, Bourse, Festival, Coupé décalé, Gospel, Boom Party",
-                              hintStyle: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.grey[500],
-                                  fontSize: 13.0),
-                            ),
-                          ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText:
+                                "Economie, Bourse, Festival, Coupé décalé, Gospel, Boom Party",
+                                hintStyle: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    color: Colors.grey[500],
+                                    fontSize: 13.0),
+                              ),
+                            );
+                          },
                           hideOnEmpty: true,
                           suggestionsCallback: (pattern) async {
-                            return consumeAPI.getAllCategrie(
+                            return await consumeAPI.getAllCategrie(
                                 pattern.length > 0 ? pattern : '', 'not', '2');
                           },
                           itemBuilder: (context, suggestion) {
@@ -817,7 +820,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   : Icon(Icons.star_border, color: colorText),
                             );
                           },
-                          onSuggestionSelected: (suggestion) async {
+                          onSelected: (suggestion) async {
                             final categorie = suggestion as Categorie;
                             eCtrl.text = categorie.name;
                             final etat = await consumeAPI
@@ -880,11 +883,13 @@ class _CreateEventState extends State<CreateEvent> {
                               },
                               avatar: CircleAvatar(
                                   backgroundColor: colorText,
-                                  child: Text(
-                                      allCategorie[index]
-                                          .substring(0, 1)
-                                          .toUpperCase(),
-                                      style: TextStyle(color: Colors.white))),
+                                  child: Center(
+                                    child: Text(
+                                        allCategorie[index]
+                                            .substring(0, 1)
+                                            .toUpperCase(),
+                                        style: Style.simpleTextOnBoard(14, Style.white)),
+                                  )),
                               label: Text(allCategorie[index]),
                               backgroundColor: Colors.white,
                             );
@@ -905,6 +910,12 @@ class _CreateEventState extends State<CreateEvent> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

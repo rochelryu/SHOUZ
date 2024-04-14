@@ -13,6 +13,12 @@ class ViewPicture extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Center(
           child: Container(

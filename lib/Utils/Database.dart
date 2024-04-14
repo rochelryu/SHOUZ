@@ -1,4 +1,5 @@
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/Utils/shared_pref_function.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBProvider {
@@ -50,6 +51,11 @@ class DBProvider {
     return await db.rawUpdate("UPDATE Client SET name = ?", [name]);
   }
 
+  Future<int> updateIdent(String ident) async {
+    final db = await database;
+    return await db.rawUpdate("UPDATE Client SET ident = ?", [ident]);
+  }
+
   newClient(User newClient) async {
     final db = await database;
     var res = await db.rawInsert(
@@ -74,7 +80,6 @@ class DBProvider {
           newClient.tokenNotification,
           newClient.serviceNotification
         ]);
-
     return res;
   }
 
@@ -82,7 +87,16 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Client");
     List<User> list = res.map((c) => User.fromJsonLite(c)).toList();
-    return list.length > 0 ? list[list.length - 1]: new User("null", "null", 'ident');
+    if(list.isNotEmpty) {
+      return list.last;
+    }
+    final anonymousUser = await getAnonymousUser() as Map;
+    if(anonymousUser.isNotEmpty) {
+      print("Is Not empty");
+      return User.fromJson(anonymousUser);
+    }
+    return null;
+
   }
 
   getProfil() async {
@@ -95,6 +109,7 @@ class DBProvider {
   delClient() async {
     final db = await database;
     db.delete("Client");
+    print("Delete Client");
   }
 
 

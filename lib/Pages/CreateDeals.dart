@@ -73,7 +73,7 @@ class _CreateDealsState extends State<CreateDeals> {
     // TODO: implement initState
     super.initState();
     loadCategorie();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 100) {
@@ -773,15 +773,16 @@ class _CreateDealsState extends State<CreateDeals> {
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.looks_6,
                               color: _isPosition ? colorText : Colors.grey),
-                          hintText: "Entrer un lieu pour la remise",
+                          hintText: "Dans quelle commune/quartier l'article se trouve",
                           hintStyle: TextStyle(
                             color: Colors.white,
+                            fontSize: 12
                           )),
                     ),
                   ),
                 ),
               ),
-              Padding(
+              if(1 != 1) Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   height: 40,
@@ -799,7 +800,7 @@ class _CreateDealsState extends State<CreateDeals> {
                               monVal = value!;
                             });
                           } else {
-                            if (user!.numero != 'null') {
+                            if (user!.numero != 'null' && user!.numero.isNotEmpty) {
                               Fluttertoast.showToast(
                                   msg:
                                       "Votre solde est insufisant pour vouloir rendre ce produit V.I.P",
@@ -851,7 +852,8 @@ class _CreateDealsState extends State<CreateDeals> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(Icons.arrow_back)),
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -923,130 +925,139 @@ class _CreateDealsState extends State<CreateDeals> {
 
   void _submit() async {
     bool ready = true;
-    if (nameProduct.length < 3) {
-      ready = false;
+    if(user!.numero != 'null' && user!.numero.isNotEmpty) {
+      if (nameProduct.length < 3) {
+        ready = false;
 
-      showSnackBar(context, "Le nom du produit est trop court.");
-    }
-    if (quantity.length > 0 && int.parse(quantity) > 100) {
-      ready = false;
-
-      showSnackBar(context,
-          "La quantité maximal qu'un article peut avoir dans Shouz est de 100");
-    }
-    if (describe.length < 25) {
-      ready = false;
-      showSnackBar(context,
-          "Veuillez donner plus de détails dans le champs details articles.");
-    }
-    if (dropdownValue == null) {
-      ready = false;
-      showSnackBar(context, "Veuillez choisir une categorie pour l'article.");
-    }
-    if (base64Image.length == 0) {
-      ready = false;
-      showSnackBar(
-          context, "Veuillez sélectionner au moins une image de l'article.");
-    }
-    if (numero.length != 10) {
-      ready = false;
-      showSnackBar(context,
-          "Veuillez entrer un numéro de téléphone valide pour qu'on puisse vous appeler.");
-    }
-    if (position.length < 7) {
-      ready = false;
-      showSnackBar(context,
-          "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
-    }
-    if (price.length <= 2) {
-      ready = false;
-      showSnackBar(context, "Prix minimum d'un article doit être 500.");
-    }
-    if (base64Image.length < 2) {
-      ready = false;
-      showSnackBar(context,
-          "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
-    }
-    if (ready) {
-      if (user!.numero != "null") {
-        setState(() => requestLoading = true);
-        List<String> imageListTitle =
-            post.map((image) => image.path.split('/').last).toList();
-
-        String imageTitle = imageListTitle.join(',');
-        String imagesBuffers = base64Image.join(',');
-        String videoPub = (video != null) ? video!.path.split('/').last : "";
-        int level = monVal ? 3 : 1;
-        final product = await consumeAPI.setProductDeals(
-            nameProduct,
-            describe,
-            dropdownValue!,
-            imageTitle,
-            imagesBuffers,
-            position,
-            level,
-            numero,
-            price,
-            quantity,
-            videoPub,
-            base64Video);
-        setState(() => requestLoading = false);
-        if (product == 'found') {
-          dropdownValue = null;
-          post.clear();
-          postVideo.clear();
-          base64Image.clear();
-          base64Video = "";
-          nameProductCtrl.clear();
-          describeCtrl.clear();
-          priceCtrl.clear();
-          quantityCtrl.clear();
-          nameProduct = "";
-          describe = "";
-          price = "";
-
-          await askedToLead(
-              level == 3
-                  ? "Votre produit est en ligne, vous pouvez le manager où que vous soyez"
-                  : "Votre produit est en attente d'approbation par notre service de régularisation, vous recevrez une notification si votre article a été approuvé ou pas",
-              true,
-              context);
-          openAppReview(context);
-        } else if (product == 'notFound') {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) => dialogCustomError(
-                  'Plusieurs connexions à ce compte',
-                  "Pour une question de sécurité nous allons devoir vous déconnecter.",
-                  context),
-              barrierDismissible: false);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (builder) => Login()));
-        } else if (product == 'FreeInPayPrice') {
-          await askedToLead(
-              "Un produit Gratuit ne peut être assimilé à un prix",
-              false,
-              context);
-        } else if (product == 'IncorrectPrice') {
-          await askedToLead(
-              "Erreur lors de la saisie des prix", false, context);
-        } else {
-          await askedToLead(
-              "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
-              false,
-              context);
-        }
-        setState(() {
-          monVal = false;
-        });
-      } else {
-        await modalForExplain(
-            "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-            "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
-            context,
-            true);
-        Navigator.pushNamed(context, Login.rootName);
+        showSnackBar(context, "Le nom du produit est trop court.");
       }
+      if (quantity.length > 0 && int.parse(quantity) > 100) {
+        ready = false;
+
+        showSnackBar(context,
+            "La quantité maximal qu'un article peut avoir dans Shouz est de 100");
+      }
+      if (describe.length < 25) {
+        ready = false;
+        showSnackBar(context,
+            "Veuillez donner plus de détails dans le champs details articles.");
+      }
+      if (dropdownValue == null) {
+        ready = false;
+        showSnackBar(context, "Veuillez choisir une categorie pour l'article.");
+      }
+      if (base64Image.length == 0) {
+        ready = false;
+        showSnackBar(
+            context, "Veuillez sélectionner au moins une image de l'article.");
+      }
+      if (numero.length != 10) {
+        ready = false;
+        showSnackBar(context,
+            "Veuillez entrer un numéro de téléphone valide pour qu'on puisse vous appeler.");
+      }
+      if (position.length < 7) {
+        ready = false;
+        showSnackBar(context,
+            "Donnez plus d'informations sur le lieu où on doit vous rencontrer pour récupérer l'article.");
+      }
+      if (price.length <= 2) {
+        ready = false;
+        showSnackBar(context, "Prix minimum d'un article doit être 500.");
+      }
+      if (base64Image.length < 2) {
+        ready = false;
+        showSnackBar(context,
+            "Veuillez charger au moins 2 images de l'article afin que nos acheteurs puissent mieux voir votre article.");
+      }
+      if (ready) {
+        if (user!.numero != "null") {
+          setState(() => requestLoading = true);
+          List<String> imageListTitle =
+          post.map((image) => image.path.split('/').last).toList();
+
+          String imageTitle = imageListTitle.join(',');
+          String imagesBuffers = base64Image.join(',');
+          String videoPub = (video != null) ? video!.path.split('/').last : "";
+          int level = monVal ? 3 : 1;
+          final product = await consumeAPI.setProductDeals(
+              nameProduct,
+              describe,
+              dropdownValue!,
+              imageTitle,
+              imagesBuffers,
+              position,
+              level,
+              numero,
+              price,
+              quantity,
+              videoPub,
+              base64Video);
+          setState(() => requestLoading = false);
+          if (product == 'found') {
+            dropdownValue = null;
+            post.clear();
+            postVideo.clear();
+            base64Image.clear();
+            base64Video = "";
+            nameProductCtrl.clear();
+            describeCtrl.clear();
+            priceCtrl.clear();
+            quantityCtrl.clear();
+            nameProduct = "";
+            describe = "";
+            price = "";
+
+            await askedToLead(
+                level == 3
+                    ? "Votre produit est en ligne, vous pouvez le manager où que vous soyez"
+                    : "Votre produit est en attente d'approbation par notre service de régularisation, vous recevrez une notification si votre article a été approuvé ou pas",
+                true,
+                context);
+            openAppReview(context);
+          } else if (product == 'notFound') {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => dialogCustomError(
+                    'Plusieurs connexions à ce compte',
+                    "Pour une question de sécurité nous allons devoir vous déconnecter.",
+                    context),
+                barrierDismissible: false);
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (builder) => Login()));
+          } else if (product == 'FreeInPayPrice') {
+            await askedToLead(
+                "Un produit Gratuit ne peut être assimilé à un prix",
+                false,
+                context);
+          } else if (product == 'IncorrectPrice') {
+            await askedToLead(
+                "Erreur lors de la saisie des prix", false, context);
+          } else {
+            await askedToLead(
+                "Echec avec la mise en ligne, veuillez ressayer ulterieurement",
+                false,
+                context);
+          }
+          setState(() {
+            monVal = false;
+          });
+        } else {
+          await modalForExplain(
+              "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+              "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+              context,
+              true);
+          Navigator.pushNamed(context, Login.rootName);
+        }
+      }
+    } else {
+      await modalForExplain(
+          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+          context,
+          true);
+      Navigator.pushNamed(context, Login.rootName);
     }
   }
 }

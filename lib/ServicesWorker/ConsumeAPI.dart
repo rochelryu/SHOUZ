@@ -6,17 +6,24 @@ import 'dart:ui' as ui;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Models/Categorie.dart';
+import 'package:shouz/Models/Event.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Utils/network_util.dart';
 
 import '../Constant/helper.dart';
+import '../Utils/shared_pref_function.dart';
 
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
+  static final String SERVER_ADDRESS = "https://socket.shouz.network";//http://172.20.10.3:5003 //https://socket.shouz.network;
+// 127.0.0.1 192.168.1.100 192.168.1.27 // unknow mobile 192.168.43.4
+  static final String NAME_SPACE = "shouzChat";
+  static final bool enableLogging = true;
   static final BASE_URL =
-      "https://app.shouz.network"; //http://192.168.1.180:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "https://app.shouz.network"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
+  static final SET_EMPTY_URL = BASE_URL + "/client/createEmptyClient";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
   static final SIGINSECONDSTEP_URL = BASE_URL + "/client/secondStep";
   static final UPDATEHOBIE_URL = BASE_URL + "/client/updateHobbies";
@@ -52,8 +59,8 @@ class ConsumeAPI {
   static final VERIFY_FRIEND = BASE_URL + "/client/verify";
 
   static final VIEW_NOTIFICATION_URL = BASE_URL + "/client/viewNotif";
-  static final REMOVE_NOTIFICATION_DEALS_URL =
-      BASE_URL + "/client/removeNotification";
+  static final REMOVE_MANY_NOTIFICATION_DEALS_URL =
+      BASE_URL + "/client/removeManyNotification";
   static final DEMANDE_CONDUCTEUR_URL = BASE_URL + "/client/demandeConducteur";
   static final DEMANDE_VOYAGEUR_URL = BASE_URL + "/client/demandeVoyageur";
   static final ALL_NOTIFICATION_URL = BASE_URL + "/client/getAllNotif";
@@ -91,6 +98,26 @@ class ConsumeAPI {
   static final GET_DETAILS_FOR_EVENT_URL =
       BASE_URL + "/event/getDetailsOfEvent";
 
+  static final ALL_EVENT_BY_CLIENT_URL = BASE_URL + "/event/all";
+  static final GET_FILTER_ALL_EVENT_BY_CLIENT_URL =
+      BASE_URL + "/event/getAllEventCreatedByClientId";
+
+  static final SET_VOTE_EVENT_BY_CLIENT_URL =
+      BASE_URL + "/vote-event/createVoteEvent";
+
+  static final SET_VOTE_ACTOR_URL =
+      BASE_URL + "/vote-event/votedActor";
+  static final LAST_CREATE_VOTE_EVENT_BY_CLIENT_URL =
+      BASE_URL + "/vote-event/createCategorieAndNomineVoteEvent";
+  static final GET_VOTE_EVENT_URL =
+      BASE_URL + "/vote-event/getVoteEvent";
+
+  static final GET_INFO_VOTE_EVENT_URL =
+      BASE_URL + "/vote-event/getDetailsVoteEvent";
+
+  static final SET_VOTE_EVENT_BY_SALIOR_URL =
+      BASE_URL + "/vote-event/votedActor";
+
   static final ALL_CATEGIRES_WITHOUT_FILTER_URL =
       BASE_URL + "/categorie/display";
   static final VERIFY_CATEGIRES = BASE_URL + "/categorie/verify";
@@ -112,7 +139,6 @@ class ConsumeAPI {
   static final ADD_OR_REMOVE_ITEM_IN_FAVORITE_URL =
       BASE_URL + "/client/addOrRemoveItemInFavorite";
   static final DELETE_ACCOUNT_URL = BASE_URL + "/client/deleteAccount";
-
 
   static final SET_DEALS_URL = BASE_URL + "/products/inside";
   static final SET_UPDATE_DEALS_URL = BASE_URL + "/products/update";
@@ -175,9 +201,17 @@ class ConsumeAPI {
 
   ConsumeAPI();
   // For signin
-  signin(String numero, String prefix) {
+  signin(String numero, String prefix) async {
+    User newClient = await DBProvider.db.getClient();
     return _netUtil.post(SIGIN_URL,
-        body: {"numero": numero, "prefix": prefix}).then((dynamic res) {
+        body: {"numero": numero, "prefix": prefix, 'ident': newClient.ident}).then((dynamic res) {
+      return {'etat': res["etat"]};
+    });
+  }
+
+  createUserToAvoidInfo() async {
+    return _netUtil.post(SET_EMPTY_URL, body: {}).then((dynamic res) async {
+      await saveAnonymousUser(res["result"]);
       return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
     });
   }
@@ -228,12 +262,12 @@ class ConsumeAPI {
     return allCategorie;
   }
 
-  Future<Iterable<dynamic>> getAllUser(String number) async {
+  Future<List<dynamic>> getAllUser(String number) async {
     if (number.length >= 8) {
       User newClient = await DBProvider.db.getClient();
       final res = await _netUtil
           .get('$GET_USER_BY_FILTER_URL/${newClient.ident}?search=$number');
-      Iterable<dynamic> allUser = res['result'];
+      List<dynamic> allUser = res['result'];
       return allUser;
     } else {
       return [];
@@ -274,6 +308,7 @@ class ConsumeAPI {
   // For client
   Future<Map<String, dynamic>> getProfil() async {
     User newClient = await DBProvider.db.getClient();
+    print('$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
     final res = await _netUtil.get(
         '$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
     return res['info'];
@@ -659,10 +694,10 @@ class ConsumeAPI {
     return res['etat'];
   }
 
-  Future<String> removeNotification(String notificationId, String type) async {
+  Future<String> removeManyNotification(List<String> notificationsId, String type) async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
-        '$REMOVE_NOTIFICATION_DEALS_URL/${newClient.ident}?credentials=${newClient.recovery}&notificationId=$notificationId&type=$type');
+        '$REMOVE_MANY_NOTIFICATION_DEALS_URL/${newClient.ident}?credentials=${newClient.recovery}&notificationsId=${notificationsId.join(',')}&type=$type');
     if (res['etat'] == 'notFound') {
       await DBProvider.db.delClient();
       setLevel(1);
@@ -763,15 +798,8 @@ class ConsumeAPI {
   Future<bool> verifyIfExistItemInFavor(String idItem, int domaine) async {
     final prefs = await SharedPreferences.getInstance();
     User newClient = await DBProvider.db.getClient();
-    final allToken = await prefs.getString("token") ?? "{'token':''}";
-
-    final token = jsonDecode(allToken)['token'] != ''
-        ? jsonDecode(allToken)['token']
-        : await prefs.getString("tokenNotification");
-    final serviceNotification =
-        Platform.isAndroid && await isHms() ? "huawei_push" : "firebase";
     final res = await _netUtil.get(
-        '$GET_VERIFY_ITEM_IN_FAVOR_URL/${newClient.ident}/$idItem?domaine=${domaine.toString()}&token=$token&serviceNotification=$serviceNotification');
+        '$GET_VERIFY_ITEM_IN_FAVOR_URL/${newClient.ident}/$idItem?domaine=${domaine.toString()}');
     return res;
   }
 
@@ -792,10 +820,11 @@ class ConsumeAPI {
     return res;
   }
 
-  Future<List<dynamic>> getCategoriesAndNumbersItemsDeals() async {
+  Future<List<dynamic>> getCategoriesAndNumbersItemsDeals({String sort = "newer"}) async {
     User newClient = await DBProvider.db.getClient();
+
     final res =
-        await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
+        await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}?sort=$sort');
     return res;
   }
 
@@ -1086,14 +1115,19 @@ class ConsumeAPI {
     });
   }
 
-  verifyOtp(String code) async {
+  verifyOtp(String code, {required String prefix, required String numero}) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'id': newClient.ident,
       'code': code,
+      'prefix': prefix,
+      'numero': numero,
     };
 
     return _netUtil.post(VERIFY_OTP_URL, body: body).then((dynamic res) async {
+      if (res["etat"] == "found") {
+        return {'user': User.fromJson(res["result"]), 'etat': res["etat"]};
+      }
       return res;
     });
   }
@@ -1252,6 +1286,39 @@ class ConsumeAPI {
     return res;
   }
 
+  Future<Map<String, dynamic>> getVoteEvents() async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_VOTE_EVENT_URL/${newClient.ident}');
+    return res;
+  }
+
+  setVoteBySalior(
+      String actorId,
+      String categorieId, int price) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'uuid': newClient.ident,
+      'recovery': newClient.recovery,
+      'actorId': actorId.trim(),
+      'categorieId': categorieId.trim(),
+    };
+    return _netUtil.post(SET_VOTE_ACTOR_URL, body: body).then((dynamic res) async {
+      if(res['etat'] == 'found' && price > 0) {
+        await DBProvider.db
+            .updateClientWallet(res['result']['wallet'], newClient.ident);
+        await DBProvider.db
+            .updateClient(res["result"]["recovery"], newClient.ident);
+      }
+      return res;
+    });
+  }
+
+  Future<Map<String, dynamic>> getDetailsVotesEvents(String voteId) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get('$GET_INFO_VOTE_EVENT_URL/${newClient.ident}?voteId=$voteId');
+    return res;
+  }
+
   Future<Map<String, dynamic>> verifyIfClientIsActivateForCovoiturage() async {
     User newClient = await DBProvider.db.getClient();
     final res = await _netUtil.get(
@@ -1277,7 +1344,7 @@ class ConsumeAPI {
       String imageCover,
       String imageCoverBase64,
       String position,
-      String enventDate,
+      String eventDate,
       String eventExpireDate,
       int numberTicket,
       String prices,
@@ -1299,7 +1366,7 @@ class ConsumeAPI {
       'position': position,
       'categorie': categorie.join(','),
       'prices': prices,
-      'enventDate': enventDate,
+      'eventDate': eventDate,
       'eventExpireDate': eventExpireDate,
       'videoPub': videoPub,
       'videoPubBase64': videoPubBase64,
@@ -1601,6 +1668,95 @@ class ConsumeAPI {
     return res;
   }
 
+  Future<List<dynamic>> getAllEventByClient(String search) async {
+    User newClient = await DBProvider.db.getClient();
+    final res = await _netUtil.get(
+        '$GET_FILTER_ALL_EVENT_BY_CLIENT_URL/${newClient.ident}?credentials=${newClient.recovery}&search=${search.trim()}');
+    List<dynamic> allEvent = res.map((c) => Event.fromJson(c)).toList();
+    return allEvent;
+  }
+
+  //For Vote Event
+  createVote(
+      {String picture = '',
+      String eventId = '',
+      String base64 = '',
+      required String name,
+      required DateTime beginDate,
+      required DateTime endDate,
+      String price = '',
+      required TypePeriodicVotes frequence,
+      required bool displayResult}) async {
+    User newClient = await DBProvider.db.getClient();
+    final body = {
+      'authorId': newClient.ident,
+      'picture': picture.trim(),
+      'eventId': eventId.trim(),
+      'base64': base64.trim(),
+      'name': name.trim(),
+      'beginDate': beginDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'price': price.isEmpty ? '0' : price,
+      'frequence': frequence.toString().split('.')[1],
+      'displayResult': displayResult.toString(),
+    };
+    final headers = {
+      'Authorization':
+          'Shouz-app-mobile ${newClient.recovery} ${newClient.ident}'
+    };
+    return _netUtil
+        .post(SET_VOTE_EVENT_BY_CLIENT_URL, body: body, headers: headers)
+        .then((dynamic res) async {
+      if (res["etat"] == "found") {
+        await DBProvider.db
+            .updateClient(res['result']['recovery'], newClient.ident);
+        await saveVoteIdToShared(res['result']['voteId']);
+        return res;
+      } else {
+        return {'etat': res["etat"]};
+      }
+    });
+  }
+
+  createCategorieAndNomineVote(
+      {required String base64,
+      required String categorieName,
+      required String imageName,
+      required String nameActors,
+      bool isDone = false}) async {
+    User newClient = await DBProvider.db.getClient();
+    final voteId = await getVoteIdToShared() as String;
+    final body = {
+      'categorieName': categorieName,
+      'imageName': imageName.trim(),
+      'nameActors': nameActors.trim(),
+      'base64': base64.trim(),
+      'voteId': voteId.trim(),
+    };
+    final headers = {
+      'Authorization':
+          'Shouz-app-mobile ${newClient.recovery} ${newClient.ident}'
+    };
+
+    return _netUtil
+        .post(LAST_CREATE_VOTE_EVENT_BY_CLIENT_URL,
+            body: body, headers: headers)
+        .then((dynamic res) async {
+      if (res["etat"] == "found") {
+        await DBProvider.db
+            .updateClient(res['result']['recovery'], newClient.ident);
+        if (isDone) {
+          await dropVoteIdToShared();
+        }
+        return res;
+      } else {
+        await DBProvider.db.delClient();
+        setLevel(1);
+        return {'etat': res["etat"]};
+      }
+    });
+  }
+
   //TOKEN VEERIFICATION
   updateTokenVerification(
       String token, String serviceNotification, bool isConnected) async {
@@ -1651,11 +1807,10 @@ class ConsumeAPI {
     } else {
       final tokenDecode = jsonDecode(token);
       final res = await _netUtil.get(
-          "$GET_LATEST_INFO_NOTIFICATION_IN_APP_URL?ident=${tokenDecode['id'] != null ? tokenDecode['id']: 'ident'}&token=${tokenDecode['token']}");
+          "$GET_LATEST_INFO_NOTIFICATION_IN_APP_URL?ident=${tokenDecode['id'] != null ? tokenDecode['id'] : 'ident'}&token=${tokenDecode['token']}");
       return res;
     }
   }
-
 
   //Version of App
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:shouz/Pages/EventInter.dart';
-import 'package:shouz/Pages/Public.dart';
+import 'package:shouz/Pages/VoteEventScreen.dart';
+
+import 'Publicite.dart';
 class Event extends StatefulWidget {
   @override
   _EventState createState() => new _EventState();
@@ -97,7 +99,7 @@ class _EventState extends State<Event> with SingleTickerProviderStateMixin {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   EventInter(),
-                  Public()
+                  Publicite()
                 ],
             ),
           ),

@@ -1,20 +1,16 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:huawei_location/huawei_location.dart' as huawei_location;
 import 'package:latlong2/latlong.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox_gl;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/helper.dart';
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart';
 import 'package:shouz/Models/User.dart';
 import 'package:shouz/Pages/Login.dart';
-import 'package:shouz/Pages/update_info_basic.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:shouz/Constant/widget_common.dart';
-import './CovoiturageChoicePlace.dart';
 import 'package:permission_handler/permission_handler.dart' as permission;
 
 import 'package:location/location.dart';
@@ -99,7 +95,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
     _initialCameraPosition = mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(centerPositionLatitude, centerPositionLongitude), zoom: 7);
     internetCheck();
     getExplainCovoiturageMethod();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
     getPositionCurrent();
   }
 
@@ -828,7 +824,7 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                 Expanded(child: mapbox_gl.MapboxMap(
                   initialCameraPosition: _initialCameraPosition,
                   onMapCreated: _onMapCreated,
-                  styleString: 'mapbox://styles/rochelryu/ckkzo8rz23s6p17mpelgd4kzk',
+                  styleString: 'mapbox://styles/rochelryu/ckj3rq4ykbukh19rpata2eez3',
                   accessToken: "pk.eyJ1Ijoicm9jaGVscnl1IiwiYSI6ImNrMTkwbWkxMjAwM2UzZG9ka3hmejEybW0ifQ.9BIwdEGZfCz6MLIg8V6SIg",
                   //onStyleLoadedCallback: _onStyleLoadedCallback,
                   myLocationEnabled: true,
@@ -1149,14 +1145,14 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               setState(() {
                                 firstItemOpen = false;
                               });
-                              eCtrl.text = originItems[index]['title'].trim();
-                              originChoice = [originItems[index+1]['longitude'], originItems[index+1]['latitude']];
+                              eCtrl.text = originItems[index-1]['title'].trim();
+                              originChoice = [originItems[index-1]['longitude'], originItems[index-1]['latitude']];
                               FocusScope.of(context).requestFocus(FocusNode());
                               controller.animateCamera(
-                                  mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']), zoom: 15)));
+                                  mapbox_gl.CameraUpdate.newCameraPosition(mapbox_gl.CameraPosition(target: mapbox_gl.LatLng(originItems[index-1]['latitude'], originItems[index-1]['longitude']), zoom: 15)));
                               controller.addSymbol(
                                 mapbox_gl.SymbolOptions(
-                                  geometry: mapbox_gl.LatLng(originItems[index+1]['latitude'], originItems[index+1]['longitude']),
+                                  geometry: mapbox_gl.LatLng(originItems[index-1]['latitude'], originItems[index-1]['longitude']),
                                   iconImage: "images/marqueur_begin.png",
                                   iconSize: 0.3,
 
@@ -1165,8 +1161,8 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                               //await _addSourceAndLineLayer();
                             },
                             leading: Icon(Icons.local_library_outlined, color: colorError, size: 20,),
-                            title: Text(originItems[index+1]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
-                            subtitle: Text(originItems[index+1]['info'].trim(), style: Style.simpleTextOnBoard(12)),
+                            title: Text(originItems[index-1]['title'].trim(), style: Style.simpleTextOnBoard(14, colorBlack)),
+                            subtitle: Text(originItems[index-1]['info'].trim(), style: Style.simpleTextOnBoard(12)),
                           );
                         }
                       }

@@ -42,7 +42,14 @@ class _ListFilleulState extends State<ListFilleul> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text("Liste Filleul"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
+        title: Text("Liste Filleul", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0,
       ),

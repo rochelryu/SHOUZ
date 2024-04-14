@@ -31,11 +31,16 @@ import './Pages/LoadHide.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (message.data['bodyNotif'] != null) {
+  if(message.notification != null) {
+    createShouzNotification(
+        message.notification!.title!, message.notification!.body!, {});
+  }
+  else if (message.data['bodyNotif'] != null) {
     var body = message.data['bodyNotif'].toString().trim() == "images"
         ? "${Emojis.art_framed_picture} Une image a été envoyé..."
         : message.data['bodyNotif'].toString().trim();
@@ -74,9 +79,6 @@ void main() async {
         defaultRingtoneType: DefaultRingtoneType.Ringtone,
         vibrationPattern: lowVibrationPattern),
   ]);
-  Intl.defaultLocale = 'fr_FR';
-  initializeDateFormatting();
-
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -87,10 +89,17 @@ void main() async {
 
   await _messaging.requestPermission(
     alert: true,
+    announcement: false,
     badge: true,
+    carPlay: false,
+    criticalAlert: false,
     provisional: false,
     sound: true,
   );
+  Intl.defaultLocale = 'fr_FR';
+  initializeDateFormatting();
+
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,
@@ -110,21 +119,27 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<AppState?>(
       create: (_) => AppState(),
       lazy: false,
-      child: MaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'Shouz',
-          initialRoute: '/',
-          routes: routes,
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-              primarySwatch: Colors.blue,
-              primaryColor: backgroundColor,
-              primaryColorDark: Colors.blue),
-          home: MyHomePage(
-            title: 'Shouz',
-            key: UniqueKey(),
+      child: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: MaterialApp(
             navigatorKey: navigatorKey,
-          )),
+            title: 'Shouz',
+            initialRoute: '/',
+            routes: routes,
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+                primaryColor: backgroundColor,
+
+                primaryColorDark: Colors.blue),
+            home: MyHomePage(
+              title: 'Shouz',
+              key: UniqueKey(),
+              navigatorKey: navigatorKey,
+            )),
+      ),
     );
   }
 }
@@ -255,7 +270,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
 
     FirebaseMessaging.onMessage.listen((message) {
-      firebaseMessagingInOpenHandler(message);
+      if(message.notification != null) {
+        _firebaseMessagingBackgroundHandler(message);
+      } else {
+        firebaseMessagingInOpenHandler(message);
+      }
+
     });
   }
 
@@ -279,12 +299,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Future getNewLevel() async {
     try {
+
       int levelLocal = await getLevel();
       setState(() {
         level = levelLocal;
       });
-      User user = await DBProvider.db.getClient();
-      await getTokenForNotificationProvider(user.numero != 'null');
+      User? user = await DBProvider.db.getClient();
+      if(user != null && user.ident != 'ident') {
+        await getTokenForNotificationProvider(true);
+      }
       prefs = await SharedPreferences.getInstance();
     } catch (e) {
       print("Erreur $e");
@@ -300,39 +323,42 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<String?>(
-          stream: linkStream,
-          builder: (context, streamSnapshot) {
-            final link = streamSnapshot.data ?? '';
-            if (link.isNotEmpty) {
-              final arrayInfo = link.split('/');
-              final idElement = arrayInfo.last;
-              final categorie = arrayInfo[arrayInfo.length - 2];
-              return loadDeepLink(categorie, idElement);
-            } else {
-              return FutureBuilder<String?>(
-                  future: getInitialLink(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      final linkInitial = snapshot.data ?? '';
-                      if (linkInitial.isEmpty) {
-                        return (appState?.getSocketIO != null)
-                            ? levelUser(level)
-                            : LoadHide(
-                                key: UniqueKey(),
-                              );
+      body: GestureDetector(
+        child: StreamBuilder<String?>(
+            stream: linkStream,
+            builder: (context, streamSnapshot) {
+              final link = streamSnapshot.data ?? '';
+              if (link.isNotEmpty) {
+                final arrayInfo = link.split('/');
+                final idElement = arrayInfo.last;
+                final categorie = arrayInfo[4];
+                return loadDeepLink(categorie, idElement);
+              } else {
+                return FutureBuilder<String?>(
+                    future: getInitialLink(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        final linkInitial = snapshot.data ?? '';
+                        if (linkInitial.isEmpty) {
+                          return (appState?.getSocketIO != null)
+                              ? levelUser(level)
+                              : LoadHide(
+                                  key: UniqueKey(),
+                                );
+                        } else {
+                          final arrayInfo = linkInitial.split('/');
+                          final idElement = arrayInfo.last;
+                          final categorie = arrayInfo[4];
+                          return loadDeepLink(categorie, idElement);
+                        }
                       } else {
-                        final arrayInfo = linkInitial.split('/');
-                        final idElement = arrayInfo.last;
-                        final categorie = arrayInfo[arrayInfo.length - 2];
-                        return loadDeepLink(categorie, idElement);
+                        return LoadHide(key: UniqueKey());
                       }
-                    } else {
-                      return LoadHide(key: UniqueKey());
                     }
-                  });
-            }
-          }),
+                    );
+              }
+            }),
+      ),
     );
   }
 
