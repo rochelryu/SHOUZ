@@ -536,45 +536,62 @@ class _DetailsDealsState extends State<DetailsDeals>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Expanded(
-                          flex: 7,
+                          flex: 6,
                           child: Text(widget.dealsDetailsSkeleton.title,
                               style: Style.titre(15.0)),
                         ),
                         Expanded(
-                          flex: 2,
+                          flex: 3,
                           child: Column(
                             children: <Widget>[
                               Text(afficheDate,
                                   textAlign: TextAlign.center,
                                   style: Style.titre(8.0)),
                               if (!isMe)
-                                IconButton(
-                                  icon: Icon(Icons.favorite,
-                                      color: favorite
-                                          ? Colors.redAccent
-                                          : Colors.grey,
-                                      size: 22.0),
-                                  onPressed: () async {
-                                    if (id != '' && id != 'ident') {
-                                      setState(() {
-                                        favorite = !favorite;
-                                      });
-                                      await consumeAPI
-                                          .addOrRemoveItemInFavorite(
-                                              widget.dealsDetailsSkeleton.id,
-                                              1);
-                                      openAppReview(context);
-                                    } else {
-                                      await modalForExplain(
-                                          "${ConsumeAPI.AssetPublicServer}ready_station.svg",
-                                          "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
-                                          context,
-                                          true);
-                                      Navigator.pushNamed(
-                                          context, Login.rootName);
-                                    }
-                                  },
+                                
+                                Row(mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                      IconButton(
+                                        icon: Icon(Icons.favorite,
+                                            color: favorite
+                                                ? Colors.redAccent
+                                                : Colors.grey,
+                                            size: 22.0),
+                                        onPressed: () async {
+                                          if (id != '' && id != 'ident') {
+                                            setState(() {
+                                              favorite = !favorite;
+                                            });
+                                            await consumeAPI
+                                                .addOrRemoveItemInFavorite(
+                                                widget.dealsDetailsSkeleton.id,
+                                                1);
+                                            openAppReview(context);
+                                          } else {
+                                            await modalForExplain(
+                                                "${ConsumeAPI.AssetPublicServer}ready_station.svg",
+                                                "Pour avoir accès à ce service il est impératif que vous créez un compte ou que vous vous connectiez",
+                                                context,
+                                                true);
+                                            Navigator.pushNamed(
+                                                context, Login.rootName);
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          Share.share(
+                                              "${widget.dealsDetailsSkeleton.title} à ${widget.dealsDetailsSkeleton.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/${widget.dealsDetailsSkeleton.id}");
+                                        },
+                                        icon: Icon(
+                                            Style.social_normal,
+                                            color: colorText,
+                                            size: 22.0
+                                        ),
+                                      )
+                                  ],
                                 ),
+
                             ],
                           ),
                         )
@@ -657,30 +674,12 @@ class _DetailsDealsState extends State<DetailsDeals>
                                   )
                                 ],
                               ),
-                              /*if(widget.dealsDetailsSkeleton.level == 3) */ Container(
-                                child: TextButton(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Icon(Style.social_normal,
-                                            color: colorText),
-                                        SizedBox(width: 5),
-                                        Text("Partager cet article", style: Style.simpleTextOnBoard(17, colorText),)
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      Share.share(
-                                          "${widget.dealsDetailsSkeleton.title} à ${widget.dealsDetailsSkeleton.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.dealsDetailsSkeleton.title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/${widget.dealsDetailsSkeleton.id}");
-                                    }),
-                                width: double.infinity,
-                              ),
                               if (widget.dealsDetailsSkeleton.level == 3)
                                 Container(
                                     child: TextButton(
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                           children: [
                                             Icon(MyFlutterAppSecond.shop,
                                                 color: colorText),
@@ -708,6 +707,7 @@ class _DetailsDealsState extends State<DetailsDeals>
                                                           .dealsDetailsSkeleton
                                                           .autor)));
                                         })),
+
                               SizedBox(height: 10.0),
                             ],
                           ),

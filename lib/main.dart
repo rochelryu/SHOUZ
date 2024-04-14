@@ -31,11 +31,16 @@ import './Pages/LoadHide.dart';
 import 'Provider/Notifications.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (message.data['bodyNotif'] != null) {
+  if(message.notification != null) {
+    createShouzNotification(
+        message.notification!.title!, message.notification!.body!, {});
+  }
+  else if (message.data['bodyNotif'] != null) {
     var body = message.data['bodyNotif'].toString().trim() == "images"
         ? "${Emojis.art_framed_picture} Une image a été envoyé..."
         : message.data['bodyNotif'].toString().trim();
@@ -47,9 +52,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     createShouzNotification(
         message.data['titreNotif'].toString().trim(), body, data);
-  } else {
-    createShouzNotification(
-        message.notification!.title!, message.notification!.body!, {});
   }
 }
 
@@ -268,7 +270,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
 
     FirebaseMessaging.onMessage.listen((message) {
-      firebaseMessagingInOpenHandler(message);
+      if(message.notification != null) {
+        _firebaseMessagingBackgroundHandler(message);
+      } else {
+        firebaseMessagingInOpenHandler(message);
+      }
+
     });
   }
 

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Models/User.dart';
+import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../Constant/Style.dart';
 import '../Constant/helper.dart';
-import '../ServicesWorker/WebSocketHelper.dart';
 
 class AppState with ChangeNotifier {
   IO.Socket? _socket;
@@ -39,7 +39,7 @@ class AppState with ChangeNotifier {
   }
 
   initializeSocket() async {
-    _socket = IO.io("$SERVER_ADDRESS/$NAME_SPACE",
+    _socket = IO.io("${ConsumeAPI.SERVER_ADDRESS}/${ConsumeAPI.NAME_SPACE}",
         IO.OptionBuilder().setTransports(['websocket']).build());
 
     _socket!.onConnect((data) async {
@@ -449,6 +449,8 @@ class AppState with ChangeNotifier {
     _socket!.emit("agreeForPropositionForDeals", [jsonData]);
     notifyListeners();
   }
+
+
 
   clearConversation() {
     conversation = {};

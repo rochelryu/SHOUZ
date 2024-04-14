@@ -291,7 +291,7 @@ class _SettingState extends State<Setting> {
                         style: Style.grandTitre(18)),
                     Text("${newClient['prefix']} ${newClient['numero']}",
                         style: Style.sousTitre(14.0), textAlign: TextAlign.center),
-                    Text(newClient['email'],
+                    Text(newClient['email'] ?? '',
                         style: Style.sousTitre(14.0), textAlign: TextAlign.center),
                   ],
                 ),

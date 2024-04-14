@@ -985,7 +985,6 @@ class _CovoiturageState extends State<Covoiturage> with SingleTickerProviderStat
                                   });
                                   if(origine.length > 4) {
                                     final itemOriginServer = await consumeAPI.getAutoComplete(origine);
-                                    print(itemOriginServer);
                                     setState(() {
                                       originItems = itemOriginServer;
                                     });

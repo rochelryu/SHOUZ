@@ -131,7 +131,7 @@ var pageExplicationEventList = [
       imageUrl: "${ConsumeAPI.AssetPublicServer}shareTicket.svg",
       body: "3- Notre système offre aux acheteurs de tickets une expérience fluide avec des options de partage de billets et d'achat groupé pour les mentors."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}cashIn.svg",
+      imageUrl: "${ConsumeAPI.AssetPublicServer}MoneyRembourse.svg",
       body: "4- Les acheteurs de vos billets peuvent annuler l'achat jusqu'à 24h avant l'événement et récupérez 90% du montant, 10% étant reversés à l'organisateur."),
   // PageExplicationModel(
   //     imageUrl: "${ConsumeAPI.AssetPublicServer}CancelledEvent.svg",

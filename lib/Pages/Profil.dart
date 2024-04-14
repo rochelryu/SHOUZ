@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,8 @@ import 'CovoiturageChoicePlace.dart';
 import 'DetailsDeals.dart';
 import 'EventDetails.dart';
 import 'package:shouz/Constant/widget_common.dart';
+
+import 'VoteEventScreen.dart';
 
 class Profil extends StatefulWidget {
   static String rootName = '/profil';
@@ -37,7 +40,7 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _controllerDeals = TabController(length: 2, vsync: this);
-    _controllerEvents = TabController(length: 2, vsync: this);
+    _controllerEvents = TabController(length: 3, vsync: this);
     _controllerTravels = TabController(length: 2, vsync: this);
     LoadInfo();
   }
@@ -676,11 +679,15 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                             tabs: [
                               Tab(
                                 text:
+                                'Mes Tickets (${infoUser['favoriteEvents'].length})',
+                              ),
+                              Tab(
+                                text:
                                     'Mes Evenements (${infoUser['myEvents'].length})',
                               ),
                               Tab(
                                 text:
-                                    'Mes Favories (${infoUser['favoriteEvents'].length})',
+                                'Mes Vôtes (${infoUser['myVotesEventsPublish'].length})',
                               ),
                             ],
                           ),
@@ -689,6 +696,167 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                           child: TabBarView(
                             controller: _controllerEvents,
                             children: <Widget>[
+                              ListView.builder(
+                                  padding: EdgeInsets.all(0),
+                                  itemCount: infoUser['favoriteEvents'].length,
+                                  itemBuilder: (context, index) {
+                                    final indexHero = index + 10000;
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (builder) =>
+                                                    EventDetails(
+                                                      0,
+                                                      infoUser['favoriteEvents']
+                                                      [index]['imageCover'],
+                                                      indexHero,
+                                                      infoUser['favoriteEvents']
+                                                      [index]['price'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]
+                                                      ['numberFavorite'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['authorName'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['describe'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['_id'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]
+                                                      ['numberTicket'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['position'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['eventDate'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['title'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]
+                                                      ['positionRecently'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['videoPub'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['allTicket'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['authorId'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['cumulGain'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]
+                                                      ['authorId'] ==
+                                                          newClient!.ident,
+                                                      infoUser['favoriteEvents']
+                                                      [index]['state'],
+                                                      infoUser['favoriteEvents']
+                                                      [index]['favorie'],
+                                                    )));
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 235,
+                                        child: Stack(
+                                          children: <Widget>[
+                                            Container(
+                                              height: double.infinity,
+                                              width: double.infinity,
+                                              child: Hero(
+                                                tag: indexHero,
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                  "${ConsumeAPI.AssetEventServer}${infoUser['favoriteEvents'][index]['imageCover']}",
+                                                  progressIndicatorBuilder: (context,
+                                                      url,
+                                                      downloadProgress) =>
+                                                      Center(
+                                                          child: CircularProgressIndicator(
+                                                              value:
+                                                              downloadProgress
+                                                                  .progress)),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                      notSignal(),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 0,
+                                              left: 0,
+                                              right: 0,
+                                              height: 200,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                        colors: [
+                                                          const Color(0x00000000),
+                                                          const Color(0x99111111),
+                                                        ],
+                                                        begin: FractionalOffset(
+                                                            0.0, 0.0),
+                                                        end: FractionalOffset(
+                                                            0.0, 1.0))),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Text(
+                                                        infoUser['favoriteEvents']
+                                                        [index]['title']
+                                                            .toString()
+                                                            .toUpperCase(),
+                                                        style: Style.titreEvent(
+                                                            20),
+                                                        textAlign:
+                                                        TextAlign.center),
+                                                    SizedBox(height: 10.0),
+                                                    Text(
+                                                        infoUser[
+                                                        'favoriteEvents']
+                                                        [index]['position'],
+                                                        style: Style
+                                                            .sousTitreEvent(15),
+                                                        maxLines: 2,
+                                                        textAlign:
+                                                        TextAlign.center),
+                                                    SizedBox(height: 25.0),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                      children: <Widget>[
+                                                        Row(
+                                                          children: <Widget>[
+                                                            SizedBox(
+                                                                width: 10.0),
+                                                            Icon(Icons.favorite,
+                                                                color: Colors
+                                                                    .redAccent,
+                                                                size: 22.0),
+                                                            Text(
+                                                              infoUser['favoriteEvents']
+                                                              [
+                                                              index]
+                                                              [
+                                                              'numberFavorite']
+                                                                  .toString(),
+                                                              style: Style
+                                                                  .titleInSegment(),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 15.0),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }),
                               ListView.builder(
                                   padding: EdgeInsets.all(0),
                                   itemCount: infoUser['myEvents'].length,
@@ -821,167 +989,11 @@ class _ProfilState extends State<Profil> with TickerProviderStateMixin {
                                       ),
                                     );
                                   }),
-                              ListView.builder(
-                                  padding: EdgeInsets.all(0),
-                                  itemCount: infoUser['favoriteEvents'].length,
-                                  itemBuilder: (context, index) {
-                                    final indexHero = index + 10000;
-                                    return InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (builder) =>
-                                                    EventDetails(
-                                                      0,
-                                                      infoUser['favoriteEvents']
-                                                          [index]['imageCover'],
-                                                      indexHero,
-                                                      infoUser['favoriteEvents']
-                                                          [index]['price'],
-                                                      infoUser['favoriteEvents']
-                                                              [index]
-                                                          ['numberFavorite'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['authorName'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['describe'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['_id'],
-                                                      infoUser['favoriteEvents']
-                                                              [index]
-                                                          ['numberTicket'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['position'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['eventDate'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['title'],
-                                                      infoUser['favoriteEvents']
-                                                              [index]
-                                                          ['positionRecently'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['videoPub'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['allTicket'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['authorId'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['cumulGain'],
-                                                      infoUser['favoriteEvents']
-                                                                  [index]
-                                                              ['authorId'] ==
-                                                          newClient!.ident,
-                                                      infoUser['favoriteEvents']
-                                                          [index]['state'],
-                                                      infoUser['favoriteEvents']
-                                                          [index]['favorie'],
-                                                    )));
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 235,
-                                        child: Stack(
-                                          children: <Widget>[
-                                            Container(
-                                              height: double.infinity,
-                                              width: double.infinity,
-                                              child: Hero(
-                                                tag: indexHero,
-                                                child: CachedNetworkImage(
-                                                  imageUrl:
-                                                      "${ConsumeAPI.AssetEventServer}${infoUser['favoriteEvents'][index]['imageCover']}",
-                                                  progressIndicatorBuilder: (context,
-                                                          url,
-                                                          downloadProgress) =>
-                                                      Center(
-                                                          child: CircularProgressIndicator(
-                                                              value:
-                                                                  downloadProgress
-                                                                      .progress)),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          notSignal(),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              bottom: 0,
-                                              left: 0,
-                                              right: 0,
-                                              height: 200,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
-                                                        colors: [
-                                                      const Color(0x00000000),
-                                                      const Color(0x99111111),
-                                                    ],
-                                                        begin: FractionalOffset(
-                                                            0.0, 0.0),
-                                                        end: FractionalOffset(
-                                                            0.0, 1.0))),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    Text(
-                                                        infoUser['favoriteEvents']
-                                                                [index]['title']
-                                                            .toString()
-                                                            .toUpperCase(),
-                                                        style: Style.titreEvent(
-                                                            20),
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    SizedBox(height: 10.0),
-                                                    Text(
-                                                        infoUser[
-                                                                'favoriteEvents']
-                                                            [index]['position'],
-                                                        style: Style
-                                                            .sousTitreEvent(15),
-                                                        maxLines: 2,
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    SizedBox(height: 25.0),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: <Widget>[
-                                                        Row(
-                                                          children: <Widget>[
-                                                            SizedBox(
-                                                                width: 10.0),
-                                                            Icon(Icons.favorite,
-                                                                color: Colors
-                                                                    .redAccent,
-                                                                size: 22.0),
-                                                            Text(
-                                                              infoUser['favoriteEvents']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'numberFavorite']
-                                                                  .toString(),
-                                                              style: Style
-                                                                  .titleInSegment(),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(height: 15.0),
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }),
+
+                              LayoutBuilder(builder: (context, conraints) {
+                                return VoteScreen(allVoteEvent: infoUser['myVotesEventsPublish']);
+                              },
+                              )
                             ],
                           ),
                         ),

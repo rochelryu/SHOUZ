@@ -364,7 +364,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      mtnNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -476,7 +475,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      waveNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -585,7 +583,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      orangeNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -693,7 +690,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      moovNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';

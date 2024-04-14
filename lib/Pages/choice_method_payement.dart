@@ -122,7 +122,8 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                               height: 100,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
-                                      image: AssetImage("images/cryptopayement.jpg"),
+
+                                      image: AssetImage("images/cryptopayement.png"),
                                       fit: BoxFit.contain
                                   )
                               ),
@@ -156,7 +157,7 @@ class _ChoiceMethodPayementState extends State<ChoiceMethodPayement> {
                               height: 100,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
-                                      image: AssetImage("images/mobile_money.jpg"),
+                                      image: AssetImage("images/mobile_money.png"),
                                       fit: BoxFit.contain
                                   )
                               ),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shouz/Constant/Style.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -10,6 +13,7 @@ import '../Models/User.dart';
 import '../ServicesWorker/ConsumeAPI.dart';
 import '../Utils/Database.dart';
 import '../Utils/shared_pref_function.dart';
+import 'choice_method_payement.dart';
 
 class VoteEventDetail extends StatefulWidget {
   final voteItem;
@@ -243,6 +247,30 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
                     ElevatedButton(
                       onPressed: () async {
                         if(!isVoting){
+                          print(widget.voteItem['price']);
+                          print(newClient!.wallet);
+                          if(newClient != null && widget.voteItem['price'] > newClient!.wallet) {
+                            await prefs.setDouble('amountRecharge',
+                                widget.voteItem['price'] - newClient!.wallet);
+                            Fluttertoast.showToast(
+                                msg: 'Solde Insuffisant pensez à vous recharger',
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: colorError,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+
+                            Timer(const Duration(milliseconds: 2000), () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (builder) => ChoiceMethodPayement(
+                                    key: UniqueKey(),
+                                    isRetrait: false,
+                                  )));
+                            });
+                            return ;
+                          }
+                          print("Ça continue");
                           setState(() {
                             isVoting = true;
                             currentActorVoted = index;
@@ -251,8 +279,8 @@ class _VoteEventDetailState extends State<VoteEventDetail>  with TickerProviderS
                           final isAvailableOfTime = actualy.difference(DateTime.parse(widget.voteItem['beginDate'])).inMinutes > -86399 && actualy.difference(DateTime.parse(widget.voteItem['endDate'])).inMinutes < 0;
                           if(isAvailableOfTime) {
                             final verifyIsAvailaible = await verifyAndCreateIfNotExistVoteByIdToShared(widget.voteItem['_id'], categorie['_id'], actor['_id']);
-                            if(!verifyIsAvailaible) {
-                              final createVote = await consumeAPI.setVoteBySalior(actor['_id'], categorie['_id']);
+                            if(!verifyIsAvailaible || widget.voteItem['price'] > 0) {
+                              final createVote = await consumeAPI.setVoteBySalior(actor['_id'], categorie['_id'], widget.voteItem['price']);
                               if(createVote['etat'] == 'found') {
                                 final dataVote = widget.voteItem['categorie'].firstWhere((c) => c['_id'] == categorie['_id']);
                                 final indexCategorieVote = widget.voteItem['categorie'].indexWhere((c) => c['_id'] == categorie['_id']);

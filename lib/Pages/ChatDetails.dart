@@ -510,21 +510,17 @@ class _ChatDetailsState extends State<ChatDetails>
       );
       if (conversation['levelDelivery'] > 0 &&
           conversation['levelDelivery'] < 3 &&
-          conversation['content'][conversation['content'].length - 1]['content']
-                  .toString()
-                  .indexOf("Je viens de payer à la livraison") ==
-              -1) {
+          conversation['methodPayement'] == 'delivery') {
         tabs.add(Container(
-          height: 120,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "💁 Quand le vendeur sera devant vous avec l'article il vous faudra cliquer sur le boutton 'Payer Maintenant' ",
+                "💁 Quand le livreur sera devant vous avec l'article il vous faudra cliquer sur le boutton 'Payer Maintenant'",
                 style: Style.chatIsMe(15),
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -538,7 +534,8 @@ class _ChatDetailsState extends State<ChatDetails>
                             room: room,
                             id: appState.getIdOldConversation.trim(),
                             methodPayement: "delivery",
-                            finalityPayement: true);
+                            finalityPayement: true,
+                        );
                         openAppReview(context);
                       } else {
                         await prefs?.setDouble('amountRecharge',
@@ -845,41 +842,35 @@ class _ChatDetailsState extends State<ChatDetails>
         ],
       );
     } else if (etatCommunication == 'Seller and Buyer validate price final') {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return Column(
         children: [
-          Expanded(
-              child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Prix Total Proposé', style: Style.chatIsMe(13)),
-                    Text(priceFinal!.toString(), style: Style.titleNews()),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 53,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Qte Proposé', style: Style.chatIsMe(13)),
-                    Text(qte!.toString(), style: Style.titleNews()),
-                  ],
-                ),
-              ),
-              Text(
-                'Vendeur et Acheteur se sont entendus sur cette proposition 🤝',
-                textAlign: TextAlign.center,
-                style: Style.titleNews(16.0),
-              )
-            ],
-          )),
+          Container(
+            width: double.infinity,
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Prix Total Proposé', style: Style.chatIsMe(13)),
+                Text(priceFinal!.toString(), style: Style.titleNews()),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: 53,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Qte Proposé', style: Style.chatIsMe(13)),
+                Text(qte!.toString(), style: Style.titleNews()),
+              ],
+            ),
+          ),
+          Text(
+            'Vendeur et Acheteur se sont entendus sur cette proposition 🤝',
+            textAlign: TextAlign.center,
+            style: Style.titleNews(16.0),
+          )
         ],
       );
     } else {
@@ -1507,7 +1498,6 @@ class _ChatDetailsState extends State<ChatDetails>
                                         SizedBox(height: 5),
                                         Container(
                                           width: double.infinity,
-                                          height: 170,
                                           child: propositionAuteur(
                                               conversation['etatCommunication'],
                                               (room.split('_')[0] ==

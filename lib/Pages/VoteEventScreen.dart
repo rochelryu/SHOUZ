@@ -79,24 +79,24 @@ class _VoteScreenState extends State<VoteScreen> {
                             y = 1 - double.parse(delta.abs().clamp(0.0, 1.0).toString());
                           }
 
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                height: MediaQuery.of(context).size.height / 2.3,
-                                child: Stack(
-                                  children: <Widget>[
-                                    Positioned(
-                                      width: 300,
-                                      top: 36.0,
-                                      right: 36.0,
-                                      child: InkWell(
-                                        onTap: () {
-                                          Navigator.of(context).push((MaterialPageRoute(
-                                              builder: (context) => VoteEventDetail(voteItem: page,gradiant: gradient[index % 5],))));
-                                        },
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context).push((MaterialPageRoute(
+                                  builder: (context) => VoteEventDetail(voteItem: page,gradiant: gradient[index % 5],))));
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Container(
+                                  height: MediaQuery.of(context).size.height / 2.3,
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Positioned(
+                                        width: 300,
+                                        top: 36.0,
+                                        right: 36.0,
                                         child: Card(
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                           elevation: 7.0,
@@ -122,72 +122,136 @@ class _VoteScreenState extends State<VoteScreen> {
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(left: 12.0),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Opacity(
-                                      opacity: 0.10,
-                                      child: GradientText(
-                                        page['name'],
-                                        colors: gradient[index % 5],
-                                        style: Style.titleOnBoardShadow(fontSize: 30),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 30.0, left: 22.0),
-                                      child: GradientText(
-                                        page['name'],
-                                        colors: gradient[index % 5],
-                                        style: Style.titleOnBoard(fontSize: 27),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: 0.0, left: 34.0, right: 10.0),
-                                child: Transform(
-                                  transform: Matrix4.translationValues(
-                                      0.0, 50 * (1 - y), 0.0),
-                                  child: Text(
-                                    "Date de debut : ${formatedDateForLocal(DateTime.parse(page['beginDate']), withTime: false)}"
-                                        "\n"
-                                        "Date de fin : ${formatedDateForLocal(DateTime.parse(page['endDate']), withTime: false)}",
-                                    style: Style.simpleTextOnBoard(),
+                                      )
+                                    ],
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: 10.0, left: 34.0, right: 10.0),
-                                child: Transform(
-                                  transform: Matrix4.translationValues(
-                                      0.0, 50 * (1 - y), 0.0),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push((MaterialPageRoute(
-                                          builder: (context) => VoteEventDetail(voteItem: page,gradiant: gradient[index % 5],))));
-                                    },
-                                    child: Text('Voter'),
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: colorPrimary, backgroundColor: colorText,
-                                      minimumSize: Size(88, 36),
-                                      elevation: 4.0,
-                                      padding: EdgeInsets.symmetric(horizontal: 16),
-                                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
-                                    ),
+                                Container(
+                                  margin: EdgeInsets.only(left: 12.0),
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Opacity(
+                                        opacity: 0.10,
+                                        child: GradientText(
+                                          page['name'],
+                                          colors: gradient[index % 5],
+                                          style: Style.titleOnBoardShadow(fontSize: 30),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 30.0, left: 22.0),
+                                        child: GradientText(
+                                          page['name'],
+                                          colors: gradient[index % 5],
+                                          style: Style.titleOnBoard(fontSize: 27),
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 ),
-                              )
-                            ],
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: 0.0, left: 34.0, right: 10.0),
+                                  child: Transform(
+                                    transform: Matrix4.translationValues(
+                                        0.0, 50 * (1 - y), 0.0),
+                                    child: Row(
+
+                                      children: [
+                                        Expanded(
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.alarm_on, color: colorText, size: 19,),
+                                                SizedBox(width: 2,),
+                                                Text(
+                                                  "Debut: ${formatedDateForLocal(DateTime.parse(page['beginDate']), withTime: false)}",
+                                                  style: Style.simpleTextOnBoard(14),
+                                                ),
+                                              ],
+                                            )
+                                        ),
+                                        Expanded(
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.alarm_off, color: colorText,size: 19,),
+                                                SizedBox(width: 2,),
+                                                Text(
+                                                  "Fin: ${formatedDateForLocal(DateTime.parse(page['endDate']), withTime: false)}",
+                                                  style: Style.simpleTextOnBoard(14),
+                                                ),
+                                              ],
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                            )
+                                        ),
+                                      ],
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    )
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: 10.0, left: 34.0, right: 10.0),
+                                  child: Transform(
+                                      transform: Matrix4.translationValues(
+                                          0.0, 50 * (1 - y), 0.0),
+                                      child: Row(
+
+                                        children: [
+                                          Expanded(
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.wallet, color: colorText, size: 19,),
+                                                  SizedBox(width: 2,),
+                                                  Text(
+                                                    "Prix: ${page['price'] > 0 ? '${page['price']} XOF': 'GRATUIT'}",
+                                                    style: Style.simpleTextOnBoard(14),
+                                                  ),
+                                                ],
+                                              )
+                                          ),
+                                          Expanded(
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.star, color: colorText,size: 19,),
+                                                  SizedBox(width: 2,),
+                                                  Text(
+                                                    "Nominés: ${totalNomine(page['categorie'])}",
+                                                    style: Style.simpleTextOnBoard(14),
+                                                  ),
+                                                ],
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                              )
+                                          ),
+                                        ],
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      )
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: 10.0, left: 34.0, right: 10.0),
+                                  child: Transform(
+                                    transform: Matrix4.translationValues(
+                                        0.0, 50 * (1 - y), 0.0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).push((MaterialPageRoute(
+                                            builder: (context) => VoteEventDetail(voteItem: page,gradiant: gradient[index % 5],))));
+                                      },
+                                      child: Text('Voir les nominés'),
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: colorPrimary, backgroundColor: colorText,
+                                        minimumSize: Size(88, 36),
+                                        elevation: 4.0,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           );
                         },
                       )
@@ -213,4 +277,11 @@ class _VoteScreenState extends State<VoteScreen> {
       ),
     );
   }
+   int totalNomine(List<dynamic> categories) {
+    int totalItem = 0;
+    for(final categorie in categories) {
+      totalItem += categorie['allActors'].length as int;
+    }
+    return totalItem;
+   }
 }

@@ -16,8 +16,12 @@ import '../Utils/shared_pref_function.dart';
 
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
+  static final String SERVER_ADDRESS = "https://socket.shouz.network";//http://172.20.10.3:5003 //https://socket.shouz.network;
+// 127.0.0.1 192.168.1.100 192.168.1.27 // unknow mobile 192.168.43.4
+  static final String NAME_SPACE = "shouzChat";
+  static final bool enableLogging = true;
   static final BASE_URL =
-      "http://172.20.10.3:5002"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "https://app.shouz.network"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final SET_EMPTY_URL = BASE_URL + "/client/createEmptyClient";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";
@@ -304,6 +308,7 @@ class ConsumeAPI {
   // For client
   Future<Map<String, dynamic>> getProfil() async {
     User newClient = await DBProvider.db.getClient();
+    print('$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
     final res = await _netUtil.get(
         '$GET_PROFIL_URL/${newClient.ident}?credentials=${newClient.recovery}');
     return res['info'];
@@ -360,7 +365,6 @@ class ConsumeAPI {
 
   Future<Map<String, dynamic>> getStatsOfEvent(String idEvent) async {
     User newClient = await DBProvider.db.getClient();
-    print('$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
     final res = await _netUtil.get(
         '$GET_STATS_OF_EVENT_URL/${newClient.ident}?credentials=${newClient.recovery}&idEvent=$idEvent');
     return res;
@@ -819,7 +823,6 @@ class ConsumeAPI {
   Future<List<dynamic>> getCategoriesAndNumbersItemsDeals({String sort = "newer"}) async {
     User newClient = await DBProvider.db.getClient();
 
-    print('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}');
     final res =
         await _netUtil.get('$GET_CATEGORIE_PRODUCT_URL/${newClient.ident}?sort=$sort');
     return res;
@@ -1291,7 +1294,7 @@ class ConsumeAPI {
 
   setVoteBySalior(
       String actorId,
-      String categorieId) async {
+      String categorieId, int price) async {
     User newClient = await DBProvider.db.getClient();
     final body = {
       'uuid': newClient.ident,
@@ -1300,6 +1303,12 @@ class ConsumeAPI {
       'categorieId': categorieId.trim(),
     };
     return _netUtil.post(SET_VOTE_ACTOR_URL, body: body).then((dynamic res) async {
+      if(res['etat'] == 'found' && price > 0) {
+        await DBProvider.db
+            .updateClientWallet(res['result']['wallet'], newClient.ident);
+        await DBProvider.db
+            .updateClient(res["result"]["recovery"], newClient.ident);
+      }
       return res;
     });
   }
@@ -1807,7 +1816,6 @@ class ConsumeAPI {
 
   Future<Map<String, dynamic>> getLatestVersionApp() async {
     User newClient = await DBProvider.db.getClient();
-    print("$GET_LATEST_VERSION_APP_URL?versionApp=$versionApp&client=${newClient.ident}");
     final res = await _netUtil.get(
         "$GET_LATEST_VERSION_APP_URL?versionApp=$versionApp&client=${newClient.ident}");
     return res;
