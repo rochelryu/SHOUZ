@@ -58,12 +58,13 @@ class _CheckoutRetraitMobileMoneyState
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: Style.white,),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        title: Text("Retrait Mobile Money"),
+        title: Text("Retrait Mobile Money", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
       ),
@@ -363,7 +364,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      mtnNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -475,7 +475,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      waveNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -584,7 +583,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      orangeNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';
@@ -692,7 +690,6 @@ class _CheckoutRetraitMobileMoneyState
                       await askedToLead(demandeRetrait['error'], false, context);
                     }
                     setState(() {
-                      moovNumero = '';
                       loadConfirmation = false;
                     });
                     _controller.text = '0';

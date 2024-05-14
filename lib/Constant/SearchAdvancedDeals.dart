@@ -272,7 +272,7 @@ class _SearchAdvancedDealsState extends State<SearchAdvancedDeals> {
                     child: IconButton(
                       icon: Icon(Style.social_normal, color: Style.yellow),
                       onPressed: () {
-                        Share.share("${ConsumeAPI.ProductLink}${widget.id}");
+                        Share.share("${ConsumeAPI.ProductLink}${widget.title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/${widget.id}");
                       },
                     ),
                   ),

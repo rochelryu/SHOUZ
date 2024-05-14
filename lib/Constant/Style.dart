@@ -6,14 +6,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 import 'package:shouz/Utils/Database.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
-
 import 'my_flutter_app_second_icons.dart';
 
 Color colorOne = tint;
 Color colorTwo = backgroundColorSec;
 Color colorThree = colorText;
 enum TypePayement { bitcoin, ethereum, orange, mtn, moov, wave, visa }
+enum TypeVotesInfoLoad { with_event, without_event, none }
+enum TypePeriodicVotes { only, one_day_vote, two_day_vote, three_day_vote, none }
 
 
 bool primaryTheme = true;
@@ -29,6 +29,7 @@ const Color colorPrimary = Colors.white;
 const Color colorBlack = Colors.black;
 const Color colorSecondary = Colors.grey;
 const Color colorWelcome = Colors.white70;
+const Color colorTransparent = Colors.transparent;
 final Color secondColor =
     (!primaryTheme) ? Color(0xFFFFFFFF) : Color(0xFFFFFFFF);
 final transitionMedium = new Duration(milliseconds: 400);
@@ -122,22 +123,22 @@ var pageExplicationEventList = [
       body: "Salut à vous et bienvenue dans les explications de la rubrique événement.\nSans plus tarder nous allons rentrer dans le vif du sujet."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}surveillance.svg",
-      body: "1- Cette rubrique existe pour tous ceux qui veulent organiser des événements et pouvoir vendre leurs tickets directement dans SHOUZ.\nLes tickets sont des codes QR que vos acheteurs auront et qui seront décodés par une ou plusieurs personnes à qui vous aurez donné la permission (des vigils ou autres agents de sécurité).\nVotre décodeur doit avoir un compte SHOUZ car c'est avec son compte sous la rubrique décodage de ticket qu'il pourra décoder vos tickets."),
+      body: "1 - Vendez vos billets en ligne, ce sont des des billets numériques générés et qui simplifie l'entrée à votre événement."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}allInOneExplainEvent.jpeg",
-      body: "2- N'importe qui peut créer son événement afin de pouvoir vendre ses tickets et n'importe quel type d'événement peut être créé. Des événements à tickets gratuits comme payant. Il suffit de choisir un abonnement qui correspond au mieux à votre événement (en fonction du type de ticket ainsi qu'au nombre maximal de ticket)."),
+      imageUrl: "${ConsumeAPI.AssetPublicServer}allEvent.svg",
+      body: "2- Créez et vendez vos billets pour tous types d'événements, gratuits ou payants, avec des abonnements adaptés à vos besoins."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}ConsultingEvent.svg",
-      body: "3- Les clients qui achètent les tickets sont tout comme vous nos priorités donc nous travaillons afin d'améliorer leur cadre et possibilités d'actions dans SHOUZ.\nPar exemple un client qui achète un ticket de plusieurs places peut partager des places à d'autres membres dans l'application ce qui fera qu'eux aussi auront des tickets du nombre de places qui leur seront allouées.\nCeci est la fonctionnalité de partage de ticket qui est utilisé en cas d'indisponibilité ou de retard de celui qui a acheté les tickets et sert également à faciliter l'achat de tickets par des mentors afin de les distribuer aux membres intéressés."),
+      imageUrl: "${ConsumeAPI.AssetPublicServer}shareTicket.svg",
+      body: "3- Notre système offre aux acheteurs de tickets une expérience fluide avec des options de partage de billets et d'achat groupé pour les mentors."),
   PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}cashIn.svg",
-      body: "4- Les clients qui achètent les tickets peuvent annuler l'achat de leur ticket s'ils trouvent qu'ils ne seront plus disponibles pour participer à l'événement, ainsi ils récupèrent 90% du montant du ticket acheté, les autres 10% vont sur le solde cumule du créateur de l'événement ainsi que le ticket qui redevient à nouveau disponible pour achat.\nMais l'annulation de ticket peut se faire si l'acheteur est pris un ticket d'au plus 2 places et durant un temps, si on arrive à 24h avant le début de l'événement, aucun ticket ne peut être annulé."),
-  PageExplicationModel(
-      imageUrl: "${ConsumeAPI.AssetPublicServer}CancelledEvent.svg",
-      body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est déposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
+      imageUrl: "${ConsumeAPI.AssetPublicServer}MoneyRembourse.svg",
+      body: "4- Les acheteurs de vos billets peuvent annuler l'achat jusqu'à 24h avant l'événement et récupérez 90% du montant, 10% étant reversés à l'organisateur."),
+  // PageExplicationModel(
+  //     imageUrl: "${ConsumeAPI.AssetPublicServer}CancelledEvent.svg",
+  //     body: "5- Pour toutes annulations de l'événement par le créateur de l'événement, le client récupère son argent dans l'intégralité. Pendant l'achat des tickets le créateur de l'événement ne perçoit pas immédiatement l'argent des tickets vendus, l'argent est déposé sur son solde cumul.\nCe n'est qu'une fois que l'événement commencé que le promoteur reçoit immédiatement tout l'argent de sa vente de tickets directement dans son compte SHOUZPAY."),
   PageExplicationModel(
       imageUrl: "${ConsumeAPI.AssetPublicServer}notification.svg",
-      body: "6 - Nous notifions le créateur de l'événement lorsqu'un ticket est acheté, affichhons toutes les statistiques de l'évènement.\nNous assurons au créateur de l'événement une totale sécurité concernant l'achat, la gestion et le décodage de ticket pour ses événements et nous assurons aussi une large communauté intéressée.\nNous tenons à rappeler que les événements ne sont visibles que chez ceux qui sont intéressés par la même catégorie qu'à l'événement."),
+      body: "5 - Nous notifions au créateur de l'évènement le niveau d'achat de ses tickets, établissons des statistiques de son événement et une sécurité pour les verifications de tickets, et offrons large communauté d'utilisateurs ciblés."),
 ];
 
 var pageExplicationTravelList = [
@@ -476,18 +477,18 @@ class Style {
     );
   }
 
-  static dynamic titleOnBoardShadow() {
+  static dynamic titleOnBoardShadow({double fontSize = 40}) {
     return TextStyle(
-      fontSize: 42.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Black",
       letterSpacing: 1.0,
       //fontWeight: FontWeight.w600,
     );
   }
 
-  static dynamic titleOnBoard() {
+  static dynamic titleOnBoard({double fontSize = 34.0}) {
     return TextStyle(
-      fontSize: 34.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Black",
       letterSpacing: 2.0,
       //fontWeight: FontWeight.w600,
@@ -541,9 +542,9 @@ class Style {
     );
   }
 
-  static dynamic simpleTextBlack() {
+  static dynamic simpleTextBlack({double fontSize = 15}) {
     return TextStyle(
-      fontSize: 17.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: Colors.grey,
       letterSpacing: 1.1,
@@ -552,9 +553,9 @@ class Style {
   }
 
 
-  static dynamic simpleTextOnNews() {
+  static dynamic simpleTextOnNews({double fontSize = 15}) {
     return TextStyle(
-      fontSize: 17.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: colorPrimary,
       letterSpacing: 1.1,
@@ -562,9 +563,9 @@ class Style {
     );
   }
 
-  static dynamic copyRight() {
+  static dynamic copyRight({double fontSize = 13}) {
     return TextStyle(
-      fontSize: 13.0,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: colorPrimary,
       decoration: TextDecoration.underline,
@@ -573,12 +574,12 @@ class Style {
     );
   }
 
-  static dynamic chatIsMe(double size) {
+  static dynamic chatIsMe({double fontSize = 14}) {
     return TextStyle(
-      fontSize: size,
+      fontSize: fontSize,
       fontFamily: "Montserrat-Light",
       color: Colors.white,
-      fontWeight: (size > 14) ? FontWeight.w400 : FontWeight.normal,
+      fontWeight: (fontSize > 14) ? FontWeight.w400 : FontWeight.normal,
     );
   }
 
@@ -987,6 +988,16 @@ double getProportionateScreenWidth(double inputWidth) {
 }
 
 // Style boutton in flutter
+final ButtonStyle raisedButtonOutlineStyle = OutlinedButton.styleFrom(
+  minimumSize: const Size(88, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20)
+    ),
+  ),
+  side: BorderSide(color: colorError, width: 2)
+);
+
 final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   foregroundColor: Colors.white,
   backgroundColor: colorText,
@@ -1146,6 +1157,53 @@ Future<Null> modalForExplain(String assetLink, String text, BuildContext context
                       Navigator.pop(context);
                     }),
               )
+          ],
+        );
+      },
+      barrierDismissible: false
+  );
+}
+
+Future<Null> modalForCreateActionInEventScreen(String assetLink, String text, BuildContext context, [bool isSvg = false]) async {
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25)
+          ),
+          children: <Widget>[
+            if(!isSvg) Container(
+              width: double.infinity,
+              height: 250,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: NetworkImage(assetLink),
+                      fit: BoxFit.contain
+                  )
+              ),
+
+            ),
+            if(isSvg) SvgPicture.network(assetLink,
+              semanticsLabel: text.substring(0, 20),
+              height: 250,
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text(text, style: Style.simpleTextOnBoardWithBolder(13.0)),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 45),
+              child: ElevatedButton(
+                  child: Text('Ok'),
+                  style: raisedButtonStyle,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            )
           ],
         );
       },

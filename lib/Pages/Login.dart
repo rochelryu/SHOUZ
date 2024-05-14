@@ -80,19 +80,22 @@ class _LoginState extends State<Login> {
                                 color: Colors.white30,
                                 borderRadius: BorderRadius.circular(30.0)
                             ),
-                            child: TextField(
-                              keyboardType: TextInputType.phone,
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "XXXXXXXXXX",
-                                hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                            child: Center(
+                              child: TextField(
+                                keyboardType: TextInputType.phone,
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none,
+                                  hintText: "XXXXXXXXXX",
+                                  hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 20, color: Colors.grey[200]),
+                                ),
+                                onChanged: (text){
+                                  setState(() {
+                                    numero = text;
+                                  });
+                                },
                               ),
-                              onChanged: (text){
-                                setState(() {
-                                  numero = text;
-                                });
-                              },
                             ),
                           )
                         ],
@@ -122,19 +125,19 @@ class _LoginState extends State<Login> {
                             setState(() {
                               isCliked = true;
                             });
-                            final res = await ConsumeAPI().signin(numero, '+225');
-                            setState(() {
-                              user = res['user'];
-                            });
-                            await DBProvider.db.delClient();
-                            await DBProvider.db.newClient(user);
+                            await ConsumeAPI().signin(numero, '+225');
+                            // setState(() {
+                            //   user = res['user'];
+                            // });
+                            // print(user.ident);
+                            // await DBProvider.db.updateIdent(user.ident);
                             setLevel(2);
                             setState(() {
                                 isCliked = false;
                               });
                             Navigator.of(context).push(
                                 MaterialPageRoute(
-                                    builder: (builder) => Otp(key: UniqueKey(),)
+                                    builder: (builder) => Otp(key: UniqueKey(), prefix: '+225', numero: numero,)
                                 )
                             );
                           }

@@ -31,7 +31,7 @@ class _ChoiceHobieState extends State<ChoiceHobie> {
     // TODO: implement initState
     super.initState();
     loadPreference();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   loadPreference() async {

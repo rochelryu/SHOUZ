@@ -5,7 +5,7 @@ import 'package:shouz/Pages/DetailsDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 
-class RecentDeals extends StatefulWidget {
+class RecentDeals extends StatelessWidget {
   var imageUrl;
   var title;
   var favorite;
@@ -31,20 +31,8 @@ class RecentDeals extends StatefulWidget {
   List<String> PersonneLike = [];
   RecentDeals({this.imageUrl,this.comments, this.numberVue, this.title,this.level, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, required this.onLine, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved });
   @override
-  _RecentDeals createState() => _RecentDeals();
-}
-
-class _RecentDeals extends State<RecentDeals> {
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-  }
-  @override
   Widget build(BuildContext context) {
-    final color = widget.onLine ? Colors.green[300] : Colors.yellow[300];
+    final color = onLine ? Colors.green[300] : Colors.yellow[300];
     return Padding(padding: EdgeInsets.all(10),
       child: Stack(
         children: <Widget>[
@@ -55,26 +43,26 @@ class _RecentDeals extends State<RecentDeals> {
                 Navigator.of(context)
                     .push((MaterialPageRoute(builder: (context) {
                   DealsSkeletonData item = DealsSkeletonData(
-                      comments: widget.comments,
-                      numberVue:widget.numberVue,
-                    level: widget.level,
-                    video: widget.video,
-                    quantity: widget.quantity,
-                    numberFavorite: widget.numberFavorite,
-                    lieu: widget.lieu,
-                    id: widget.id,
-                    registerDate: widget.registerDate,
-                    profil: widget.profil,
-                    imageUrl: widget.imageUrl,
-                    title: widget.title,
-                    price: widget.price,
-                    autor: widget.autor,
-                    numero: widget.numero,
-                    describe: widget.describe,
-                    onLine: widget.onLine,
-                    authorName: widget.authorName,
-                    archive: widget.archive,
-                    categorieName: widget.categorieName, approved: widget.approved
+                      comments: comments,
+                      numberVue:numberVue,
+                    level: level,
+                    video: video,
+                    quantity: quantity,
+                    numberFavorite: numberFavorite,
+                    lieu: lieu,
+                    id: id,
+                    registerDate: registerDate,
+                    profil: profil,
+                    imageUrl: imageUrl,
+                    title: title,
+                    price: price,
+                    autor: autor,
+                    numero: numero,
+                    describe: describe,
+                    onLine: onLine,
+                    authorName: authorName,
+                    archive: archive,
+                    categorieName: categorieName, approved: approved
                   );
                   return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
                 })));
@@ -89,14 +77,14 @@ class _RecentDeals extends State<RecentDeals> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
                         image: DecorationImage(
-                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}"),
+                            image: NetworkImage("${ConsumeAPI.AssetProductServer}${imageUrl[0]}"),
                             fit: BoxFit.cover
                         )
                     ),
 
                   ),
-                  Text("${widget.title}", style: Style.titleDealsProduct(11.0), maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.start,),
-                  Text("${widget.price.toString()} XOF", style: Style.priceDealsProduct(), textAlign: TextAlign.center,),
+                  Text("$title", style: Style.titleDealsProduct(11.0), maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.start,),
+                  Text("${price.toString()} XOF", style: Style.priceDealsProduct(), textAlign: TextAlign.center,),
                 ],
               ),
             )
@@ -117,7 +105,7 @@ class _RecentDeals extends State<RecentDeals> {
                   borderRadius: BorderRadius.circular(50.0),
                   image: DecorationImage(
                       image: NetworkImage(
-                          "${ConsumeAPI.AssetProfilServer}${widget.profil}"),
+                          "${ConsumeAPI.AssetProfilServer}$profil"),
                       fit: BoxFit.cover
                   ),
                 ),

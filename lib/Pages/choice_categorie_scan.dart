@@ -11,10 +11,14 @@ class ChoiceCategorieScan extends StatelessWidget {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: backgroundColor,
-        title: Text("Décodage Ticket"),
-        actions: [
-          Padding(padding: EdgeInsets.only(right: 10), child: Icon(Icons.qr_code_scanner),),
-        ],
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Style.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            }),
+        title: Text("Décodage Ticket", style: Style.titleNews(),),
+        centerTitle: true,
+
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -28,8 +32,14 @@ class ChoiceCategorieScan extends StatelessWidget {
                 children: [
                   Card(
                     elevation: 8.0,
+                    color: Style.white,
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.4,
+                      decoration: BoxDecoration(
+                          color: Style.white,
+                          borderRadius: BorderRadius.all(Radius.circular(5))
+                      ),
+
                       padding: EdgeInsets.all(15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +96,7 @@ class ChoiceCategorieScan extends StatelessWidget {
                         children: [
                           Container(
                             height: 105,
-                            width: MediaQuery.of(context).size.width * 0.25,
+                            width: MediaQuery.of(context).size.width * 0.35,
                             padding: EdgeInsets.all(5),
                             decoration: BoxDecoration(
                                 color: colorText,
@@ -109,7 +119,7 @@ class ChoiceCategorieScan extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 10),
-                          Container(
+                          if(1 != 1 )Container(
                             height: 105,
                             width: MediaQuery.of(context).size.width * 0.25,
                             padding: EdgeInsets.all(5),
@@ -136,7 +146,7 @@ class ChoiceCategorieScan extends StatelessWidget {
                           SizedBox(width: 10),
                           Container(
                             height: 105,
-                            width: MediaQuery.of(context).size.width * 0.25,
+                            width: MediaQuery.of(context).size.width * 0.35,
                             padding: EdgeInsets.all(5),
                             decoration: BoxDecoration(
                                 color: colorText,

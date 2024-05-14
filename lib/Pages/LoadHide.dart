@@ -172,7 +172,7 @@ class _LoadEventState extends State<LoadEvent> {
     final data = await consumeAPI.getDetailsForEvent(widget.eventId);
     if(data['etat'] == 'found') {
 
-      await getTokenForNotificationProvider(newClient.numero != 'null');
+      await getTokenForNotificationProvider(true);
       final item = data['result'];
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (builder) => EventDetails(
@@ -237,7 +237,7 @@ class _LoadNewState extends State<LoadNew> {
       User user = await DBProvider.db.getClient();
       final item = data['result'];
 
-      await getTokenForNotificationProvider(user.numero != 'null');
+      await getTokenForNotificationProvider(true);
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (BuildContext context) => DetailsActu(
             comeBack: 1,
@@ -294,7 +294,7 @@ class _LoadProductState extends State<LoadProduct> {
         appState.setJoinConnected(user.ident);
 
       }
-      await getTokenForNotificationProvider(user.numero != 'null');
+      await getTokenForNotificationProvider(true);
     } catch (e) {
       print(e);
     }

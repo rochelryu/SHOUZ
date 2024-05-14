@@ -4,6 +4,8 @@ import 'package:shouz/MenuDrawler.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import './Constant/PageIndicator.dart';
 import './Constant/PageTransition.dart';
+import 'ServicesWorker/ConsumeAPI.dart';
+import 'Utils/Database.dart';
 
 class OnBoarding extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _OnBoardingState extends State<OnBoarding> {
   late PageController _controller;
   int _counter = 0;
   bool lastPage = false;
-
+  ConsumeAPI consumeAPI = new ConsumeAPI();
 
 
   @override
@@ -132,14 +134,18 @@ class _OnBoardingState extends State<OnBoarding> {
               right: 30.0,
               bottom: 30.0,
               child: FloatingActionButton(
+                shape: CircleBorder(),
                       backgroundColor: backgroundColor,
                       child: Icon(
                         Icons.arrow_forward,
                         color: colorPrimary,
                         size: 22.0,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         setLevel(1);
+                        final result = await consumeAPI.createUserToAvoidInfo();
+                        await DBProvider.db.delClient();
+                        await DBProvider.db.newClient(result["user"]);
                         Navigator.push(context, ScaleRoute(widget: MenuDrawler()));
                       },
                     )
@@ -148,8 +154,11 @@ class _OnBoardingState extends State<OnBoarding> {
                 right: 15.0,
                 bottom: 20.0,
                 child: TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     setLevel(1);
+                    final result = await consumeAPI.createUserToAvoidInfo();
+                    await DBProvider.db.delClient();
+                    await DBProvider.db.newClient(result["user"]);
                     Navigator.push(context, ScaleRoute(widget: MenuDrawler()));
 
                   },

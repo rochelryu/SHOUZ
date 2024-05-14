@@ -165,7 +165,7 @@ class _LoadAudioAssetState extends State<LoadAudioAsset>
                   width: 45,
                   child: Text(_position.toString().substring(2).split('.')[0],
                       style: widget.isMe
-                          ? Style.chatIsMe(13.0)
+                          ? Style.chatIsMe(fontSize: 13.0)
                           : Style.chatOutMe(13.0)),
                 ),
                 Expanded(
@@ -188,7 +188,7 @@ class _LoadAudioAssetState extends State<LoadAudioAsset>
                   width: 50,
                   child: Text(_duration.toString().substring(2).split('.')[0],
                       style: widget.isMe
-                          ? Style.chatIsMe(13.0)
+                          ? Style.chatIsMe(fontSize: 13.0)
                           : Style.chatOutMe(13.0),
                       textAlign: TextAlign.start),
                 )

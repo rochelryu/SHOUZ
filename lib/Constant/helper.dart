@@ -22,6 +22,7 @@ import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 ConsumeAPI consumeAPI = new ConsumeAPI();
 
 const maxAmountOnAccount = 5000000;
+const MAX_SECONDS_TOLERANCE_TO_SHARE_TICKET = 7200;
 const maxAmountOfTransaction = 1000000;
 const minAmountOfTransaction = 1000;
 const amountMutialiseVTCUnity = 220;
@@ -29,16 +30,16 @@ const amountConfortVTCUnity = 260;
 const minMutialiseVTCPrice = 600;
 const minConfortVTCUnity = 1000;
 const serviceCall = "2250564250219";
-const versionApp = "1.0.27";
+const versionApp = "1.0.31";
 const linkAppGalleryForShouz =
     "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz =
     "https://play.google.com/store/apps/details?id=com.shouz.app";
 const linkAppleStoreForShouz = "https://apps.apple.com/app/shouz/id6444333797";
 
-void showSnackBar(BuildContext context, String text) {
+void showSnackBar(BuildContext context, String text, {bool isOk = false }) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    backgroundColor: colorError,
+    backgroundColor: isOk ? colorSuccess : colorError,
     content: Text(
       text,
       textAlign: TextAlign.center,
@@ -107,7 +108,7 @@ String formatedTime({required double seconds}) {
 String reformatNumberForDisplayOnPrice(dynamic price) {
   final numberFormated = NumberFormat("#,##0", 'fr_FR');
 
-  return numberFormated.format(price);
+  return numberFormated.format(double.tryParse(price.toString()) ?? 0);
 }
 
 double defaultLatitude = 5.316667;
@@ -119,7 +120,7 @@ String descriptionShouz =
 
 String oneSignalAppId = "482dc96b-bccc-4945-b55d-0f22eed6fd63";
 
-String formatedDateForLocal(DateTime date, [bool withTime = true]) {
+String formatedDateForLocal(DateTime date, {bool withTime = true}) {
   initializeDateFormatting();
   var formatDate = withTime ? DateFormat("dd/MM/yyyy' à 'HH:mm") : DateFormat("dd/MM/yyyy");
   return formatDate.format(date);

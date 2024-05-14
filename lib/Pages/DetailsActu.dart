@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shouz/Constant/PageIndicatorSecond.dart';
 import 'package:shouz/Constant/Style.dart';
@@ -24,7 +27,7 @@ class DetailsActu extends StatefulWidget {
   var autherName;
   var authorProfil;
   var imageCover;
-  var content;
+  List<dynamic> content;
 
   DetailsActu(
       {required this.title,
@@ -33,7 +36,7 @@ class DetailsActu extends StatefulWidget {
       this.autherName,
       this.authorProfil,
       this.comment,
-      this.content,
+      required this.content,
       this.imageCover,
       this.numberVue});
 
@@ -46,28 +49,35 @@ class _DetailsActuState extends State<DetailsActu> {
   bool lastPage = false, favorite = false, error = false;
   ConsumeAPI consumeAPI = new ConsumeAPI();
   User? user;
+  String contentRead = '';
 
   late PageController _controller;
+  FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _controller = PageController(initialPage: _currentItem);
-    LoadInfo();
+    loadInfo();
+    contentRead = widget.title.trim() + '\n';
+    contentRead = widget.content.map((paragraph) =>  '${paragraph['inTitle']}\n${paragraph['inContent']}'.trim()).join('\n');
+    initialiseAudio();
+
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    // TODO: implement dispose
     super.dispose();
   }
 
-  LoadInfo() async {
+  loadInfo() async {
     try {
       final User newClient = await DBProvider.db.getClient();
-      if (newClient.numero != 'null') {
+      print("Details actu newClient");
+      print(newClient);
+      if (newClient.numero != '') {
         final result = await consumeAPI.verifyIfExistItemInFavor(widget.id, 0);
         await consumeAPI.addView(newClient.ident, widget.id);
         setState(() {
@@ -81,6 +91,23 @@ class _DetailsActuState extends State<DetailsActu> {
       });
     }
   }
+
+  initialiseAudio() async {
+
+    await flutterTts.setLanguage("fr-FR");
+    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    //await readContent();
+  }
+
+  readContent() async {
+    print(contentRead);
+    var result = await flutterTts.speak(contentRead);
+    print(result);
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +156,12 @@ class _DetailsActuState extends State<DetailsActu> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                Text(widget.title, style: Style.titre(25.0)),
+                                InkWell(
+                                    child: Text(widget.title, style: Style.titre(25.0)),
+                                  onTap: () async {
+                                      await readContent();
+                                  },
+                                ),
                                 Padding(
                                   padding: EdgeInsets.only(
                                       right: MediaQuery.of(context).size.width *
@@ -184,6 +216,7 @@ class _DetailsActuState extends State<DetailsActu> {
                 right: 30.0,
                 bottom: 30.0,
                 child: FloatingActionButton(
+                  shape: CircleBorder(),
                   backgroundColor: colorText,
                   child: badges.Badge(
                     position: badges.BadgePosition.topEnd(top: -23, end: -15),
@@ -279,7 +312,7 @@ class _DetailsActuState extends State<DetailsActu> {
                         icon: Icon(Style.social_normal),
                         onPressed: () {
                           Share.share(
-                              "${widget.title}\n\n Clique ici pour voir l'information que je te partage ${ConsumeAPI.NewsLink}${widget.id}");
+                              "${widget.title}\n\n Clique ici pour voir l'information que je te partage ${ConsumeAPI.NewsLink}${widget.title.toString().replaceAll(' ', '-').split('/')[0]}");
                         },
                         color: Colors.white,
                       ),

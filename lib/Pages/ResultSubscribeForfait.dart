@@ -54,7 +54,7 @@ class _ResultSubscribeForfaitState extends State<ResultSubscribeForfait> {
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: Icon(Icons.close, color: Style.white,),
             onPressed: () {
               Navigator.pushNamed(context, MenuDrawler.rootName);
             }),

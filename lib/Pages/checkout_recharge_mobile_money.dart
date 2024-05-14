@@ -58,16 +58,15 @@ class _CheckoutRechargeMobileMoneyState
 
       prefs = await SharedPreferences.getInstance();
       final amountRecharge = prefs.getDouble("amountRecharge") ?? 0.0;
-      final data = await consumeAPI.getMobileMoneyAvalaible();
-      if(data["etat"] == 'found') {
-        setState(() {
-          info = data["result"];
-        });
+      // final data = await consumeAPI.getMobileMoneyAvalaible();
+      // if(data["etat"] == 'found') {
+      //   setState(() {
+      //     info = data["result"];
+      //   });
         User user = await DBProvider.db.getClient();
         setState(() {
           newClient = user;
         });
-        print(amountRecharge);
         if(amountRecharge >= 500) {
           final intAmountToString = amountRecharge.ceil().toString().split('.')[0];
           final amount = int.parse(intAmountToString);
@@ -92,26 +91,27 @@ class _CheckoutRechargeMobileMoneyState
             displayInfoTransaction = false;
           });
         }
-      } else if(data["etat"] == 'notFound') {
-        showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
-              barrierDismissible: false);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (builder) => Login()));
-
-      } else {
-        Fluttertoast.showToast(
-            msg: "Une Erreur s'est produit, veuillez ressayer ulterieurement",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: colorError,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
-      }
+      // } else if(data["etat"] == 'notFound') {
+      //   showDialog(
+      //         context: context,
+      //         builder: (BuildContext context) =>
+      //             dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
+      //         barrierDismissible: false);
+      //   Navigator.of(context).push(MaterialPageRoute(
+      //       builder: (builder) => Login()));
+      //
+      // }
+      // else {
+      //   Fluttertoast.showToast(
+      //       msg: "Une Erreur s'est produit, veuillez ressayer ulterieurement",
+      //       toastLength: Toast.LENGTH_LONG,
+      //       gravity: ToastGravity.CENTER,
+      //       timeInSecForIosWeb: 1,
+      //       backgroundColor: colorError,
+      //       textColor: Colors.white,
+      //       fontSize: 16.0
+      //   );
+      // }
 
     } catch (e) {
       print("Erreur $e");
@@ -126,12 +126,13 @@ class _CheckoutRechargeMobileMoneyState
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: Style.white,),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        title: Text("Rechargement Mobile Money"),
+        title: Text("Rechargement Mobile Money", style: Style.titleNews(),),
+        centerTitle: true,
         backgroundColor: backgroundColor,
         elevation: 0.0,
       ),
@@ -355,7 +356,7 @@ class _CheckoutRechargeMobileMoneyState
               onStepContinue: () {
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
-                    if(mtnNumero.trim().length == 10 && _controller.text.length > 3) {
+                    if(mtnNumero.trim().length == 10 && _controller.text.length >= 3) {
                       bool isValid = true;
                       if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
                         isValid = false;
@@ -626,7 +627,7 @@ class _CheckoutRechargeMobileMoneyState
               onStepContinue: () {
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
-                    if(_controller.text.length > 3) {
+                    if(_controller.text.length >= 3) {
                       bool isValid = true;
                       if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
                         isValid = false;
@@ -785,7 +786,7 @@ class _CheckoutRechargeMobileMoneyState
                             ),
                           ],
                         )),
-                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Mtn Money afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
+                        if(displayInfoTransaction) Text("Vous allez tranférer ${_controller.text} de votre Wave afin de recevoir ${_controllerForReceive.text} sur votre compte Shouz 🙂", style: Style.sousTitre(12, colorSuccess)),
 
                       ],
                     )
@@ -911,7 +912,7 @@ class _CheckoutRechargeMobileMoneyState
               onStepContinue: () {
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
-                    if(orangeNumero.trim().length == 10 && _controller.text.length > 3) {
+                    if(orangeNumero.trim().length == 10 && _controller.text.length >= 3) {
                       bool isValid = true;
                       if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
                         isValid = false;
@@ -997,7 +998,7 @@ class _CheckoutRechargeMobileMoneyState
                         Container(
                           height: 35,
                           width: double.infinity,
-                          padding: EdgeInsets.only(left: 10.0, right: 3.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
                           decoration: BoxDecoration(
                               color: Colors.white30,
                               borderRadius: BorderRadius.circular(30.0)
@@ -1007,6 +1008,7 @@ class _CheckoutRechargeMobileMoneyState
                             maxLength: 10,
                             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                             decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(bottom: 12),
                               counterText: '',
                               border: InputBorder.none,
                               hintText: "Numero Tel (Ex: 07XXXXXXXX)",
@@ -1038,6 +1040,7 @@ class _CheckoutRechargeMobileMoneyState
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
+                                      contentPadding: EdgeInsets.only(bottom: 12),
                                       hintText: "Montant à envoyer",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
                                     ),
@@ -1075,6 +1078,7 @@ class _CheckoutRechargeMobileMoneyState
                                     controller: _controllerForReceive,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(bottom: 12),
                                       border: InputBorder.none,
                                       hintText: "Montant à recevoir",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
@@ -1134,6 +1138,7 @@ class _CheckoutRechargeMobileMoneyState
                               controller: _controllerOtp,
                               style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                               decoration: InputDecoration(
+                                contentPadding: EdgeInsets.only(bottom: 12),
                                 counterText: '',
                                 border: InputBorder.none,
                                 hintText: "Code d'autorisation",
@@ -1221,7 +1226,7 @@ class _CheckoutRechargeMobileMoneyState
               onStepContinue: () {
                 if(indexStepper <= 1) {
                   if(indexStepper == 0) {
-                    if(moovNumero.trim().length == 10 && _controller.text.length > 3) {
+                    if(moovNumero.trim().length == 10 && _controller.text.length >= 3) {
                       bool isValid = true;
                       if(double.parse(_controllerForReceive.text) + newClient!.wallet > maxAmountOnAccount) {
                         isValid = false;
@@ -1305,6 +1310,7 @@ class _CheckoutRechargeMobileMoneyState
                             maxLength: 10,
                             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                             decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(bottom: 12),
                               counterText: '',
                               border: InputBorder.none,
                               hintText: "Numero Tel (Ex: 01XXXXXXXX)",
@@ -1335,6 +1341,7 @@ class _CheckoutRechargeMobileMoneyState
                                     controller: _controller,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(bottom: 12),
                                       border: InputBorder.none,
                                       hintText: "Montant à envoyer",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),
@@ -1376,6 +1383,7 @@ class _CheckoutRechargeMobileMoneyState
                                     controller: _controllerForReceive,
                                     style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
                                     decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(bottom: 12),
                                       border: InputBorder.none,
                                       hintText: "Montant à recevoir",
                                       hintStyle: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: Colors.grey[200]),

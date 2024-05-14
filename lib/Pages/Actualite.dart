@@ -293,7 +293,7 @@ class _ActualiteState extends State<Actualite> {
     getPositionCurrent();
     topActualite = consumeAPI.getActualite();
     contentActulite = topActualite;
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
     Timer(const Duration(seconds: 7), cityFromCoord);
   }
   loadInfo() async {

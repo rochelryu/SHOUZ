@@ -89,7 +89,8 @@ class _CommentActuState extends State<CommentActu> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            Text(widget.title, style: Style.titre(22.0), overflow: TextOverflow.ellipsis, maxLines: 5,),
+
+                            Text(widget.title, style: Style.titre(20.0), overflow: TextOverflow.ellipsis, maxLines: 4,),
 
                           ],
                         ),
@@ -246,6 +247,7 @@ class _CommentActuState extends State<CommentActu> {
                         width: double.infinity,
                         height: 70,
                         child: TextField(
+                          textCapitalization: TextCapitalization.sentences,
                           controller: eCtrl,
                           decoration: InputDecoration(
                             hintText: 'Dites ce que vous en pensez'

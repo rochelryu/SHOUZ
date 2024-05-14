@@ -6,7 +6,7 @@ import 'package:shouz/Pages/DetailsDeals.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 
-class PopulaireDeals extends StatefulWidget {
+class PopulaireDeals extends StatelessWidget {
   var imageUrl;
   var title;
   var favorite;
@@ -32,14 +32,8 @@ class PopulaireDeals extends StatefulWidget {
   List<String> PersonneLike = [];
   PopulaireDeals({this.imageUrl,this.comments, this.numberVue, this.title, this.favorite,this.price, this.numero, this.autor, required this.id, this.profil, this.onLine,this.level, this.describe, this.numberFavorite, this.lieu, this.registerDate, this.quantity, this.authorName, this.archive, this.categorieName, this.video,required this.approved});
   @override
-  _PopulaireDealsState createState() => _PopulaireDealsState();
-}
-
-class _PopulaireDealsState extends State<PopulaireDeals> {
-  
-  @override
   Widget build(BuildContext context) {
-    final register = DateTime.parse(widget.registerDate); //.toString();
+    final register = DateTime.parse(registerDate); //.toString();
     String afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays < 1) ?  "Auj. à ${register.hour.toString()}h ${register.minute.toString()}"  : "${register.day.toString()}/${register.month.toString()}/${register.year.toString()} à ${register.hour.toString()}h ${register.minute.toString()}";
     afficheDate = (DateTime.now().difference(DateTime(register.year,register.month,register.day)).inDays == 1) ? "Hier à ${register.hour.toString()}h ${register.minute.toString()}"  : afficheDate;
     return Padding(padding: EdgeInsets.all(0.0),
@@ -48,7 +42,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
           Navigator.of(context).push((
               MaterialPageRoute(
                   builder: (context){
-                    DealsSkeletonData item = DealsSkeletonData(comments: widget.comments,numberVue:widget.numberVue,approved: widget.approved,level: widget.level,video: widget.video,quantity: widget.quantity,numberFavorite: widget.numberFavorite, lieu: widget.lieu, id:widget.id, registerDate:  widget.registerDate, profil: widget.profil, imageUrl: widget.imageUrl, title: widget.title, price:widget.price, autor: widget.autor, numero: widget.numero, describe:widget.describe, onLine: widget.onLine,authorName: widget.authorName,archive: widget.archive, categorieName: widget.categorieName );
+                    DealsSkeletonData item = DealsSkeletonData(comments: comments,numberVue:numberVue,approved: approved,level: level,video: video,quantity: quantity,numberFavorite: numberFavorite, lieu: lieu, id:id, registerDate:  registerDate, profil: profil, imageUrl: imageUrl, title: title, price:price, autor: autor, numero: numero, describe:describe, onLine: onLine,authorName: authorName,archive: archive, categorieName: categorieName );
                     return DetailsDeals(dealsDetailsSkeleton:item, comeBack: 0);
                   }
               )));
@@ -66,7 +60,7 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
                   borderRadius: BorderRadius.circular(5.0),
 
                   child: CachedNetworkImage(
-                    imageUrl: "${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}",
+                    imageUrl: "${ConsumeAPI.AssetProductServer}${imageUrl[0]}",
                     progressIndicatorBuilder: (context, url, downloadProgress) =>
                         Center(
                             child: CircularProgressIndicator(value: downloadProgress.progress)),
@@ -78,15 +72,15 @@ class _PopulaireDealsState extends State<PopulaireDeals> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(widget.title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis,),
+                    Text(title, style: Style.titleDealsProduct(), maxLines: 4, overflow: TextOverflow.ellipsis,),
                     SizedBox(height: 10.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text("${widget.price.toString()}", style: Style.priceDealsProduct()),
+                        Text("${price.toString()}", style: Style.priceDealsProduct()),
                         Row(
                           children: <Widget>[
-                            Text(widget.numberFavorite.toString(), style: Style.numberOfLike()),
+                            Text(numberFavorite.toString(), style: Style.numberOfLike()),
                             SizedBox(width: 5.0),
                             Icon(Icons.favorite, color: Colors.redAccent, size: 16.0),
                           ]

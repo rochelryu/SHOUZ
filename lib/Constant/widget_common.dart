@@ -440,17 +440,17 @@ Widget detailTicket(String idTicket, String idEvent, String nameImage, int place
     child:TicketWidget(
         padding: EdgeInsets.all(10.0),
         width: MediaQuery.of(context).size.width * 0.75,
-        height: MediaQuery.of(context).size.height * 0.6,
+        height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
+            if(timesDecode.isEmpty) Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push((MaterialPageRoute(
-                        builder: (context) => ShareTicket(key: UniqueKey(), ticketId: idEvent, placeTotal: placeTotal, typeTicket: typeTicket))));
+                        builder: (context) => ShareTicket(key: UniqueKey(), ticketId: idTicket, placeTotal: placeTotal, typeTicket: typeTicket))));
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
@@ -795,7 +795,7 @@ Widget livraisonWidget(String assetFile, String title) {
           child: Image.asset(assetFile, fit: BoxFit.contain),
         ),
         SizedBox(height: 5),
-        Text(title, style: Style.chatIsMe(12))
+        Text(title, style: Style.chatIsMe(fontSize: 12))
       ],
     ),
   );
@@ -841,7 +841,7 @@ Widget  componentForDisplayTicketByEvent(List<dynamic> tickets, String eventTitl
                           },
                           child: Container(
                             width: 100,
-                            height: 100,
+                            height: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(7),
 
@@ -1150,7 +1150,7 @@ Widget boxMessage({
                       child: Text(
                         message,
                         style: isMe
-                            ? Style.chatIsMe(15)
+                            ? Style.chatIsMe(fontSize: 15)
                             : Style.chatOutMe(15.0),
                         textAlign: TextAlign.start,
                       ),
@@ -1168,7 +1168,7 @@ Widget boxMessage({
                 children: <Widget>[
                   Text(
                     registerDate,
-                    style: Style.chatIsMe(12),
+                    style: Style.chatIsMe(fontSize: 12),
                   ),
                   SizedBox(width: 7),
                   sendEtatForChat(isReadByOtherUser, isMe),

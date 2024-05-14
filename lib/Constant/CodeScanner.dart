@@ -170,10 +170,7 @@ class _CodeScannerState extends State<CodeScanner> {
                   "Ce ticket n'est pas un ticket d'évènement",
                   "Ok",
                       () {
-                    setState(() {
-                      scanned = false;
-                      result = null;
-                    });
+
                   }, context, false),
               barrierDismissible: false);
         }
@@ -185,10 +182,7 @@ class _CodeScannerState extends State<CodeScanner> {
                   "Ce ticket n'est pas un ticket de voyage",
                   "Ok",
                       () {
-                    setState(() {
-                      scanned = false;
-                      result = null;
-                    });
+
                   }, context, false),
               barrierDismissible: false);
         }
@@ -204,10 +198,6 @@ class _CodeScannerState extends State<CodeScanner> {
                     inforDecode['result'],
                     "Continuer",
                         () {
-                      setState(() {
-                        scanned = false;
-                        result = null;
-                      });
                     },
                     context),
                 barrierDismissible: false);
@@ -219,10 +209,7 @@ class _CodeScannerState extends State<CodeScanner> {
                 builder: (BuildContext context) =>
                     dialogCustomError('Plusieurs connexions à ce compte', "Pour une question de sécurité nous allons devoir vous déconnecter.", context),
                 barrierDismissible: false);
-            setState(() {
-              scanned = false;
-              result = null;
-            });
+
             //Navigator.pushAndRemoveUntil(context, newRoute, (route) => false)
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (builder) => Login()));
@@ -235,10 +222,7 @@ class _CodeScannerState extends State<CodeScanner> {
                     inforDecode['error'],
                     "Ok",
                         () {
-                      setState(() {
-                        scanned = false;
-                        result = null;
-                      });
+
                     }, context),
                 barrierDismissible: false);
 
@@ -252,13 +236,14 @@ class _CodeScannerState extends State<CodeScanner> {
                   "Ce code n'est pas pris en charge par SHOUZ ",
                   "Ok",
                       () {
-                    setState(() {
-                      scanned = false;
-                      result = null;
-                    });
+
                   }, context, false),
               barrierDismissible: false);
         }
+        setState(() {
+          scanned = false;
+          result = null;
+        });
 
       }
 

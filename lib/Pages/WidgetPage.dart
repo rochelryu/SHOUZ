@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shouz/Constant/Style.dart' as prefix0;
 import 'package:shouz/Constant/my_flutter_app_second_icons.dart' as prefix1;
 import 'package:shouz/Pages/CreateEvent.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
+import '../Constant/Style.dart';
 import '../Constant/widget_common.dart';
 import 'choice_categorie_scan.dart';
 import 'choice_method_payement.dart';
@@ -89,17 +89,18 @@ class _WidgetPageState extends State<WidgetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: prefix0.backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: prefix0.backgroundColor,
+        backgroundColor: backgroundColor,
         elevation: 0.0,
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.0),
+          icon: Icon(Icons.arrow_back, color: Style.white, size: 22.0),
         ),
-        title: Text('Outils'),
+        title: Text('Outils', style: Style.titleNews(),),
+        centerTitle: true,
       ),
       body: ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -125,9 +126,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.deepPurple[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context)
                 .push((MaterialPageRoute(builder: (context) => ListFilleul(key: UniqueKey(),))));
@@ -148,9 +149,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.green[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
           },
         );
@@ -168,9 +169,9 @@ class _WidgetPageState extends State<WidgetPage> {
             child: Icon(prefix1.MyFlutterAppSecond.car_seat_with_seatbelt, color: Colors.red[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             showDialog(
                 context: context,
@@ -194,9 +195,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.amber[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context)
                 .push((MaterialPageRoute(builder: (context) => ChoiceCategorieScan())));
@@ -217,9 +218,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 Icon(Icons.lock_outline, color: Colors.blue[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
 
         );
         break;
@@ -236,9 +237,9 @@ class _WidgetPageState extends State<WidgetPage> {
             child: Icon(Icons.event_seat, color: Colors.blue[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push((MaterialPageRoute(
                 builder: (BuildContext context) => CreateEvent())));
@@ -259,9 +260,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.grey[700], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: false,)));
@@ -283,9 +284,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.blue[900], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (builder) => ChoiceMethodPayement(key: UniqueKey(), isRetrait: true,)));
@@ -306,9 +307,9 @@ class _WidgetPageState extends State<WidgetPage> {
                 color: Colors.brown[700], size: 22.0),
           ),
           title: Text(item['icon'].toString().toUpperCase(),
-              style: prefix0.Style.titre(15.0)),
+              style: Style.titre(15.0)),
           subtitle: Text(item['desc'].toString().toUpperCase(),
-              style: prefix0.Style.sousTitre(11.0)),
+              style: Style.sousTitre(11.0)),
           onTap: () {
             //Navigator.pushNamed(context, DemandeConducteur.rootName);
             showDialog(

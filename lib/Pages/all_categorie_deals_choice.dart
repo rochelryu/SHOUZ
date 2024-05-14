@@ -30,7 +30,7 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
   void initState() {
     super.initState();
     loadProduct();
-    verifyIfUserHaveReadModalExplain();
+    //verifyIfUserHaveReadModalExplain();
   }
 
   Future loadProduct() async {
@@ -118,9 +118,12 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
 
                       },
                       onSubmitted: (String text) async {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        Navigator.of(context).push((MaterialPageRoute(
-                            builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                        if(text.length > 2) {
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          Navigator.of(context).push((MaterialPageRoute(
+                              builder: (context) => SearchAdvanced(key: UniqueKey(), searchData: searchData))));
+                        }
+
                       },
                     ),
                   ),
@@ -133,7 +136,8 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
                     },
                   )
                 ],
-              ),),
+              ),
+            ),
             SizedBox(height: 5.0),
             Expanded(
               child: Container(
@@ -226,6 +230,7 @@ class _AllCategorieDealsChoiceState extends State<AllCategorieDealsChoice> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
         elevation: 20.0,
         onPressed: () {
           Navigator.of(context).push(

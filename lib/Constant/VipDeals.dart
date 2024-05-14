@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../Pages/DetailsDeals.dart';
 
-class VipDeals extends StatefulWidget {
+class VipDeals extends StatelessWidget {
   var imageUrl;
   var title;
   var favorite;
@@ -57,13 +57,8 @@ class VipDeals extends StatefulWidget {
       this.video,
       required this.approved});
   @override
-  _VipDealsState createState() => _VipDealsState();
-}
-
-class _VipDealsState extends State<VipDeals> {
-  @override
   Widget build(BuildContext context) {
-    final register = DateTime.parse(widget.registerDate); //.toString();
+    final register = DateTime.parse(registerDate); //.toString();
     String afficheDate = (DateTime.now()
                 .difference(
                     DateTime(register.year, register.month, register.day))
@@ -86,27 +81,27 @@ class _VipDealsState extends State<VipDeals> {
             onTap: () {
               Navigator.of(context).push((MaterialPageRoute(builder: (context) {
                 DealsSkeletonData item = DealsSkeletonData(
-                    comments: widget.comments,
-                    numberVue: widget.numberVue,
-                    level: widget.level,
-                    quantity: widget.quantity,
-                    numberFavorite: widget.numberFavorite,
-                    lieu: widget.lieu,
-                    id: widget.id,
-                    registerDate: widget.registerDate,
-                    profil: widget.profil,
-                    imageUrl: widget.imageUrl,
-                    title: widget.title,
-                    price: widget.price,
-                    autor: widget.autor,
-                    numero: widget.numero,
-                    describe: widget.describe,
-                    onLine: widget.onLine,
-                    authorName: widget.authorName,
-                    archive: widget.archive,
-                    categorieName: widget.categorieName,
-                    video: widget.video,
-                    approved: widget.approved);
+                    comments: comments,
+                    numberVue: numberVue,
+                    level: level,
+                    quantity: quantity,
+                    numberFavorite: numberFavorite,
+                    lieu: lieu,
+                    id: id,
+                    registerDate: registerDate,
+                    profil: profil,
+                    imageUrl: imageUrl,
+                    title: title,
+                    price: price,
+                    autor: autor,
+                    numero: numero,
+                    describe: describe,
+                    onLine: onLine,
+                    authorName: authorName,
+                    archive: archive,
+                    categorieName: categorieName,
+                    video: video,
+                    approved: approved);
                 return DetailsDeals(dealsDetailsSkeleton: item, comeBack: 0);
               })));
             },
@@ -130,7 +125,7 @@ class _VipDealsState extends State<VipDeals> {
                       padding:
                           EdgeInsets.only(left: 12.0, top: 8.0, right: 6.0),
                       child: Text(
-                        widget.title,
+                        title,
                         style: Style.titleDealsProduct(),
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
@@ -141,7 +136,7 @@ class _VipDealsState extends State<VipDeals> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(widget.numberFavorite.toString(),
+                          Text(numberFavorite.toString(),
                               style: Style.numberOfLike()),
                           SizedBox(width: 5.0),
                           Icon(
@@ -157,7 +152,7 @@ class _VipDealsState extends State<VipDeals> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text("${widget.price.toString()}",
+                        Text("${price.toString()}",
                             style: Style.priceDealsProduct()),
                         SizedBox(width: 15.0),
                       ],
@@ -194,7 +189,7 @@ class _VipDealsState extends State<VipDeals> {
                             icon: Icon(Style.social_normal, color: tint),
                             onPressed: () {
                               Share.share(
-                                  "${widget.title} à ${widget.price}\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${widget.id}");
+                                  "$title à $price\n 🙂 Shouz Avantage:\n   - 🤩 Achète à ton prix.\n   - 🤩 Paye par mobile money ou à la livraison.\n   - 🤩 Livraison gratuite pour tes 2 premiers achats.\n   - 🤩 Et si l'article n'est pas ce que tu as vu en ligne, Shouz te rembourse tout ton argent.\n Clique ici pour voir l'article que je te partage ${ConsumeAPI.ProductLink}${title.toString().replaceAll(' ', '-').replaceAll('/', '_')}/$id");
                             }),
                       ],
                     ),
@@ -216,7 +211,7 @@ class _VipDealsState extends State<VipDeals> {
                     bottomRight: Radius.circular(10.0)),
                 child: CachedNetworkImage(
                   imageUrl:
-                      "${ConsumeAPI.AssetProductServer}${widget.imageUrl[0]}",
+                      "${ConsumeAPI.AssetProductServer}${imageUrl[0]}",
                   imageBuilder: (context, imageProvider) => Container(
                     height: 200,
                     decoration: BoxDecoration(
@@ -232,27 +227,27 @@ class _VipDealsState extends State<VipDeals> {
                         Navigator.of(context)
                             .push((MaterialPageRoute(builder: (context) {
                           DealsSkeletonData item = DealsSkeletonData(
-                              comments: widget.comments,
-                              numberVue: widget.numberVue,
-                              level: widget.level,
-                              quantity: widget.quantity,
-                              numberFavorite: widget.numberFavorite,
-                              lieu: widget.lieu,
-                              id: widget.id,
-                              registerDate: widget.registerDate,
-                              profil: widget.profil,
-                              imageUrl: widget.imageUrl,
-                              title: widget.title,
-                              price: widget.price,
-                              autor: widget.autor,
-                              numero: widget.numero,
-                              describe: widget.describe,
-                              onLine: widget.onLine,
-                              authorName: widget.authorName,
-                              archive: widget.archive,
-                              categorieName: widget.categorieName,
-                              video: widget.video,
-                              approved: widget.approved);
+                              comments: comments,
+                              numberVue: numberVue,
+                              level: level,
+                              quantity: quantity,
+                              numberFavorite: numberFavorite,
+                              lieu: lieu,
+                              id: id,
+                              registerDate: registerDate,
+                              profil: profil,
+                              imageUrl: imageUrl,
+                              title: title,
+                              price: price,
+                              autor: autor,
+                              numero: numero,
+                              describe: describe,
+                              onLine: onLine,
+                              authorName: authorName,
+                              archive: archive,
+                              categorieName: categorieName,
+                              video: video,
+                              approved: approved);
                           return DetailsDeals(
                               dealsDetailsSkeleton: item, comeBack: 0);
                         })));
@@ -271,13 +266,13 @@ class _VipDealsState extends State<VipDeals> {
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                       width: 2.0,
-                                      color: widget.onLine
+                                      color: onLine
                                           ? Colors.green[300]!
                                           : Colors.yellow[300]!),
                                   borderRadius: BorderRadius.circular(50.0),
                                   image: DecorationImage(
                                       image: NetworkImage(
-                                          "${ConsumeAPI.AssetProfilServer}${widget.profil}"),
+                                          "${ConsumeAPI.AssetProfilServer}$profil"),
                                       fit: BoxFit.cover),
                                 ),
                               )

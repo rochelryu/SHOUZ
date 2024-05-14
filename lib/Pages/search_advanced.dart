@@ -62,7 +62,13 @@ class _SearchAdvancedState extends State<SearchAdvanced> {
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0.0,
-        title: Text("Recherche avancée"),
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pop(context);
+              },
+            icon: Icon(Icons.arrow_back, color: Style.white,)
+        ),
+        title: Text("Recherche avancée", style: Style.titleNews(),),
         centerTitle: true,
       ),
       body: SingleChildScrollView(

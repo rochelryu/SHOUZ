@@ -16,11 +16,15 @@ import './CreateProfil.dart';
 import '../MenuDrawler.dart';
 
 class Otp extends StatefulWidget {
+  String prefix;
+  String numero;
   static String rootName = '/otp';
 
 
-  const Otp({
+  Otp({
     required Key key,
+    required this.prefix,
+    required this.numero,
   }) : super(key: key);
 
   @override
@@ -63,7 +67,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         borderRadius: BorderRadius.circular(30.0),
         child: Icon(
           Icons.arrow_back,
-          color: Colors.white,
+          color: Style.white,
         ),
         onTap: () {
           Navigator.pop(context);
@@ -90,7 +94,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: Text(
-        "Veuillez entrer le code de confirmation qui a été envoyé au ${newClient == null ? '': newClient!.numero == "null" ? "numero de téléphone": newClient!.numero}",
+        "Veuillez entrer le code de confirmation qui a été envoyé au ${widget.prefix} ${widget.numero}",
         textAlign: TextAlign.center,
         style: TextStyle(
             fontSize: 16.0,
@@ -167,7 +171,7 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         if(!loadRequest) {
           await launchUrl(
               Uri.parse(
-                  "https://wa.me/$serviceCall?text=Salut à service client Shouz CI, je n'ai toujours pas reçu mon code mon numero de compte est ${newClient!.numero}."),
+                  "https://wa.me/$serviceCall?text=Salut à service client Shouz CI, je n'ai toujours pas reçu mon code mon numero de compte est ${widget.prefix}${widget.numero}."),
               mode: LaunchMode.externalApplication);
          /* setState(() {
             _hideResendButton = true;
@@ -336,14 +340,17 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
         setState(() {
           loadRequest = true;
         });
-        final verify = await consumeAPI.verifyOtp(beta.join(""));
+        final verify = await consumeAPI.verifyOtp(beta.join(""), prefix: widget.prefix, numero: widget.numero);
         setState(() {
           loadRequest = false;
         });
         if (verify['etat'] == 'found') {
+          final user = verify['user'] as User;
+          await DBProvider.db.delClient();
+          await DBProvider.db.newClient(user);
           await DBProvider.db.updateClient(beta.join(""), newClient!.ident);
-          if (newClient?.name == '' ||
-              newClient?.inscriptionIsDone == 0) {
+          if (user.name == '' ||
+              user.inscriptionIsDone == 0) {
             setLevel(3);
             Navigator.push(
                 context, ScaleRoute(widget: CreateProfil()));
@@ -415,7 +422,6 @@ class _OtpState extends State<Otp> with SingleTickerProviderStateMixin {
 
   loadInfo() async {
     final user = await DBProvider.db.getClient();
-    print(user.numero);
     setState(() {
       newClient = user;
     });

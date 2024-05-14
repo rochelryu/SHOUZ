@@ -1,13 +1,8 @@
-import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shouz/Pages/share_ticket.dart';
 import 'package:shouz/ServicesWorker/ConsumeAPI.dart';
 
 import '../Constant/Style.dart';
 import '../Constant/widget_common.dart';
-import '../MenuDrawler.dart';
 import '../Models/User.dart';
 
 class TicketDetail extends StatelessWidget {
@@ -29,7 +24,14 @@ class TicketDetail extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text('Ticket Detail'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Style.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text('Ticket Detail', style: Style.titleNews(),),
+        centerTitle: true,
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         actions: [
