@@ -19,7 +19,7 @@ import '../Utils/Database.dart';
 import 'Style.dart';
 import 'package:flutter_hms_gms_availability/flutter_hms_gms_availability.dart';
 
-ConsumeAPI consumeAPI = new ConsumeAPI();
+ConsumeAPI consumeAPI = ConsumeAPI();
 
 const maxAmountOnAccount = 5000000;
 const MAX_SECONDS_TOLERANCE_TO_SHARE_TICKET = 7200;
@@ -31,6 +31,7 @@ const minMutialiseVTCPrice = 600;
 const minConfortVTCUnity = 1000;
 const serviceCall = "2250564250219";
 const versionApp = "1.0.31";
+const url_contact = "https://www.shouz.network/";
 const linkAppGalleryForShouz =
     "https://appgallery.cloud.huawei.com/ag/n/app/C107065691?locale=fr_FR";
 const linkPlayStoreForShouz =

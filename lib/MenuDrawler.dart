@@ -50,7 +50,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
   int logged = 0;
   late String statusPermission;
   List<Widget> menus = [
-    Actualite(),
+    // Actualite(),
     AllCategorieDealsChoice(
       key: UniqueKey(),
     ),
@@ -61,7 +61,7 @@ class _MenuDrawlerState extends State<MenuDrawler>
     ),
   ];
   List<String> titleDomain = [
-    'Actualité',
+    //'Actualité',
     'E-commerce',
     'Événementiel',
     'Covoiturage & VTC'
@@ -509,11 +509,11 @@ class _MenuDrawlerState extends State<MenuDrawler>
                   //animationCurve: Curves.linearToEaseOut,
                   animationDuration: Duration(milliseconds: 700),
                   items: <Widget>[
-                    Icon(prefix1.MyFlutterAppSecond.newspaper,
-                        size: 30,
-                        color: (appState.getIndexBottomBar == 0)
-                            ? tint
-                            : Colors.white),
+                    // Icon(prefix1.MyFlutterAppSecond.newspaper,
+                    //     size: 30,
+                    //     color: (appState.getIndexBottomBar == 0)
+                    //         ? tint
+                    //         : Colors.white),
                     Icon(prefix1.MyFlutterAppSecond.shop,
                         size: 30,
                         color: (appState.getIndexBottomBar == 1)

@@ -1,3 +1,10 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'com.huawei.agconnect'
+}
+
 buildscript {
     repositories {
         // ...
@@ -6,10 +13,6 @@ buildscript {
     dependencies {
     }
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -34,10 +37,7 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-apply plugin: 'com.huawei.agconnect'
-
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -67,14 +67,12 @@ android {
     }
 
     signingConfigs {
-
         debug {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
             storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
             storePassword keystoreProperties['storePassword']
         }
-
         release {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
@@ -83,11 +81,9 @@ android {
         }
     }
     buildTypes {
-
         debug {
             signingConfig signingConfigs.debug
         }
-
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
@@ -100,8 +96,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-
 }
 
 flutter {
@@ -112,12 +106,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.huawei.hms:location:6.0.0.302'
+    implementation 'com.huawei.hms:location:6.12.0.300'
     implementation "com.google.android.material:material:1.7.0-alpha01"
-    implementation 'com.huawei.agconnect:agconnect-core:1.6.1.300'
-    implementation 'com.huawei.hms:push:6.5.0.300'
+    implementation 'com.huawei.agconnect:agconnect-core:1.9.1.303'
+    implementation 'com.huawei.hms:push:6.11.0.300'
     implementation "androidx.multidex:multidex:2.0.1"
-
 }
-
-

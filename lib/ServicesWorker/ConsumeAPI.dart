@@ -16,12 +16,12 @@ import '../Utils/shared_pref_function.dart';
 
 class ConsumeAPI {
   NetworkUtil _netUtil = new NetworkUtil();
-  static final String SERVER_ADDRESS = "https://socket.shouz.network";//http://172.20.10.3:5003 //https://socket.shouz.network;
+  static final String SERVER_ADDRESS = "https://socket.shouz.network";//http://172.20.10.5:5003 //https://socket.shouz.network;
 // 127.0.0.1 192.168.1.100 192.168.1.27 // unknow mobile 192.168.43.4
   static final String NAME_SPACE = "shouzChat";
   static final bool enableLogging = true;
   static final BASE_URL =
-      "https://app.shouz.network"; //http://172.20.10.3:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
+      "https://app.shouz.network"; //http://172.20.10.5:5002"; // https://app.shouz.network // huawei 192.168.43.115 // ngboador 192.168.1.27 // unknow mobile 192.168.43.4
   static final SIGIN_URL = BASE_URL + "/client/initialise";
   static final SET_EMPTY_URL = BASE_URL + "/client/createEmptyClient";
   static final PREFERENCE_URL = BASE_URL + "/client/preference";

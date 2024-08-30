@@ -357,7 +357,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://www.shouz.network/"), mode: LaunchMode.externalApplication);
+                await launchUrl(Uri.parse(url_contact), mode: LaunchMode.externalApplication);
               },
               leading:
                   Icon(Icons.help_outline, color: colorText, size: 33),
@@ -380,7 +380,7 @@ class _SettingState extends State<Setting> {
             ),
             ListTile(
               onTap: () async {
-                await launchUrl(Uri.parse("https://www.shouz.network/"), mode: LaunchMode.externalApplication);
+                await launchUrl(Uri.parse(url_contact), mode: LaunchMode.externalApplication);
               },
               leading: Icon(Icons.bookmark, color: colorText, size: 33),
               title: Text("A propos", style: Style.titre(14)),
